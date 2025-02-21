@@ -1,3 +1,6 @@
 frontend/node_modules
 fronent/target
+frontend/.angular
+backend/target
+blobstore
 
