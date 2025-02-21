@@ -1,0 +1,103 @@
+/*---------------------------------------------------------------------------*/
+/*
+ * small paddings
+ */
+ .small-left-padding {
+  padding-left: 0.5rem;
+}
+
+.small-right-padding {
+  padding-right: 0.5rem;
+}
+
+.small-top-padding {
+  padding-top: 0.5rem;
+}
+
+.small-bottom-padding {
+  padding-bottom: 0.5rem;
+}
+
+.small-left-right-padding {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.small-top-bottom-padding {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.small-padding {
+  padding: 0.5rem;
+}
+
+/*---------------------------------------------------------------------------*/
+/*
+ * middle paddings
+ */
+ .middle-left-padding {
+  padding-left: 1rem;
+}
+
+.middle-right-padding {
+  padding-right: 1rem;
+}
+
+.middle-top-padding {
+  padding-top: 1rem;
+}
+
+.middle-bottom-padding {
+  padding-bottom: 1rem;
+}
+
+.middle-left-right-padding {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.middle-top-bottom-padding {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.middle-padding {
+  padding: 1rem;
+}
+
+/*---------------------------------------------------------------------------*/
+/*
+ * large paddings
+ */
+ .large-left-padding {
+  padding-left: 1.5rem;
+}
+
+.large-right-padding {
+  padding-right: 1.5rem;
+}
+
+.large-top-padding {
+  padding-top: 1.5rem;
+}
+
+.large-bottom-padding {
+  padding-bottom: 1.5rem;
+}
+
+.large-left-right-padding {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.large-top-bottom-padding {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.large-padding {
+  padding: 1.5rem;
+}
+
+

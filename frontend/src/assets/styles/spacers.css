@@ -1,0 +1,101 @@
+/*---------------------------------------------------------------------------*/
+/*
+ * small spacers
+ */
+ .small-left-spacer {
+  margin-left: 0.5rem !important;
+}
+
+.small-right-spacer {
+  margin-right: 0.5rem !important;
+}
+
+.small-top-spacer {
+  margin-top: 0.5rem !important;
+}
+
+.small-bottom-spacer {
+  margin-bottom: 0.5rem !important;
+}
+
+.small-left-right-spacer {
+  margin-left: 0.5rem !important;
+  margin-right: 0.5rem !important;
+}
+
+.small-top-bottom-spacer {
+  margin-top: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.small-spacer {
+  margin: 0.5rem !important;
+}
+
+/*---------------------------------------------------------------------------*/
+/*
+ * middle spacers
+ */
+ .middle-left-spacer {
+  margin-left: 1rem !important;
+}
+
+.middle-right-spacer {
+  margin-right: 1rem !important;
+}
+
+.middle-top-spacer {
+  margin-top: 1rem !important;
+}
+
+.middle-bottom-spacer {
+  margin-bottom: 1rem !important;
+}
+
+.middle-left-right-spacer {
+  margin-left: 1rem !important;
+  margin-right: 1rem !important;
+}
+
+.middle-top-bottom-spacer {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.middle-spacer {
+  margin: 1rem !important;
+}
+
+/*---------------------------------------------------------------------------*/
+/*
+ * large spacers
+ */
+ .large-left-spacer {
+  margin-left: 1.5rem !important;
+}
+
+.large-right-spacer {
+  margin-right: 1.5rem !important;
+}
+
+.large-top-spacer {
+  margin-top: 1.5rem !important;
+}
+
+.large-bottom-spacer {
+  margin-bottom: 1.5rem !important;
+}
+
+.large-left-right-spacer {
+  margin-left: 1.5rem !important;
+  margin-right: 1.5rem !important;
+}
+
+.large-top-bottom-spacer {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.large-spacer {
+  margin: 1.5rem !important;
+}

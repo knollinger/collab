@@ -1,0 +1,15 @@
+<div class="disp-flex flex-col full-height scrollable">
+    <mat-toolbar color="primary" class="flex-0 disp-flex flex-row flex-alignitems-center">
+        <div class="flex-1">{{file.name}}</div>
+        <button mat-icon-button class="flex-0" matTooltip="Vorschau schließen" (click)="onClosePreview()">
+            <mat-icon class="material-symbols-outlined">close</mat-icon>
+        </button>
+    </mat-toolbar>
+
+    <div class="flex-1 scrollable small-padding" [ngSwitch]="mainType">
+
+        <img *ngSwitchCase="'image'" [src]="src | safe:'resourceUrl'">
+        <div *ngSwitchCase="'video'">video not yet supported</div>
+        <embed *ngSwitchDefault  [src]="src | safe:'resourceUrl'" [type]="file.type">
+    </div>
+</div>

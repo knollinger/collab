@@ -1,0 +1,116 @@
+<div class="full-height disp-flex flex-col small-lightgray-border">
+
+    <app-toolbar class="flex-0 small-bottom-lightgray-border">
+
+        <button mat-icon-button
+                matTooltip="Neuen Ordner anlegen"
+                (click)="onCreateFolder()">
+            <mat-icon class="material-symbols-outlined">create_new_folder</mat-icon>
+        </button>
+
+        <!-- Selection/deselectopn -->
+        <app-toolbar-separator></app-toolbar-separator>
+        <button mat-icon-button
+                matTooltip="Alles auswählen"
+                [disabled]="!showSelectAll"
+                (click)="onSelectAll()">
+            <mat-icon class="material-symbols-outlined">check_box</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Auswahl aufheben"
+                [disabled]="!hasSelection"
+                (click)="onDeselectAll()">
+            <mat-icon class="material-symbols-outlined">check_box_outline_blank</mat-icon>
+        </button>
+
+        <!-- Clipbord OPs-->
+        <app-toolbar-separator></app-toolbar-separator>
+        <button mat-icon-button
+                matTooltip="Ausschneiden"
+                [disabled]="!hasSelection"
+                (click)="onCut()">
+            <mat-icon class="material-symbols-outlined">content_cut</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Kopieren"
+                [disabled]="!hasSelection"
+                (click)="onCopy()">
+            <mat-icon class="material-symbols-outlined">file_copy</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Einfügen"
+                [disabled]="isClipbordEmpty"
+                (click)="onPaste()">
+            <mat-icon class="material-symbols-outlined">content_paste</mat-icon>
+        </button>
+
+        <!-- Cloud Ops -->
+        <app-toolbar-separator></app-toolbar-separator>
+        <button mat-icon-button
+                matTooltip="Dateien hoch laden"
+                (click)="fileInput.click()">
+            <mat-icon class="material-symbols-outlined">cloud_upload</mat-icon>
+        </button>
+        <input #fileInput
+               type="file"
+               class="hidden"
+               multiple="true"
+               (change)="onFileUpload($event)">
+
+        <button mat-icon-button
+                matTooltip="Dateien runter laden"
+                [disabled]="!hasSelection">
+            <mat-icon class="material-symbols-outlined">cloud_download</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Dateien löschen"
+                [disabled]="!hasSelection"
+                (click)="onDelete()">
+            <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        </button>
+
+    </app-toolbar>
+
+    <div
+         class="breadcrumb middle-left-padding small-bottom-lightgray-border flex-0 disp-flex flex-row flex-alignitems-center">
+        <app-files-bread-crumb-item *ngFor="let inode of path"
+                                    [inode]="inode"
+                                    (open)="onOpen($event)"></app-files-bread-crumb-item>
+    </div>
+
+    <div class="flex-1 disp-flex flex-row scrollable"
+         [class.activeView]="this.isActive">
+
+        <div class="flex-1 scrollable"
+             [appDropTarget]="currentFolder"
+             (filesDropped)="onFilesDropped($event)"
+             (inodesDropped)="onINodesDropped($event)">
+
+            <app-files-grid-view *ngIf="viewMode==='grid'"
+                                 [inodes]="inodes"
+                                 [selectedINodes]="selectedINodes"
+                                 (filesDropped)="onFilesDropped($event)"
+                                 (inodesDropped)="onINodesDropped($event)"
+                                 (open)="onOpen($event)"
+                                 (rename)="onRename($event)"
+                                 (delete)="onDelete($event)"
+                                 (cut)="onCut($event)"
+                                 (copy)="onCopy($event)"
+                                 (paste)="onPaste()"
+                                 (showProps)="onShowProps($event)">
+            </app-files-grid-view>
+
+            <app-files-list-view *ngIf="viewMode==='list'"
+                                 [inodes]="inodes">
+            </app-files-list-view>
+        </div>
+    </div>
+
+    <div class="flex-0 middle-padding">
+        {{selectedINodes.size}} Objekte mit {{selectedObjectSize | fileSize}} ausgewählt
+    </div>
+</div>

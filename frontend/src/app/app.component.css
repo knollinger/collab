@@ -1,0 +1,12 @@
+:host {
+    height: 100%;
+}
+
+.toolbar {
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-bottom: 1px solid #d0d0d0;
+    padding: 0.5rem;
+}

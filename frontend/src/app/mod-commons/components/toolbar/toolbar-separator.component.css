@@ -1,0 +1,6 @@
+.separator {
+    height: 100%;
+    padding-left: 8px;
+    margin-right: 8px;
+    border-right: 2px solid #d0d0d0;
+}

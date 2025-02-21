@@ -1,0 +1,169 @@
+package org.knollinger.workingtogether.user.controller;
+
+import java.sql.Timestamp;
+
+import org.knollinger.workingtogether.user.dtos.LoginRequestDTO;
+import org.knollinger.workingtogether.user.dtos.LoginResponseDTO;
+import org.knollinger.workingtogether.user.exceptions.ExpiredTokenException;
+import org.knollinger.workingtogether.user.exceptions.InvalidTokenException;
+import org.knollinger.workingtogether.user.exceptions.LoginNotFoundException;
+import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
+import org.knollinger.workingtogether.user.mapper.ILoginMapper;
+import org.knollinger.workingtogether.user.models.LoginResponse;
+import org.knollinger.workingtogether.user.services.ILoginService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * 
+ */
+@RestController
+@RequestMapping(path = "/v1/session")
+public class LoginController
+{
+    @Autowired
+    private ILoginService loginSvc;
+
+    @Autowired
+    private ILoginMapper loginMapper;
+
+    /**
+     * Beim Logout wird einfach nur das Cookie gelöscht. EIne Session in dem Sinne
+     * gibt es nicht, das Cookie beonhaltet einen JWT-BearerToken.
+     * 
+     * @param httpRsp
+     */
+    @DeleteMapping(path = "/logout")
+    public void logout(HttpServletResponse httpRsp)
+    {
+        Cookie cookie = new Cookie("Bearer", "");
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        httpRsp.addCookie(cookie);
+    }
+
+    /**
+     * @param request
+     * @return
+     */
+    @PostMapping(path = "/login")
+    public LoginResponseDTO login(@RequestBody LoginRequestDTO request, HttpServletResponse httpRsp)
+    {
+        try
+        {
+            LoginResponse rsp;
+            if (this.isPwdChange(request))
+            {
+                rsp = this.loginSvc.changePwd(request.getEmail(), request.getPassword(), request.getNewPwd());
+            }
+            else
+            {
+                rsp = this.loginSvc.login(request.getEmail(), request.getPassword());
+            }
+
+            Cookie cookie = this.createCookie(rsp, request.isRememberMe());
+            httpRsp.addCookie(cookie);
+            return this.loginMapper.toDTO(rsp);
+        }
+        catch (LoginNotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
+        }
+        catch (TechnicalLoginException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param token
+     */
+    @GetMapping(path = "/refreshToken")
+    public LoginResponse refreshToken( //
+        @CookieValue(name = "Bearer", required = false) String token, //
+        HttpServletResponse httpRsp)
+    {
+        if (token != null)
+        {
+            try
+            {
+                LoginResponse rsp = this.loginSvc.refreshToken(token);
+                Cookie cookie = this.createCookie(rsp, true);  // TODO: rememberMe?
+                httpRsp.addCookie(cookie);
+                return rsp;
+            }
+            catch (TechnicalLoginException e)
+            {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+            }
+            catch (InvalidTokenException  | ExpiredTokenException e)
+            {
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
+            }
+        }
+        return LoginResponse.builder() //
+            .expires(new Timestamp(0)) //
+            .token("") //
+            .build();
+    }
+
+    /**
+     * 
+     * @param rsp
+     * @param rememberMe 
+     * @return
+     */
+    private Cookie createCookie(LoginResponse rsp, boolean rememberMe)
+    {
+        Cookie cookie = new Cookie("Bearer", rsp.getToken());
+        cookie.setMaxAge(this.calcCookieTTL(rsp, rememberMe));
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        return cookie;
+    }
+
+    /**
+     * Berechne die Cookie-LifeTime in Sekunden. Wenn die RememberMe-Flagge nicht gesetzt ist,
+     * so wird ein SessionCookie erzeugt (TTL < 0)
+     * 
+     * Anderenfalls wird das Cookie auf die Expiry des Tokens ausgestellt.
+     * 
+     * @param rsp
+     * @param rememberMe
+     * @return
+     */
+    private int calcCookieTTL(LoginResponse rsp, boolean rememberMe)
+    {
+        long ttl = -1; // Session-Cookie
+        if (rememberMe)
+        {
+            Timestamp expires = rsp.getExpires();
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            ttl = (expires.getTime() - now.getTime()) / 1000;
+        }
+        return (int) ttl;
+    }
+
+    /**
+     * 
+     * @param request
+     * @return
+     */
+    private boolean isPwdChange(LoginRequestDTO request)
+    {
+        String newPasswd = request.getNewPwd();
+        return newPasswd != null && !newPasswd.isBlank();
+    }
+}

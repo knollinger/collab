@@ -1,0 +1,35 @@
+:host {
+    position: relative;
+    display: inline-block;
+    /* width: 128px; */
+    margin: 0 1rem 1rem 0;
+}
+
+.outer-cnr {
+    position: relative;
+    padding: 0.5rem;
+    cursor: pointer;
+    outline: none;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.thumbnail {
+    display: block;
+    width: 128px;
+    height: 128px;
+}
+
+.label {
+    width: 128px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.selector {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+}

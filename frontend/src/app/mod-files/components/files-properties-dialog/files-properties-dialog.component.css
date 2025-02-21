@@ -1,0 +1,9 @@
+.type-icon {
+    width: 48px;
+}
+
+.tab-content {
+    display: block;
+    height: 400px;
+    margin-top: 1rem;
+}

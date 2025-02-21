@@ -1,0 +1,24 @@
+<div *ngIf="isLoggedIn" class="disp-flex flex-row flex-alignitems-center clickable" [matMenuTriggerFor]="sessionMenu">
+    <!-- <mat-icon class="small-right-spacer material-symbols-outlined">person</mat-icon> -->
+     <img class="avatar small-right-spacer" [src]="avatarUrl">
+    <span class="user-name">{{userName}}</span>
+</div>
+
+<mat-menu #sessionMenu="matMenu">
+
+    <button mat-menu-item routerLink="/user/editProfile/{{userId}}">
+        <mat-icon class="material-symbols-outlined">person_edit</mat-icon>
+        <span>Profil bearbeiten</span>
+    </button>
+
+    <button mat-menu-item routerLink="/session/changePasswd">
+        <mat-icon class="material-symbols-outlined">password</mat-icon>
+        <span>Kennwort ändern</span>
+    </button>
+
+    <mat-divider></mat-divider>
+    <button mat-menu-item (click)="onLogout()">
+        <mat-icon class="material-symbols-outlined">logout</mat-icon>
+        <span>Abmelden</span>
+    </button>
+</mat-menu>

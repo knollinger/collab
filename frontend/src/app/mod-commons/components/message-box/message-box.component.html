@@ -1,0 +1,18 @@
+<div mat-dialog-title class="disp-flex flex-row flex-alignitems-center">
+  <mat-icon class="material-symbols-outlined flex-0" color="primary" *ngIf="data.type=='info'">info</mat-icon>
+  <mat-icon class="material-symbols-outlined flex-0" color="primary" *ngIf="data.type=='query'">help</mat-icon>
+  <mat-icon class="material-symbols-outlined flex-0" color="error" *ngIf="data.type=='error'">error</mat-icon>
+  <span class="flex-1 small-left-spacer">{{data.title}}</span>
+</div>
+
+
+<div mat-dialog-content>
+  <div class="small-top-spacer" [innerHtml]="data.msg"></div>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-flat-button color="primary" type="submit" [mat-dialog-close]="true" *ngIf="data.type=='info' || data.type=='error'"
+    appAutoFocus>Ok</button>
+  <button mat-flat-button color="primary" type="submit" [mat-dialog-close]="true" *ngIf="data.type=='query'" appAutoFocus>Ja</button>
+  <button mat-flat-button [mat-dialog-close]="false" *ngIf="data.type=='query'">Nein</button>
+</div>

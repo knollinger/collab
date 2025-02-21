@@ -1,0 +1,20 @@
+<form>
+
+  <div mat-dialog-title class="disp-flex flex-row flex-alignitems-center">
+    <mat-icon class="material-symbols-outlined flex-0" color="primary">edit</mat-icon>
+    <span class="flex-1 small-left-spacer">{{data.title}}</span>
+  </div>
+
+
+  <div mat-dialog-content>
+    <mat-form-field class="full-width">
+      <mat-label>{{data.placeholder}}</mat-label>
+      <input appAutoFocus matInput name="value" [(ngModel)]="data.value">
+    </mat-form-field>
+  </div>
+
+  <div mat-dialog-actions>
+    <button mat-flat-button type="submit" color="primary" [mat-dialog-close]="data.value" appAutoFocus>Ok</button>
+    <button mat-flat-button [mat-dialog-close]="false">Abbrechen</button>
+  </div>
+</form>

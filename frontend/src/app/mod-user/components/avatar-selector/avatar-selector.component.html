@@ -1,0 +1,10 @@
+<img [src]="url | safe:'resourceUrl'"
+     class="middle-bottom-spacer clickable"
+     (click)="fileSelector.click()"
+     matTooltip="Ein neues Bild als Avatar auswählen">
+     
+<input #fileSelector
+       type="file"
+       class="hidden"
+       accept="image/*"
+       (change)="onFileSelection($event)">

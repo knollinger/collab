@@ -1,0 +1,42 @@
+<span class="menu-trigger"
+      [matMenuTriggerFor]="contextMenu"
+      [style.left]="triggerPosX"
+      [style.top]="triggerPosY">
+</span>
+
+<mat-menu #contextMenu="matMenu">
+    <button mat-menu-item
+            (click)="onOpen()">
+        <mat-icon class="material-symbols-outlined">open_in_new</mat-icon><b>Öffnen</b>
+    </button>
+    <mat-divider></mat-divider>
+
+    <button mat-menu-item
+            (click)="onRename()">
+        <mat-icon class="material-symbols-outlined">edit</mat-icon>Umbenennen
+    </button>
+    <button mat-menu-item
+            (click)="onDelete()">
+        <mat-icon class="material-symbols-outlined">delete</mat-icon>Löschen
+    </button>
+    <mat-divider></mat-divider>
+    <button mat-menu-item
+            (click)="onCut()">
+        <mat-icon class="material-symbols-outlined">content_cut</mat-icon>Ausschneiden
+    </button>
+    <button mat-menu-item
+            (click)="onCopy()">
+        <mat-icon class="material-symbols-outlined">file_copy</mat-icon>Kopieren
+    </button>
+    <button mat-menu-item
+            *ngIf="inode.isDirectory()"
+            (click)="onPaste()">
+        <mat-icon class="material-symbols-outlined">content_paste</mat-icon>Einfügen
+    </button>
+
+    <mat-divider></mat-divider>
+    <button mat-menu-item
+            (click)="onShowProps()">
+        <mat-icon class="material-symbols-outlined">settings</mat-icon>Eigenschaften
+    </button>
+</mat-menu>

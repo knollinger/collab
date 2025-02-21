@@ -1,0 +1,19 @@
+<div mat-dialog-title class="disp-flex flex-row flex-alignitems-center">
+    <img [src]="icon" class="type-icon flex-0 small-right-spacer">
+    <span class="flex-1">{{data.inode.name}}</span>
+</div>
+<mat-dialog-content class="mat-typography">
+
+    <mat-tab-group mat-align-tabs="start">
+        <mat-tab label="Allgemein">
+            <app-files-properties-commons class="tab-content" [inode]="data.inode"></app-files-properties-commons>
+        </mat-tab>
+        <mat-tab label="Berechtigungen">
+            <div class="tab-content">Content 2</div>
+        </mat-tab>
+    </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions>
+    <button mat-flat-button color="primary" mat-dialog-close>Schließen</button>
+</mat-dialog-actions>

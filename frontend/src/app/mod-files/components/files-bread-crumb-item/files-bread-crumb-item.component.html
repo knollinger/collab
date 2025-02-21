@@ -1,0 +1,20 @@
+<div class="item small-right-spacer flex-0 disp-flex flex-row flex-alignitems-center clickable">
+
+    <button mat-icon-button
+            class="flex-0"
+            [matMenuTriggerFor]="childFolders">
+        <mat-icon class="material-symbols-outlined">folder</mat-icon>
+    </button>
+    <span class="flex-0 small-right-spacer "
+          (click)="onOpen(inode)">{{inode.name}}</span>
+    <mat-icon class="flex-0 material-symbols-outlined">chevron_right</mat-icon>
+
+    <mat-menu #childFolders="matMenu">
+        <button mat-menu-item
+                *ngFor="let child of childs"
+                (click)="onOpen(child)">
+            <mat-icon class="material-symbols-outlined">folder</mat-icon>
+            <span>{{child.name}}</span>
+        </button>
+    </mat-menu>
+</div>
