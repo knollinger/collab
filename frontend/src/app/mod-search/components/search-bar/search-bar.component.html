@@ -1,16 +1,28 @@
 <div class="outer">
 
-  <input [matAutocomplete]="auto" (input)="onInput($event)" [placeholder]="placeholder" #search>
-
-  <mat-icon matSuffix (click)="search.value=''" *ngIf="showClearBtn">clear</mat-icon>
+  <input [matAutocomplete]="auto"
+         (input)="onInput($event)"
+         [placeholder]="placeholder"
+         #search>
+  <mat-icon matSuffix
+            class="material-symbols-outlined"
+            (click)="search.value=''"
+            *ngIf="showClearBtn">clear</mat-icon>
 </div>
-<mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event, search)">
+
+<mat-autocomplete #auto="matAutocomplete"
+                  (optionSelected)="onOptionSelected($event, search)">
 
   <!-- MatOptions für gefundene Inodes -->
-  <mat-optgroup *ngIf="results.inodes.length" label="Files">
-    <mat-option class="multiline-option" *ngFor="let inode of results.inodes" [value]="inode">
+  <mat-optgroup *ngIf="results.inodes.length"
+                label="Files">
+    <mat-option class="multiline-option"
+                *ngFor="let inode of results.inodes"
+                [value]="inode">
+                
       <div class="disp-flex flex-row flex-alignitems-center">
-        <mat-icon color="primary" class="flex-0 material-symbols-outlined">description</mat-icon>
+        <mat-icon color="primary"
+                  class="flex-0 material-symbols-outlined">description</mat-icon>
         <div class="flex-1">
           <div class="small-bottom-spacer">{{inode.name}}</div>
           <div class="small-bottom-spacer">UUID: {{inode.uuid}}</div>
@@ -19,6 +31,4 @@
       </div>
     </mat-option>
   </mat-optgroup>
-
-
 </mat-autocomplete>

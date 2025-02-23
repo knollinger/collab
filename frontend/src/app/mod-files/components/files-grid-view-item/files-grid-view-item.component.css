@@ -1,8 +1,7 @@
 :host {
     position: relative;
     display: inline-block;
-    /* width: 128px; */
-    margin: 0 1rem 1rem 0;
+    background-color: white;
 }
 
 .outer-cnr {
@@ -11,7 +10,6 @@
     cursor: pointer;
     outline: none;
     border-radius: 4px;
-    background-color: white;
 }
 
 .thumbnail {

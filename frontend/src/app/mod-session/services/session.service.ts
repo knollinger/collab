@@ -46,10 +46,10 @@ export class SessionService {
    * @param rememberMe 
    * @returns 
    */
-  login(email: string, password: string, newPwd?: string, rememberMe: boolean = false): Observable<LoginResponse> {
+  login(email: string, password: string, newPwd?: string): Observable<LoginResponse> {
 
     const url = this.backendRouter.getRouteForName('login', SessionService.routes);
-    const req = new LoginRequest(email, password, rememberMe, newPwd);
+    const req = new LoginRequest(email, password, newPwd);
     return this.http.post<ILoginResponse>(url, req.toJSON()).pipe(
       map(json => {
         const rsp = LoginResponse.fromJSON(json);

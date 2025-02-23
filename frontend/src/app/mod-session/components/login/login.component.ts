@@ -16,7 +16,6 @@ export class LoginComponent implements OnInit {
   private redirUrl: string = '';
   loginForm: FormGroup;
   hidePwds: boolean = true;
-  rememberMe: boolean = false;
 
   /**
    *
@@ -51,12 +50,6 @@ export class LoginComponent implements OnInit {
       this.redirUrl = params.get('redirUrl') || '';
     });
   }
-
-  toggleRememberMe(evt: MatSlideToggleChange) {
-
-    this.rememberMe = evt.checked;
-  }
-
   toggleValidators(changePwd: MatSlideToggleChange) {
 
     const pwd1 = this.loginForm.get('newPwd1');
@@ -114,7 +107,7 @@ export class LoginComponent implements OnInit {
     const passwd = this.loginForm.get('passwd')!.value || '';
     const newPwd = this.loginForm.get('newPwd1')!.value || '';
 
-    this.sessSvc.login(email, passwd, newPwd, this.rememberMe).subscribe(session => {
+    this.sessSvc.login(email, passwd, newPwd).subscribe(session => {
 
       if(this.redirUrl) {
         this.router.navigateByUrl(this.redirUrl);

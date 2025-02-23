@@ -20,9 +20,5 @@ public class LoginRequestDTO
     
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
-    private boolean rememberMe;
-    
-    @Getter(AccessLevel.PUBLIC)
-    @Setter(AccessLevel.NONE)
     private String newPwd;
 }

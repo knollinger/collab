@@ -25,9 +25,6 @@ export class FilesFolderViewComponent implements OnInit {
   @Input()
   viewMode: string = 'grid';
 
-  @Input()
-  isActive: boolean = false;
-
   @Output()
   preview: EventEmitter<INode> = new EventEmitter<INode>();
 
@@ -136,6 +133,7 @@ export class FilesFolderViewComponent implements OnInit {
       this.uploadFiles(this.currentFolder, files);
     }
   }
+
 
   /**
    * Auf eines der GridView-Items wurde ein FileDrop durchgeführt.

@@ -1,22 +1,28 @@
-<span  *ngFor="let inode of inodes; let i = index">
+<div class="middle-padding">
 
-    <br *ngIf="mustBreak(i)">
+    <div *ngFor="let inode of inodes; let i = index"
+         class="item-cnr"
+         (click)="activeINode=inode">
 
-    <app-files-grid-view-item 
-        [inode]="inode" 
-        [appINodeDragSource]="inode"
-        [appDropTarget]="inode"
-        (inodesDropped)="onINodesDropped($event)" 
-        (filesDropped)="onFilesDropped($event)" 
-        [selected]="isSelected(inode)"
-        (selectionChange)="onItemSelectionChange(inode, $event)" 
-        (open)="onOpen(inode)" 
-        (rename)="onRename(inode)"
-        (cut)="onCut(inode)"
-        (copy)="onCopy(inode)"
-        (paste)="onPaste(inode)"
-        (delete)="onDelete(inode)"
-        (showProps)="onShowProps(inode)">
-    </app-files-grid-view-item>
+        <br *ngIf="mustBreak(i)">
 
-</span>
+        <app-files-grid-view-item [inode]="inode"
+                                  [class.mat-elevation-z4]="isActiveINode(inode)"
+                                  [class.mat-elevation-z1]="!isActiveINode(inode)"
+                                  [appINodeDragSource]="inode"
+                                  [appDropTarget]="inode"
+                                  (inodesDropped)="onINodesDropped($event)"
+                                  (filesDropped)="onFilesDropped($event)"
+                                  [selected]="isSelected(inode)"
+                                  (selectionChange)="onItemSelectionChange(inode, $event)"
+                                  (open)="onOpen(inode)"
+                                  (rename)="onRename(inode)"
+                                  (cut)="onCut(inode)"
+                                  (copy)="onCopy(inode)"
+                                  (paste)="onPaste(inode)"
+                                  (delete)="onDelete(inode)"
+                                  (showProps)="onShowProps(inode)">
+        </app-files-grid-view-item>
+
+    </div>
+</div>

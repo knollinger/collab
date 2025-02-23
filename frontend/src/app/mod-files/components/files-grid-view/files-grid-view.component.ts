@@ -57,17 +57,43 @@ export class FilesGridViewComponent implements OnInit {
   @Output()
   showProps: EventEmitter<INode> = new EventEmitter<INode>();
 
+
   /**
    * 
-   */
-  constructor() { 
+  */
+  constructor() {
 
   }
 
   /**
    * 
-   */
+  */
   ngOnInit(): void {
+  }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about active inodes.                                                */
+  /*                                                                         */
+  /* Das dient nur dazu, die INode bei einem Click auf diese hervor zu heben */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+  private _activeINode: INode = INode.empty();
+
+  /**
+   * Aktiviere eine gegebene INode
+   */
+  public set activeINode(inode: INode) {
+    this._activeINode = inode;
+  }
+
+  /**
+   * ist die angegebene INode aktiv?
+   * @param inode 
+   * @returns 
+   */
+  public isActiveINode(inode: INode): boolean {
+    return this._activeINode.uuid === inode.uuid;
   }
 
   /**
@@ -193,7 +219,7 @@ export class FilesGridViewComponent implements OnInit {
   }
 
   mustBreak(idx: number): boolean {
-    
+
     return (idx > 0 && this.inodes[idx - 1].isDirectory() && !this.inodes[idx].isDirectory());
   }
 }

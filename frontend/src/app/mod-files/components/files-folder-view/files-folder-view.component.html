@@ -82,8 +82,7 @@
                                     (open)="onOpen($event)"></app-files-bread-crumb-item>
     </div>
 
-    <div class="flex-1 disp-flex flex-row scrollable"
-         [class.activeView]="this.isActive">
+    <div class="flex-1 disp-flex flex-row scrollable">
 
         <div class="flex-1 scrollable"
              [appDropTarget]="currentFolder"
@@ -110,7 +109,7 @@
         </div>
     </div>
 
-    <div class="flex-0 middle-padding">
+    <div class="flex-0 middle-padding small-top-lightgray-border footer">
         {{selectedINodes.size}} Objekte mit {{selectedObjectSize | fileSize}} ausgewählt
     </div>
 </div>

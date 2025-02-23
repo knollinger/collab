@@ -73,7 +73,7 @@ public class LoginController
                 rsp = this.loginSvc.login(request.getEmail(), request.getPassword());
             }
 
-            Cookie cookie = this.createCookie(rsp, request.isRememberMe());
+            Cookie cookie = this.createCookie(rsp);
             httpRsp.addCookie(cookie);
             return this.loginMapper.toDTO(rsp);
         }
@@ -100,7 +100,7 @@ public class LoginController
             try
             {
                 LoginResponse rsp = this.loginSvc.refreshToken(token);
-                Cookie cookie = this.createCookie(rsp, true);  // TODO: rememberMe?
+                Cookie cookie = this.createCookie(rsp);
                 httpRsp.addCookie(cookie);
                 return rsp;
             }
@@ -125,35 +125,13 @@ public class LoginController
      * @param rememberMe 
      * @return
      */
-    private Cookie createCookie(LoginResponse rsp, boolean rememberMe)
+    private Cookie createCookie(LoginResponse rsp)
     {
         Cookie cookie = new Cookie("Bearer", rsp.getToken());
-        cookie.setMaxAge(this.calcCookieTTL(rsp, rememberMe));
+        cookie.setMaxAge(-1);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         return cookie;
-    }
-
-    /**
-     * Berechne die Cookie-LifeTime in Sekunden. Wenn die RememberMe-Flagge nicht gesetzt ist,
-     * so wird ein SessionCookie erzeugt (TTL < 0)
-     * 
-     * Anderenfalls wird das Cookie auf die Expiry des Tokens ausgestellt.
-     * 
-     * @param rsp
-     * @param rememberMe
-     * @return
-     */
-    private int calcCookieTTL(LoginResponse rsp, boolean rememberMe)
-    {
-        long ttl = -1; // Session-Cookie
-        if (rememberMe)
-        {
-            Timestamp expires = rsp.getExpires();
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-            ttl = (expires.getTime() - now.getTime()) / 1000;
-        }
-        return (int) ttl;
     }
 
     /**
