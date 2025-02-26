@@ -23,6 +23,7 @@ export class INodeService {
       ['getPath', 'v1/filesys/path/{1}'],
       ['renameINode', 'v1/filesys/rename'],
       ['deleteINode', 'v1/filesys/delete'],
+      ['copyINode', 'v1/filesys/copy'],
       ['moveINode', 'v1/filesys/move'],
       ['createFolder', 'v1/filesys/createFolder/{1}/{2}'],
       ['getContent', 'v1/filecontent/{1}'],
@@ -106,6 +107,21 @@ export class INodeService {
 
     const url = this.backendRouter.getRouteForName('deleteINode', INodeService.routes);
     return this.httpClient.delete<void>(url, { body: uuid });
+  }
+
+  /**
+   * 
+   * @param src 
+   * @param parent 
+   * @returns 
+   */
+  copy(src: INode | INode[], parent: INode): Observable<void> {
+
+    const url = this.backendRouter.getRouteForName('copyINode', INodeService.routes);
+
+    const toMove = Array.isArray(src) ? src : Array.of(src);
+    const req = new MoveINodeRequest(toMove, parent);
+    return this.httpClient.post<void>(url, req.toJSON());
   }
 
   /**

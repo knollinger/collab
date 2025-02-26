@@ -15,9 +15,11 @@ import { FilesGridViewComponent } from './components/files-grid-view/files-grid-
 import { FilesListViewComponent } from './components/files-list-view/files-list-view.component';
 import { ShowDuplicateFilesComponent } from './components/show-duplicate-files/show-duplicate-files.component';
 import { FilesPreviewComponent } from './components/files-preview/files-preview.component';
-import { FilesContextMenuComponent } from './components/files-context-menu/files-context-menu.component';
+import { FilesItemContextMenuComponent } from './components/files-item-context-menu/files-item-context-menu.component';
 import { INodeDragSourceDirective } from './directives/inode-drag-source.directive';
 import { DropTargetDirective } from './directives/drop-target.directive';
+import { FilesFolderContextMenuComponent } from './components/files-folder-context-menu/files-folder-context-menu.component';
+import { FileDropINodeMenuComponent } from './components/inode-drop-menu/inode-drop-menu.component';
 
 @NgModule({
   declarations: [
@@ -31,9 +33,11 @@ import { DropTargetDirective } from './directives/drop-target.directive';
     FilesListViewComponent,
     ShowDuplicateFilesComponent,
     FilesPreviewComponent,
-    FilesContextMenuComponent,
+    FilesItemContextMenuComponent,
     INodeDragSourceDirective,
     DropTargetDirective,
+    FilesFolderContextMenuComponent,
+    FileDropINodeMenuComponent,
   ],
   imports: [
     CommonModule,

@@ -2,6 +2,17 @@
     background-color: white;
 }
 
+.working-area {
+    position: relative;
+    height: 100%;
+}
+
 .footer {
     background-color: white;
+}
+
+.activated-place-holder {
+    padding: 0.5rem;
+    height: 100%;
+    background-color: transparent;
 }

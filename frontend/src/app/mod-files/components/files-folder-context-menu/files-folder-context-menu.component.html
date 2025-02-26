@@ -1,0 +1,29 @@
+<span class="menu-trigger"
+      [matMenuTriggerFor]="contextMenu"
+      [style.left]="triggerPosX"
+      [style.top]="triggerPosY">
+</span>
+
+<mat-menu #contextMenu="matMenu">
+    <button mat-menu-item
+            (click)="onDownload()">
+        <mat-icon class="material-symbols-outlined">cloud_download</mat-icon>Als ZIP-Archiv herunter laden
+    </button>
+
+    <!-- Paste -->
+    <div *ngIf="isShowPasteEntry">
+        <mat-divider></mat-divider>
+        <button mat-menu-item
+                (click)="onPaste()">
+            <mat-icon class="material-symbols-outlined">content_paste</mat-icon>
+            {{nrPasteElements}} Elemente einfügen
+        </button>
+
+    </div>
+
+    <mat-divider></mat-divider>
+    <button mat-menu-item
+            (click)="onShowProperties()">
+        <mat-icon class="material-symbols-outlined">settings</mat-icon>Eigenschafften
+    </button>
+</mat-menu>

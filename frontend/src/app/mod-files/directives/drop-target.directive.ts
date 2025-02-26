@@ -14,7 +14,7 @@ export class INodeDroppedEvent {
   constructor(
     public readonly target: INode,
     public readonly source: INode,
-    public readonly action: string = 'move') {
+    public readonly dropEvt: DragEvent) {
   }
 }
 
@@ -66,6 +66,7 @@ export class DropTargetDirective {
 
     evt.stopPropagation();
     evt.preventDefault();
+
     if (this.isDropEnabled(evt)) {
       this.showDropAreaVisualisization();
     }
@@ -92,6 +93,7 @@ export class DropTargetDirective {
 
     evt.stopPropagation();
     evt.preventDefault();
+
     if (this.isDropEnabled(evt)) {
       this.showDropAreaVisualisization();
     }
@@ -104,6 +106,7 @@ export class DropTargetDirective {
   @HostListener('drop', ['$event'])
   onDrop(evt: DragEvent) {
 
+    console.log('onDrop');
     evt.stopPropagation();
     evt.preventDefault();
     this.clearDropAreaVisualisization();
@@ -206,7 +209,7 @@ export class DropTargetDirective {
       const inode: INode = INode.fromJSON(JSON.parse(json));
       if (this.target.uuid !== inode.uuid && this.target.uuid !== inode.parent) {
 
-        this.inodesDropped.emit(new INodeDroppedEvent(this.target, inode));
+        this.inodesDropped.emit(new INodeDroppedEvent(this.target, inode, evt));
       }
     }
   }

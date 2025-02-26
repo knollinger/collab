@@ -25,7 +25,7 @@ export enum EINodeUUIDs {
 export class INode {
 
     public static readonly DATA_TRANSFER_TYPE: string = 'app/inode';
-    
+
     /**
      * 
      * @param name 
@@ -69,6 +69,14 @@ export class INode {
             created: this.created,
             modified: this.modified
         }
+    }
+
+    /**
+     * 
+     * @returns das stringified JSON
+     */
+    public toString(): string {
+        return JSON.stringify(this.toJSON());
     }
 
     /**

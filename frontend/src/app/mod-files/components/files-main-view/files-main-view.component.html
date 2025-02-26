@@ -27,16 +27,18 @@
     <div class="flex-1 disp-flex full-height scrollable flex-row">
 
         <app-folder-view class="flex-1 full-height"
-                         [class.mat-elevation_z4]="isView1Active"
-                         (click)="onActivateView(0)"
+                         [active]="isViewActive(0)"
+                         (activated)="onActivateView(0, $event)"
                          (preview)="onShowPreview($event)"
                          [viewMode]="viewMode">
         </app-folder-view>
 
         <app-folder-view class="flex-1 full-height"
                          *ngIf="showSplit"
+                         [active]="isViewActive(1)"
+                         (activated)="onActivateView(1, $event)"
                          (preview)="onShowPreview($event)"
-                         (click)="onActivateView(1)"
+                         (activated)="onActivateView(1, $event)"
                          [viewMode]="viewMode"></app-folder-view>
 
         <app-files-preview *ngIf="showPreview"

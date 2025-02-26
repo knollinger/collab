@@ -1,4 +1,5 @@
-<div class="full-height disp-flex flex-col small-lightgray-border">
+<div class="full-height disp-flex flex-col small-lightgray-border"
+     (click)="onActivateView()">
 
     <app-toolbar class="flex-0 small-bottom-lightgray-border">
 
@@ -82,14 +83,16 @@
                                     (open)="onOpen($event)"></app-files-bread-crumb-item>
     </div>
 
-    <div class="flex-1 disp-flex flex-row scrollable">
+    <div class="flex-1 disp-flex flex-row scrollable working-area"
+         (contextmenu)="contextMenu.show($event)">
 
-        <div class="flex-1 scrollable"
+        <div class="flex-1 activated-place-holder scrollable"
              [appDropTarget]="currentFolder"
              (filesDropped)="onFilesDropped($event)"
              (inodesDropped)="onINodesDropped($event)">
 
             <app-files-grid-view *ngIf="viewMode==='grid'"
+                                 [class.mat-elevation-z4]="active"
                                  [inodes]="inodes"
                                  [selectedINodes]="selectedINodes"
                                  (filesDropped)="onFilesDropped($event)"
@@ -107,7 +110,19 @@
                                  [inodes]="inodes">
             </app-files-list-view>
         </div>
+
+        <!-- Das ContextMenu für den Folder selbst -->
+        <app-files-folder-context-menu #contextMenu
+                                       [inode]="currentFolder"
+                                       (paste)="onPaste()"
+                                       (showProps)="onShowProps($event)"></app-files-folder-context-menu>
+
+        <!-- Das Menu für die Auswahl der OPs bei einem INode-Drop -->
+        <app-inode-drop-menu (copy)="onCopyDroppedINodes($event)"
+                             (move)="onMoveDroppedINodes($event)"
+                             (link)="onLinkDroppedINodes($event)"></app-inode-drop-menu>
     </div>
+
 
     <div class="flex-0 middle-padding small-top-lightgray-border footer">
         {{selectedINodes.size}} Objekte mit {{selectedObjectSize | fileSize}} ausgewählt

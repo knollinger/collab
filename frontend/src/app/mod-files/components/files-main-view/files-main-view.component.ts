@@ -71,8 +71,22 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
     });
   }
 
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* all about view splitting                                                */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
   /**
+   * Aktiviere/deaktiviere den SplitView
    * 
+   * Das UI-Control ist ein mat-toggle-button. Im Endeffekt eine Checkbox.
+   * 
+   * Wenn der SplitView aktiviert wird, so wird einfach der neue View neben 
+   * dem bestehenden angezeigt.
+   * 
+   * Wenn der SplitView deaktiviert wird, so wird der activeView wieder auf 
+   * 0 gesetzt
    */
   onToggleSplitView() {
 
@@ -83,34 +97,46 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * In einem SplitView wurde einer der beiden Views angeklickt.
+   * Also entweder die WorkingArea, ein aktiver Button in der 
+   * Toolbar oder die Status-Zeile :-)
    * 
-   * @param id 
+   * @param viewId entweder 0 (für die linke SplitView) oder 
+   *               1 für die rechte SplitView
+   * @param activeFolder der Folder, welcher in der aktivierten 
+   *                     FolderView angezeigt wird.
    */
-  onActivateView(id: number) {
-    this.activeView = id;
+  onActivateView(viewId: number, activeFolder: INode) {
+    this.activeView = viewId;
   }
 
   /**
-   * 
+   * ist der angegebene SplitView aktiv?
    */
-  get isView1Active(): boolean {
+  public isViewActive(id: number): boolean {
 
-    return this.activeView === 0;
+    return this.activeView === id;
   }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* all about pteview                                                       */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
 
   /**
+   * aktiviere die Preview
    * 
+   * @param inode die anzuzeigende INode
    */
-  get isView2Active(): boolean {
-
-    return this.activeView === 1;
-  }
-
   onShowPreview(inode: INode) {
 
     this.previewINode = inode;
   }
 
+  /**
+   * 
+   */
   get showPreview(): boolean {
     return !this.previewINode.isEmpty();
   }

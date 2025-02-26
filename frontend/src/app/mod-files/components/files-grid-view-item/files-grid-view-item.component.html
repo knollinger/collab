@@ -10,7 +10,7 @@
     -->
      <!-- <span class="menu-trigger" [matMenuTriggerFor]="contextMenu">
     </span> -->
-     <app-files-context-menu #contextMenu
+     <app-files-item-context-menu #contextMenu
                              (inode)="inode"
                              (open)="onOpen()"
                              (rename)="onRename()"
@@ -20,7 +20,7 @@
                              (paste)="onPaste()"
                              (showProps)="onShowProps()">
 
-     </app-files-context-menu>
+     </app-files-item-context-menu>
 
      <img class="thumbnail"
           [src]="iconUrl"

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { INode } from '../../models/inode';
 import { FilesDroppedEvent, INodeDroppedEvent } from '../../directives/drop-target.directive';
 import { INodeService } from '../../services/inode.service';
@@ -7,11 +7,12 @@ import { InputBoxService, MessageBoxService } from '../../../mod-commons/mod-com
 import { ContentTypeService } from '../../services/content-type.service';
 import { FilesPropertiesService } from '../../services/files-properties.service';
 import { ClipboardService } from '../../services/clipboard.service';
+import { FileDropINodeMenuComponent } from "../inode-drop-menu/inode-drop-menu.component";
 
 @Component({
   selector: 'app-folder-view',
   templateUrl: './files-folder-view.component.html',
-  styleUrls: ['./files-folder-view.component.css']
+  styleUrls: ['./files-folder-view.component.css'],
 })
 export class FilesFolderViewComponent implements OnInit {
 
@@ -22,8 +23,17 @@ export class FilesFolderViewComponent implements OnInit {
   public showPreview: boolean = false;
   public previewINode: INode = INode.empty();
 
+  @ViewChild(FileDropINodeMenuComponent)
+  dropInodesMenu: FileDropINodeMenuComponent | undefined;
+
   @Input()
   viewMode: string = 'grid';
+
+  @Input()
+  active: boolean = false;
+
+  @Output()
+  activated: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Output()
   preview: EventEmitter<INode> = new EventEmitter<INode>();
@@ -77,6 +87,16 @@ export class FilesFolderViewComponent implements OnInit {
     });
   }
 
+  /**
+   * 
+   */
+  public onActivateView() {
+    this.activated.emit(this.currentFolder);
+  }
+
+  /**
+   * 
+   */
   public onCreateFolder() {
 
     this.inputBoxSvc.showInputBox('Einen neuen Ordner anlegen', 'Name').subscribe(name => {
@@ -86,6 +106,7 @@ export class FilesFolderViewComponent implements OnInit {
       })
     })
   }
+
   /**
    * 
    */
@@ -166,11 +187,27 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onINodesDropped(event: INodeDroppedEvent) {
 
-    this.inodeSvc.move(event.source, event.target).subscribe(() => {
-      if (event.target.uuid === this.currentFolder.uuid) {
-        this.loadEntries();
-      }
+    console.log('onInodesDropped');
+    if (this.dropInodesMenu) {
+      this.dropInodesMenu.show(event);
+    }
+  }
+
+  onCopyDroppedINodes(event: INodeDroppedEvent) {
+    this.inodeSvc.copy(event.source, event.target).subscribe(() => {
+      this.loadEntries();
     })
+  }
+
+  onMoveDroppedINodes(event: INodeDroppedEvent) {
+
+    this.inodeSvc.move(event.source, event.target).subscribe(() => {
+      this.loadEntries();
+    })
+  }
+
+  onLinkDroppedINodes(event: INodeDroppedEvent) {
+
   }
 
   /**
@@ -286,7 +323,6 @@ export class FilesFolderViewComponent implements OnInit {
    * @param inode 
    */
   onPaste() {
-    console.log('do paste');
     this.inodeSvc.move(this.clipboardSvc.inodes, this.currentFolder).subscribe(() => {
       this.loadEntries();
     })

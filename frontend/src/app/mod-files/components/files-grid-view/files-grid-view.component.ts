@@ -115,6 +115,7 @@ export class FilesGridViewComponent implements OnInit {
    * @param files 
    */
   onINodesDropped(event: INodeDroppedEvent) {
+    console.log('onINodesDropped');
     this.inodesDropped.emit(event);
   }
 

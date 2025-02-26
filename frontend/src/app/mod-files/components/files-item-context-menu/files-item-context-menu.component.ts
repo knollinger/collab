@@ -3,11 +3,11 @@ import { MatMenuTrigger } from '@angular/material/menu';
 import { INode } from '../../models/inode';
 
 @Component({
-  selector: 'app-files-context-menu',
-  templateUrl: './files-context-menu.component.html',
-  styleUrls: ['./files-context-menu.component.css']
+  selector: 'app-files-item-context-menu',
+  templateUrl: './files-item-context-menu.component.html',
+  styleUrls: ['./files-item-context-menu.component.css']
 })
-export class FilesContextMenuComponent {
+export class FilesItemContextMenuComponent {
 
   @ViewChild(MatMenuTrigger)
   trigger: MatMenuTrigger | undefined;
@@ -41,7 +41,7 @@ export class FilesContextMenuComponent {
 
   triggerPosX: string = '';
   triggerPosY: string = '';
-  
+
   /**
    * 
    * @param evt 
@@ -51,12 +51,11 @@ export class FilesContextMenuComponent {
     evt.stopPropagation();
     evt.preventDefault();
 
-    // TODO: Koordinaten setzen!
-    if(this.trigger) {
+    if (this.trigger) {
 
-      this.triggerPosX = `${evt.offsetX}px`;
-      this.triggerPosY = `${evt.offsetY}px`;
-      
+      this.triggerPosX = `${evt.clientX}px`;
+      this.triggerPosY = `${evt.clientY}px`;
+
       this.trigger.openMenu();
     }
   }

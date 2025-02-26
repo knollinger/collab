@@ -1,0 +1,22 @@
+<span class="menu-trigger"
+      [matMenuTriggerFor]="dropMenu"
+      [style.left]="triggerPosX"
+      [style.top]="triggerPosY">
+</span>
+
+<mat-menu #dropMenu="matMenu">
+    <button mat-menu-item
+            (click)="onCopy()">
+        <mat-icon class="material-symbols-outlined">file_copy</mat-icon>Hierhin kopieren
+    </button>
+
+    <button mat-menu-item
+            (click)="onMove()">
+        <mat-icon class="material-symbols-outlined">drive_file_move</mat-icon>Hierhin verschieben
+    </button>
+
+    <button mat-menu-item
+            (click)="onLink()">
+        <mat-icon class="material-symbols-outlined">link</mat-icon>Hier eine Verknüpfung anlegen
+    </button>
+</mat-menu>
