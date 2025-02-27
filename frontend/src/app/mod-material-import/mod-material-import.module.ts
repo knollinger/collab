@@ -21,6 +21,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 @NgModule({
   declarations: [],
@@ -45,7 +46,8 @@ import { MatRadioModule } from '@angular/material/radio';
     MatCardModule,
     MatSlideToggleModule,
     MatSnackBarModule,
-    MatRadioModule
+    MatRadioModule,
+    MatSidenavModule
   ],
   exports: [
     MatToolbarModule,
@@ -67,7 +69,8 @@ import { MatRadioModule } from '@angular/material/radio';
     MatCardModule,
     MatSlideToggleModule,
     MatSnackBarModule,
-    MatRadioModule
+    MatRadioModule,
+    MatSidenavModule
   ]
 })
 export class ModMaterialImportModule { }

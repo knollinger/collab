@@ -19,7 +19,7 @@ import { FilesItemContextMenuComponent } from './components/files-item-context-m
 import { INodeDragSourceDirective } from './directives/inode-drag-source.directive';
 import { DropTargetDirective } from './directives/drop-target.directive';
 import { FilesFolderContextMenuComponent } from './components/files-folder-context-menu/files-folder-context-menu.component';
-import { FileDropINodeMenuComponent } from './components/inode-drop-menu/inode-drop-menu.component';
+import { FileDropINodeMenuComponent } from './components/files-inode-drop-menu/files-inode-drop-menu.component';
 
 @NgModule({
   declarations: [

@@ -56,7 +56,7 @@ import { AutoFocusDirective } from './directives/auto-focus.directive';
     SpinnerComponent,
     MessageBoxComponent,
     InputBoxComponent,
-    AutoFocusDirective,
+    AutoFocusDirective
   ],
   imports: [
     CommonModule,

@@ -2,57 +2,77 @@
 
     <mat-toolbar color="primary">
 
-        <!-- titel -->
-        <mat-toolbar-row>
-            <span class="flex-1">{{title}}</span>
-            <app-session-menu></app-session-menu>
-            <!-- <button (click)="onTest()">create keystore</button>
-            <button (click)="storeLoader.click()">open keystore</button>
-            <input #storeLoader type="file" class="hidden" (change)="onTest1($event)"> -->
-        </mat-toolbar-row>
+        <button mat-icon-button
+                (click)="navMenu.toggle()"
+                class="flex-0">
+            <mat-icon class="material-symbols-outlined">menu</mat-icon>
+        </button>
 
-        <mat-toolbar-row class="disp-flex flex-row flex-alignitems-center">
-
-            <!-- Home -->
-            <button mat-icon-button class="flex-0" routerLink="/">
-                <mat-icon class="material-symbols-outlined">home</mat-icon>
-            </button>
-
-            <!-- Dateien -->
-            <button mat-icon-button class="flex-0" routerLink="/files" matTooltip="Dateien">
-                <mat-icon class="material-symbols-outlined">folder</mat-icon>
-            </button>
-
-            <!-- Kalender -->
-            <button mat-icon-button class="flex-0" routerLink="/calendar" matTooltip="Kalender">
-                <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
-            </button>
-
-            <!-- Mail -->
-            <button mat-icon-button class="flex-0" routerLink="/mail" matTooltip="Mail">
-                <mat-icon class="material-symbols-outlined">mail</mat-icon>
-            </button>
-
-            <!-- Message -->
-            <button mat-icon-button class="flex-0" routerLink="/message"  matTooltip="Chat">
-                <mat-icon class="material-symbols-outlined">message</mat-icon>
-            </button>
-
-            <!-- User -->
-            <button mat-icon-button class="flex-0" routerLink="/user"  matTooltip="Benutzer-Verwaltung">
-                <mat-icon class="material-symbols-outlined">person</mat-icon>
-            </button>
-
-            <app-search-bar class="flex-1" placeholder="Suchen..." (found)="onSearchResult($event)"></app-search-bar>
-            
-        </mat-toolbar-row>
+        <span class="flex-1">{{title}}</span>
+        <app-session-menu></app-session-menu>
 
     </mat-toolbar>
 
-    <div class="flex-1 scrollable">
-        <router-outlet></router-outlet>
+    <div class="scrollable full-height">
+        <mat-drawer-container class="full-height">
+            <mat-drawer #navMenu
+                        mode="push"
+                        (click)="navMenu.close()">
+                        
+                <!-- Home -->
+                <button mat-menu-item
+                        routerLink="/">
+                    <mat-icon class="material-symbols-outlined">home</mat-icon>
+                    <span>Home</span>
+                </button>
+
+                <!-- Dateien -->
+                <button mat-menu-item
+                        routerLink="/files"
+                        matTooltip="Dateien">
+                    <mat-icon class="material-symbols-outlined">folder</mat-icon>
+                    <span>Dateien</span>
+                </button>
+
+                <!-- Kalender -->
+                <button mat-menu-item
+                        routerLink="/calendar"
+                        matTooltip="Kalender">
+                    <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
+                    <span>Kalender</span>
+                </button>
+
+                <!-- Mail -->
+                <button mat-menu-item
+                        routerLink="/mail"
+                        matTooltip="Mail">
+                    <mat-icon class="material-symbols-outlined">mail</mat-icon>
+                    <span>Mail</span>
+                </button>
+
+                <!-- Message -->
+                <button mat-menu-item
+                        routerLink="/message"
+                        matTooltip="Chat">
+                    <mat-icon class="material-symbols-outlined">message</mat-icon>
+                    <span>Chat</span>
+                </button>
+
+                <!-- User -->
+                <button mat-menu-item
+                        routerLink="/user"
+                        matTooltip="Benutzer-Verwaltung">
+                    <mat-icon class="material-symbols-outlined">person</mat-icon>
+                    <span>Benutzer-Verwaltung</span>
+                </button>
+            </mat-drawer>
+            
+            <div class="full-height scrollable">
+                <router-outlet></router-outlet>
+            </div>
+        </mat-drawer-container>
     </div>
 
 </div>
 
-<app-spinner ></app-spinner>
+<app-spinner></app-spinner>

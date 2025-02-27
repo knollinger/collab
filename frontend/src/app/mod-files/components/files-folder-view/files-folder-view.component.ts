@@ -7,7 +7,7 @@ import { InputBoxService, MessageBoxService } from '../../../mod-commons/mod-com
 import { ContentTypeService } from '../../services/content-type.service';
 import { FilesPropertiesService } from '../../services/files-properties.service';
 import { ClipboardService } from '../../services/clipboard.service';
-import { FileDropINodeMenuComponent } from "../inode-drop-menu/inode-drop-menu.component";
+import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
 
 @Component({
   selector: 'app-folder-view',

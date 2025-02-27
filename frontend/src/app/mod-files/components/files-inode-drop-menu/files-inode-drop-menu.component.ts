@@ -20,9 +20,9 @@ import { MatMenuTrigger } from '@angular/material/menu';
  * dabei wird das beim show() übergebene INodeDroppedEvent emitiert.
  */
 @Component({
-  selector: 'app-inode-drop-menu',
-  templateUrl: './inode-drop-menu.component.html',
-  styleUrls: ['./inode-drop-menu.component.css']
+  selector: 'app-files-inode-drop-menu',
+  templateUrl: './files-inode-drop-menu.component.html',
+  styleUrls: ['./files-inode-drop-menu.component.css']
 })
 export class FileDropINodeMenuComponent {
 
