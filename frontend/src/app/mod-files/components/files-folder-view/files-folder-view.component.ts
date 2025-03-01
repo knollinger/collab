@@ -5,6 +5,7 @@ import { INodeService } from '../../services/inode.service';
 import { UploadService } from '../../services/upload.service';
 import { InputBoxService, MessageBoxService } from '../../../mod-commons/mod-commons.module';
 import { ContentTypeService } from '../../services/content-type.service';
+import { ShowDuplicateFilesService } from '../../services/show-duplicate-files.service';
 import { FilesPropertiesService } from '../../services/files-properties.service';
 import { ClipboardService } from '../../services/clipboard.service';
 import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
@@ -32,11 +33,17 @@ export class FilesFolderViewComponent implements OnInit {
   @Input()
   active: boolean = false;
 
+  @Input()
+  iconSize: number = 128;
+
   @Output()
   activated: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Output()
   preview: EventEmitter<INode> = new EventEmitter<INode>();
+
+  @Output()
+  inodesGrabbed: EventEmitter<void> = new EventEmitter<void>();
 
   /**
    * 
@@ -54,6 +61,7 @@ export class FilesFolderViewComponent implements OnInit {
     private inputBoxSvc: InputBoxService,
     private clipboardSvc: ClipboardService,
     private contentTypeSvc: ContentTypeService,
+    private showDuplFilesSvc: ShowDuplicateFilesService,
     private propsSvc: FilesPropertiesService) {
 
   }
@@ -70,14 +78,14 @@ export class FilesFolderViewComponent implements OnInit {
    */
   private refresh() {
 
-    this.loadEntries();
+    this.reloadEntries();
     this.loadPathInfo();
   }
 
   /**
    * 
    */
-  private loadEntries() {
+  public reloadEntries() {
 
     const sub = this.inodeSvc.getAllChilds(this.currentFolder.uuid).subscribe(inodes => {
 
@@ -102,7 +110,7 @@ export class FilesFolderViewComponent implements OnInit {
     this.inputBoxSvc.showInputBox('Einen neuen Ordner anlegen', 'Name').subscribe(name => {
 
       this.inodeSvc.createFolder(this.currentFolder.uuid, name).subscribe(() => {
-        this.loadEntries();
+        this.reloadEntries();
       })
     })
   }
@@ -167,55 +175,86 @@ export class FilesFolderViewComponent implements OnInit {
     this.uploadFiles(event.target, event.files);
   }
 
-
+  /**
+   * 
+   * @param parent 
+   * @param files 
+   */
   private uploadFiles(parent: INode, files: File[]) {
 
-    this.uploadSvc.uploadFiles(parent.uuid, files).subscribe(() => {
+    this.uploadSvc.uploadFiles(parent.uuid, files).subscribe(rsp => {
 
-      if (parent.uuid === this.currentFolder.uuid) {
-        this.loadEntries();
+      if (rsp.duplicateFiles.length) {
+
+        this.showDuplFilesSvc.show(rsp.duplicateFiles).subscribe(action => {
+          alert(`Action: ${action}`);
+        })
+      }
+      else {
+        if (parent.uuid === this.currentFolder.uuid) {
+          this.reloadEntries();
+        }
       }
     })
   }
 
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* Drop-Operationen von INodes lösen zunächst erst einmal ein ent-         */
+  /* sprechendesEvent aus. Dies wird innerhalb des HTML-Templates an die     */
+  /* show()-Methode einer *FileDropINodeMenuComponent* delegiert.            */
+  /*                                                                         */
+  /* Diese zeigt darauf hin ein Context-Menu mit den möglichen Operationen   */
+  /* (copy, move, link) an                                                   */
+  /*                                                                         */
+  /* Und je nach Auswahl wird eine der folgenden Methoden gerufen...         */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
   /**
-   * Auf eines der GridView-Items wurde ein InodeDrop durchgeführt.
-   * Das behandeln wir hier nicht sondern geben das einfach an den
-   * Parent weiter.
-   * 
-   * @param files 
+   * Die gedroppte INode soll kopiert werden. Quelle und Target stehen im Event.
+   * @param event 
    */
-  onINodesDropped(event: INodeDroppedEvent) {
-
-    console.log('onInodesDropped');
-    if (this.dropInodesMenu) {
-      this.dropInodesMenu.show(event);
-    }
-  }
-
   onCopyDroppedINodes(event: INodeDroppedEvent) {
     this.inodeSvc.copy(event.source, event.target).subscribe(() => {
-      this.loadEntries();
+      this.reloadEntries();
     })
   }
 
+  /**
+   * Die gedroppte INode soll verschoben werden. Quelle und Target stehen im Event.
+   * @param event 
+   */
   onMoveDroppedINodes(event: INodeDroppedEvent) {
 
     this.inodeSvc.move(event.source, event.target).subscribe(() => {
-      this.loadEntries();
+      this.inodesGrabbed.emit();
+      this.reloadEntries();
     })
   }
 
+  /**
+   * Für die gedroppte INode soll ein symbolischer Link erstellt werden. 
+   * Quelle und Target stehen im Event.
+   * 
+   * @param event 
+   */
   onLinkDroppedINodes(event: INodeDroppedEvent) {
 
   }
 
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* Klassische INode-Ops                                                    */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
   /**
-   * Ein Open-Request wurde auf einem Item ausgelöst
+   * Ein Open-Request wurde auf einem Item ausgelöst. Wenn es sich um eine
+   * Directory-Inode handelt, so wird dorthin navigiert.
    * 
-   * @param inode 
-   */
-  /**
+   * Anderenfalls wird ein preview()-Event ausgelöst- Soll sich doch der 
+   * Parent drum kümmern ob, wo und wie er die Datei-Vorschau anzeigt.
    * 
    * @param inode 
    */
@@ -223,8 +262,8 @@ export class FilesFolderViewComponent implements OnInit {
 
     if (inode.isDirectory()) {
       this.currentFolder = inode;
-      this.loadEntries();
-      this.loadPathInfo();
+      this.refresh();
+      this.preview.emit(INode.empty());
     }
     else {
       this.preview.emit(inode);
@@ -232,9 +271,10 @@ export class FilesFolderViewComponent implements OnInit {
   }
 
   /**
-   * An einem GridViewItem wurde ein rename() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
+   * An einer INode wurde ein rename() angefordert. Wir fragen nach 
+   * dem neuen Namen und lösen den Rename aus.
+   * 
+   * Wenn selbiges Erfolg hatte, wird die View aktualisiert.
    * 
    * @param inode 
    */
@@ -245,16 +285,19 @@ export class FilesFolderViewComponent implements OnInit {
       if (newName) {
 
         this.inodeSvc.rename(inode.uuid, newName).subscribe(() => {
-          this.loadEntries();
+          this.reloadEntries();
         });
       }
     });
   }
 
   /**
-   * An einem GridViewItem wurde ein delete() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
+   * An einer INode wurde ein delete() angefordert. 
+   * 
+   * Wir zeigen den üblichen "Bist Du sicher?" Dialog an und löschen dann 
+   * die INode.
+   * 
+   * Wenn selbiges Erfolg hatte, wird die View aktualisiert.
    * 
    * @param inode 
    */
@@ -277,25 +320,47 @@ export class FilesFolderViewComponent implements OnInit {
 
         if (rsp) {
           this.inodeSvc.delete(uuids).subscribe(() => {
-            this.loadEntries();
+            this.reloadEntries();
           })
         }
       })
     }
   }
 
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* Clipboard-Ops                                                           */
+  /*                                                                         */
+  /* Wir verwenden hier nicht das native Clipboard, sondern den eigenen      */
+  /* *ClipboardService*.                                                     */
+  /*                                                                         */
+  /* Grund dafür ist, das die "normale" Clipbord-Integration in HTML5 dummer-*/
+  /* weise stark limitiert ist (content-Types und co). Es würde also nur die */
+  /* JSON.serialisierung der INodes + der gewünschten Operation bleiben, das */
+  /* dann als text/plain ins native clipboard.                               */
+  /*                                                                         */
+  /* Dadurch würden aber u.a die UUIDs der INodes im nativen Clipboard       */
+  /* landen. Und das möchste ich gerne vermeiden.                            */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
   /**
-   * 
+   * ist das Clipboard leer? Wird benötigt um die disabled-states in der 
+   * Toolbar zu steuern
    */
   public get isClipbordEmpty(): boolean {
     return this.clipboardSvc.isEmpty;
   }
 
   /**
-   * An einem GridViewItem wurde ein cut() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
+   * Eine CUT-Operation wurde angeforder. Entweder ist diese via ContextMenu
+   * auf einer INode passiert oder aus der Toolbar.
    * 
+   * Aus diesem Grund ist das INode-Argument auch optional. Beim Cut via
+   * ContextMenu ist die INode bekannt. Beim Cut aus der Toolbar sollen
+   * alle selektierten INodes ge-cutted werden. Das Argument ist dann
+   * undefined. 
+   *  
    * @param inode 
    */
   onCut(inode?: INode) {
@@ -304,10 +369,14 @@ export class FilesFolderViewComponent implements OnInit {
   }
 
   /**
-   * An einem GridViewItem wurde ein copy() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
+   * Eine COPY-Operation wurde angeforder. Entweder ist diese via ContextMenu
+   * auf einer INode passiert oder aus der Toolbar.
    * 
+   * Aus diesem Grund ist das INode-Argument auch optional. Beim Copy via
+   * ContextMenu ist die INode bekannt. Beim Copy aus der Toolbar sollen
+   * alle selektierten INodes kopiert werden. Das Argument ist dann
+   * undefined. 
+   *  
    * @param inode 
    */
   onCopy(inode?: INode) {
@@ -316,25 +385,30 @@ export class FilesFolderViewComponent implements OnInit {
   }
 
   /**
-   * An einem GridViewItem wurde ein paste() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
+   * Auf dem aktuellen Folder wurde eine Paste-Operation angefordert.
    * 
-   * @param inode 
+   * Je nach angeforderter OP werden unterschiedliche Services gerufen.
+   * 
    */
   onPaste() {
-    this.inodeSvc.move(this.clipboardSvc.inodes, this.currentFolder).subscribe(() => {
-      this.loadEntries();
-    })
-  }
 
-  private get selectedINodesAsArray(): INode[] {
+    switch (this.clipboardSvc.operation) {
+      case ClipboardService.OP_COPY:
+        this.inodeSvc.copy(this.clipboardSvc.inodes, this.currentFolder).subscribe(() => {
+          this.reloadEntries();
+        })
+        break;
 
-    const inodes: INode[] = new Array<INode>();
-    this.selectedINodes.forEach(inode => {
-      inodes.push(inode);
-    });
-    return inodes;
+      case ClipboardService.OP_MOVE:
+        this.inodeSvc.move(this.clipboardSvc.inodes, this.currentFolder).subscribe(() => {
+          this.inodesGrabbed.emit();
+          this.reloadEntries();
+        })
+        break;
+
+      default:
+        break;
+    }
   }
 
   /**
@@ -348,6 +422,12 @@ export class FilesFolderViewComponent implements OnInit {
     this.propsSvc.showPropDialog(inode);
   }
 
+  /**
+   * Liefere die Gesamt-Grö0e aller selektierten INodes.
+   * 
+   * Das ganze läuft nicht rekursiv, der Inhalt von 
+   * Verzeichnissen wird also **nicht** mit berechnet!
+   */
   public get selectedObjectSize(): number {
 
     let result = 0;
@@ -356,5 +436,18 @@ export class FilesFolderViewComponent implements OnInit {
       result += inode.size;
     })
     return result;
+  }
+
+
+  /**
+   * Liefere das Set der selektierten INodes als Array
+   */
+  private get selectedINodesAsArray(): INode[] {
+
+    const inodes: INode[] = new Array<INode>();
+    this.selectedINodes.forEach(inode => {
+      inodes.push(inode);
+    });
+    return inodes;
   }
 }

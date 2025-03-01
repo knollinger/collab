@@ -13,6 +13,9 @@ export class FilesListViewComponent implements OnInit {
   @Input()
   inodes: INode[] = new Array<INode>();
 
+  @Input()
+  iconSize: number = 64;
+
   displayedColumns = ['checkbox', 'icon', 'name', 'size', 'created', 'modified', 'menu'];
   
   constructor(private contentTypeSvc: ContentTypeService) { }

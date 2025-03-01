@@ -1,30 +1,24 @@
 <div class="outer-cnr"
+     [style.width]="iconWidth"
      matTooltip="{{inode.name}}"
      (contextmenu)="contextMenu.show($event)">
 
-     <!-- 
-        Der Menu-Trigger ist unsichtbar aber per CSS auf die Mitte des Items
-        positioniert. Ausgelöst wird er durch einen rechts-Klick auf das Item.
-        Durch die Positionierung auf den Mittelpunkt des Items wird auch das 
-        Menu an exakt dieser Stelle geöffnet.
-    -->
-     <!-- <span class="menu-trigger" [matMenuTriggerFor]="contextMenu">
-    </span> -->
      <app-files-item-context-menu #contextMenu
-                             (inode)="inode"
-                             (open)="onOpen()"
-                             (rename)="onRename()"
-                             (delete)="onDelete()"
-                             (cut)="onCut()"
-                             (copy)="onCopy()"
-                             (paste)="onPaste()"
-                             (showProps)="onShowProps()">
+                                  (inode)="inode"
+                                  (open)="onOpen()"
+                                  (rename)="onRename()"
+                                  (delete)="onDelete()"
+                                  (cut)="onCut()"
+                                  (copy)="onCopy()"
+                                  (paste)="onPaste()"
+                                  (showProps)="onShowProps()">
 
      </app-files-item-context-menu>
 
      <img class="thumbnail"
           [src]="iconUrl"
-          (click)="onOpen()">
+          (click)="onOpen()"
+          draggable="false">
      <div class="label">{{inode.name}}</div>
 
      <mat-checkbox class="selector"

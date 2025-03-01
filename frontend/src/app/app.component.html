@@ -3,8 +3,9 @@
     <mat-toolbar color="primary">
 
         <button mat-icon-button
+                *ngIf="isLoggedOn"
                 (click)="navMenu.toggle()"
-                class="flex-0">
+                class="flex-0 small-right-spacer">
             <mat-icon class="material-symbols-outlined">menu</mat-icon>
         </button>
 
@@ -18,7 +19,7 @@
             <mat-drawer #navMenu
                         mode="push"
                         (click)="navMenu.close()">
-                        
+
                 <!-- Home -->
                 <button mat-menu-item
                         routerLink="/">
@@ -32,6 +33,14 @@
                         matTooltip="Dateien">
                     <mat-icon class="material-symbols-outlined">folder</mat-icon>
                     <span>Dateien</span>
+                </button>
+
+                <!-- PinBoard -->
+                <button mat-menu-item
+                        routerLink="/pinboard"
+                        matTooltip="Pin-Wand">
+                    <mat-icon class="material-symbols-outlined">pinboard</mat-icon>
+                    <span>Pin-Wand</span>
                 </button>
 
                 <!-- Kalender -->
@@ -66,7 +75,7 @@
                     <span>Benutzer-Verwaltung</span>
                 </button>
             </mat-drawer>
-            
+
             <div class="full-height scrollable">
                 <router-outlet></router-outlet>
             </div>

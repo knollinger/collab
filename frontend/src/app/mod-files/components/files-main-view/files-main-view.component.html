@@ -2,8 +2,18 @@
 
     <app-toolbar>
 
-        <!-- ViewMode -->
         <span class="flex-1"></span>
+
+        <!-- IconSize-Menu -->
+        <mat-button-toggle class="small-right-spacer"
+                           checked="false"
+                           (click)="iconSizeMenu.show($event)">
+            <mat-icon class="material-symbols-outlined">aspect_ratio</mat-icon>
+            <app-files-iconsize-menu #iconSizeMenu (iconSize)="iconSize=$event"></app-files-iconsize-menu>
+        </mat-button-toggle>
+
+
+        <!-- SplitView-Toggle -->
         <mat-button-toggle class="small-right-spacer"
                            [checked]="showSplit"
                            (click)="onToggleSplitView()">
@@ -12,42 +22,56 @@
 
         <mat-button-toggle-group name="viewMode"
                                  [(value)]="viewMode">
+
             <mat-button-toggle value="grid"
                                matTooltip="Raster-Darstellung">
                 <mat-icon class="material-symbols-outlined">grid_on</mat-icon>
             </mat-button-toggle>
+
             <mat-button-toggle value="list"
                                matTooltip="Listen-Darstellung">
                 <mat-icon class="material-symbols-outlined">list</mat-icon>
             </mat-button-toggle>
+
         </mat-button-toggle-group>
 
     </app-toolbar>
 
     <div class="flex-1 disp-flex full-height scrollable flex-row">
 
-        <app-folder-view class="flex-1 full-height"
+        <app-folder-view #leftPane
+                         class="flex-1 full-height"
                          [active]="isViewActive(0)"
                          (activated)="onActivateView(0, $event)"
                          (preview)="onShowPreview($event)"
-                         [viewMode]="viewMode">
+                         [viewMode]="viewMode"
+                         [iconSize]="iconSize"
+                         (inodesGrabbed)="rightPane.reloadEntries()">
         </app-folder-view>
 
-        <app-folder-view class="flex-1 full-height"
-                         *ngIf="showSplit"
+        <!--
+        Die RightPane wird nur angezeigt, wenn der Benutzer dies via
+        Toggle in der ActionBar angefordert hat.
+
+        Ein einfaches ngIf funktioniert hier leider nicht, da die leftPane
+        in Ihrem inodesGrabbed-Handler eine Referenz auf die rightPane 
+        braucht. Deswegen class.hidden. Die Component bleibt im DOM, wird
+        aber nicht mehr angezeigt.
+        -->
+        <app-folder-view #rightPane
+                         class="flex-1 full-height"
+                         [class.hidden]="!showSplit"
                          [active]="isViewActive(1)"
                          (activated)="onActivateView(1, $event)"
                          (preview)="onShowPreview($event)"
-                         (activated)="onActivateView(1, $event)"
-                         [viewMode]="viewMode"></app-folder-view>
+                         [viewMode]="viewMode"
+                         [iconSize]="iconSize"
+                         (inodesGrabbed)="leftPane.reloadEntries()">
+        </app-folder-view>
 
         <app-files-preview *ngIf="showPreview"
                            class="flex-1"
                            [file]="previewINode"
                            (close)="onClosePreview()"></app-files-preview>
     </div>
-
-    <!-- <app-footer>
-        {{nrOfSelectedINodes}} Objekt(e) mit {{sizeOfSelectedINodes | fileSize}} ausgewählt
-    </app-footer> -->
 </div>

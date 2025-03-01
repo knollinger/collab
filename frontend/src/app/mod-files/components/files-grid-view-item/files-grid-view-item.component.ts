@@ -23,6 +23,9 @@ export class FilesGridViewItemComponent {
   inode: INode = INode.empty();
 
   @Input()
+  iconSize: number = 64;
+
+  @Input()
   selected: boolean = false;
 
   @Output()
@@ -64,6 +67,10 @@ export class FilesGridViewItemComponent {
     return this.iconSvc.getTypeIconUrl(this.inode.type);
   }
 
+  get iconWidth(): string {
+    return `${this.iconSize}px`;
+  }
+  
   /**
    * 
    * @param evt 

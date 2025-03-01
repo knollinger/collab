@@ -1,8 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { User } from './models/user';
-export { User };
+
+import { IUser, User } from './models/user';
+export { IUser, User };
 
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';

@@ -30,6 +30,9 @@ export class FilesGridViewComponent implements OnInit {
   @Input()
   selectedINodes: Set<INode> = new Set<INode>();
 
+  @Input()
+  iconSize: number = 64;
+
   @Output()
   inodesDropped: EventEmitter<INodeDroppedEvent> = new EventEmitter<INodeDroppedEvent>();
 

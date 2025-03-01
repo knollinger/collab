@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 
 import { ShowDuplicateFilesComponent } from '../components/show-duplicate-files/show-duplicate-files.component';
+import { INode } from '../models/inode';
 
 @Injectable({
   providedIn: 'root'
@@ -23,12 +24,12 @@ export class ShowDuplicateFilesService {
    * @param fileNames 
    * @returns 
    */
-  public show(fileNames: string[]): Observable<number> {
+  public show(files: INode[]): Observable<number> {
 
     const dialogRef = this.dialog.open(ShowDuplicateFilesComponent, {
       width: '80%',
       maxWidth: '600px',
-      data: fileNames
+      data: files
     });
     return dialogRef.afterClosed();
   }

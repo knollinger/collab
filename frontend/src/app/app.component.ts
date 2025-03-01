@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { CryptoService, SaveBlobService, TitlebarService } from './mod-commons/mod-commons.module';
+import { TitlebarService } from './mod-commons/mod-commons.module';
+import { SessionService } from './mod-session/session.module';
 import { INodeSearchResultItem, ISearchResultItem } from './mod-search/models/search-result';
 import { Router } from '@angular/router';
 
@@ -20,8 +21,7 @@ export class AppComponent implements OnInit {
   constructor(
     private router: Router,
     private titlebarSvc: TitlebarService,
-    private cryptoSvc: CryptoService,
-    private saveBlobSvc: SaveBlobService) {
+    private sessSvc: SessionService) {
 
   }
 
@@ -40,6 +40,14 @@ export class AppComponent implements OnInit {
     });
   }
 
+  /**
+   * 
+   * @returns 
+   */
+  get isLoggedOn(): boolean {
+    return !this.sessSvc.currentUser.isEmpty();
+  }
+
   /** 
    * 
    */
@@ -52,30 +60,8 @@ export class AppComponent implements OnInit {
         break;
 
       default:
-        console.log(`unexpected search result type ${search.type}`);
+//        console.log(`unexpected search result type ${search.type}`);
         break;
-    }
-  }
-
-  onTest() {
-
-    this.cryptoSvc.createKeystore('Sun12shine')
-      .then(keystore => {
-        this.saveBlobSvc.saveBlob(keystore, 'MyKeystore.jwk')
-        console.log(keystore);
-      })
-  }
-
-  onTest1(evt: Event) {
-
-    if(evt.target) {
-      const input = evt.target as HTMLInputElement;
-      if(input.files && input.files.length) {
-        console.log(input.files[0]);
-
-        const store = this.cryptoSvc.openKeystore(input.files[0], 'Sun12shine');
-        console.log(store);
-      }
     }
   }
 }

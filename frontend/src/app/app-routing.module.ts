@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
+import { SessionRequiredGuard } from './mod-session/session.module';
 
 const routes: Routes = [
   {
@@ -10,20 +11,25 @@ const routes: Routes = [
   },
   {
     path: 'home',
-    component: HomeComponent
+    component: HomeComponent,
+    canActivate: [SessionRequiredGuard],
   },
   {
-    path: 'session',
-    loadChildren: () => import('./mod-session/session.module').then(mod => mod.ModSessionModule)
+    path: 'files',
+    loadChildren: () => import('./mod-files/mod-files.module').then(mod => mod.ModFilesModule)
+  },
+  {
+    path: 'pinboard',
+    loadChildren: () => import('./mod-pinboard/mod-pinboard.module').then(mod => mod.ModPinboardModule)
   },
   {
     path: 'user',
     loadChildren: () => import('./mod-user/mod-user.module').then(mod => mod.ModUserModule)
   },
   {
-    path: 'files',
-    loadChildren: () => import('./mod-files/mod-files.module').then(mod => mod.ModFilesModule)
-  },  
+    path: 'session',
+    loadChildren: () => import('./mod-session/session.module').then(mod => mod.ModSessionModule)
+  }
 ];
 
 @NgModule({

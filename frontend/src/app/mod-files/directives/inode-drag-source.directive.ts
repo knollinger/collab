@@ -1,4 +1,4 @@
-import { Directive, HostListener, Input } from '@angular/core';
+import { Directive, HostBinding, HostListener, Input } from '@angular/core';
 import { INode } from '../models/inode';
 
 @Directive({
@@ -8,6 +8,9 @@ export class INodeDragSourceDirective {
 
   @Input()
   appINodeDragSource: INode = INode.empty();
+
+  @HostBinding()
+  draggable: string = 'true';
 
   /**
    *

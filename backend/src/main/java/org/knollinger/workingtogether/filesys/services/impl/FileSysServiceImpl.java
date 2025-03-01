@@ -443,4 +443,13 @@ public class FileSysServiceImpl implements IFileSysService
             }
         }
     }
+
+    @Override
+    public void copy(List<INode> source, INode target)
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException
+    {
+        // TODO Auto-generated method stub
+        
+    }
+    
 }

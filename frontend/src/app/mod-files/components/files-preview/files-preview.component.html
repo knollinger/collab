@@ -1,4 +1,4 @@
-<div class="disp-flex flex-col full-height scrollable">
+<div class="disp-flex flex-col full-height scrollable outer">
     <div class="flex-0 disp-flex flex-row flex-alignitems-center small-padding small-topbottom-lightgray-border toolbar">
         <div class="flex-1">{{file.name}}</div>
         <button mat-icon-button class="flex-0" matTooltip="Vorschau schließen" (click)="onClosePreview()">
@@ -7,9 +7,9 @@
     </div>
 
     <div class="flex-1 scrollable small-padding" [ngSwitch]="mainType">
-
-        <img *ngSwitchCase="'image'" [src]="src | safe:'resourceUrl'">
-        <div *ngSwitchCase="'video'">video not yet supported</div>
-        <embed *ngSwitchDefault  [src]="src | safe:'resourceUrl'" [type]="file.type">
+        <img *ngSwitchCase="'image'" [src]="src | safe:'resourceUrl'" (load)="onLoaded()">
+        <embed *ngSwitchDefault  [src]="src | safe:'resourceUrl'" [type]="file.type" (load)="onLoaded()">
     </div>
 </div>
+
+

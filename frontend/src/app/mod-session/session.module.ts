@@ -4,12 +4,16 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
+
 import { ModUserModule } from '../mod-user/mod-user.module';
+
+import { SessionService } from './services/session.service';
+export { SessionService }
 
 import { SessionRequiredGuard } from './guards/session-required.guard';
 export { SessionRequiredGuard };
 
-import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 
 import { SessionMenuComponent } from './components/session-menu/session-menu.component';
 import { LoginComponent } from './components/login/login.component';

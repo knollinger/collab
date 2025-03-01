@@ -16,6 +16,7 @@ import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysExcepti
 import org.knollinger.workingtogether.filesys.exceptions.UploadException;
 import org.knollinger.workingtogether.filesys.mapper.IFileSysMapper;
 import org.knollinger.workingtogether.filesys.models.INode;
+import org.knollinger.workingtogether.filesys.services.ICopyINodeService;
 import org.knollinger.workingtogether.filesys.services.IDeleteService;
 import org.knollinger.workingtogether.filesys.services.IFileSysService;
 import org.knollinger.workingtogether.filesys.services.IUploadService;
@@ -44,7 +45,10 @@ public class FileSysController
     private IDeleteService deleteSvc;
 
     @Autowired
-    private IUploadService uploadSvc;;
+    private IUploadService uploadSvc;
+    
+    @Autowired
+    private ICopyINodeService copySvc;
 
     @Autowired
     private IFileSysMapper fileSysMapper;
@@ -185,6 +189,32 @@ public class FileSysController
             List<INode> source = this.fileSysMapper.fromDTO(req.getSource());
             INode target = this.fileSysMapper.fromDTO(req.getTarget());
             this.fileSysService.move(source, target);
+        }
+        catch (TechnicalFileSysException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (NotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+        catch (DuplicateEntryException e)
+        {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+    }
+
+    /**
+     * Kopiere eine Sequenz von INodes in einen angegebenen Ziel-Ordner
+     */
+    @PostMapping(path = "/copy")
+    public void copy(@RequestBody() MoveINodeRequestDTO req)
+    {
+        try
+        {
+            List<INode> source = this.fileSysMapper.fromDTO(req.getSource());
+            INode target = this.fileSysMapper.fromDTO(req.getTarget());
+            this.copySvc.copyINodes(source, target);
         }
         catch (TechnicalFileSysException e)
         {

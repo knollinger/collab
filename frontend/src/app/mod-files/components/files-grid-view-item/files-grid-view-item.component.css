@@ -14,12 +14,11 @@
 
 .thumbnail {
     display: block;
-    width: 128px;
-    height: 128px;
+    width: 100%;
 }
 
 .label {
-    width: 128px;
+    width: 100%;
     text-align: center;
     overflow: hidden;
     text-overflow: ellipsis;

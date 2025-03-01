@@ -11,6 +11,7 @@
                                   [class.mat-elevation-z1]="!isActiveINode(inode)"
                                   [appINodeDragSource]="inode"
                                   [appDropTarget]="inode"
+                                  [iconSize]="iconSize"
                                   (inodesDropped)="onINodesDropped($event)"
                                   (filesDropped)="onFilesDropped($event)"
                                   [selected]="isSelected(inode)"

@@ -1,10 +1,12 @@
 package org.knollinger.workingtogether.filesys.services.impl;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -33,7 +35,7 @@ public class UploadServiceImpl implements IUploadService
 {
     private static final String SQL_CREATE_INODE = "" //
         + "insert into inodes" // 
-        + "  set uuid=?, parent=?, name=?, size=?, type=?, hash=?";
+        + "  set uuid=?, parent=?, name=?, size=?, type=?, hash=?, data=?";
 
     private static final String SQL_GET_CHILD_BY_NAME = "" //
         + "select * from inodes" //
@@ -61,6 +63,7 @@ public class UploadServiceImpl implements IUploadService
             conn = this.dbSvc.openConnection();
             conn.setAutoCommit(false);
 
+            long start = System.currentTimeMillis();
             List<INode> result = new ArrayList<>();
             List<INode> duplicates = new ArrayList<>();
             for (MultipartFile file : files)
@@ -82,10 +85,14 @@ public class UploadServiceImpl implements IUploadService
             }
 
             conn.commit();
+
+            long end = System.currentTimeMillis();
+            System.err.println("single insert: " + (end - start) + "ms");
             return result;
         }
         catch (SQLException | NoSuchAlgorithmException | IOException e)
         {
+            e.printStackTrace();
             String msg = String.format(ERR_UPLOAD_FAILED, parentUUID.toString());
             throw new TechnicalFileSysException(msg, e);
         }
@@ -94,7 +101,6 @@ public class UploadServiceImpl implements IUploadService
             this.dbSvc.closeQuitely(conn);
         }
     }
-
 
     /**
      * @param parentUUID
@@ -111,10 +117,11 @@ public class UploadServiceImpl implements IUploadService
         INode result = null;
         PreparedStatement stmt = null;
 
+        FileAndHash fileSysObj = null;
         try
         {
             UUID newUUID = UUID.randomUUID();
-            FileAndHash fileSysObj = this.saveToFileSys(newUUID, file);
+            fileSysObj = this.saveToFileSys(newUUID, file);
 
             stmt = conn.prepareStatement(SQL_CREATE_INODE);
             stmt.setString(1, newUUID.toString());
@@ -123,9 +130,10 @@ public class UploadServiceImpl implements IUploadService
             stmt.setLong(4, file.getSize());
             stmt.setString(5, file.getContentType());
             stmt.setString(6, fileSysObj.hash());
+            stmt.setBinaryStream(7, new FileInputStream(fileSysObj.file));
+
             stmt.executeUpdate();
-            conn.commit();
-            
+
             Timestamp now = new Timestamp(System.currentTimeMillis());
             result = INode.builder() //
                 .uuid(newUUID) //
@@ -143,6 +151,7 @@ public class UploadServiceImpl implements IUploadService
         }
         finally
         {
+            this.deleteFileSysObj(fileSysObj);
             this.dbSvc.closeQuitely(stmt);
         }
         return result;
@@ -150,22 +159,33 @@ public class UploadServiceImpl implements IUploadService
 
 
     /**
+     * @param fileSysObj
+     */
+    private void deleteFileSysObj(FileAndHash fileSysObj)
+    {
+        if (fileSysObj != null)
+        {
+            fileSysObj.file.delete();
+        }
+    }
+
+    /**
      * @param newUUID
-     * @param file
+     * @param multipartIn
      * @return
      * @throws IOException
      * @throws NoSuchAlgorithmException
      */
-    private FileAndHash saveToFileSys(UUID newUUID, MultipartFile file) throws IOException, NoSuchAlgorithmException
+    private FileAndHash saveToFileSys(UUID newUUID, MultipartFile multipartIn) throws IOException, NoSuchAlgorithmException
     {
         File tmpFile = new File(this.basePath, newUUID.toString());
         tmpFile.createNewFile();
-        try (HashCalculatingInputStream in = new HashCalculatingInputStream(file.getInputStream());
+        try (HashCalculatingInputStream hashIn = new HashCalculatingInputStream(multipartIn.getInputStream());
             OutputStream out = new FileOutputStream(tmpFile))
         {
-            IOUtils.copy(in, out);
+            IOUtils.copy(hashIn, out);
             out.flush();
-            return new FileAndHash(tmpFile, in.getHashAsString());
+            return new FileAndHash(tmpFile, hashIn.getHashAsString());
         }
         catch (IOException | NoSuchAlgorithmException e)
         {

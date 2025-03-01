@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { INode } from '../../models/inode';
 import { INodeService } from '../../services/inode.service';
+import { SpinnerService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
   selector: 'app-files-preview',
@@ -20,6 +21,8 @@ export class FilesPreviewComponent implements OnInit, OnDestroy {
   @Input()
   set file(inode: INode) {
 
+    this.spinnerSvc.addPendingRequest();
+    this.spinnerSvc.setMessage(`Lade ${inode.name}`);
     this._file = inode;
     this.src = this.inodeSvc.getContentUrl(inode.uuid);
   }
@@ -34,10 +37,19 @@ export class FilesPreviewComponent implements OnInit, OnDestroy {
 
   /**
    * 
+   */
+  onLoaded() {
+
+    this.spinnerSvc.removePendingRequest();
+  }
+
+  /**
+   * 
    * @param inodeSvc 
    */
   constructor(
     private route: ActivatedRoute,
+    private spinnerSvc: SpinnerService,
     private inodeSvc: INodeService) {
 
   }

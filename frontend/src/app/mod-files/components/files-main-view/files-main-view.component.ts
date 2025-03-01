@@ -34,8 +34,10 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
   public path: INode[] = new Array<INode>();
   public selectedINodes: Set<INode> = new Set<INode>();
   public previewINode: INode = INode.empty();
+  public iconSize: number = 128;
 
   activeView: number = 0;
+
 
   /**
    * 
@@ -60,7 +62,7 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
 
-    this.titlebarSvc.subTitle = 'Datei-Verwaltung';
+    this.titlebarSvc.subTitle = 'Dateien';
     this.route.params.subscribe(params => {
 
       const uuid = params['uuid'] || EINodeUUIDs.INODE_ROOT;

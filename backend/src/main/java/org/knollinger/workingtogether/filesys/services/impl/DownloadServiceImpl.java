@@ -1,10 +1,10 @@
 package org.knollinger.workingtogether.filesys.services.impl;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -12,10 +12,12 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.knollinger.workingtogether.filesys.exceptions.NotFoundException;
 import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.workingtogether.filesys.models.BlobInfo;
 import org.knollinger.workingtogether.filesys.services.IDownloadService;
+import org.knollinger.workingtogether.utils.io.FileDeletingInputStream;
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,7 +29,7 @@ public class DownloadServiceImpl implements IDownloadService
     private static final String ERR_LOAD_FILE = "Die Datei mit der UUID '%1$s' konnte aufgrund eines technischen Problems nicht geladen werden.";
 
     private static final String SQL_LOAD_FILE = "" //
-        + "select size, type, hash from inodes" //
+        + "select size, type, hash, data from inodes" //
         + "  where uuid=?";
 
     @Value("${blobstore.basePath}")
@@ -55,7 +57,7 @@ public class DownloadServiceImpl implements IDownloadService
             }
 
             String type = rs.getString("type");
-            InputStream in = this.getFile(uuid, type);
+            InputStream in = this.getFile(uuid, type, rs.getBinaryStream("data"));
 
             return BlobInfo.builder() //
                 .contentType(type) //
@@ -63,7 +65,6 @@ public class DownloadServiceImpl implements IDownloadService
                 .eTag(rs.getString("hash")) //
                 .data(in) //
                 .build();
-
         }
         catch (SQLException | IOException e)
         {
@@ -90,21 +91,24 @@ public class DownloadServiceImpl implements IDownloadService
 
     /**
      * @param uuid
+     * @param in 
      * @return
-     * @throws FileNotFoundException 
+     * @throws IOException 
      */
-    private InputStream getFile(UUID uuid, String type) throws FileNotFoundException
+    private InputStream getFile(UUID uuid, String type, InputStream in) throws IOException
     {
-        InputStream in;
+        InputStream result;
+        OutputStream out;
         if (type.equalsIgnoreCase("inode/directory"))
         {
-            in = InputStream.nullInputStream();
+            result = InputStream.nullInputStream();
         }
         else
         {
-            File file = new File(this.basePath, uuid.toString());
-            in = new FileInputStream(file);
+            File tmpFile = File.createTempFile("colab_", ".tmp");
+            IOUtils.copy(in, new FileOutputStream(tmpFile));
+            result = new FileDeletingInputStream(tmpFile); // TODO: und wer schliest den FileOutputStream?
         }
-        return in;
+        return result;
     }
 }

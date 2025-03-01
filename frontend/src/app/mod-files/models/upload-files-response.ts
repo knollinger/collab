@@ -2,7 +2,7 @@ import { INode } from './inode';
 
 export interface IUploadFilesResponse {
     newINodes?: INode[],
-    duplicateFiles?: string[];
+    duplicateFiles?: INode[];
 }
 
 export class UploadFilesResponse {
@@ -12,7 +12,7 @@ export class UploadFilesResponse {
      */
     constructor(
         public readonly newINodes: INode[],
-        public readonly duplicateFiles: string[]) {
+        public readonly duplicateFiles: INode[]) {
     }
 
     /**
@@ -22,14 +22,19 @@ export class UploadFilesResponse {
      */
     public static fromJSON(json: IUploadFilesResponse): UploadFilesResponse {
 
-        let duplicateFiles = json.duplicateFiles || new Array<string>();
-        
         let newINodes: INode[] = new Array<INode>();
         if (json.newINodes) {
             newINodes = json.newINodes.map(inode => {
                 return INode.fromJSON(inode);
             });
         }
-        return new UploadFilesResponse(newINodes, duplicateFiles);
+
+        let dupINodes: INode[] = new Array<INode>();
+        if (json.duplicateFiles) {
+            dupINodes = json.duplicateFiles.map(inode => {
+                return INode.fromJSON(inode);
+            });
+        }
+        return new UploadFilesResponse(newINodes, dupINodes);
     }
 }

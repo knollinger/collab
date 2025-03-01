@@ -20,6 +20,7 @@ import { INodeDragSourceDirective } from './directives/inode-drag-source.directi
 import { DropTargetDirective } from './directives/drop-target.directive';
 import { FilesFolderContextMenuComponent } from './components/files-folder-context-menu/files-folder-context-menu.component';
 import { FileDropINodeMenuComponent } from './components/files-inode-drop-menu/files-inode-drop-menu.component';
+import { FilesIconsizeMenuComponent } from './components/files-iconsize-menu/files-iconsize-menu.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +39,7 @@ import { FileDropINodeMenuComponent } from './components/files-inode-drop-menu/f
     DropTargetDirective,
     FilesFolderContextMenuComponent,
     FileDropINodeMenuComponent,
+    FilesIconsizeMenuComponent,
   ],
   imports: [
     CommonModule,

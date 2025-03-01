@@ -35,9 +35,6 @@ export class FileDropINodeMenuComponent {
   @Output()
   move: EventEmitter<INodeDroppedEvent> = new EventEmitter<INodeDroppedEvent>();
 
-  @Output()
-  link: EventEmitter<INodeDroppedEvent> = new EventEmitter<INodeDroppedEvent>();
-
   triggerPosX: string = '';
   triggerPosY: string = '';
 
@@ -60,11 +57,8 @@ export class FileDropINodeMenuComponent {
   onCopy() {
     this.copy.emit(this.event!);
   }
+
   onMove() {
     this.move.emit(this.event!);
-  }
-
-  onLink() {
-    this.link.emit(this.event!);
   }
 }
