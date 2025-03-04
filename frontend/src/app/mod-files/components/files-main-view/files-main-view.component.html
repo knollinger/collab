@@ -43,7 +43,6 @@
                          class="flex-1 full-height"
                          [active]="isViewActive(0)"
                          (activated)="onActivateView(0, $event)"
-                         (preview)="onShowPreview($event)"
                          [viewMode]="viewMode"
                          [iconSize]="iconSize"
                          (inodesGrabbed)="rightPane.reloadEntries()">
@@ -63,15 +62,9 @@
                          [class.hidden]="!showSplit"
                          [active]="isViewActive(1)"
                          (activated)="onActivateView(1, $event)"
-                         (preview)="onShowPreview($event)"
                          [viewMode]="viewMode"
                          [iconSize]="iconSize"
                          (inodesGrabbed)="leftPane.reloadEntries()">
         </app-folder-view>
-
-        <app-files-preview *ngIf="showPreview"
-                           class="flex-1"
-                           [file]="previewINode"
-                           (close)="onClosePreview()"></app-files-preview>
     </div>
 </div>

@@ -8,6 +8,7 @@ import { ContentTypeService } from '../../services/content-type.service';
 import { ShowDuplicateFilesService } from '../../services/show-duplicate-files.service';
 import { FilesPropertiesService } from '../../services/files-properties.service';
 import { ClipboardService } from '../../services/clipboard.service';
+import { PreviewService } from '../../services/preview.service';
 import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
 
 @Component({
@@ -40,9 +41,6 @@ export class FilesFolderViewComponent implements OnInit {
   activated: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Output()
-  preview: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
   inodesGrabbed: EventEmitter<void> = new EventEmitter<void>();
 
   /**
@@ -60,6 +58,7 @@ export class FilesFolderViewComponent implements OnInit {
     private messageBoxSvc: MessageBoxService,
     private inputBoxSvc: InputBoxService,
     private clipboardSvc: ClipboardService,
+    private previewSvc: PreviewService,
     private contentTypeSvc: ContentTypeService,
     private showDuplFilesSvc: ShowDuplicateFilesService,
     private propsSvc: FilesPropertiesService) {
@@ -263,10 +262,9 @@ export class FilesFolderViewComponent implements OnInit {
     if (inode.isDirectory()) {
       this.currentFolder = inode;
       this.refresh();
-      this.preview.emit(INode.empty());
     }
     else {
-      this.preview.emit(inode);
+      this.previewSvc.showPreview(inode, this.inodes);
     }
   }
 

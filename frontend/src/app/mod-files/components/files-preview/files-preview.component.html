@@ -1,15 +1,29 @@
-<div class="disp-flex flex-col full-height scrollable outer">
-    <div class="flex-0 disp-flex flex-row flex-alignitems-center small-padding small-topbottom-lightgray-border toolbar">
-        <div class="flex-1">{{file.name}}</div>
-        <button mat-icon-button class="flex-0" matTooltip="Vorschau schließen" (click)="onClosePreview()">
+<div class="disp-flex flex-col full-height">
+
+    <div mat-dialog-title
+         class="flex-0 disp-flex flex-row">
+        <img class="flex-0 mimetype-icon"
+             [src]="getMimeTypeIcon()">
+        <div class="flex-1">{{data.current.name}}</div>
+        <button mat-icon-button  [mat-dialog-close]=""
+                class="flex-0">
             <mat-icon class="material-symbols-outlined">close</mat-icon>
         </button>
     </div>
 
-    <div class="flex-1 scrollable small-padding" [ngSwitch]="mainType">
-        <img *ngSwitchCase="'image'" [src]="src | safe:'resourceUrl'" (load)="onLoaded()">
-        <embed *ngSwitchDefault  [src]="src | safe:'resourceUrl'" [type]="file.type" (load)="onLoaded()">
+    <div
+         class="flex-1 scrollable"
+         [ngSwitch]="mainType">
+
+        <img *ngSwitchCase="'image'"
+             class="image-preview"
+             [src]="src | safe:'resourceUrl'"
+             (load)="onLoaded()">
+
+        <embed *ngSwitchDefault
+               class="default-preview"
+               [src]="src | safe:'resourceUrl'"
+               [type]="data.current.type"
+               (load)="onLoaded()">
     </div>
 </div>
-
-

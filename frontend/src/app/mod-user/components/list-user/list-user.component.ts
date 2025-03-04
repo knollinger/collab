@@ -61,6 +61,6 @@ export class ListUserComponent implements OnInit {
    */
   getAvatar(user: User): string {
 
-    return this.userSvc.getAvatarUrl(user);
+    return this.userSvc.getAvatarUrl(user.userId);
   }
 }

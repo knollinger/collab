@@ -1,0 +1,53 @@
+<!-- <mat-card>
+    <mat-card-header>
+        <mat-icon mat-card-avatar class="material-symbols-outlined">edit</mat-icon>
+        <mat-card-title>{{card.title}}</mat-card-title>
+    </mat-card-header>
+</mat-card>
+ -->
+
+<div class="card mat-elevation-z4 disp-flex flex-col">
+    <div class=" flex-0 disp-flex flex-row flex-alignitems-center small-spacer">
+        <img class="avatar flex-0 small-right-spacer"
+             [src]="getOwnerAvatar(card)">
+        <div class="title flex-1">{{card.title}}</div>
+        <button mat-icon-button color="primary"
+                class="flex-0"
+                (click)="onDeleteCard(card)">
+            <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        </button>
+    </div>
+    <div class="body flex-1 small-spacer">
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+        <p>Test</p>
+    </div>
+
+</div>

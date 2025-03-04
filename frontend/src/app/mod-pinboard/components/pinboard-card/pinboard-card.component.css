@@ -1,0 +1,24 @@
+.card {
+    display: inline-block;
+    margin: 0.5rem;
+    height: 40vh;
+    width: 300px;
+    background:#fefabc;
+    background-color: #fefabc;
+    background-image: linear-gradient(150deg, #efec88 0%, #fefabc 100%);    
+}
+
+.card:active {
+    transform: translate(2px, 2px);
+}
+
+.title {
+    font-size: larger;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.body {
+    overflow: hidden;
+}

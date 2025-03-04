@@ -1,0 +1,16 @@
+<span class="menu-trigger"
+      [matMenuTriggerFor]="sizeMenu"
+      [style.left]="triggerPosX"
+      [style.top]="triggerPosY">
+</span>
+
+<mat-menu #sizeMenu="matMenu">
+
+    <button mat-menu-item
+            *ngFor="let size of iconSizes"
+            (click)="onIconSize(size)">
+        <mat-icon class="material-symbols-outlined">cloud_download</mat-icon>
+        {{size.text}}
+    </button>
+
+</mat-menu>

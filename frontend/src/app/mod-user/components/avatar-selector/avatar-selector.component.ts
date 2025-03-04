@@ -16,7 +16,7 @@ export class AvatarSelectorComponent implements OnInit, OnDestroy {
   @Input()
   set user(user: User) {
     this._user = user;
-    this.url = this.userSvc.getAvatarUrl(this._user);
+    this.url = this.userSvc.getAvatarUrl(this._user.userId);
   }  
   private _user: User = User.empty();
   

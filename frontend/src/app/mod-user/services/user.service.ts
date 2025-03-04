@@ -86,8 +86,8 @@ export class UserService {
     );
   }
 
-  getAvatarUrl(user: User): string {
-    return this.backendRouter.getRouteForName('getAvatar', UserService.routes, user.userId);
+  getAvatarUrl(userId: string): string {
+    return this.backendRouter.getRouteForName('getAvatar', UserService.routes, userId);
 
   }
 }

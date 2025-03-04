@@ -45,7 +45,7 @@ export class SessionMenuComponent implements OnInit {
     let result = '';
     const user = this.sessionSvc.currentUser;
     if (user) {
-      result = this.userSvc.getAvatarUrl(user);
+      result = this.userSvc.getAvatarUrl(user.userId);
     }
     return result;
   }
