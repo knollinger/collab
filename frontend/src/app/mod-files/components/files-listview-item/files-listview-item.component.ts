@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 
 import { INode } from '../../models/inode';
 import { ContentTypeService } from '../../services/content-type.service';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-files-listview-item',
@@ -66,8 +67,16 @@ export class FilesListviewItemComponent implements OnInit {
   }
 
   /**
- * 
- */
+     * 
+     * @param evt 
+     */
+  onSelectorChange(evt: MatCheckboxChange) {
+    this.selectionChange.emit(evt.checked);
+  }
+
+  /**
+   * 
+   */
   onOpen() {
     this.open.emit(this.inode);
   }
