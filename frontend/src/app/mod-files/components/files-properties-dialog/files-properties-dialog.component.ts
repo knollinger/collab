@@ -2,6 +2,7 @@ import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ContentTypeService } from '../../services/content-type.service';
+import { User, UserService } from '../../../mod-user/mod-user.module';
 
 import { INode } from '../../models/inode';
 
@@ -29,7 +30,7 @@ export class FilesPropertiesDialogComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: FilesPropertiesDialogData,
-  private contentTypeSvc: ContentTypeService) {
+    private contentTypeSvc: ContentTypeService) {
 
   }
 
@@ -62,6 +63,40 @@ export class FilesPropertiesCommonsComponent implements OnInit {
    * @param data 
    */
   constructor() {
+  }
+
+  /**
+   * 
+   */
+  ngOnInit(): void {
+  }
+}
+
+/**
+ * 
+ */
+@Component({
+  selector: 'app-files-properties-permissions',
+  templateUrl: './files-properties-permissions.component.html',
+  styleUrls: ['./files-properties-permissions.component.css']
+})
+export class FilesPropertiesPermissionsComponent implements OnInit {
+
+  owner: User = User.empty();
+
+  @Input()
+  set inode(inode: INode) {
+    this.userSvc.getUser(inode.owner).subscribe(owner => {
+      this.owner = owner;
+    })
+  }
+
+  /**
+   * 
+   * @param data 
+   */
+  constructor(private userSvc: UserService) {
+
   }
 
   /**

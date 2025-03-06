@@ -1,29 +1,45 @@
-<div class="disp-flex flex-col full-height">
+<div class="pos-rel disp-flex flex-col full-height">
 
     <div mat-dialog-title
          class="flex-0 disp-flex flex-row">
         <img class="flex-0 mimetype-icon"
              [src]="getMimeTypeIcon()">
-        <div class="flex-1">{{data.current.name}}</div>
-        <button mat-icon-button  [mat-dialog-close]=""
+        <div class="flex-1">{{currentINode.name}}</div>
+        <button mat-icon-button
+                [mat-dialog-close]=""
                 class="flex-0">
             <mat-icon class="material-symbols-outlined">close</mat-icon>
         </button>
     </div>
 
-    <div
-         class="flex-1 scrollable"
+    <div class="body flex-1 scrollable"
          [ngSwitch]="mainType">
 
         <img *ngSwitchCase="'image'"
              class="image-preview"
-             [src]="src | safe:'resourceUrl'"
-             (load)="onLoaded()">
+             [src]="srcUrl | safe:'resourceUrl'">
 
         <embed *ngSwitchDefault
                class="default-preview"
-               [src]="src | safe:'resourceUrl'"
-               [type]="data.current.type"
-               (load)="onLoaded()">
+               [src]="srcUrl | safe:'resourceUrl'"
+               [type]="currentINode.type">
+
+        <button mat-mini-fab
+                color="white"
+                class="scroll-left"
+                (click)="onScrollLeft()">
+            <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
+        </button>
+
+        <button mat-mini-fab
+                color="white"
+                class="scroll-right"
+                (click)="onScrollRight()">
+            <mat-icon class="material-symbols-outlined">chevron_right</mat-icon>
+        </button>
+
     </div>
+    <mat-slide-toggle color="primary" (change)="onAutoLoop($event)">
+        Automatisch weiter spulen
+    </mat-slide-toggle>
 </div>

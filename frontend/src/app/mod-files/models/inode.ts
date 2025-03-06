@@ -8,7 +8,8 @@ export interface IINode {
     type: string,
     size: number,
     created: Date,
-    modified: Date
+    modified: Date,
+    owner: string
 }
 
 /**
@@ -43,7 +44,8 @@ export class INode {
         public readonly type: string,
         public readonly size: number,
         public readonly created: Date,
-        public readonly modified: Date) {
+        public readonly modified: Date,
+        public readonly owner: string) {
     }
 
     /**
@@ -52,7 +54,7 @@ export class INode {
      * @returns 
      */
     public static fromJSON(json: IINode): INode {
-        return new INode(json.name, json.uuid, json.parent, json.type, json.size, json.created, json.modified);
+        return new INode(json.name, json.uuid, json.parent, json.type, json.size, json.created, json.modified, json.owner);
     }
 
     /**
@@ -67,7 +69,8 @@ export class INode {
             type: this.type,
             size: this.size,
             created: this.created,
-            modified: this.modified
+            modified: this.modified,
+            owner: this.owner
         }
     }
 
@@ -87,7 +90,7 @@ export class INode {
     public static root(): INode {
 
         const now = new Date();
-        return new INode('root', EINodeUUIDs.INODE_ROOT, EINodeUUIDs.INODE_NONE, 'inode/directory', 0, now, now);
+        return new INode('root', EINodeUUIDs.INODE_ROOT, EINodeUUIDs.INODE_NONE, 'inode/directory', 0, now, now, '');
     }
 
     /**
@@ -97,7 +100,7 @@ export class INode {
      */
     public static empty(): INode {
         const now = new Date();
-        return new INode('', EINodeUUIDs.INODE_NONE, EINodeUUIDs.INODE_NONE, '', 0, now, now);
+        return new INode('', EINodeUUIDs.INODE_NONE, EINodeUUIDs.INODE_NONE, '', 0, now, now, '');
     }
 
     /**

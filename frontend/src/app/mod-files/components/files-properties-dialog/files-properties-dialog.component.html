@@ -8,8 +8,9 @@
         <mat-tab label="Allgemein">
             <app-files-properties-commons class="tab-content" [inode]="data.inode"></app-files-properties-commons>
         </mat-tab>
+
         <mat-tab label="Berechtigungen">
-            <div class="tab-content">Content 2</div>
+            <app-files-properties-permissions class="tab-content" [inode]="data.inode"></app-files-properties-permissions>
         </mat-tab>
     </mat-tab-group>
 </mat-dialog-content>

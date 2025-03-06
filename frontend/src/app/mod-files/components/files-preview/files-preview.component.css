@@ -3,6 +3,10 @@
     height: 2rem;
 }
 
+.body {
+    position: relative;
+}
+
 .default-preview {
     border: 0;
     width: 100%;
@@ -16,4 +20,18 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.scroll-left {
+    position: absolute;
+    top: 50%;
+    left: 0.5rem;
+    transform: translateY(-50%);
+}
+
+.scroll-right {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
 }

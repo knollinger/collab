@@ -26,8 +26,8 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     private IDbService dbSvc;
 
     private static final String SQL_COPY = "" //
-        + "insert into inodes ( uuid , parent , name, size, type, data, hash)" //
-        + "  select ? , ?, name, size, type, data, hash" //
+        + "insert into inodes ( uuid , parent , owner, name, size, type, data, hash)" //
+        + "  select ? , ?, owner, name, size, type, data, hash" //
         + "    from inodes" //
         + "      where uuid = ?";
 

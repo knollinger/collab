@@ -17,5 +17,4 @@ public interface IFileSysService {
     public INode createFolder(UUID parentId, String name) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException;
     
     public void move(List<INode> src, INode target) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException;
-    public void copy(List<INode> source, INode target) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException;
 }

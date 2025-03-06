@@ -26,7 +26,7 @@ class CreateUserHelper
 
     private static String SQL_CREATE_DIRECTORY = "" //
         + "insert into inodes" //
-        + "  set uuid=?, parent=?, name=?, type=?, size=0";
+        + "  set uuid=?, parent=?, owner=?, name=?, type=?, size=0";
     
     private static String[] DEFAULT_HOME_FOLDER_NAMES = {"Bilder", "Dokumente", "Videos", "Musik"};
 
@@ -147,8 +147,9 @@ class CreateUserHelper
             stmt = conn.prepareStatement(SQL_CREATE_DIRECTORY);
             stmt.setString(1, homeUUID.toString());
             stmt.setString(2, EWellknownINodeIDs.ROOT.value().toString());
-            stmt.setString(3, user.getAccountName());
-            stmt.setString(4, "inode/directory");
+            stmt.setString(3, user.getUserId().toString());
+            stmt.setString(4, user.getAccountName());
+            stmt.setString(5, "inode/directory");
             stmt.executeUpdate();
             
             for (String name : DEFAULT_HOME_FOLDER_NAMES)
@@ -156,8 +157,9 @@ class CreateUserHelper
                 UUID uuid = UUID.randomUUID();
                 stmt.setString(1, uuid.toString());
                 stmt.setString(2, homeUUID.toString());
-                stmt.setString(3, name);
-                stmt.setString(4, "inode/directory");
+                stmt.setString(3, user.getUserId().toString());
+                stmt.setString(4, name);
+                stmt.setString(5, "inode/directory");
                 stmt.executeUpdate();
             }
         }

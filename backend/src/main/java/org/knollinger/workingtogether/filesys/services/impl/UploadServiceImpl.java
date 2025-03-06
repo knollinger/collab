@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
-import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,6 +22,8 @@ import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysExcepti
 import org.knollinger.workingtogether.filesys.exceptions.UploadException;
 import org.knollinger.workingtogether.filesys.models.INode;
 import org.knollinger.workingtogether.filesys.services.IUploadService;
+import org.knollinger.workingtogether.user.models.User;
+import org.knollinger.workingtogether.user.services.ICurrentUserService;
 import org.knollinger.workingtogether.utils.io.HashCalculatingInputStream;
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class UploadServiceImpl implements IUploadService
 {
     private static final String SQL_CREATE_INODE = "" //
         + "insert into inodes" // 
-        + "  set uuid=?, parent=?, name=?, size=?, type=?, hash=?, data=?";
+        + "  set uuid=?, parent=?, owner=?, name=?, size=?, type=?, hash=?, data=?";
 
     private static final String SQL_GET_CHILD_BY_NAME = "" //
         + "select * from inodes" //
@@ -48,6 +49,9 @@ public class UploadServiceImpl implements IUploadService
 
     @Autowired
     private IDbService dbSvc;
+    
+    @Autowired
+    private ICurrentUserService currUserSvc;
 
     /**
      *
@@ -62,13 +66,14 @@ public class UploadServiceImpl implements IUploadService
         {
             conn = this.dbSvc.openConnection();
             conn.setAutoCommit(false);
+            
+            User user = this.currUserSvc.get();
 
-            long start = System.currentTimeMillis();
             List<INode> result = new ArrayList<>();
             List<INode> duplicates = new ArrayList<>();
             for (MultipartFile file : files)
             {
-                INode node = this.handleOneFile(parentUUID, file, conn);
+                INode node = this.handleOneFile(parentUUID, file, user, conn);
                 if (node != null)
                 {
                     result.add(node);
@@ -85,9 +90,6 @@ public class UploadServiceImpl implements IUploadService
             }
 
             conn.commit();
-
-            long end = System.currentTimeMillis();
-            System.err.println("single insert: " + (end - start) + "ms");
             return result;
         }
         catch (SQLException | NoSuchAlgorithmException | IOException e)
@@ -103,15 +105,17 @@ public class UploadServiceImpl implements IUploadService
     }
 
     /**
+     * 
      * @param parentUUID
      * @param file
+     * @param user
      * @param conn
      * @return
-     * @throws SQLException 
-     * @throws IOException 
-     * @throws NoSuchAlgorithmException 
+     * @throws SQLException
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
      */
-    private INode handleOneFile(UUID parentUUID, MultipartFile file, Connection conn)
+    private INode handleOneFile(UUID parentUUID, MultipartFile file, User user, Connection conn)
         throws SQLException, NoSuchAlgorithmException, IOException
     {
         INode result = null;
@@ -126,11 +130,12 @@ public class UploadServiceImpl implements IUploadService
             stmt = conn.prepareStatement(SQL_CREATE_INODE);
             stmt.setString(1, newUUID.toString());
             stmt.setString(2, parentUUID.toString());
-            stmt.setString(3, file.getOriginalFilename());
-            stmt.setLong(4, file.getSize());
-            stmt.setString(5, file.getContentType());
-            stmt.setString(6, fileSysObj.hash());
-            stmt.setBinaryStream(7, new FileInputStream(fileSysObj.file));
+            stmt.setString(3, user.getUserId().toString());
+            stmt.setString(4, file.getOriginalFilename());
+            stmt.setLong(5, file.getSize());
+            stmt.setString(6, file.getContentType());
+            stmt.setString(7, fileSysObj.hash());
+            stmt.setBinaryStream(8, new FileInputStream(fileSysObj.file));
 
             stmt.executeUpdate();
 
@@ -219,6 +224,7 @@ public class UploadServiceImpl implements IUploadService
                 result = INode.builder() //
                     .uuid(UUID.fromString(rs.getString("uuid"))) //
                     .parent(parentId) //
+                    .owner(UUID.fromString(rs.getString("owner"))) //
                     .name(originalFilename) //
                     .size(rs.getLong("size")) //
                     .type(rs.getString("type")) //

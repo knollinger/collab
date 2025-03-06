@@ -9,6 +9,7 @@ import org.knollinger.workingtogether.user.exceptions.ExpiredTokenException;
 import org.knollinger.workingtogether.user.exceptions.InvalidTokenException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
 import org.knollinger.workingtogether.user.models.User;
+import org.knollinger.workingtogether.user.services.ICurrentUserService;
 import org.knollinger.workingtogether.user.services.ILoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,9 @@ public class CheckTokenFilter extends OncePerRequestFilter
 {
     @Autowired
     private ILoginService loginSvc;
+
+    @Autowired
+    private ICurrentUserService currentUserSvc;
 
     private List<Pattern> excluded = new ArrayList<Pattern>();
 
@@ -63,10 +67,18 @@ public class CheckTokenFilter extends OncePerRequestFilter
         String reqUri = httpReq.getRequestURI();
         String authorization = this.getBearerCookie(httpReq);
 
-        if (this.isOptionsRequest(httpReq) || !this.mustHaveAuthorization(reqUri)
-            || this.isAuthorizationOk(authorization))
+        User user = this.extractUser(authorization);
+        if (this.isOptionsRequest(httpReq) || !this.mustHaveAuthorization(reqUri) || !user.isEmpty())
         {
-            chain.doFilter(httpReq, httpRsp);
+            try
+            {
+                this.currentUserSvc.set(user);
+                chain.doFilter(httpReq, httpRsp);
+            }
+            finally
+            {
+                this.currentUserSvc.clear();
+            }
         }
         else
         {
@@ -107,16 +119,15 @@ public class CheckTokenFilter extends OncePerRequestFilter
      * @param authorization
      * @return
      */
-    private boolean isAuthorizationOk(String authorization)
+    private User extractUser(String authorization)
     {
-        boolean result = false;
+        User result = User.empty();
 
         if (authorization != null)
         {
             try
             {
-                User user = this.loginSvc.validateToken(authorization); // Der User muss noch irgendwie weiter gegeben werden
-                result = !user.isEmpty();
+                result = this.loginSvc.validateToken(authorization);
             }
             catch (InvalidTokenException | ExpiredTokenException | TechnicalLoginException e)
             {

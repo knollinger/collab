@@ -9,9 +9,6 @@ import org.knollinger.workingtogether.user.models.User;
 
 public interface ILoginService
 {
-    
-    public User parseToken(String token);
-    
     /**
      * Führt den Login durch und erzeugt im Erfolgsfall einen JWT
      * 

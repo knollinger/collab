@@ -8,7 +8,7 @@ import { FilesMainViewComponent } from './components/files-main-view/files-main-
 
 import { ModFilesRoutingModule } from './mod-files-routing.module';
 import { FilesGridViewItemComponent } from './components/files-grid-view-item/files-grid-view-item.component';
-import { FilesPropertiesDialogComponent, FilesPropertiesCommonsComponent } from './components/files-properties-dialog/files-properties-dialog.component';
+import { FilesPropertiesDialogComponent, FilesPropertiesCommonsComponent, FilesPropertiesPermissionsComponent } from './components/files-properties-dialog/files-properties-dialog.component';
 import { FilesBreadCrumbItemComponent } from './components/files-bread-crumb-item/files-bread-crumb-item.component';
 import { FilesFolderViewComponent } from './components/files-folder-view/files-folder-view.component';
 import { FilesGridViewComponent } from './components/files-grid-view/files-grid-view.component';
@@ -21,6 +21,7 @@ import { DropTargetDirective } from './directives/drop-target.directive';
 import { FilesFolderContextMenuComponent } from './components/files-folder-context-menu/files-folder-context-menu.component';
 import { FileDropINodeMenuComponent } from './components/files-inode-drop-menu/files-inode-drop-menu.component';
 import { FilesIconsizeMenuComponent } from './components/files-iconsize-menu/files-iconsize-menu.component';
+import { FilesListviewItemComponent } from './components/files-listview-item/files-listview-item.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { FilesIconsizeMenuComponent } from './components/files-iconsize-menu/fil
     FilesGridViewItemComponent,
     FilesPropertiesDialogComponent,
     FilesPropertiesCommonsComponent,
+    FilesPropertiesPermissionsComponent,
     FilesFolderViewComponent,
     FilesBreadCrumbItemComponent,
     FilesGridViewComponent,
@@ -40,6 +42,7 @@ import { FilesIconsizeMenuComponent } from './components/files-iconsize-menu/fil
     FilesFolderContextMenuComponent,
     FileDropINodeMenuComponent,
     FilesIconsizeMenuComponent,
+    FilesListviewItemComponent,
   ],
   imports: [
     CommonModule,

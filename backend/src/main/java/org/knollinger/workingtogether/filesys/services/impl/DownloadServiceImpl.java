@@ -1,5 +1,6 @@
 package org.knollinger.workingtogether.filesys.services.impl;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -97,18 +98,28 @@ public class DownloadServiceImpl implements IDownloadService
      */
     private InputStream getFile(UUID uuid, String type, InputStream in) throws IOException
     {
-        InputStream result;
-        OutputStream out;
-        if (type.equalsIgnoreCase("inode/directory"))
+        InputStream result = null;
+        OutputStream out = null;
+
+        try
         {
-            result = InputStream.nullInputStream();
+            if (type.equalsIgnoreCase("inode/directory"))
+            {
+                result = InputStream.nullInputStream();
+            }
+            else
+            {
+                File tmpFile = File.createTempFile("colab_", ".tmp");
+                out = new BufferedOutputStream(new FileOutputStream(tmpFile));
+                IOUtils.copy(in, out);
+                out.flush();
+                result = new FileDeletingInputStream(tmpFile);
+            }
+            return result;
         }
-        else
+        finally
         {
-            File tmpFile = File.createTempFile("colab_", ".tmp");
-            IOUtils.copy(in, new FileOutputStream(tmpFile));
-            result = new FileDeletingInputStream(tmpFile); // TODO: und wer schliest den FileOutputStream?
+            IOUtils.closeQuietly(out);
         }
-        return result;
     }
 }

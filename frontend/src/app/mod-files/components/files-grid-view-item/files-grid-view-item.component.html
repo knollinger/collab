@@ -17,9 +17,10 @@
 
      <img class="thumbnail"
           [src]="iconUrl"
-          (click)="onOpen()"
-          draggable="false">
-     <div class="label">{{inode.name}}</div>
+          draggable="false"
+          (click)="onOpen()">
+     <div class="label"
+          (click)="onOpen()">{{inode.name}}</div>
 
      <mat-checkbox class="selector"
                    color="primary"

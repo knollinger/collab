@@ -1,5 +1,6 @@
 package org.knollinger.workingtogether.utils.io;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,7 +23,7 @@ public class FileDeletingInputStream extends InputStream
      */
     public FileDeletingInputStream(File file) throws IOException
     {
-        this.source = new FileInputStream(file);
+        this.source = new BufferedInputStream(new FileInputStream(file));
         this.file = file;
     }
 

@@ -1,0 +1,30 @@
+<div class="disp-flex flex-row flex-alignitems-center outer mat-elevation-z2"
+     (contextmenu)="contextMenu.show($event)">
+
+    <mat-checkbox color="primary"
+                  class="small-right-spacer">
+    </mat-checkbox>
+    
+    <img class="flex-0 small-right-spacer"
+         [src]="iconUrl"
+         [style.width]="iconWidth"
+         (click)="onOpen()">
+
+    <div class="flex-1 disp-flex flex-col"
+         (click)="onOpen()">
+        <span class="flex-0">{{inode.name}}</span>
+        <span>{{inode.size | fileSize}}</span>
+    </div>
+
+    <app-files-item-context-menu #contextMenu
+                                 (inode)="inode"
+                                 (open)="onOpen()"
+                                 (rename)="onRename()"
+                                 (delete)="onDelete()"
+                                 (cut)="onCut()"
+                                 (copy)="onCopy()"
+                                 (paste)="onPaste()"
+                                 (showProps)="onShowProps()">
+    </app-files-item-context-menu>
+
+</div>

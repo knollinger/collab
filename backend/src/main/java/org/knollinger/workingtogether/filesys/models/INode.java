@@ -25,6 +25,10 @@ public class INode
 
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
+    private UUID owner;
+    
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
     private String type;
 
     @Getter(AccessLevel.PUBLIC)

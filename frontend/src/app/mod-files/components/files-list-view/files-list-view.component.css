@@ -1,31 +1,12 @@
-table {
-    width: 100%;
-    border-collapse: collapse;
+.outer {
+    height: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
 }
 
-td, th {
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-td:last-child,
-th:last-child {
-    width: 100%;
-    text-align: end;
-}
-
-tr:hover {
-    background-color: #f0f0f0;
-}
-
-.mat-cell {
-    padding-right: 1rem;
-}
-
-.icon {
-    width: 32px;
-}s
-
-.file-size {
-    text-align: end;
+.item {
+    flex: 1 1 20%;
+    margin: 0 1rem 1rem 0;
 }

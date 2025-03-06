@@ -92,13 +92,6 @@ public class LoginServiceImpl implements ILoginService
 
     private AtomicReference<PrivateKeyEntry> keyPair = new AtomicReference<>(null);
 
-
-    @Override
-    public User parseToken(String token)
-    {
-        return User.empty();
-    }
-
     /**
      *
      */

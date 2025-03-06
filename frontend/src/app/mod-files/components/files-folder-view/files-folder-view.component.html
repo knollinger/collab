@@ -115,7 +115,17 @@
 
             <app-files-list-view *ngIf="viewMode==='list'"
                                  [inodes]="inodes"
-                                 [iconSize]="iconSize">
+                                 [iconSize]="iconSize"
+                                 [selectedINodes]="selectedINodes"
+                                 (filesDropped)="onFilesDropped($event)"
+                                 (inodesDropped)="inodeDropMenu.show($event)"
+                                 (open)="onOpen($event)"
+                                 (rename)="onRename($event)"
+                                 (delete)="onDelete($event)"
+                                 (cut)="onCut($event)"
+                                 (copy)="onCopy($event)"
+                                 (paste)="onPaste()"
+                                 (showProps)="onShowProps($event)">
             </app-files-list-view>
         </div>
 
