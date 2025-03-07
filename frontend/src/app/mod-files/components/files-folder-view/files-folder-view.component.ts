@@ -421,21 +421,40 @@ export class FilesFolderViewComponent implements OnInit {
   }
 
   /**
+   * Liefere die Gesamt-Grö0e aller INodes.
+   */
+  public get allObjectsSize(): number {
+
+    return this.calcObjsSize(this.inodes);
+  }
+
+  /**
    * Liefere die Gesamt-Grö0e aller selektierten INodes.
-   * 
-   * Das ganze läuft nicht rekursiv, der Inhalt von 
-   * Verzeichnissen wird also **nicht** mit berechnet!
    */
   public get selectedObjectSize(): number {
 
-    let result = 0;
-
-    this.selectedINodes.forEach(inode => {
-      result += inode.size;
-    })
-    return result;
+    return this.calcObjsSize(this.selectedINodes);
   }
 
+  /**
+   * Berechne die GesamtGröße aller INodes im angegebenen
+   * Iterable (Array, Set, ...)
+   * 
+   * Das ganze läuft nicht rekursiv, der Inhalt von 
+   * Verzeichnissen wird also **nicht** mit berechnet!
+
+   * @param container 
+   * @returns 
+   */
+  private calcObjsSize(container: Iterable<INode>) {
+
+    let result = 0;
+
+    for (let inode of container) {
+      result += inode.size;
+    }
+    return result;
+  }
 
   /**
    * Liefere das Set der selektierten INodes als Array

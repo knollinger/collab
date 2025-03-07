@@ -1,5 +1,4 @@
 <div class="outer-cnr"
-     [style.width]="iconWidth"
      matTooltip="{{inode.name}}"
      (contextmenu)="contextMenu.show($event)">
 
@@ -17,9 +16,12 @@
 
      <img class="thumbnail"
           [src]="iconUrl"
+          [style.width]="iconWidth"
+          [style.height]="iconWidth"
           draggable="false"
           (click)="onOpen()">
      <div class="label"
+          [style.width]="iconWidth"
           (click)="onOpen()">{{inode.name}}</div>
 
      <mat-checkbox class="selector"

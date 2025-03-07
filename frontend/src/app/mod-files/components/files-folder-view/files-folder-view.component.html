@@ -142,7 +142,11 @@
     </div>
 
 
-    <div class="flex-0 middle-padding small-top-lightgray-border footer">
-        {{selectedINodes.size}} Objekte mit {{selectedObjectSize | fileSize}} ausgewählt
-    </div>
+    <app-toolbar class="flex-0 small-top-lightgray-border">
+        Gesamt: {{inodes.length}} Objekte mit {{allObjectsSize | fileSize}}
+        <div *ngIf="selectedINodes.size">
+            <app-toolbar-separator></app-toolbar-separator>
+            {{selectedINodes.size}} Objekte mit {{selectedObjectSize | fileSize}} ausgewählt
+        </div>
+    </app-toolbar>
 </div>

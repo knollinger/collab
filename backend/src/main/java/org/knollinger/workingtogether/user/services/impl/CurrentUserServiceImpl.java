@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
  * 
  */
 @Service
-public class CurrentUserService implements ICurrentUserService
+public class CurrentUserServiceImpl implements ICurrentUserService
 {
     private ThreadLocal<User> currentUser = ThreadLocal.withInitial(() -> User.empty());
 

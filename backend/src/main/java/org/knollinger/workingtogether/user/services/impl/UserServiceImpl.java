@@ -162,14 +162,4 @@ public class UserServiceImpl implements IUserService
             this.dbService.closeQuitely(conn);
         }
     }
-
-    /**
-     *
-     */
-    @Override
-    public User createUser(User user) throws DuplicateUserException, TechnicalUserException
-    {
-        CreateUserHelper creator = new CreateUserHelper(this.dbService);
-        return creator.createUser(user.getAccountName(), user.getEmail(), user.getSurname(), user.getLastname());
-    }
 }

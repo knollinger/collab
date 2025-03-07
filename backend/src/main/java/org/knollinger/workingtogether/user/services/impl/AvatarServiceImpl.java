@@ -1,5 +1,6 @@
 package org.knollinger.workingtogether.user.services.impl;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -97,7 +98,7 @@ public class AvatarServiceImpl implements IAvatarService
 
             IOUtils.copy(in, out);
             out.close();
-            return new Avatar(type, new FileDeletingInputStream(tmpFile));
+            return new Avatar(type, new BufferedInputStream(new FileDeletingInputStream(tmpFile)));
         }
     }
 

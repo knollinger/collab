@@ -15,6 +15,4 @@ public interface IUserService
     public User saveUser(User fromDTO) throws UserNotFoundException, DuplicateUserException, TechnicalUserException;
 
     public List<User> listUser() throws TechnicalUserException;
-
-    public User createUser(User user) throws DuplicateUserException, TechnicalUserException;
 }

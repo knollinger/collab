@@ -11,6 +11,7 @@ import org.knollinger.workingtogether.user.mapper.IUserMapper;
 import org.knollinger.workingtogether.user.models.Avatar;
 import org.knollinger.workingtogether.user.models.User;
 import org.knollinger.workingtogether.user.services.IAvatarService;
+import org.knollinger.workingtogether.user.services.ICreateUserService;
 import org.knollinger.workingtogether.user.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -35,6 +36,9 @@ public class UserController
 {
     @Autowired
     private IUserService userSvc;
+
+    @Autowired
+    private ICreateUserService createUserSvc;
 
     @Autowired
     private IAvatarService avatarSvc;
@@ -97,17 +101,19 @@ public class UserController
     {
         try
         {
-            User user = User.builder() //
-                .userId(uuid) //
-                .accountName(accountName) //
-                .email(email) //
-                .surname(surname) //
-                .lastname(lastname).build();
 
-            user = (uuid.equals(User.EMPTY_USER_ID)) ? this.userSvc.createUser(user) : this.userSvc.saveUser(user);
-            if (avatar != null)
+
+            User user = User.empty();
+            if (uuid.equals(User.EMPTY_USER_ID))
             {
-                this.avatarSvc.saveAvatar(user.getUserId(), avatar);
+                user = this.createUserSvc.createUser(accountName, email, surname, lastname, avatar);
+            }
+            else {
+                user = this.userSvc.saveUser(user);
+                if (avatar != null) // TODO: Avatar direkt übergeben
+                {
+                    this.avatarSvc.saveAvatar(user.getUserId(), avatar);
+                }
             }
             return this.userMapper.toDTO(user);
         }
