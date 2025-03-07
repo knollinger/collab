@@ -1,0 +1,252 @@
+package org.knollinger.workingtogether.user.services.impl;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.HexFormat;
+import java.util.UUID;
+
+import org.knollinger.workingtogether.filesys.models.EWellknownINodeIDs;
+import org.knollinger.workingtogether.user.exceptions.DuplicateUserException;
+import org.knollinger.workingtogether.user.exceptions.TechnicalUserException;
+import org.knollinger.workingtogether.user.models.User;
+import org.knollinger.workingtogether.user.services.ICreateUserService;
+import org.knollinger.workingtogether.utils.services.IDbService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+@Service
+public class CreateUserServiceImpl implements ICreateUserService
+{
+    private static String SQL_CREATE_ACCOUNT = "" //
+        + "insert into users set uuid=?, accountName=?, email=?, surname=?, lastName=?, pwdhash=?, salt=?";
+
+    private static final String SQL_CREATE_DIRECTORY = "" //
+        + "insert into inodes" //
+        + "  set uuid=?, parent=?, name=?, owner=?, size=?, type=?";
+    
+    private static final String SQL_CREATE_GROUP = "" //
+        + "insert into userGroups" //
+        + "  set uuid=?, name=?";
+
+    private static final String SQL_ADD_TO_GROUP = "" //
+        + "insert into users2Groups" //
+        + "  set userId=?, groupId=?";
+
+    private static final String SQL_SAVE_AVATAR = "" //
+        + "update users set avatar=?, avatarType=?" //
+        + "  where uuid=?";
+
+
+    @Autowired
+    IDbService dbSvc;
+
+    /**
+     * @see ICreateUserService
+     */
+    @Override
+    public User createUser(//
+        String accountName, //
+        String email, //
+        String surName, //
+        String lastName, //
+        MultipartFile avatar) throws TechnicalUserException, DuplicateUserException
+    {
+        Connection conn = null;
+        User user = User.empty();
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            conn.setAutoCommit(false);
+
+            user = this.createAccount(accountName, email, surName, lastName, conn);
+            this.createHomeDirectory(user, conn);
+            this.createUserGroup(user, conn);
+            this.addUserToPrivateGroup(user, conn);
+
+            if (avatar != null)
+            {
+                this.saveAvatar(user, avatar, conn);
+            }
+
+            conn.commit();
+            return user;
+        }
+        catch (SQLException | IOException e)
+        {
+            e.printStackTrace();
+            String msg = String.format("Der Benutzer-Account '%1$s' konnte nicht angelegt werden", accountName);
+            throw new TechnicalUserException(msg, e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(conn);
+        }
+    }
+
+    /**
+     * @param accountName
+     * @param email
+     * @param surName
+     * @param lastName
+     * @param conn
+     * @return
+     * @throws DuplicateUserException
+     * @throws TechnicalUserException
+     */
+    private User createAccount(String accountName, String email, String surName, String lastName, Connection conn)
+        throws DuplicateUserException, TechnicalUserException
+    {
+        PreparedStatement stmt = null;
+
+        try
+        {
+            UUID uuid = UUID.randomUUID();
+            byte[] salt = CryptoHelper.createSalt();
+            String pwdHash = CryptoHelper.createHash(CryptoHelper.saltPassword("Start123", salt));
+
+            stmt = conn.prepareStatement(SQL_CREATE_ACCOUNT);
+            stmt.setString(1, uuid.toString());
+            stmt.setString(2, accountName);
+            stmt.setString(3, email);
+            stmt.setString(4, surName);
+            stmt.setString(5, lastName);
+            stmt.setString(6, pwdHash);
+            stmt.setString(7, HexFormat.of().formatHex(salt));
+            stmt.executeUpdate();
+
+            return User.builder() //
+                .userId(uuid) //
+                .accountName(accountName) //
+                .email(email) //
+                .surname(surName) //
+                .lastname(lastName) //
+                .build();
+        }
+        catch (SQLIntegrityConstraintViolationException e)
+        {
+            throw new DuplicateUserException(email); // TOD: accountName muss auch uniqe sein
+        }
+        catch (NoSuchAlgorithmException | SQLException e)
+        {
+            throw new TechnicalUserException(email, e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    /**
+     * @param user
+     * @param conn
+     * @throws SQLException
+     */
+    private void createHomeDirectory(User user, Connection conn) throws SQLException
+    {
+        PreparedStatement stmt = null;
+
+        try
+        {
+            stmt = conn.prepareStatement(SQL_CREATE_DIRECTORY);
+            stmt.setString(1, user.getUserId().toString());
+            stmt.setString(2,  EWellknownINodeIDs.ROOT.value().toString());
+            stmt.setString(3,  user.getAccountName());
+            stmt.setString(4,  user.getUserId().toString());
+            stmt.setLong(5,  0);
+            stmt.setString(6, "inode/directory");
+            stmt.executeUpdate();
+  
+            String[] commonDirs = {"Dokumente", "Musik", "Videos", "Bilder"};
+            for (String dirName : commonDirs)
+            {
+                UUID newUUID = UUID.randomUUID();
+                stmt.setString(1, newUUID.toString());
+                stmt.setString(2,  user.getUserId().toString());
+                stmt.setString(3,  dirName);
+                stmt.setString(4,  user.getUserId().toString());
+                stmt.setLong(5,  0);
+                stmt.setString(6, "inode/directory");
+                stmt.executeUpdate();
+            }
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    /**
+     * 
+     * @param user
+     * @param conn
+     * @throws SQLException
+     */
+    private void createUserGroup(User user, Connection conn) throws SQLException
+    {
+        PreparedStatement stmt = null;
+
+        try
+        {
+            stmt = conn.prepareStatement(SQL_CREATE_GROUP);
+            stmt.setString(1, user.getUserId().toString());
+            stmt.setString(2, user.getAccountName());
+            stmt.executeUpdate();
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    /**
+     * @param user
+     * @param conn
+     * @throws SQLException
+     */
+    private void addUserToPrivateGroup(User user, Connection conn) throws SQLException
+    {
+
+        PreparedStatement stmt = null;
+
+        try
+        {
+            stmt = conn.prepareStatement(SQL_ADD_TO_GROUP);
+            stmt.setString(1, user.getUserId().toString());
+            stmt.setString(2, user.getUserId().toString());
+            stmt.executeUpdate();
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    /**
+     * @param avatar
+     * @param conn
+     * @throws SQLException 
+     * @throws IOException 
+     */
+    private void saveAvatar(User user, MultipartFile avatar, Connection conn) throws SQLException, IOException
+    {
+        PreparedStatement stmt = null;
+
+        try
+        {
+            stmt = conn.prepareStatement(SQL_SAVE_AVATAR);
+            stmt.setBinaryStream(1, avatar.getInputStream());
+            stmt.setString(2, avatar.getContentType());
+            stmt.setString(3, user.getUserId().toString());
+            stmt.executeUpdate();
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+}
