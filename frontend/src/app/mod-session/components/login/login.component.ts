@@ -109,7 +109,7 @@ export class LoginComponent implements OnInit {
 
     this.sessSvc.login(email, passwd, newPwd).subscribe(session => {
 
-      if(this.redirUrl) {
+      if (this.redirUrl) {
         this.router.navigateByUrl(this.redirUrl);
       }
       else {

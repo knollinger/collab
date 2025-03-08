@@ -3,6 +3,8 @@
 
     <mat-list-option *ngFor="let group of groups"
                      [value]="group"
+                     color="primary"
+                     checkboxPosition="before"
                      [selected]="isSelected(group)">
         <div class="disp-flex flex-row flex-alignitems-center">
             <mat-icon matListItemIcon

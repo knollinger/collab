@@ -13,7 +13,7 @@
     <div class="flex-1 scrollable">
         <mat-selection-list>
             <mat-list-option *ngFor="let user of users">
-                <img matListAvatar
+                <img matListItemAvatar
                      [src]="getAvatarUrl(user)">
                 {{user.surname}} {{user.lastname}}
             </mat-list-option>
