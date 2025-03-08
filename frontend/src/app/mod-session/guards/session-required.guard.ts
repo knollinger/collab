@@ -1,11 +1,11 @@
 import { SessionService } from './../services/session.service';
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
-export class SessionRequiredGuard implements CanActivate {
+export class SessionRequiredGuard  {
 
   /**
    *
