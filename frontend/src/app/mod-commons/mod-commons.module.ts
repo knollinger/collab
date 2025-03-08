@@ -1,9 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { AutoUnSubscribe } from './decorators/auto-unsubscribe';
-export { AutoUnSubscribe }
-
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 
 import { TitlebarService } from './services/titlebar.service';

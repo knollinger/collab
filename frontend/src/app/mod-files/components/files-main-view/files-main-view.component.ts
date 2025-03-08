@@ -1,9 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  AutoUnSubscribe,
-  TitlebarService
-} from '../../../mod-commons/mod-commons.module';
+import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 import { EINodeUUIDs, INode } from '../../models/inode';
 import { INodeService } from '../../services/inode.service';
@@ -17,7 +14,6 @@ import { INodeService } from '../../services/inode.service';
   styleUrls: ['./files-main-view.component.css'],
 })
 
-@AutoUnSubscribe
 export class FilesMainViewComponent implements OnInit, OnDestroy {
 
   @Input()
