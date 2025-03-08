@@ -1,9 +1,6 @@
 <form>
 
-  <div mat-dialog-title class="disp-flex flex-row flex-alignitems-center">
-    <mat-icon class="material-symbols-outlined flex-0" color="primary">edit</mat-icon>
-    <span class="flex-1 small-left-spacer">{{data.title}}</span>
-  </div>
+  <h2 mat-dialog-title>{{data.title}}</h2>
 
 
   <div mat-dialog-content>
@@ -17,4 +14,5 @@
     <button mat-flat-button type="submit" color="primary" [mat-dialog-close]="data.value" appAutoFocus>Ok</button>
     <button mat-flat-button [mat-dialog-close]="false">Abbrechen</button>
   </div>
+
 </form>

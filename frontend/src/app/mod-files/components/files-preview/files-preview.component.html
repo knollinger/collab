@@ -1,20 +1,18 @@
-<div class="pos-rel disp-flex flex-col full-height">
+<div mat-dialog-title
+     class="disp-flex flex-row">
+    <img class="flex-0 mimetype-icon"
+         [src]="getMimeTypeIcon()">
+    <div class="flex-1">{{currentINode.name}}</div>
+    <button mat-icon-button
+            [mat-dialog-close]=""
+            class="flex-0">
+        <mat-icon class="material-symbols-outlined">close</mat-icon>
+    </button>
+</div>
 
-    <div mat-dialog-title
-         class="flex-0 disp-flex flex-row">
-        <img class="flex-0 mimetype-icon"
-             [src]="getMimeTypeIcon()">
-        <div class="flex-1">{{currentINode.name}}</div>
-        <button mat-icon-button
-                [mat-dialog-close]=""
-                class="flex-0">
-            <mat-icon class="material-symbols-outlined">close</mat-icon>
-        </button>
-    </div>
+<mat-dialog-content>
 
-    <div class="body flex-1 scrollable"
-         [ngSwitch]="mainType">
-
+    <div [ngSwitch]="mainType">
         <img *ngSwitchCase="'image'"
              class="image-preview"
              [src]="srcUrl | safe:'resourceUrl'">
@@ -39,11 +37,13 @@
                 (click)="onScrollRight()">
             <mat-icon class="material-symbols-outlined">chevron_right</mat-icon>
         </button>
-
     </div>
+</mat-dialog-content>
+
+<mat-dialog-actions>
     <mat-slide-toggle color="primary"
                       *ngIf="canScroll()"
                       (change)="onAutoLoop($event)">
         Automatisch weiter spulen
     </mat-slide-toggle>
-</div>
+</mat-dialog-actions>
