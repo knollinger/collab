@@ -1,22 +1,16 @@
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
 
-//import { SessionRequiredGuard } from '../mod-session/session.module';
+// import { SessionRequiredGuard } from '../mod-session/session.module';
 
-import { ListUserComponent } from './components/list-user/list-user.component';
-import { EditProfileComponent } from './components/edit-profile/edit-profile.component';
+import { UserMainViewComponent } from './components/user-main-view/user-main-view.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: ListUserComponent,
-//    canActivate: [SessionRequiredGuard],
+    component: UserMainViewComponent,
+    // canActivate: [SessionRequiredGuard],
   },
-  {
-    path: 'editProfile/:uuid',
-    component: EditProfileComponent,
-//    canActivate: [SessionRequiredGuard],
-  },  
 ]
 
 @NgModule({

@@ -25,6 +25,7 @@
                [type]="currentINode.type">
 
         <button mat-mini-fab
+                *ngIf="canScroll()"
                 color="white"
                 class="scroll-left"
                 (click)="onScrollLeft()">
@@ -32,6 +33,7 @@
         </button>
 
         <button mat-mini-fab
+                *ngIf="canScroll()"
                 color="white"
                 class="scroll-right"
                 (click)="onScrollRight()">
@@ -39,7 +41,9 @@
         </button>
 
     </div>
-    <mat-slide-toggle color="primary" (change)="onAutoLoop($event)">
+    <mat-slide-toggle color="primary"
+                      *ngIf="canScroll()"
+                      (change)="onAutoLoop($event)">
         Automatisch weiter spulen
     </mat-slide-toggle>
 </div>

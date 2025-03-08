@@ -1,0 +1,19 @@
+<mat-selection-list [multiple]="multiple"
+                    (selectionChange)="onUserSelectionChange($event)">
+
+    <mat-list-option *ngFor="let user of users"
+                     [value]="user"
+                     [selected]="isSelected(user)">
+
+        <div class="disp-flex flex-row flex-alignitems-center clickable">
+            <img class="flex-0 avatar small-left-right-spacer"
+                 [src]="getAvatar(user)">
+            <div class="flex-1">
+                <div mat-line>{{user.surname}} {{user.lastname}} </div>
+                <div mat-line>{{user.email}} </div>
+            </div>
+        </div>
+
+    </mat-list-option>
+
+</mat-selection-list>

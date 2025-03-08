@@ -127,4 +127,12 @@ export class FilesPreviewComponent implements OnInit, OnDestroy {
       this.timerId = -1;
     }
   }
+
+  /**
+   * 
+   * @returns 
+   */
+  canScroll() {
+    return this.inodes.length > 1;
+  }
 }

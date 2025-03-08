@@ -109,7 +109,17 @@ public class UserController
                 user = this.createUserSvc.createUser(accountName, email, surname, lastname, avatar);
             }
             else {
+                
+                user = User.builder() //
+                    .userId(uuid) //
+                    .accountName(accountName) //
+                    .email(email) //
+                    .surname(surname) //
+                    .lastname(lastname) //
+                    .build();
+                
                 user = this.userSvc.saveUser(user);
+                
                 if (avatar != null) // TODO: Avatar direkt übergeben
                 {
                     this.avatarSvc.saveAvatar(user.getUserId(), avatar);

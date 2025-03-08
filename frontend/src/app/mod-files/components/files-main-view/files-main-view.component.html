@@ -6,15 +6,18 @@
 
         <!-- IconSize-Menu -->
         <mat-button-toggle class="small-right-spacer"
+                           matTooltip="Icons-Größe auswählen"
                            checked="false"
                            (click)="iconSizeMenu.show($event)">
             <mat-icon class="material-symbols-outlined">aspect_ratio</mat-icon>
-            <app-files-iconsize-menu #iconSizeMenu (iconSize)="iconSize=$event"></app-files-iconsize-menu>
+            <app-files-iconsize-menu #iconSizeMenu
+                                     (iconSize)="iconSize=$event"></app-files-iconsize-menu>
         </mat-button-toggle>
 
 
         <!-- SplitView-Toggle -->
         <mat-button-toggle class="small-right-spacer"
+                           matTooltip="Anzeige aufteilen"
                            [checked]="showSplit"
                            (click)="onToggleSplitView()">
             <mat-icon class="material-symbols-outlined">splitscreen_landscape</mat-icon>

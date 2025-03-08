@@ -62,8 +62,6 @@ public class FileSysServiceImpl implements IFileSysService
     @Override
     public INode getINode(UUID uuid) throws TechnicalFileSysException, NotFoundException
     {
-        System.out.println(this.currUserSvc.get());
-        
         Connection conn = null;
 
         try
@@ -352,12 +350,11 @@ public class FileSysServiceImpl implements IFileSysService
         {
             conn = this.dbService.openConnection();
             
+            UUID uuid = UUID.randomUUID();
+            User user = this.currUserSvc.get();
 
             // TODO: Parent existenz und isDirectory testen
             stmt = conn.prepareStatement(SQL_CREATE_INODE);
-
-            UUID uuid = UUID.randomUUID();
-            User user = this.currUserSvc.get();
             stmt.setString(1, uuid.toString());
             stmt.setString(2, user.getUserId().toString());
             stmt.setString(3, parentId.toString());

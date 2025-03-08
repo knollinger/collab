@@ -1,4 +1,5 @@
 <div class="disp-flex flex-row flex-alignitems-center outer mat-elevation-z2"
+     matTooltip="{{inode.name}}"
      (contextmenu)="contextMenu.show($event)">
 
      <mat-checkbox color="primary"
@@ -14,7 +15,7 @@
 
      <div class="flex-1 disp-flex flex-col"
           (click)="onOpen()">
-          <span class="flex-0">{{inode.name}}</span>
+          <span class="flex-0 name">{{inode.name}}</span>
           <span class="flex-0">{{inode.size | fileSize}}</span>
      </div>
 
