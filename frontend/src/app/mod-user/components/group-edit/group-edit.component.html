@@ -1,0 +1,44 @@
+<div class="disp-flex flex-col scrollable">
+
+    <app-toolbar class="flex-0 small-bottom-lightgray-border">
+
+        <button mat-icon-button
+                matTooltip="Eine neuen Gruppe anlegen"
+                (click)="onCreateGroup()">
+            <mat-icon class="material-symbols-outlined">group_add</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                *ngIf="isGroupSelected()"
+                matTooltip="Die ausgewählten Gruppen löschen">
+            <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        </button>
+
+    </app-toolbar>
+
+    <div class="flex-1 disp-flex flex-row full-height scrollable middle-padding">
+
+        <div class="flex-1 scrollable small-right-spacer">
+            <h2>Gruppen</h2>
+            <app-group-selector [groups]="groups"
+                                class="mat-elevation-z4"></app-group-selector>
+        </div>
+
+        <div class="flex-1 scrollable small-left-spacer">
+            <h2>Benutzer</h2>
+            <app-user-selector [multiple]="true"
+                               [users]="allUsers"
+                               class="mat-elevation-z4"></app-user-selector>
+        </div>
+    </div>
+
+    <div class="flex-0 middle-padding">
+        <button mat-flat-button
+                type="submit"
+                color="primary"
+                class="small-right-spacer">Speichern</button>
+        <button mat-button
+                type="button"
+                color="primary">Zurück setzen</button>
+    </div>
+</div>

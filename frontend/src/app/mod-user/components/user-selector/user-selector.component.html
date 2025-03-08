@@ -3,6 +3,8 @@
 
     <mat-list-option *ngFor="let user of users"
                      [value]="user"
+                     checkboxPosition="before"
+                     color="primary"
                      [selected]="isSelected(user)">
 
         <div class="disp-flex flex-row flex-alignitems-center clickable">

@@ -36,9 +36,9 @@ export class UserSelectorComponent implements OnInit {
   }
 
   @Input()
-  set multiple(val: string | boolean) {
+  set multiple(val: boolean) {
 
-    this._multiple = false;
+    this._multiple = val;
   }
 
   get multiple(): boolean {

@@ -6,6 +6,9 @@ import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { IUser, User } from './models/user';
 export { IUser, User }
 
+import { IGroup, Group } from './models/group';
+export { IGroup, Group }
+
 import { AvatarService } from './services/avatar.service';
 export { AvatarService }
 
@@ -16,4 +19,6 @@ export { AvatarService }
     ModCommonsModule
   ]
 })
-export class ModUserDataModule { }
+export class ModUserDataModule { 
+  
+}

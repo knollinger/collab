@@ -13,9 +13,14 @@ import { UserRoutingModule } from './user-routing.module';
 import { UserService } from './services/user.service';
 export { UserService }
 
+import { GroupService } from './services/group.service';
+export { GroupService }
+
 import { UserMainViewComponent } from './components/user-main-view/user-main-view.component';
 import { UserEditComponent } from './components/user-edit/user-edit.component';
 import { UserSelectorComponent } from './components/user-selector/user-selector.component';
+import { GroupSelectorComponent } from './components/group-selector/group-selector.component';
+import { GroupEditComponent } from './components/group-edit/group-edit.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +28,8 @@ import { UserSelectorComponent } from './components/user-selector/user-selector.
     UserMainViewComponent,
     UserEditComponent,
     UserSelectorComponent,
+    GroupSelectorComponent,
+    GroupEditComponent,
   ],
   imports: [
     CommonModule,

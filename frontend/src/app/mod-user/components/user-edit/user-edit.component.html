@@ -20,7 +20,7 @@
 
         <!-- Auswahl-Liste -->
         <div class="flex-1 scrollable">
-            <app-user-selector multiple="true"
+            <app-user-selector [multiple]=true
                                [users]="users"
                                [selection]="user"
                                (selectionChange)="onUserSelection($event)">
