@@ -30,12 +30,12 @@ export class LoginComponent implements OnInit {
     private sessSvc: SessionService
   ) {
 
-    this.loginForm = this.formBuilder.group(
+    this.loginForm = this.formBuilder.nonNullable.group(
       {
-        email: new FormControl('', [Validators.required, Validators.email]),
-        passwd: new FormControl('', [Validators.required]),
-        newPwd1: new FormControl('', []),
-        newPwd2: new FormControl('', []),
+        email: new FormControl<string>('', [Validators.required, Validators.email]),
+        passwd: new FormControl<string>('', [Validators.required]),
+        newPwd1: new FormControl<string>('', []),
+        newPwd2: new FormControl<string>('', []),
       }
     );
     this.loginForm.markAllAsTouched();

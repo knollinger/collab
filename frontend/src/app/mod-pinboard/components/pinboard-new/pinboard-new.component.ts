@@ -23,9 +23,9 @@ export class PinboardNewComponent implements OnInit {
     private userSvc: UserService,
     private avatarSvc: AvatarService) {
 
-    this.pinboardForm = formBuilder.group(
+    this.pinboardForm = formBuilder.nonNullable.group(
       {
-        name: new FormControl('', [Validators.required])
+        name: new FormControl<string>('', [Validators.required])
       }
     );
   }

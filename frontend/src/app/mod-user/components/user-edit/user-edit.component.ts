@@ -30,13 +30,13 @@ export class UserEditComponent implements OnInit {
     private userSvc: UserService,
     private avatarSvc: AvatarService) {
 
-    this.profileForm = formBuilder.group(
+    this.profileForm = formBuilder.nonNullable.group(
       {
-        userId: new FormControl(''),
-        accountName: new FormControl('', [Validators.required]),
-        email: new FormControl('', [Validators.required, Validators.email]),
-        surname: new FormControl('', [Validators.required]),
-        lastname: new FormControl('', [Validators.required]),
+        userId: new FormControl<string>(''),
+        accountName: new FormControl<string>('', [Validators.required]),
+        email: new FormControl<string>('', [Validators.required, Validators.email]),
+        surname: new FormControl<string>('', [Validators.required]),
+        lastname: new FormControl<string>('', [Validators.required]),
       }
     );
     this.profileForm.markAllAsTouched();
