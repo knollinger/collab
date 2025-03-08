@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
-import { UserService } from '../../../mod-user/mod-user.module';
+import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 
 import { PinBoard } from '../../models/pinboard';
 import { PinboardService } from '../../services/pinboard.service';
@@ -21,7 +21,7 @@ export class PinboardMainViewComponent implements OnInit {
    */
   constructor(
     private pinBoardSvc: PinboardService,
-    private userSvc: UserService,
+    private avatarSvc: AvatarService,
     private titleBarSvc: TitlebarService) {
 
   }
@@ -39,6 +39,6 @@ export class PinboardMainViewComponent implements OnInit {
 
 
   getAvatarUrl(board: PinBoard) {
-    return this.userSvc.getAvatarUrl(board.owner);
+    return this.avatarSvc.getAvatarUrl(board.owner);
   }
 }

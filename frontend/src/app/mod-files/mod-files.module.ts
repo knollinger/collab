@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
+import { ModUserDataModule } from '../mod-userdata/mod-userdata.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 
 import { FilesMainViewComponent } from './components/files-main-view/files-main-view.component';
@@ -47,6 +48,7 @@ import { FilesListviewItemComponent } from './components/files-listview-item/fil
   imports: [
     CommonModule,
     ModCommonsModule,
+    ModUserDataModule,
     ModMaterialImportModule,
     ModFilesRoutingModule
   ],

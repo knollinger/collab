@@ -2,11 +2,11 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { IUser, User } from './models/user';
-export { IUser, User };
+import { ModCommonsModule } from '../mod-commons/mod-commons.module';
+import { ModUserDataModule } from '../mod-userdata/mod-userdata.module';
+import { ModSessionModule } from '../mod-session/session.module';
 
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
-import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { AvatarSelectorComponent } from './components/avatar-selector/avatar-selector.component';
 import { UserRoutingModule } from './user-routing.module';
 
@@ -29,6 +29,8 @@ import { UserSelectorComponent } from './components/user-selector/user-selector.
     FormsModule,
     ReactiveFormsModule,
     ModCommonsModule,
+    ModUserDataModule,
+    ModSessionModule,
     ModMaterialImportModule,
     UserRoutingModule
   ],

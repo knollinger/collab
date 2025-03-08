@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 
 import { Observable, map, of } from 'rxjs';
 
-import { User } from '../../mod-user/mod-user.module';
+import { User } from '../../mod-userdata/mod-userdata.module';
 
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 import { LoginRequest } from '../models/login-request';

@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { UserService } from '../../services/user.service';
-import { User } from '../../models/user';
+import { User, AvatarService } from '../../../mod-userdata/mod-userdata.module';
 import { MatSelectionListChange } from '@angular/material/list';
 
 @Component({
@@ -25,7 +24,7 @@ export class UserSelectorComponent implements OnInit {
    * 
    */
   constructor(
-    private userSvc: UserService) {
+    private avatarSvc: AvatarService) {
 
   }
 
@@ -53,7 +52,7 @@ export class UserSelectorComponent implements OnInit {
    * @returns 
    */
   getAvatar(user: User): string {
-    return this.userSvc.getAvatarUrl(user.userId);
+    return this.avatarSvc.getAvatarUrl(user.userId);
   }
 
   /**

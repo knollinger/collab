@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { User } from '../../mod-user.module';
-import { UserService } from '../../services/user.service';
+import { User } from '../../../mod-userdata/mod-userdata.module';
+import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 
 @Component({
   selector: 'app-avatar-selector',
@@ -16,7 +16,7 @@ export class AvatarSelectorComponent implements OnInit, OnDestroy {
   @Input()
   set user(user: User) {
     this._user = user;
-    this.url = this.userSvc.getAvatarUrl(this._user.userId);
+    this.url = this.avatarSvc.getAvatarUrl(this._user.userId);
   }  
   private _user: User = User.empty();
   
@@ -26,7 +26,7 @@ export class AvatarSelectorComponent implements OnInit, OnDestroy {
    * 
    * @param userSvc 
    */
-  constructor(private userSvc: UserService) {
+  constructor(private avatarSvc: AvatarService) {
   }
 
   /**

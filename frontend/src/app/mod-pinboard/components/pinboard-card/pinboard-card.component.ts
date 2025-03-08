@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { UserService } from '../../../mod-user/mod-user.module';
+import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 import { PinCard } from '../../models/pincard';
 
 @Component({
@@ -13,7 +13,7 @@ export class PinboardCardComponent implements OnInit {
   card: PinCard = PinCard.empty();
 
   constructor(
-    private userSvc: UserService) {
+    private avatarSvc: AvatarService) {
 
   }
 
@@ -22,7 +22,7 @@ export class PinboardCardComponent implements OnInit {
 
   getOwnerAvatar(card: PinCard): string {
 
-    return this.userSvc.getAvatarUrl(card.owner);
+    return this.avatarSvc.getAvatarUrl(card.owner);
   }
 
   onDeleteCard(card: PinCard) {

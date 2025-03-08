@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, map, last } from 'rxjs';
 
-import { IUser, User } from '../models/user';
+import { IUser, User } from '../../mod-userdata/models/user';
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 import { HttpClient, HttpRequest, HttpResponse } from '@angular/common/http';
 
@@ -84,10 +84,5 @@ export class UserService {
         })
       })
     );
-  }
-
-  getAvatarUrl(userId: string): string {
-    return this.backendRouter.getRouteForName('getAvatar', UserService.routes, userId);
-
   }
 }

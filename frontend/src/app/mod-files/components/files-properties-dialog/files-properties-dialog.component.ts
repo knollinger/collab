@@ -2,7 +2,8 @@ import { Component, Inject, Input, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ContentTypeService } from '../../services/content-type.service';
-import { User, UserService } from '../../../mod-user/mod-user.module';
+import { User } from '../../../mod-userdata/mod-userdata.module';
+import { UserService } from '../../../mod-user/mod-user.module';
 
 import { INode } from '../../models/inode';
 

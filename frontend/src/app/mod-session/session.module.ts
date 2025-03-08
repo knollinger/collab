@@ -4,6 +4,8 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+import { ModUserDataModule } from '../mod-userdata/mod-userdata.module';
+
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 
 import { SessionService } from './services/session.service';
@@ -28,6 +30,7 @@ import { SessionRoutingModule } from './session-routing.module';
     FormsModule,
     ReactiveFormsModule,
     ModMaterialImportModule,
+    ModUserDataModule,
     SessionRoutingModule
   ],
   exports: [

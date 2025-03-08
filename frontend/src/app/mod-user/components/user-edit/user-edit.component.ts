@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 
 import { UserService } from '../../services/user.service';
 
-import { User } from '../../models/user';
+import { User } from '../../../mod-userdata/models/user';
 import { MatSelectionListChange } from '@angular/material/list';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 
 @Component({
   selector: 'app-user-edit',
@@ -26,7 +27,8 @@ export class UserEditComponent implements OnInit {
    */
   constructor(
     formBuilder: FormBuilder,
-    private userSvc: UserService) {
+    private userSvc: UserService,
+    private avatarSvc: AvatarService) {
 
     this.profileForm = formBuilder.group(
       {
@@ -46,9 +48,9 @@ export class UserEditComponent implements OnInit {
   ngOnInit(): void {
     this.reload();
   }
-  
+
   private reload(currentUser?: User) {
-    
+
     this.user = currentUser || User.empty();
     this.newAvatar = undefined;
 
@@ -63,13 +65,13 @@ export class UserEditComponent implements OnInit {
    * @returns 
    */
   getAvatar(user: User): string {
-    return this.userSvc.getAvatarUrl(user.userId);
+    return this.avatarSvc.getAvatarUrl(user.userId);
   }
 
   onUserSelection(users: User[]) {
 
     if (users && users.length) {
-      
+
       this.user = users[0];
       this.profileForm.setValue(this.user);
       this.newAvatar = undefined;
@@ -85,12 +87,19 @@ export class UserEditComponent implements OnInit {
 
     this.newAvatar = avatar;
   }
-  
+
+  onCreateUser() {
+    this.user = User.empty();
+    this.newAvatar = undefined;
+    this.showEditor = true;
+    this.profileForm.setValue(this.user);
+  }
+
   onSubmit() {
 
     console.log('save user');
     const newUser = User.fromJSON(this.profileForm.value);
-    this.userSvc.saveUser(newUser, this.newAvatar).subscribe(user =>  {
+    this.userSvc.saveUser(newUser, this.newAvatar).subscribe(user => {
       this.reload(newUser);
     })
   }

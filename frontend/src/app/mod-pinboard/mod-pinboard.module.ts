@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
+import { ModUserDataModule } from '../mod-userdata/mod-userdata.module';
 
 import { PinboardMainViewComponent } from './components/pinboard-main-view/pinboard-main-view.component';
 import { PinboardNewComponent } from './components/pinboard-new/pinboard-new.component';
@@ -24,6 +25,7 @@ import { PinboardCardComponent } from './components/pinboard-card/pinboard-card.
     FormsModule,
     ReactiveFormsModule,
     ModCommonsModule,
+    ModUserDataModule,
     ModMaterialImportModule
   ],
   exports: [

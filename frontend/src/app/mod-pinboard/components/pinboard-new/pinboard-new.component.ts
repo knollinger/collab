@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { User, UserService } from '../../../mod-user/mod-user.module';
+import { User } from '../../../mod-userdata/mod-userdata.module';
+import { UserService } from '../../../mod-user/mod-user.module';
+import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 
 @Component({
   selector: 'app-pinboard-new',
@@ -18,7 +20,8 @@ export class PinboardNewComponent implements OnInit {
    * @param userSvc 
    */
   constructor(formBuilder: FormBuilder,
-    private userSvc: UserService) {
+    private userSvc: UserService,
+    private avatarSvc: AvatarService) {
 
     this.pinboardForm = formBuilder.group(
       {
@@ -39,6 +42,6 @@ export class PinboardNewComponent implements OnInit {
   }
 
   getAvatarUrl(user: User): string {
-    return this.userSvc.getAvatarUrl(user.userId);
+    return this.avatarSvc.getAvatarUrl(user.userId);
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SessionService } from '../../services/session.service';
-import { UserService } from '../../../mod-user/mod-user.module';
+import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 
 @Component({
   selector: 'app-session-menu',
@@ -10,8 +10,8 @@ import { UserService } from '../../../mod-user/mod-user.module';
 export class SessionMenuComponent implements OnInit {
 
   constructor(
-    private userSvc: UserService,
-    private sessionSvc: SessionService) {
+    private sessionSvc: SessionService,
+    private avatarSvc: AvatarService) {
   }
 
   /**
@@ -45,7 +45,7 @@ export class SessionMenuComponent implements OnInit {
     let result = '';
     const user = this.sessionSvc.currentUser;
     if (user) {
-      result = this.userSvc.getAvatarUrl(user.userId);
+      result = this.avatarSvc.getAvatarUrl(user.userId);
     }
     return result;
   }
