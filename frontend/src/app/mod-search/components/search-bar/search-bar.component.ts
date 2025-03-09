@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { debounceTime, Subject } from 'rxjs';
 
@@ -25,6 +26,8 @@ import { SearchService } from '../../services/search.service';
   styleUrls: ['./search-bar.component.css']
 })
 export class SearchBarComponent implements OnInit {
+
+  private destroyRef = inject(DestroyRef);
 
   @Input()
   placeholder: string = '';
@@ -55,9 +58,11 @@ export class SearchBarComponent implements OnInit {
         this.results = SearchResult.empty();
       }
       else {
-        this.searchSvc.search(query).subscribe(results => {
-          this.results = results;
-        })
+        this.searchSvc.search(query)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(results => {
+            this.results = results;
+          })
       }
     })
   }

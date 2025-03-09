@@ -1,4 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { INode } from '../../models/inode';
 import { FilesDroppedEvent, INodeDroppedEvent } from '../../directives/drop-target.directive';
 import { INodeService } from '../../services/inode.service';
@@ -17,6 +19,8 @@ import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode
   styleUrls: ['./files-folder-view.component.css'],
 })
 export class FilesFolderViewComponent implements OnInit {
+
+  private destroyRef = inject(DestroyRef);
 
   public currentFolder: INode = INode.root();
   public inodes: INode[] = new Array<INode>();
@@ -86,12 +90,14 @@ export class FilesFolderViewComponent implements OnInit {
    */
   public reloadEntries() {
 
-    const sub = this.inodeSvc.getAllChilds(this.currentFolder.uuid).subscribe(inodes => {
+    this.inodeSvc.getAllChilds(this.currentFolder.uuid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(inodes => {
 
-      this.inodes = inodes;
-      this.selectedINodes.clear();
-      this.showPreview = false;
-    });
+        this.inodes = inodes;
+        this.selectedINodes.clear();
+        this.showPreview = false;
+      });
   }
 
   /**
@@ -106,12 +112,14 @@ export class FilesFolderViewComponent implements OnInit {
    */
   public onCreateFolder() {
 
-    this.inputBoxSvc.showInputBox('Einen neuen Ordner anlegen', 'Name').subscribe(name => {
+    this.inputBoxSvc.showInputBox('Einen neuen Ordner anlegen', 'Name')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(name => {
 
-      this.inodeSvc.createFolder(this.currentFolder.uuid, name).subscribe(() => {
-        this.reloadEntries();
+        this.inodeSvc.createFolder(this.currentFolder.uuid, name).subscribe(() => {
+          this.reloadEntries();
+        })
       })
-    })
   }
 
   /**
@@ -119,9 +127,11 @@ export class FilesFolderViewComponent implements OnInit {
    */
   private loadPathInfo() {
 
-    this.inodeSvc.getPath(this.currentFolder.uuid).subscribe(path => {
-      this.path = path;
-    });
+    this.inodeSvc.getPath(this.currentFolder.uuid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(path => {
+        this.path = path;
+      });
   }
 
   public get showSelectAll(): boolean {
@@ -181,20 +191,24 @@ export class FilesFolderViewComponent implements OnInit {
    */
   private uploadFiles(parent: INode, files: File[]) {
 
-    this.uploadSvc.uploadFiles(parent.uuid, files).subscribe(rsp => {
+    this.uploadSvc.uploadFiles(parent.uuid, files)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(rsp => {
 
-      if (rsp.duplicateFiles.length) {
+        if (rsp.duplicateFiles.length) {
 
-        this.showDuplFilesSvc.show(rsp.duplicateFiles).subscribe(action => {
-          alert(`Action: ${action}`);
-        })
-      }
-      else {
-        if (parent.uuid === this.currentFolder.uuid) {
-          this.reloadEntries();
+          this.showDuplFilesSvc.show(rsp.duplicateFiles)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(action => {
+              alert(`Action: ${action}`);
+            })
         }
-      }
-    })
+        else {
+          if (parent.uuid === this.currentFolder.uuid) {
+            this.reloadEntries();
+          }
+        }
+      })
   }
 
   /*-------------------------------------------------------------------------*/
@@ -215,9 +229,11 @@ export class FilesFolderViewComponent implements OnInit {
    * @param event 
    */
   onCopyDroppedINodes(event: INodeDroppedEvent) {
-    this.inodeSvc.copy(event.source, event.target).subscribe(() => {
-      this.reloadEntries();
-    })
+    this.inodeSvc.copy(event.source, event.target)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.reloadEntries();
+      })
   }
 
   /**
@@ -226,10 +242,12 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onMoveDroppedINodes(event: INodeDroppedEvent) {
 
-    this.inodeSvc.move(event.source, event.target).subscribe(() => {
-      this.inodesGrabbed.emit();
-      this.reloadEntries();
-    })
+    this.inodeSvc.move(event.source, event.target)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.inodesGrabbed.emit();
+        this.reloadEntries();
+      })
   }
 
   /**
@@ -278,15 +296,17 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onRename(inode: INode) {
 
-    this.inputBoxSvc.showInputBox('Umbenennen', 'Neuer Datei-Name', inode.name).subscribe(newName => {
+    this.inputBoxSvc.showInputBox('Umbenennen', 'Neuer Datei-Name', inode.name)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(newName => {
 
-      if (newName) {
+        if (newName) {
 
-        this.inodeSvc.rename(inode.uuid, newName).subscribe(() => {
-          this.reloadEntries();
-        });
-      }
-    });
+          this.inodeSvc.rename(inode.uuid, newName).subscribe(() => {
+            this.reloadEntries();
+          });
+        }
+      });
   }
 
   /**
@@ -317,9 +337,11 @@ export class FilesFolderViewComponent implements OnInit {
       this.messageBoxSvc.showQueryBox('Bist Du sicher?', msg).subscribe(rsp => {
 
         if (rsp) {
-          this.inodeSvc.delete(uuids).subscribe(() => {
-            this.reloadEntries();
-          })
+          this.inodeSvc.delete(uuids)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              this.reloadEntries();
+            })
         }
       })
     }
@@ -392,16 +414,20 @@ export class FilesFolderViewComponent implements OnInit {
 
     switch (this.clipboardSvc.operation) {
       case ClipboardService.OP_COPY:
-        this.inodeSvc.copy(this.clipboardSvc.inodes, this.currentFolder).subscribe(() => {
-          this.reloadEntries();
-        })
+        this.inodeSvc.copy(this.clipboardSvc.inodes, this.currentFolder)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.reloadEntries();
+          })
         break;
 
       case ClipboardService.OP_MOVE:
-        this.inodeSvc.move(this.clipboardSvc.inodes, this.currentFolder).subscribe(() => {
-          this.inodesGrabbed.emit();
-          this.reloadEntries();
-        })
+        this.inodeSvc.move(this.clipboardSvc.inodes, this.currentFolder)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.inodesGrabbed.emit();
+            this.reloadEntries();
+          })
         break;
 
       default:

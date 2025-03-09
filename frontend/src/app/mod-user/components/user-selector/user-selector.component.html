@@ -1,21 +1,16 @@
 <mat-selection-list [multiple]="multiple"
+                    hideSingleSelectionIndicator
                     (selectionChange)="onUserSelectionChange($event)">
 
     <mat-list-option *ngFor="let user of users"
                      [value]="user"
-                     checkboxPosition="before"
                      color="primary"
                      [selected]="isSelected(user)">
 
-        <div class="disp-flex flex-row flex-alignitems-center clickable">
-            <img class="flex-0 avatar small-left-right-spacer"
-                 [src]="getAvatar(user)">
-            <div class="flex-1">
-                <div mat-line>{{user.surname}} {{user.lastname}} </div>
-                <div mat-line>{{user.email}} </div>
-            </div>
-        </div>
-
+        <img matListItemAvatar
+             [src]="getAvatar(user)">
+        <h3 matListItemTitle>{{user.surname}} {{user.lastname}}</h3>
+        <p matListItemLine>{{user.email}}</p>
     </mat-list-option>
 
 </mat-selection-list>

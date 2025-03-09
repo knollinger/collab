@@ -1,20 +1,19 @@
 <mat-selection-list [multiple]="multiple"
+                    hideSingleSelectionIndicator
                     (selectionChange)="onGroupSelectionChange($event)">
 
     <mat-list-option *ngFor="let group of groups"
                      [value]="group"
                      color="primary"
-                     checkboxPosition="before"
                      [selected]="isSelected(group)">
-        <div class="disp-flex flex-row flex-alignitems-center">
-            <mat-icon matListItemIcon
-                      class="material-symbols-outlined flex-0 small-right-spacer"
-                      *ngIf="group.primary">person</mat-icon>
-            <mat-icon matListItemIcon
-                      class="material-symbols-outlined flex-0 small-right-spacer"
-                      *ngIf="!group.primary">group</mat-icon>
-            <span class="flex-1">{{group.name}}</span>
-        </div>
+
+        <mat-icon matListItemIcon
+                  class="material-symbols-outlined flex-0 small-right-spacer"
+                  *ngIf="group.primary">person</mat-icon>
+        <mat-icon matListItemIcon
+                  class="material-symbols-outlined flex-0 small-right-spacer"
+                  *ngIf="!group.primary">group</mat-icon>
+        <h3 matListItemTitle>{{group.name}}</h3>
     </mat-list-option>
 
 </mat-selection-list>

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { Group, User } from '../../../mod-userdata/mod-userdata.module';
 import { GroupService } from '../../services/group.service';
@@ -10,6 +11,8 @@ import { UserService } from '../../services/user.service';
   styleUrls: ['./group-edit.component.css']
 })
 export class GroupEditComponent implements OnInit {
+
+  private destroyRef = inject(DestroyRef);
 
   groups: Group[] = new Array<Group>();
   allUsers: User[] = new Array<User>();
@@ -30,13 +33,17 @@ export class GroupEditComponent implements OnInit {
    */
   ngOnInit(): void {
 
-    this.groupSvc.listGroups().subscribe(groups => {
-      this.groups = groups;
-    })
+    this.groupSvc.listGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(groups => {
+        this.groups = groups;
+      })
 
-    this.userSvc.listUsers().subscribe(users => {
-      this.allUsers = users;
-    })
+    this.userSvc.listUsers()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(users => {
+        this.allUsers = users;
+      })
 
   }
 

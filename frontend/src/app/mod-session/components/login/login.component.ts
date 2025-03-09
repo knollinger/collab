@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { SessionService } from '../../services/session.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -12,6 +13,8 @@ import { Location } from '@angular/common';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
+
+  private destroyRef = inject(DestroyRef);
 
   private redirUrl: string = '';
   loginForm: FormGroup;
@@ -107,14 +110,16 @@ export class LoginComponent implements OnInit {
     const passwd = this.loginForm.get('passwd')!.value || '';
     const newPwd = this.loginForm.get('newPwd1')!.value || '';
 
-    this.sessSvc.login(email, passwd, newPwd).subscribe(session => {
+    this.sessSvc.login(email, passwd, newPwd)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(session => {
 
-      if (this.redirUrl) {
-        this.router.navigateByUrl(this.redirUrl);
-      }
-      else {
-        this.location.back();
-      }
-    });
+        if (this.redirUrl) {
+          this.router.navigateByUrl(this.redirUrl);
+        }
+        else {
+          this.location.back();
+        }
+      });
   }
 }

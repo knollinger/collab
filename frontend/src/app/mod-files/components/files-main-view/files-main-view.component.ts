@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 import { EINodeUUIDs, INode } from '../../models/inode';
@@ -15,6 +17,8 @@ import { INodeService } from '../../services/inode.service';
 })
 
 export class FilesMainViewComponent implements OnInit, OnDestroy {
+
+  private destroyRef = inject(DestroyRef);
 
   @Input()
   public viewMode: string = 'grid';
@@ -62,7 +66,9 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
     this.route.params.subscribe(params => {
 
       const uuid = params['uuid'] || EINodeUUIDs.INODE_ROOT;
-      this.inodeSvc.getINode(uuid).subscribe(inode => {
+      this.inodeSvc.getINode(uuid)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(inode => {
 
         this.currentFolder = inode;
       })

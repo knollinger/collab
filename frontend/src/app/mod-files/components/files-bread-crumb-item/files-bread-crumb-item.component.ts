@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { INode } from '../../models/inode';
 import { INodeService } from '../../services/inode.service';
@@ -25,6 +25,8 @@ import { INodeService } from '../../services/inode.service';
 })
 export class FilesBreadCrumbItemComponent implements OnInit {
 
+  private destroyRef = inject(DestroyRef);
+
   @Input()
   inode: INode = INode.empty();
 
@@ -35,7 +37,7 @@ export class FilesBreadCrumbItemComponent implements OnInit {
    */
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
-  
+
   childs: INode[] = new Array<INode>();
 
   /**
@@ -52,9 +54,11 @@ export class FilesBreadCrumbItemComponent implements OnInit {
    */
   ngOnInit(): void {
 
-    this.inodeSvc.getAllChilds(this.inode.uuid, true).subscribe(childs => {
-      this.childs = childs;
-    })
+    this.inodeSvc.getAllChilds(this.inode.uuid, true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(childs => {
+        this.childs = childs;
+      })
   }
 
   /**

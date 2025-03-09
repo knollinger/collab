@@ -1,4 +1,5 @@
-import { Component, Inject, Input, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, Inject, Input, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ContentTypeService } from '../../services/content-type.service';
@@ -83,13 +84,17 @@ export class FilesPropertiesCommonsComponent implements OnInit {
 })
 export class FilesPropertiesPermissionsComponent implements OnInit {
 
+  private destroyRef = inject(DestroyRef);
+
   owner: User = User.empty();
 
   @Input()
   set inode(inode: INode) {
-    this.userSvc.getUser(inode.owner).subscribe(owner => {
-      this.owner = owner;
-    })
+    this.userSvc.getUser(inode.owner)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(owner => {
+        this.owner = owner;
+      })
   }
 
   /**

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
@@ -12,6 +13,8 @@ import { PinboardService } from '../../services/pinboard.service';
   styleUrls: ['./pinboard-main-view.component.css']
 })
 export class PinboardMainViewComponent implements OnInit {
+
+  private destroyRef = inject(DestroyRef);
 
   pinboards: PinBoard[] = new Array<PinBoard>();
 
@@ -32,9 +35,11 @@ export class PinboardMainViewComponent implements OnInit {
   ngOnInit(): void {
     this.titleBarSvc.subTitle = "Pin-Wand";
 
-    this.pinBoardSvc.getAllPinBoards().subscribe(pinboards => {
-      this.pinboards = pinboards;
-    })
+    this.pinBoardSvc.getAllPinBoards()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(pinboards => {
+        this.pinboards = pinboards;
+      })
   }
 
 

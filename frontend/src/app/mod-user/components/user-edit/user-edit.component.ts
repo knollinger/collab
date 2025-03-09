@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { UserService } from '../../services/user.service';
 
 import { User } from '../../../mod-userdata/models/user';
-import { MatSelectionListChange } from '@angular/material/list';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 
@@ -13,6 +13,8 @@ import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
   styleUrls: ['./user-edit.component.css']
 })
 export class UserEditComponent implements OnInit {
+
+  private destroyRef = inject(DestroyRef);
 
   showEditor: boolean = false;
   user: User = User.empty();
@@ -54,9 +56,11 @@ export class UserEditComponent implements OnInit {
     this.user = currentUser || User.empty();
     this.newAvatar = undefined;
 
-    this.userSvc.listUsers().subscribe(users => {
-      this.users = users;
-    });
+    this.userSvc.listUsers()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(users => {
+        this.users = users;
+      });
   }
 
   /**
@@ -99,9 +103,11 @@ export class UserEditComponent implements OnInit {
 
     console.log('save user');
     const newUser = User.fromJSON(this.profileForm.value);
-    this.userSvc.saveUser(newUser, this.newAvatar).subscribe(user => {
-      this.reload(newUser);
-    })
+    this.userSvc.saveUser(newUser, this.newAvatar)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
+        this.reload(newUser);
+      })
   }
 
   onResetForm() {

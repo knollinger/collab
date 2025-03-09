@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { SessionService } from '../../services/session.service';
 import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 
@@ -8,6 +10,8 @@ import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
   styleUrls: ['./session-menu.component.css']
 })
 export class SessionMenuComponent implements OnInit {
+
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private sessionSvc: SessionService,
@@ -62,7 +66,9 @@ export class SessionMenuComponent implements OnInit {
    * 
    */
   onLogout() {
-    this.sessionSvc.logout().subscribe(() => {
+    this.sessionSvc.logout()
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(() => {
 
     });
   }
