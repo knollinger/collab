@@ -12,7 +12,8 @@
 html,
 body {
     height: 100%;
-    background-color: #f8f8f8;
+    /* background-color: #f8f8f8; */
+    background-color: white;
     box-sizing: border-box;
 }
 
@@ -25,13 +26,13 @@ body {
  * Seit angular material 15 werden diese grauslichen Hintergrund-Filler
  * an FormFields angezeigt. Die will ich aber nicht!
  */
-.mdc-text-field--filled:not(.mdc-text-field--disabled) {
+/* .mdc-text-field--filled:not(.mdc-text-field--disabled) {
     background-color: white !important;
 }
 
 .mat-mdc-form-field-focus-overlay {
     background-color: transparent !important;
-}
+} */
 
 /**
  * Tab-Bodies sollen immer den komplett verfügbaren Raum einnehmen!

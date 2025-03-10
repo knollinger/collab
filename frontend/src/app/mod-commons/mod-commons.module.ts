@@ -42,6 +42,7 @@ import { MessageBoxComponent } from './components/message-box/message-box.compon
 import { InputBoxComponent } from './components/input-box/input-box.component';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusDirective } from './directives/auto-focus.directive';
+import { HintComponent } from './components/hint/hint.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import { AutoFocusDirective } from './directives/auto-focus.directive';
     SpinnerComponent,
     MessageBoxComponent,
     InputBoxComponent,
-    AutoFocusDirective
+    AutoFocusDirective,
+    HintComponent
   ],
   imports: [
     CommonModule,
@@ -65,6 +67,7 @@ import { AutoFocusDirective } from './directives/auto-focus.directive';
     ToolbarSeparatorComponent,
     FooterComponent,
     SpinnerComponent,
+    HintComponent,
     FileSizePipe,
     SafePipe,
     AutoFocusDirective,

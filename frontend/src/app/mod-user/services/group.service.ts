@@ -12,7 +12,7 @@ export class GroupService {
 
   private static routes: Map<string, string> = new Map<string, string>(
     [
-      ['listGroups', 'v1/groups/list']
+      ['listGroups', 'v1/groups/list?skipPrimary={1}&deepScan={2}']
     ]
   );
 
@@ -27,12 +27,16 @@ export class GroupService {
   }
 
   /**
+   * @param [skipPrimary=true] Liefere keine PrimärGruppen
+   * @param [deepScan=false]  liefere rekursiv alle Mitglieder der Gruppe
    * 
    * @returns 
    */
-  listGroups(): Observable<Group[]> {
+  listGroups(//
+    skipPrimary: boolean = true, //
+    deepScan: boolean = false): Observable<Group[]> {
 
-    const url = this.backendRouter.getRouteForName('listGroups', GroupService.routes);
+    const url = this.backendRouter.getRouteForName('listGroups', GroupService.routes, skipPrimary, deepScan);
     return this.http.get<IGroup[]>(url).pipe(
       map(groups => {
         return groups.map(group => {

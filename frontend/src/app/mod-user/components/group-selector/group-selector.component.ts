@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Group } from '../../../mod-userdata/mod-userdata.module';
+import { AvatarService, Group } from '../../../mod-userdata/mod-userdata.module';
 import { MatSelectionListChange } from '@angular/material/list';
 
 @Component({
@@ -23,7 +23,8 @@ export class GroupSelectorComponent implements OnInit {
   /**
    * 
    */
-  constructor() {
+  constructor(
+    private avatarSvc: AvatarService) {
   }
 
   /**
@@ -34,22 +35,13 @@ export class GroupSelectorComponent implements OnInit {
   }
 
   @Input()
-  set multiple(val: string | boolean) {
+  set multiple(val: boolean) {
 
-    this._multiple = false;
+    this._multiple = val;
   }
 
   get multiple(): boolean {
     return this._multiple;
-  }
-
-  /**
-   * 
-   * @param user 
-   * @returns 
-   */
-  isSelected(group: Group): boolean {
-    return true;
   }
 
   /**
@@ -66,6 +58,23 @@ export class GroupSelectorComponent implements OnInit {
         groups.push(option.value);
       }
       this.selectionChange.emit(groups);
+      this.selection = groups;
     }
+  }
+
+  //
+  isSelected(group: Group) {
+
+    for (let selection of this.selection) {
+      if(group.uuid == selection.uuid) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  getAvatar(group: Group): string {
+
+    return this.avatarSvc.getAvatarUrl(group.uuid);
   }
 }

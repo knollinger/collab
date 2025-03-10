@@ -1,4 +1,4 @@
-<div class="disp-flex flex-col scrollable">
+<div class="disp-flex flex-col full-height scrollable">
 
     <app-toolbar class="flex-0 small-bottom-lightgray-border">
 
@@ -9,26 +9,41 @@
         </button>
 
         <button mat-icon-button
-                *ngIf="isGroupSelected()"
                 matTooltip="Die ausgewählten Gruppen löschen">
             <mat-icon class="material-symbols-outlined">delete</mat-icon>
         </button>
 
     </app-toolbar>
 
-    <div class="flex-1 disp-flex flex-row full-height scrollable middle-padding">
+    <div class="flex-1 disp-flex flex-col full-height scrollable middle-padding">
 
-        <div class="flex-1 scrollable small-right-spacer">
-            <h2>Gruppen</h2>
-            <app-group-selector [groups]="groups"
-                                class="mat-elevation-z4"></app-group-selector>
-        </div>
+        <app-hint class="flex-0 middle-bottom-spacer">
+            <p>
+                Auf der linken Seite wird Dir die Struktur aller Gruppen als Baum
+                dargestellt. Jede Gruppe kann in mehreren anderen Gruppen enthalten 
+                sein, das ganze ist recht komplex.
+            </p>
+            <p>
+                Wenn Du einen Knoten auswählst, kannst Du auf der rechren Seite weitere
+                Gruppen hinzufügen oder bestehende Zuordnungen entfernen.
+            </p>
+        </app-hint>
 
-        <div class="flex-1 scrollable small-left-spacer">
-            <h2>Benutzer</h2>
-            <app-user-selector [multiple]="true"
-                               [users]="allUsers"
-                               class="mat-elevation-z4"></app-user-selector>
+        <div class="flex-1 disp-flex flex-row full-height scrollable">
+
+            <!-- Die Baum-Struktur aller Gruppen -->
+            <div class="flex-1 scrollable small-right-spacer list-cnr mat-elevation-z2">
+                <!-- Hier muss der GroupTree hin! -->
+                <app-group-selector [groups]="groupTree"
+                                    (selectionChange)="onGroupSelection($event)"></app-group-selector>
+            </div>
+
+            <!-- Die Liste aller Gruppen -->
+            <div class="flex-1 scrollable small-left-spacer list-cnr mat-elevation-z2">
+                <app-group-selector [groups]="allGroups"
+                                    [multiple]="true"
+                                    [selection]="currentMembers"></app-group-selector>
+            </div>
         </div>
     </div>
 

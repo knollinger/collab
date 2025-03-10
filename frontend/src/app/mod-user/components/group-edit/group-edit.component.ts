@@ -14,8 +14,9 @@ export class GroupEditComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  groups: Group[] = new Array<Group>();
-  allUsers: User[] = new Array<User>();
+  groupTree: Group[] = new Array<Group>();
+  allGroups: Group[] = new Array<Group>();
+  currentMembers: Group[] = new Array<Group>();
 
   /**
    * 
@@ -23,8 +24,7 @@ export class GroupEditComponent implements OnInit {
    * @param userSvc 
    */
   constructor(
-    private groupSvc: GroupService,
-    private userSvc: UserService) {
+    private groupSvc: GroupService) {
 
   }
 
@@ -33,17 +33,22 @@ export class GroupEditComponent implements OnInit {
    */
   ngOnInit(): void {
 
-    this.groupSvc.listGroups()
+    // lese Rekursiv dem Baum aller Gruppen, auf der Root-Ebene werden
+    // PrimaryGruppen ignoriert
+    this.groupSvc.listGroups(true, true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(groups => {
-        this.groups = groups;
+        this.groupTree = groups;
       })
 
-    this.userSvc.listUsers()
+    // lese die Liste aller gruppen incl der PrimärGruppen, ohne
+    // jedoch einen deepScan durch zu führen
+    this.groupSvc.listGroups(false, false)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(users => {
-        this.allUsers = users;
+      .subscribe(groups => {
+        this.allGroups = groups;
       })
+
 
   }
 
@@ -55,11 +60,10 @@ export class GroupEditComponent implements OnInit {
 
   }
 
-  /**
-   * 
-   * @returns 
-   */
-  isGroupSelected(): boolean {
-    return false;
+  onGroupSelection(groups: Group[]) {
+
+    if (groups.length) {
+      this.currentMembers = groups[0].members;
+    }
   }
 }

@@ -1,7 +1,8 @@
 export interface IGroup {
     uuid: string,
     name: string,
-    primary: boolean
+    primary: boolean,
+    members: IGroup[]
 }
 
 /**
@@ -18,7 +19,8 @@ export class Group {
     constructor(
         public readonly uuid: string,
         public readonly name: string,
-        public primary: boolean) {
+        public readonly primary: boolean,
+        public readonly members: Group[]) {
 
     }
 
@@ -28,7 +30,11 @@ export class Group {
      * @returns 
      */
     public static fromJSON(json: IGroup): Group {
-        return new Group(json.uuid, json.name, json.primary);
+
+        const members = json.members.map(member => {
+            return Group.fromJSON(member);
+        })
+        return new Group(json.uuid, json.name, json.primary, members);
     }
 
     /**
@@ -39,7 +45,8 @@ export class Group {
         return {
             uuid: this.uuid,
             name: this.name,
-            primary: this.primary
+            primary: this.primary,
+            members: this.members // TODO: Rekursiv eintauchen!
         }
     }
 
@@ -48,7 +55,7 @@ export class Group {
      * @returns 
      */
     public static empty(): Group {
-        return new Group('', '', false);
+        return new Group('', '', false, new Array<Group>());
     }
 
     /**
@@ -57,5 +64,9 @@ export class Group {
      */
     public isEmpty(): boolean {
         return !this.uuid;
+    }
+
+    public toString(): string {
+        return `{uuid: ${this.uuid}, name: ${this.name}}`; // TODO: rekursiv abtauchen
     }
 }

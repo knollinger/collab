@@ -7,9 +7,10 @@
                      color="primary"
                      [selected]="isSelected(group)">
 
-        <mat-icon matListItemIcon
-                  class="material-symbols-outlined flex-0 small-right-spacer"
-                  *ngIf="group.primary">person</mat-icon>
+        <img matListItemAvatar
+             *ngIf="group.primary"
+             [src]="getAvatar(group)">
+             
         <mat-icon matListItemIcon
                   class="material-symbols-outlined flex-0 small-right-spacer"
                   *ngIf="!group.primary">group</mat-icon>

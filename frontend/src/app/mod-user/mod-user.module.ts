@@ -21,6 +21,7 @@ import { UserEditComponent } from './components/user-edit/user-edit.component';
 import { UserSelectorComponent } from './components/user-selector/user-selector.component';
 import { GroupSelectorComponent } from './components/group-selector/group-selector.component';
 import { GroupEditComponent } from './components/group-edit/group-edit.component';
+import { GroupTreeComponent } from './components/group-tree/group-tree.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { GroupEditComponent } from './components/group-edit/group-edit.component
     UserSelectorComponent,
     GroupSelectorComponent,
     GroupEditComponent,
+    GroupTreeComponent,
   ],
   imports: [
     CommonModule,

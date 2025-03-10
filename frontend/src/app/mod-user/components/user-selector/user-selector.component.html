@@ -4,8 +4,7 @@
 
     <mat-list-option *ngFor="let user of users"
                      [value]="user"
-                     color="primary"
-                     [selected]="isSelected(user)">
+                     color="primary">
 
         <img matListItemAvatar
              [src]="getAvatar(user)">

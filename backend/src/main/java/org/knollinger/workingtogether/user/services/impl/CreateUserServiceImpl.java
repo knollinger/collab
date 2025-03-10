@@ -30,12 +30,8 @@ public class CreateUserServiceImpl implements ICreateUserService
         + "  set uuid=?, parent=?, name=?, owner=?, size=?, type=?";
     
     private static final String SQL_CREATE_GROUP = "" //
-        + "insert into userGroups" //
-        + "  set uuid=?, name=?";
-
-    private static final String SQL_ADD_TO_GROUP = "" //
-        + "insert into users2Groups" //
-        + "  set userId=?, groupId=?";
+        + "insert into groups" //
+        + "  set uuid=?, name=?, isPrimary=?";
 
     private static final String SQL_SAVE_AVATAR = "" //
         + "update users set avatar=?, avatarType=?" //
@@ -66,7 +62,6 @@ public class CreateUserServiceImpl implements ICreateUserService
             user = this.createAccount(accountName, email, surName, lastName, conn);
             this.createHomeDirectory(user, conn);
             this.createUserGroup(user, conn);
-            this.addUserToPrivateGroup(user, conn);
 
             if (avatar != null)
             {
@@ -195,29 +190,7 @@ public class CreateUserServiceImpl implements ICreateUserService
             stmt = conn.prepareStatement(SQL_CREATE_GROUP);
             stmt.setString(1, user.getUserId().toString());
             stmt.setString(2, user.getAccountName());
-            stmt.executeUpdate();
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(stmt);
-        }
-    }
-
-    /**
-     * @param user
-     * @param conn
-     * @throws SQLException
-     */
-    private void addUserToPrivateGroup(User user, Connection conn) throws SQLException
-    {
-
-        PreparedStatement stmt = null;
-
-        try
-        {
-            stmt = conn.prepareStatement(SQL_ADD_TO_GROUP);
-            stmt.setString(1, user.getUserId().toString());
-            stmt.setString(2, user.getUserId().toString());
+            stmt.setBoolean(3, true);
             stmt.executeUpdate();
         }
         finally
