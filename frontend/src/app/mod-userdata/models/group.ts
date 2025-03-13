@@ -20,7 +20,7 @@ export class Group {
         public readonly uuid: string,
         public readonly name: string,
         public readonly primary: boolean,
-        public readonly members: Group[]) {
+        public members: Group[]) { // TODO: muss wieder readonly werden
 
     }
 
@@ -68,5 +68,25 @@ export class Group {
 
     public toString(): string {
         return `{uuid: ${this.uuid}, name: ${this.name}}`; // TODO: rekursiv abtauchen
+    }
+
+    /**
+     * 
+     */
+    public get hasMembers(): boolean {
+        return this.members && this.members.length > 0;
+    }
+
+    /**
+     * Erzeuge eine DeepCopy inclusive aller Member
+     * 
+     * @returns 
+     */
+    public clone(): Group {
+
+        const clonedMembers = this.members.map(member => {
+            return member.clone();
+        })
+        return new Group(this.uuid, this.name, this.primary, clonedMembers);        
     }
 }

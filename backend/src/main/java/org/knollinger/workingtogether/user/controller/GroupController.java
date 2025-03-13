@@ -25,14 +25,17 @@ public class GroupController
     @Autowired
     private IGroupMapper groupMapper;
 
+    /**
+     * @param deepScan
+     * @return
+     */
     @GetMapping(path = "/list")
     public List<GroupDTO> getAllGroups(//
-        @RequestParam(name = "skipPrimary", defaultValue = "true") boolean skipPrimary, //
         @RequestParam(name = "deepScan", defaultValue = "true") boolean deepScan)
     {
         try
         {
-            List<Group> groups = this.groupSvc.getAllGroups(skipPrimary, deepScan);
+            List<Group> groups = this.groupSvc.getAllGroups(deepScan);
             return this.groupMapper.toDTO(groups);
         }
         catch (TechnicalGroupException e)

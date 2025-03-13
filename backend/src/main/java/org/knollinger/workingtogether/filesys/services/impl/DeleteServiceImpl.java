@@ -24,12 +24,12 @@ import org.springframework.stereotype.Service;
 public class DeleteServiceImpl implements IDeleteService
 {
     private static final String SQL_GET_CHILDS = "" //
-        + "select uuid, type from inodes" //
-        + "  where parent=?";
+        + "select `uuid`, `type` from `inodes`" //
+        + "  where `parent`=?";
 
     private static final String SQL_DELETE_INODE = "" //
-        + "delete from inodes" //
-        + "  where uuid=?";
+        + "delete from `inodes`" //
+        + "  where `uuid`=?";
 
     private static final String ERR_DELETE_INODE = "Das Datei-System Objekt konnte aufgrund eines technischen Problems nicht gelöscht werden.";
 

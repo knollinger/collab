@@ -15,23 +15,31 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.knollinger.workingtogether.user.dtos.GroupDTO;
 import org.knollinger.workingtogether.user.dtos.UserDTO;
 import org.knollinger.workingtogether.user.exceptions.ExpiredTokenException;
 import org.knollinger.workingtogether.user.exceptions.InvalidTokenException;
 import org.knollinger.workingtogether.user.exceptions.LoginNotFoundException;
+import org.knollinger.workingtogether.user.exceptions.TechnicalGroupException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
+import org.knollinger.workingtogether.user.mapper.IGroupMapper;
 import org.knollinger.workingtogether.user.mapper.IUserMapper;
+import org.knollinger.workingtogether.user.models.Group;
 import org.knollinger.workingtogether.user.models.LoginResponse;
+import org.knollinger.workingtogether.user.models.TokenPayload;
 import org.knollinger.workingtogether.user.models.User;
+import org.knollinger.workingtogether.user.services.IListGroupService;
 import org.knollinger.workingtogether.user.services.ILoginService;
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.jsonwebtoken.Claims;
@@ -88,7 +96,13 @@ public class LoginServiceImpl implements ILoginService
     private IDbService dbService;
 
     @Autowired()
-    private IUserMapper mapper;
+    private IListGroupService listGroupSvc;
+
+    @Autowired()
+    private IUserMapper userMapper;
+
+    @Autowired()
+    private IGroupMapper groupMapper;
 
     private AtomicReference<PrivateKeyEntry> keyPair = new AtomicReference<>(null);
 
@@ -118,17 +132,18 @@ public class LoginServiceImpl implements ILoginService
             }
 
             User user = this.getUser(email, conn);
+            List<Group> groups = this.listGroupSvc.getGroupsByUser(user);
 
             long issuedAt = System.currentTimeMillis();
             long expires = issuedAt + TWO_HOURS_IN_MILLIES;
-            String token = this.createToken(user, issuedAt, expires);
+            String token = this.createToken(user, groups, issuedAt, expires);
 
             return LoginResponse.builder() //
                 .token(token) //
                 .expires(new Timestamp(expires)) //
                 .build();
         }
-        catch (SQLException | NoSuchAlgorithmException e)
+        catch (SQLException | NoSuchAlgorithmException | TechnicalGroupException e)
         {
             throw new TechnicalLoginException(email, e);
         }
@@ -171,17 +186,18 @@ public class LoginServiceImpl implements ILoginService
             }
 
             User user = this.getUser(email, conn);
+            List<Group> groups = this.listGroupSvc.getGroupsByUser(user);
 
             long issuedAt = System.currentTimeMillis();
             long expires = issuedAt + TWO_HOURS_IN_MILLIES;
-            String token = this.createToken(user, issuedAt, expires);
+            String token = this.createToken(user, groups, issuedAt, expires);
 
             return LoginResponse.builder() //
                 .token(token) //
                 .expires(new Timestamp(expires)) //
                 .build();
         }
-        catch (SQLException | NoSuchAlgorithmException e)
+        catch (SQLException | NoSuchAlgorithmException | TechnicalGroupException e)
         {
             throw new TechnicalLoginException(email, e);
         }
@@ -236,9 +252,10 @@ public class LoginServiceImpl implements ILoginService
      * @throws ExpiredTokenException 
      */
     @Override
-    public User validateToken(String token) throws TechnicalLoginException, InvalidTokenException, ExpiredTokenException
+    public TokenPayload validateToken(String token)
+        throws TechnicalLoginException, InvalidTokenException, ExpiredTokenException
     {
-        User result = User.empty();
+        TokenPayload result = TokenPayload.empty();
         PrivateKeyEntry pke = this.getKeyPair();
         X509Certificate x509Cert = (X509Certificate) pke.getCertificate();
 
@@ -257,7 +274,16 @@ public class LoginServiceImpl implements ILoginService
             Object flatUser = payload.get("user");
             ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
             UserDTO user = mapper.convertValue(flatUser, UserDTO.class);
-            result = this.mapper.fromDTO(user);
+
+            Object flatGroups = payload.get("groups");
+            List<GroupDTO> groups = mapper.convertValue(flatGroups, new TypeReference<List<GroupDTO>>()
+            {
+            });
+
+            result = TokenPayload.builder() //
+                .user(this.userMapper.fromDTO(user)) //
+                .groups(this.groupMapper.fromDTO(groups)) //
+                .build();
         }
         catch (ExpiredJwtException e)
         {
@@ -281,11 +307,11 @@ public class LoginServiceImpl implements ILoginService
         throws TechnicalLoginException, InvalidTokenException, ExpiredTokenException
     {
         log.info("refresh token");
-        User user = this.validateToken(token);
+        TokenPayload payload = this.validateToken(token);
 
         long issuedAt = System.currentTimeMillis();
         long expires = issuedAt + TWO_HOURS_IN_MILLIES;
-        String newToken = this.createToken(user, issuedAt, expires);
+        String newToken = this.createToken(payload.getUser(), payload.getGroups(), issuedAt, expires);
 
         return LoginResponse.builder() //
             .token(newToken) //
@@ -296,12 +322,13 @@ public class LoginServiceImpl implements ILoginService
     /**
      * @param email
      * @param user
+     * @param groups
      * @param issued
      * @param expires
      * @return
      * @throws TechnicalLoginException
      */
-    private String createToken(User user, long issued, long expires) throws TechnicalLoginException
+    private String createToken(User user, List<Group> groups, long issued, long expires) throws TechnicalLoginException
     {
         PrivateKeyEntry pke = this.getKeyPair();
         X509Certificate x509Cert = (X509Certificate) pke.getCertificate();
@@ -315,7 +342,10 @@ public class LoginServiceImpl implements ILoginService
             .expiration(new Date(expires)) // 
             .subject(user.getEmail()) //
             .issuer(x509Cert.getIssuerX500Principal().getName()) //
-            .claims().add("user", this.mapper.toDTO(user)).and() //
+            .claims() //
+            .add("user", this.userMapper.toDTO(user)) //
+            .add("groups", this.groupMapper.toDTO(groups)) //
+            .and() //
             .signWith(privKey) //
             .compact();
     }
@@ -384,4 +414,5 @@ public class LoginServiceImpl implements ILoginService
             throw new TechnicalLoginException("Der Zertifikats-Speicher konnte nicht geladen werden.", e);
         }
     }
+
 }

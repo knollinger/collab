@@ -5,7 +5,7 @@ import org.knollinger.workingtogether.user.exceptions.InvalidTokenException;
 import org.knollinger.workingtogether.user.exceptions.LoginNotFoundException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
 import org.knollinger.workingtogether.user.models.LoginResponse;
-import org.knollinger.workingtogether.user.models.User;
+import org.knollinger.workingtogether.user.models.TokenPayload;
 
 public interface ILoginService
 {
@@ -38,7 +38,7 @@ public interface ILoginService
      * @throws ExpiredTokenException
      * @throws TechnicalLoginException 
      */
-    public User validateToken(String token) throws InvalidTokenException, ExpiredTokenException, TechnicalLoginException;
+    public TokenPayload validateToken(String token) throws InvalidTokenException, ExpiredTokenException, TechnicalLoginException;
 
     /**
      * 

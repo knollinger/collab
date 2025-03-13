@@ -1,12 +1,12 @@
 package org.knollinger.workingtogether.user.services;
 
-import org.knollinger.workingtogether.user.models.User;
+import org.knollinger.workingtogether.user.models.TokenPayload;
 
 public interface ICurrentUserService
 {
-    public void set(User user);
+    public void set(TokenPayload user);
     
-    public User get();
+    public TokenPayload get();
     
     public void clear();
 }

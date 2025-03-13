@@ -3,10 +3,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { ContentTypeService } from '../../services/content-type.service';
-import { User } from '../../../mod-userdata/mod-userdata.module';
-import { UserService } from '../../../mod-user/mod-user.module';
+import { Group, User } from '../../../mod-userdata/mod-userdata.module';
+import { GroupService, UserService } from '../../../mod-user/mod-user.module';
 
 import { INode } from '../../models/inode';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 /**
  * 
@@ -85,30 +86,64 @@ export class FilesPropertiesCommonsComponent implements OnInit {
 export class FilesPropertiesPermissionsComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
-
-  owner: User = User.empty();
+  private groupsByUUID: Map<string, Group> = new Map<string, Group>();
+  allGroups: Group[] = new Array<Group>();
 
   @Input()
-  set inode(inode: INode) {
-    this.userSvc.getUser(inode.owner)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(owner => {
-        this.owner = owner;
-      })
-  }
+  inode: INode = INode.empty();
+
+  propsForm: FormGroup;
 
   /**
    * 
    * @param data 
    */
-  constructor(private userSvc: UserService) {
+  constructor(
+    formBuilder: FormBuilder,
+    private userSvc: UserService, //
+    private groupSvc: GroupService) {
 
+    this.propsForm = formBuilder.group({
+      owner: new FormControl('', [Validators.required]),
+      group: new FormControl('', [Validators.required])
+    });
   }
 
   /**
    * 
    */
   ngOnInit(): void {
+
+    this.groupSvc.listGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(groups => {
+
+        this.groupsByUUID = new Map<string, Group>();
+        this.allGroups = groups;
+        groups.forEach(group => {
+          this.groupsByUUID.set(group.uuid, group);
+        });
+
+        this.propsForm.value.owner = this.inode.owner;
+        this.propsForm.value.group = this.inode.group;
+      })
+  }
+
+  get userName(): string {
+
+    const group = this.groupsByUUID.get(this.inode.owner);
+    if (group) {
+      return group.name;
+    }
+    return '';
+  }
+
+  get groupName(): string {
+    const group = this.groupsByUUID.get(this.inode.group);
+    if (group) {
+      return group.name;
+    }
+    return '';
   }
 }
 

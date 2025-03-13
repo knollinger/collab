@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.knollinger.workingtogether.user.exceptions.TechnicalGroupException;
 import org.knollinger.workingtogether.user.models.Group;
+import org.knollinger.workingtogether.user.models.User;
 
 /**
  * <p>
@@ -17,7 +18,6 @@ public interface IListGroupService extends IGroupService
     /**
      * Liefere die Liste alle Gruppen, sortiert nach Ihren Namen.
      * 
-     * @param skipPrimaryGroups überspringe PrimärGruppen
      * @param deepScan wenn <code>true</code>, werden rekursiv alle Member für 
      *                 die Gruppen geliefert. In diesem Fall werden für die
      *                 Member-Gruppen auch alle Primär-Gruppen aufgelistet.
@@ -26,5 +26,12 @@ public interface IListGroupService extends IGroupService
      * 
      * @throws TechnicalGroupException
      */
-    public List<Group> getAllGroups(boolean skipPrimaryGroups, boolean deepScan) throws TechnicalGroupException;
+    public List<Group> getAllGroups(boolean deepScan) throws TechnicalGroupException;
+    
+    /**
+     * @param user
+     * @return
+     * @throws TechnicalGroupException
+     */
+    public List<Group> getGroupsByUser(User user) throws TechnicalGroupException;
 }

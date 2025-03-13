@@ -23,6 +23,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTreeModule } from '@angular/material/tree';
+import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
   declarations: [],
@@ -49,7 +51,9 @@ import { MatRippleModule } from '@angular/material/core';
     MatSnackBarModule,
     MatRadioModule,
     MatSidenavModule,
-    MatRippleModule
+    MatRippleModule,
+    MatTreeModule,
+    MatSelectModule
   ],
   exports: [
     MatToolbarModule,
@@ -73,7 +77,9 @@ import { MatRippleModule } from '@angular/material/core';
     MatSnackBarModule,
     MatRadioModule,
     MatSidenavModule,
-    MatRippleModule
+    MatRippleModule,
+    MatTreeModule,
+    MatSelectModule
   ]
 })
 export class ModMaterialImportModule { }

@@ -9,6 +9,12 @@
         </button>
 
         <button mat-icon-button
+                matTooltip="Ansicht neu laden"
+                (click)="onReloadGroups()">
+            <mat-icon class="material-symbols-outlined">refresh</mat-icon>
+        </button>
+
+        <button mat-icon-button
                 matTooltip="Die ausgewählten Gruppen löschen">
             <mat-icon class="material-symbols-outlined">delete</mat-icon>
         </button>
@@ -34,8 +40,9 @@
             <!-- Die Baum-Struktur aller Gruppen -->
             <div class="flex-1 scrollable small-right-spacer list-cnr mat-elevation-z2">
                 <!-- Hier muss der GroupTree hin! -->
-                <app-group-selector [groups]="groupTree"
-                                    (selectionChange)="onGroupSelection($event)"></app-group-selector>
+                <!-- <app-group-selector [groups]="groupTree"
+                                    (selectionChange)="onGroupSelection($event)"></app-group-selector> -->
+                <app-group-tree [groups]="groupTree" (selection)="onGroupSelection($event)"></app-group-tree>
             </div>
 
             <!-- Die Liste aller Gruppen -->

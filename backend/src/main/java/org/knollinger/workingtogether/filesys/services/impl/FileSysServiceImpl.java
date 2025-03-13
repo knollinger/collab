@@ -16,7 +16,7 @@ import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysExcepti
 import org.knollinger.workingtogether.filesys.models.EWellknownINodeIDs;
 import org.knollinger.workingtogether.filesys.models.INode;
 import org.knollinger.workingtogether.filesys.services.IFileSysService;
-import org.knollinger.workingtogether.user.models.User;
+import org.knollinger.workingtogether.user.models.TokenPayload;
 import org.knollinger.workingtogether.user.services.ICurrentUserService;
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,33 +26,35 @@ import org.springframework.stereotype.Service;
 public class FileSysServiceImpl implements IFileSysService
 {
     private static final String SQL_GET_INODE = "" //
-        + "select name, parent, owner, size, type, created, modified from inodes" //
-        + "  where uuid=?";
+        + "select `name`, `parent`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
+        + "  where `uuid`=?";
 
     private static final String SQL_GET_ALL_CHILDS = "" //
-        + "select name, uuid, owner, size, type, created, modified from inodes" //
-        + "  where parent=?" //
-        + "  order by name asc";
+        + "select `name`, `uuid`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
+        + "  where `parent`=?" //
+        + "  order by `name` asc";
 
     private static final String SQL_CREATE_INODE = "" //
-        + "insert into inodes" // 
-        + "  set uuid=?, owner=?, parent=?, name=?, size=?, type=?";
+        + "insert into `inodes`" // 
+        + "  set `uuid`=?, `parent`=?, `owner`=?, `group`=?, `perms`=?, `name`=?, `size`=?, `type`=?";
 
     private static final String SQL_RENAME_INODE = "" //
-        + "update inodes set name=?" //
-        + "  where uuid=?";
+        + "update `inodes` set `name`=?" //
+        + "  where `uuid`=?";
 
     private static final String SQL_GET_CHILD_BY_NAME = "" //
-        + "select * from inodes" //
-        + "  where parent=? and name=?";
+        + "select * from `inodes`" //
+        + "  where `parent`=? and `name`=?";
 
     private static final String SQL_MOVE_INODE = "" //
-        + "update inodes set parent=?" //
-        + "  where uuid=?";
+        + "update `inodes` set `parent`=?" //
+        + "  where `uuid`=?";
 
+    private static final short DEFAULT_PERMISSION = 077; // read, write, delete für owner und gruppe
+    
     @Autowired
     private IDbService dbService;
-    
+
     @Autowired
     private ICurrentUserService currUserSvc;
 
@@ -95,15 +97,19 @@ public class FileSysServiceImpl implements IFileSysService
                 throw new NotFoundException(uuid);
             }
 
-            return INode.builder() //
+            INode inode = INode.builder() //
                 .uuid(uuid) //
                 .parent(UUID.fromString(rs.getString("parent"))) //
                 .owner(UUID.fromString(rs.getString("owner"))) //
-                .name(rs.getString("name")).type(rs.getString("type")) //
+                .group(UUID.fromString(rs.getString("group")) )//
+                .perms(rs.getShort("perms")) //
+                .name(rs.getString("name")) //
+                .type(rs.getString("type")) //
                 .size(rs.getLong("size")) //
                 .created(rs.getTimestamp("created")) //
                 .modified(rs.getTimestamp("modified")) //
                 .build();
+            return inode;
         }
         finally
         {
@@ -126,16 +132,19 @@ public class FileSysServiceImpl implements IFileSysService
         try
         {
             List<INode> result = new ArrayList<INode>();
+
             conn = this.dbService.openConnection();
             stmt = conn.prepareStatement(SQL_GET_ALL_CHILDS);
             stmt.setString(1, parentId.toString());
             rs = stmt.executeQuery();
             while (rs.next())
             {
-                INode node = INode.builder() // 
+                INode inode = INode.builder() // 
                     .uuid(UUID.fromString(rs.getString("uuid"))) //
                     .parent(parentId) //
                     .owner(UUID.fromString(rs.getString("owner"))) //
+                    .group(UUID.fromString(rs.getString("group"))) //
+                    .perms(rs.getShort("perms")) //
                     .name(rs.getString("name")) //
                     .type(rs.getString("type")) //
                     .size(rs.getLong("size")) //
@@ -143,10 +152,11 @@ public class FileSysServiceImpl implements IFileSysService
                     .modified(rs.getTimestamp("modified")) //
                     .build();
 
-                if (!foldersOnly || node.isDirectory())
-                {
-                    result.add(node);
-                }
+//                if (!foldersOnly || inode.isDirectory())
+//                {
+//                    result.add(inode);
+//                }
+              result.add(inode);
             }
             return result;
         }
@@ -221,6 +231,8 @@ public class FileSysServiceImpl implements IFileSysService
                         .uuid(currentUUID) //
                         .parent(UUID.fromString(rs.getString("parent"))) //
                         .owner(UUID.fromString(rs.getString("owner"))) //
+                        .group(UUID.fromString(rs.getString("group"))) //
+                        .perms(rs.getShort("perms")) //
                         .name(rs.getString("name")) //
                         .type(rs.getString("type")) //
                         .size(rs.getLong("size")) //
@@ -317,6 +329,8 @@ public class FileSysServiceImpl implements IFileSysService
                     .uuid(UUID.fromString(rs.getString("uuid"))) //
                     .parent(parentId) //
                     .owner(UUID.fromString(rs.getString("owner"))) //
+                    .group(UUID.fromString(rs.getString("group"))) //
+                    .perms(rs.getShort("perms")) //
                     .name(originalFilename) //
                     .size(rs.getLong("size")) //
                     .type(rs.getString("type")) //
@@ -349,18 +363,22 @@ public class FileSysServiceImpl implements IFileSysService
         try
         {
             conn = this.dbService.openConnection();
-            
+
             UUID uuid = UUID.randomUUID();
-            User user = this.currUserSvc.get();
+            TokenPayload token = this.currUserSvc.get();
+            
+            UUID userId = token.getUser().getUserId();
 
             // TODO: Parent existenz und isDirectory testen
             stmt = conn.prepareStatement(SQL_CREATE_INODE);
             stmt.setString(1, uuid.toString());
-            stmt.setString(2, user.getUserId().toString());
-            stmt.setString(3, parentId.toString());
-            stmt.setString(4, name.trim());
-            stmt.setLong(5, 0);
-            stmt.setString(6, "inode/directory");
+            stmt.setString(2, parentId.toString());
+            stmt.setString(3, userId.toString());
+            stmt.setString(4, userId.toString());
+            stmt.setShort(5, FileSysServiceImpl.DEFAULT_PERMISSION);
+            stmt.setString(6, name.trim());
+            stmt.setLong(7, 0);
+            stmt.setString(8, "inode/directory");
             stmt.executeUpdate();
 
             Timestamp now = new Timestamp(System.currentTimeMillis());
@@ -368,6 +386,8 @@ public class FileSysServiceImpl implements IFileSysService
                 .uuid(uuid) //
                 .parent(parentId) //
                 .name(name.trim()) //
+                .owner(userId) //
+                .group(userId) //
                 .size(0) //
                 .type("inode/directory") //
                 .created(now) //

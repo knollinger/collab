@@ -26,14 +26,14 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     private IDbService dbSvc;
 
     private static final String SQL_COPY = "" //
-        + "insert into inodes ( uuid , parent , owner, name, size, type, data, hash)" //
-        + "  select ? , ?, owner, name, size, type, data, hash" //
-        + "    from inodes" //
-        + "      where uuid = ?";
+        + "insert into `inodes` ( `uuid`, `parent`, `owner`, `group`, `perms`, `name`, `size`, `type`, `data`, `hash`)" //
+        + "  select ? , ?, `owner`, `group`, `perms`, `name`, `size`, `type`, `data`, `hash`" //
+        + "    from `inodes`" //
+        + "      where `uuid` = ?";
 
     private static final String SQL_GET_CHILDS = "" //
-        + "select uuid, type from inodes" //
-        + "  where parent=?";
+        + "select `uuid`, `type` from `inodes`" //
+        + "  where `parent`=?";
 
     /**
      *
@@ -115,6 +115,9 @@ public class CopyINodeServiceImpl implements ICopyINodeService
                 .uuid(newUUID) //
                 .parent(target.getUuid()) //
                 .name(inode.getName()) //
+                .owner(inode.getOwner()) //
+                .group(inode.getGroup()) //
+                .perms(inode.getPerms()) //
                 .created(now) //
                 .modified(now) //
                 .size(inode.getSize()) //

@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import org.knollinger.workingtogether.user.exceptions.ExpiredTokenException;
 import org.knollinger.workingtogether.user.exceptions.InvalidTokenException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
-import org.knollinger.workingtogether.user.models.User;
+import org.knollinger.workingtogether.user.models.TokenPayload;
 import org.knollinger.workingtogether.user.services.ICurrentUserService;
 import org.knollinger.workingtogether.user.services.ILoginService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,7 @@ public class CheckTokenFilter extends OncePerRequestFilter
 {
     @Autowired
     private ILoginService loginSvc;
-
+    
     @Autowired
     private ICurrentUserService currentUserSvc;
 
@@ -67,12 +67,12 @@ public class CheckTokenFilter extends OncePerRequestFilter
         String reqUri = httpReq.getRequestURI();
         String authorization = this.getBearerCookie(httpReq);
 
-        User user = this.extractUser(authorization);
-        if (this.isOptionsRequest(httpReq) || !this.mustHaveAuthorization(reqUri) || !user.isEmpty())
+        TokenPayload payload = this.extractPayload(authorization);
+        if (this.isOptionsRequest(httpReq) || !this.mustHaveAuthorization(reqUri) || !payload.isEmpty())
         {
             try
             {
-                this.currentUserSvc.set(user);
+                this.currentUserSvc.set(payload);
                 chain.doFilter(httpReq, httpRsp);
             }
             finally
@@ -119,9 +119,9 @@ public class CheckTokenFilter extends OncePerRequestFilter
      * @param authorization
      * @return
      */
-    private User extractUser(String authorization)
+    private TokenPayload extractPayload(String authorization)
     {
-        User result = User.empty();
+        TokenPayload result = TokenPayload.empty();
 
         if (authorization != null)
         {

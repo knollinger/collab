@@ -22,6 +22,7 @@ import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysExcepti
 import org.knollinger.workingtogether.filesys.exceptions.UploadException;
 import org.knollinger.workingtogether.filesys.models.INode;
 import org.knollinger.workingtogether.filesys.services.IUploadService;
+import org.knollinger.workingtogether.user.models.TokenPayload;
 import org.knollinger.workingtogether.user.models.User;
 import org.knollinger.workingtogether.user.services.ICurrentUserService;
 import org.knollinger.workingtogether.utils.io.HashCalculatingInputStream;
@@ -35,15 +36,17 @@ import org.springframework.web.multipart.MultipartFile;
 public class UploadServiceImpl implements IUploadService
 {
     private static final String SQL_CREATE_INODE = "" //
-        + "insert into inodes" // 
-        + "  set uuid=?, parent=?, owner=?, name=?, size=?, type=?, hash=?, data=?";
+        + "insert into `inodes`" // 
+        + "  set `uuid`=?, `parent`=?, `owner`=?, `group`=?, `perms`=?, `name`=?, `size`=?, `type`=?, `hash`=?, `data`=?";
 
     private static final String SQL_GET_CHILD_BY_NAME = "" //
-        + "select * from inodes" //
-        + "  where parent=? and name=?";
+        + "select * from `inodes`" //
+        + "  where `parent`=? and `name`=?";
 
     private static final String ERR_UPLOAD_FAILED = "Der Upload in den Ordner mit der UUID '%1$s' ist technisch fehl geschlagen.";
 
+    private static final short DEFAULT_PERMISSION = 077; // read, write, delete für owner und gruppe
+    
     @Value("${blobstore.basePath}")
     private String basePath;
 
@@ -67,13 +70,13 @@ public class UploadServiceImpl implements IUploadService
             conn = this.dbSvc.openConnection();
             conn.setAutoCommit(false);
             
-            User user = this.currUserSvc.get();
+            TokenPayload token = this.currUserSvc.get();
 
             List<INode> result = new ArrayList<>();
             List<INode> duplicates = new ArrayList<>();
             for (MultipartFile file : files)
             {
-                INode node = this.handleOneFile(parentUUID, file, user, conn);
+                INode node = this.handleOneFile(parentUUID, file, token.getUser(), conn);
                 if (node != null)
                 {
                     result.add(node);
@@ -127,15 +130,18 @@ public class UploadServiceImpl implements IUploadService
             UUID newUUID = UUID.randomUUID();
             fileSysObj = this.saveToFileSys(newUUID, file);
 
+            UUID userId = user.getUserId();
             stmt = conn.prepareStatement(SQL_CREATE_INODE);
             stmt.setString(1, newUUID.toString());
             stmt.setString(2, parentUUID.toString());
-            stmt.setString(3, user.getUserId().toString());
-            stmt.setString(4, file.getOriginalFilename());
-            stmt.setLong(5, file.getSize());
-            stmt.setString(6, file.getContentType());
-            stmt.setString(7, fileSysObj.hash());
-            stmt.setBinaryStream(8, new FileInputStream(fileSysObj.file));
+            stmt.setString(3, userId.toString());
+            stmt.setString(4, userId.toString());
+            stmt.setShort(5, UploadServiceImpl.DEFAULT_PERMISSION);
+            stmt.setString(6, file.getOriginalFilename());
+            stmt.setLong(7, file.getSize());
+            stmt.setString(8, file.getContentType());
+            stmt.setString(9, fileSysObj.hash());
+            stmt.setBinaryStream(10, new FileInputStream(fileSysObj.file));
 
             stmt.executeUpdate();
 
@@ -144,6 +150,8 @@ public class UploadServiceImpl implements IUploadService
                 .uuid(newUUID) //
                 .parent(parentUUID) //
                 .name(file.getOriginalFilename()) //
+                .owner(userId) //
+                .group(userId) //
                 .size(file.getSize()) //
                 .type(file.getContentType()) //
                 .created(now) //
@@ -223,9 +231,11 @@ public class UploadServiceImpl implements IUploadService
             {
                 result = INode.builder() //
                     .uuid(UUID.fromString(rs.getString("uuid"))) //
+                    .name(originalFilename) //
                     .parent(parentId) //
                     .owner(UUID.fromString(rs.getString("owner"))) //
-                    .name(originalFilename) //
+                    .group(UUID.fromString(rs.getString("group"))) //
+                    .perms(rs.getShort("perms")) //
                     .size(rs.getLong("size")) //
                     .type(rs.getString("type")) //
                     .created(rs.getTimestamp("created")) //

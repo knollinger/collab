@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, last } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { IGroup, Group } from '../../mod-userdata/models/group';
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
-import { HttpClient, HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +12,7 @@ export class GroupService {
 
   private static routes: Map<string, string> = new Map<string, string>(
     [
-      ['listGroups', 'v1/groups/list?skipPrimary={1}&deepScan={2}']
+      ['listGroups', 'v1/groups/list?deepScan={1}']
     ]
   );
 
@@ -33,10 +33,9 @@ export class GroupService {
    * @returns 
    */
   listGroups(//
-    skipPrimary: boolean = true, //
     deepScan: boolean = false): Observable<Group[]> {
 
-    const url = this.backendRouter.getRouteForName('listGroups', GroupService.routes, skipPrimary, deepScan);
+    const url = this.backendRouter.getRouteForName('listGroups', GroupService.routes, deepScan);
     return this.http.get<IGroup[]>(url).pipe(
       map(groups => {
         return groups.map(group => {

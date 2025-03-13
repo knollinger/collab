@@ -1,6 +1,26 @@
-<div class="grid">
+<form [formGroup]="propsForm" class="grid">
+
     <div class="grid-row-0">
-        <div class="grid-col-2">Besitzer: </div>
-        <div class="grid-col-2">{{owner.accountName}}</div>
+        <mat-form-field class="grid-col-4">
+            <mat-label>Besitzer</mat-label>
+            <mat-select formControlName="owner">
+                <mat-option *ngFor="let group of allGroups" [value]="group.uuid">{{group.name}}</mat-option>
+            </mat-select>
+        </mat-form-field>
     </div>
-</div>
+
+    <div class="grid-row-0">
+        <mat-form-field class="grid-col-4">
+            <mat-label>Gruppe</mat-label>
+            <mat-select formControlName="group">
+                <mat-option *ngFor="let group of allGroups" [value]="group.uuid">{{group.name}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+    </div>
+
+    <div class="grid-row-1">
+        <div class="grid-col-4">
+            <app-files-permissions></app-files-permissions>
+        </div>
+    </div>
+</form>

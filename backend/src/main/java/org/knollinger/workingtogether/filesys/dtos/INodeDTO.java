@@ -29,6 +29,14 @@ public class INodeDTO
 
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
+    private UUID group;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    private short perms;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
     private String type;
 
     @Getter(AccessLevel.PUBLIC)

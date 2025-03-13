@@ -1,8 +1,8 @@
-import { INode } from './inode';
+import { IINode, INode } from './inode';
 
 export interface IUploadFilesResponse {
-    newINodes?: INode[],
-    duplicateFiles?: INode[];
+    newINodes?: IINode[],
+    duplicateFiles?: IINode[];
 }
 
 export class UploadFilesResponse {
@@ -23,7 +23,9 @@ export class UploadFilesResponse {
     public static fromJSON(json: IUploadFilesResponse): UploadFilesResponse {
 
         let newINodes: INode[] = new Array<INode>();
+
         if (json.newINodes) {
+
             newINodes = json.newINodes.map(inode => {
                 return INode.fromJSON(inode);
             });

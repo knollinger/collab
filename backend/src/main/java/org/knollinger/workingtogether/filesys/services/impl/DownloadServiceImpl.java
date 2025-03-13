@@ -30,8 +30,8 @@ public class DownloadServiceImpl implements IDownloadService
     private static final String ERR_LOAD_FILE = "Die Datei mit der UUID '%1$s' konnte aufgrund eines technischen Problems nicht geladen werden.";
 
     private static final String SQL_LOAD_FILE = "" //
-        + "select size, type, hash, data from inodes" //
-        + "  where uuid=?";
+        + "select `size`, `type`, `hash`, `data` from `inodes`" //
+        + "  where `uuid`=?";
 
     @Value("${blobstore.basePath}")
     private String basePath;

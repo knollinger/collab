@@ -6,18 +6,24 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.UUID;
 
 import org.knollinger.workingtogether.filesys.models.EWellknownINodeIDs;
 import org.knollinger.workingtogether.user.exceptions.DuplicateUserException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalUserException;
+import org.knollinger.workingtogether.user.models.EWellknownGroupIDs;
 import org.knollinger.workingtogether.user.models.User;
 import org.knollinger.workingtogether.user.services.ICreateUserService;
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import io.jsonwebtoken.lang.Arrays;
+import io.jsonwebtoken.lang.Collections;
 
 @Service
 public class CreateUserServiceImpl implements ICreateUserService
@@ -28,14 +34,21 @@ public class CreateUserServiceImpl implements ICreateUserService
     private static final String SQL_CREATE_DIRECTORY = "" //
         + "insert into inodes" //
         + "  set uuid=?, parent=?, name=?, owner=?, size=?, type=?";
-    
+
     private static final String SQL_CREATE_GROUP = "" //
         + "insert into groups" //
         + "  set uuid=?, name=?, isPrimary=?";
+    
+    private static final String SQL_ADD_TO_GROUP = "" //
+        + "insert into groupMembers set parentId=?, memberId=?";
 
     private static final String SQL_SAVE_AVATAR = "" //
         + "update users set avatar=?, avatarType=?" //
         + "  where uuid=?";
+    
+    private static final UUID[] DEFAULT_GROUPS = {
+        EWellknownGroupIDs.GROUP_USERS.value()
+    };
 
 
     @Autowired
@@ -62,6 +75,7 @@ public class CreateUserServiceImpl implements ICreateUserService
             user = this.createAccount(accountName, email, surName, lastName, conn);
             this.createHomeDirectory(user, conn);
             this.createUserGroup(user, conn);
+            this.addToDefaultGroups(user,  conn);
 
             if (avatar != null)
             {
@@ -149,22 +163,22 @@ public class CreateUserServiceImpl implements ICreateUserService
         {
             stmt = conn.prepareStatement(SQL_CREATE_DIRECTORY);
             stmt.setString(1, user.getUserId().toString());
-            stmt.setString(2,  EWellknownINodeIDs.ROOT.value().toString());
-            stmt.setString(3,  user.getAccountName());
-            stmt.setString(4,  user.getUserId().toString());
-            stmt.setLong(5,  0);
+            stmt.setString(2, EWellknownINodeIDs.ROOT.value().toString());
+            stmt.setString(3, user.getAccountName());
+            stmt.setString(4, user.getUserId().toString());
+            stmt.setLong(5, 0);
             stmt.setString(6, "inode/directory");
             stmt.executeUpdate();
-  
+
             String[] commonDirs = {"Dokumente", "Musik", "Videos", "Bilder"};
             for (String dirName : commonDirs)
             {
                 UUID newUUID = UUID.randomUUID();
                 stmt.setString(1, newUUID.toString());
-                stmt.setString(2,  user.getUserId().toString());
-                stmt.setString(3,  dirName);
-                stmt.setString(4,  user.getUserId().toString());
-                stmt.setLong(5,  0);
+                stmt.setString(2, user.getUserId().toString());
+                stmt.setString(3, dirName);
+                stmt.setString(4, user.getUserId().toString());
+                stmt.setLong(5, 0);
                 stmt.setString(6, "inode/directory");
                 stmt.executeUpdate();
             }
@@ -192,6 +206,31 @@ public class CreateUserServiceImpl implements ICreateUserService
             stmt.setString(2, user.getAccountName());
             stmt.setBoolean(3, true);
             stmt.executeUpdate();
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    private void addToDefaultGroups(User user, Connection conn) throws SQLException
+    {
+        PreparedStatement stmt = null;
+
+        List<UUID> groups = new ArrayList<>();
+        groups.add(user.getUserId());
+        groups.addAll(Arrays.asList(DEFAULT_GROUPS));
+        
+        try
+        {
+            stmt = conn.prepareStatement(SQL_ADD_TO_GROUP);
+            
+            for (UUID groupId : groups)
+            {
+                stmt.setString(1, groupId.toString());
+                stmt.setString(2, user.getUserId().toString());
+                stmt.executeUpdate();
+            }
         }
         finally
         {

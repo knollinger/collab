@@ -1,6 +1,6 @@
 package org.knollinger.workingtogether.user.services.impl;
 
-import org.knollinger.workingtogether.user.models.User;
+import org.knollinger.workingtogether.user.models.TokenPayload;
 import org.knollinger.workingtogether.user.services.ICurrentUserService;
 import org.springframework.stereotype.Service;
 
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class CurrentUserServiceImpl implements ICurrentUserService
 {
-    private ThreadLocal<User> currentUser = ThreadLocal.withInitial(() -> User.empty());
+    private ThreadLocal<TokenPayload> currentUser = new ThreadLocal<>(); // ThreadLocal.withInitial(() -> TokenPayload.empty());
 
     @Override
-    public User get()
+    public TokenPayload get()
     {
         return this.currentUser.get();
     }
@@ -21,12 +21,12 @@ public class CurrentUserServiceImpl implements ICurrentUserService
     @Override
     public void clear()
     {
-        this.currentUser.set(User.empty());
+        this.currentUser.set(TokenPayload.empty());
     }
 
     @Override
-    public void set(User user)
+    public void set(TokenPayload payload)
     {
-        this.currentUser.set(user);
+        this.currentUser.set(payload);
     }
 }

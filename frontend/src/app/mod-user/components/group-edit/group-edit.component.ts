@@ -1,10 +1,29 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { Group, User } from '../../../mod-userdata/mod-userdata.module';
+import { Group } from '../../../mod-userdata/mod-userdata.module';
 import { GroupService } from '../../services/group.service';
-import { UserService } from '../../services/user.service';
 
+/**
+ * Die Editor-Komponente für Gruppen-Zugehörigkeiten.
+ * 
+ * Die Komponente zerfällt in zwei wesentliche Teile. 
+ * Auf der linken Seite wird eine **GroupTreeComponent**
+ * angezeigt. In dieser werden alle PrimärGruppen ausgefiltert.
+ * Sie dient also "nur" der Navigation zwischen den SecondaryGroups
+ * und stellt deren Beziehungen untereinander dar.
+ * 
+ * Auf der rechten Seite wird eine SelectionList aller Gruppen
+ * angezeigt. Bei Auswahl einer Gruppe im Tree werden die aktuell
+ * in dieser Gruppe vorhandenen Member in der SelectionList 
+ * ausgewählt.
+ * 
+ * Durch Änderung in der SelectionList können somit Gruppen-
+ * Zugehörigkeiten gelöscht oder neu erstellt werden. 
+ * 
+ * Dummerweise könnten dadurch rekursive Gruppen-Zugehörigkeiten
+ * entstehen. Das muss noch verhindert werden :-()
+ */
 @Component({
   selector: 'app-group-edit',
   templateUrl: './group-edit.component.html',
@@ -32,24 +51,25 @@ export class GroupEditComponent implements OnInit {
    * 
    */
   ngOnInit(): void {
+    this.loadGroups();
+  }
 
-    // lese Rekursiv dem Baum aller Gruppen, auf der Root-Ebene werden
-    // PrimaryGruppen ignoriert
-    this.groupSvc.listGroups(true, true)
+  private loadGroups() {
+
+    // lese Rekursiv dem Baum aller Gruppen
+    this.groupSvc.listGroups(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(groups => {
-        this.groupTree = groups;
-      })
 
-    // lese die Liste aller gruppen incl der PrimärGruppen, ohne
-    // jedoch einen deepScan durch zu führen
-    this.groupSvc.listGroups(false, false)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(groups => {
         this.allGroups = groups;
+
+        const deepCopies = groups.map(group => {
+          return group.clone();
+        })
+        this.groupTree = this.filterRecursivly(deepCopies);
+
+        this.currentMembers = new Array<Group>();
       })
-
-
   }
 
   /**
@@ -57,13 +77,48 @@ export class GroupEditComponent implements OnInit {
    */
   onCreateGroup() {
 
-
   }
 
-  onGroupSelection(groups: Group[]) {
+  onReloadGroups() {
+    this.loadGroups();
+  }
 
-    if (groups.length) {
-      this.currentMembers = groups[0].members;
+  onGroupSelection(group: Group) {
+
+    this.currentMembers = this.getMembersOf(group);
+  }
+
+  /**
+   * 
+   * @param groups 
+   * @returns 
+   */
+  private filterRecursivly(groups: Group[]): Group[] {
+
+    const filtered = groups.filter(group => !group.primary);
+    filtered.forEach(group => {
+
+      group.members = this.filterRecursivly(group.members);
+    })
+    return filtered;
+  }
+
+  /**
+   * 
+   * @param group 
+   * @returns 
+   */
+  private getMembersOf(group: Group): Group[] {
+
+    // console.log
+    let result: Group[] = new Array<Group>();
+    for (let i = 0; i < this.allGroups.length; ++i) {
+      if (this.allGroups[i].uuid === group.uuid) {
+        result = this.allGroups[i].members;
+        console.log(`Group ${group.uuid} found: ${result}`);
+        break;
+      }
     }
+    return result;
   }
 }

@@ -23,6 +23,8 @@ import { FilesFolderContextMenuComponent } from './components/files-folder-conte
 import { FileDropINodeMenuComponent } from './components/files-inode-drop-menu/files-inode-drop-menu.component';
 import { FilesIconsizeMenuComponent } from './components/files-iconsize-menu/files-iconsize-menu.component';
 import { FilesListviewItemComponent } from './components/files-listview-item/files-listview-item.component';
+import { FilesPermissionsComponent } from './components/files-permissions/files-permissions.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -44,12 +46,15 @@ import { FilesListviewItemComponent } from './components/files-listview-item/fil
     FileDropINodeMenuComponent,
     FilesIconsizeMenuComponent,
     FilesListviewItemComponent,
+    FilesPermissionsComponent,
   ],
   imports: [
     CommonModule,
     ModCommonsModule,
     ModUserDataModule,
     ModMaterialImportModule,
+    FormsModule,
+    ReactiveFormsModule,
     ModFilesRoutingModule
   ],
   exports: [

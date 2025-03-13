@@ -9,7 +9,8 @@ export interface IINode {
     size: number,
     created: Date,
     modified: Date,
-    owner: string
+    owner: string,
+    group: string
 }
 
 /**
@@ -45,7 +46,8 @@ export class INode {
         public readonly size: number,
         public readonly created: Date,
         public readonly modified: Date,
-        public readonly owner: string) {
+        public readonly owner: string,
+        public readonly group: string) {
     }
 
     /**
@@ -54,7 +56,17 @@ export class INode {
      * @returns 
      */
     public static fromJSON(json: IINode): INode {
-        return new INode(json.name, json.uuid, json.parent, json.type, json.size, json.created, json.modified, json.owner);
+
+        return new INode(
+            json.name,
+            json.uuid,
+            json.parent,
+            json.type,
+            json.size,
+            json.created,
+            json.modified,
+            json.owner,
+            json.group);
     }
 
     /**
@@ -62,6 +74,7 @@ export class INode {
      * @returns 
      */
     public toJSON(): IINode {
+
         return {
             name: this.name,
             uuid: this.uuid,
@@ -70,7 +83,8 @@ export class INode {
             size: this.size,
             created: this.created,
             modified: this.modified,
-            owner: this.owner
+            owner: this.owner,
+            group: this.group
         }
     }
 
@@ -90,7 +104,16 @@ export class INode {
     public static root(): INode {
 
         const now = new Date();
-        return new INode('root', EINodeUUIDs.INODE_ROOT, EINodeUUIDs.INODE_NONE, 'inode/directory', 0, now, now, '');
+        return new INode(
+            'root',
+            EINodeUUIDs.INODE_ROOT,
+            EINodeUUIDs.INODE_NONE,
+            'inode/directory',
+            0,
+            now,
+            now,
+            '',
+            '');
     }
 
     /**
@@ -100,7 +123,7 @@ export class INode {
      */
     public static empty(): INode {
         const now = new Date();
-        return new INode('', EINodeUUIDs.INODE_NONE, EINodeUUIDs.INODE_NONE, '', 0, now, now, '');
+        return new INode('', EINodeUUIDs.INODE_NONE, EINodeUUIDs.INODE_NONE, '', 0, now, now, '', '');
     }
 
     /**

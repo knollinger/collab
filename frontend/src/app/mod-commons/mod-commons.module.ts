@@ -55,7 +55,7 @@ import { HintComponent } from './components/hint/hint.component';
     MessageBoxComponent,
     InputBoxComponent,
     AutoFocusDirective,
-    HintComponent
+    HintComponent,
   ],
   imports: [
     CommonModule,
