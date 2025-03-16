@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { Observable } from 'rxjs';
 
 import { FilesPropertiesDialogComponent } from '../components/files-properties-dialog/files-properties-dialog.component';
 
@@ -22,7 +23,7 @@ export class FilesPropertiesService {
    * 
    * @param inode 
    */
-  public showPropDialog(inode: INode) {
+  public showPropDialog(inode: INode): Observable<INode> {
 
     const dlgRef = this.dialog.open(FilesPropertiesDialogComponent, {
       data: {
@@ -30,6 +31,6 @@ export class FilesPropertiesService {
       },
     });
 
-    return dlgRef.afterClosed(); // hier ggf daten zurück geben
+    return  dlgRef.afterClosed();
   }
 }

@@ -17,6 +17,9 @@ export class FilesFolderContextMenuComponent implements OnInit {
   inode: INode = INode.empty();
 
   @Output()
+  createFolder: EventEmitter<void> = new EventEmitter();
+
+  @Output()
   paste: EventEmitter<void> = new EventEmitter();
 
   @Output()
@@ -74,6 +77,10 @@ export class FilesFolderContextMenuComponent implements OnInit {
     return this.clipboardSvc.inodes.length
   }
 
+  onCreateFolder() {
+    this.createFolder.emit();
+  }
+
   /**
    * Propagiere ein Paste-Event
    */
@@ -81,13 +88,11 @@ export class FilesFolderContextMenuComponent implements OnInit {
     this.paste.emit();
   }
 
-
   onDownload() {
     this.download.emit(this.inode);
   }
 
   onShowProperties() {
-    console.log(this.inode);
     this.showProps.emit(this.inode);
   }
 }

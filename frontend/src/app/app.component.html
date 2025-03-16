@@ -2,19 +2,22 @@
 
     <mat-toolbar color="primary">
 
-        <!-- <button mat-icon-button
-                *ngIf="isLoggedOn"
-                (click)="navMenu.toggle()"
-                class="flex-0 small-right-spacer">
-            <mat-icon class="material-symbols-outlined">menu</mat-icon>
-        </button> -->
-        <mat-icon class="material-symbols-outlined flex-0 small-right-spacer"
-                  *ngIf="isLoggedOn"
-                  matRipple
-                  (click)="navMenu.toggle()">menu</mat-icon>
+        <mat-toolbar-row>
+            <mat-icon class="material-symbols-outlined flex-0 small-right-spacer"
+                      *ngIf="isLoggedOn"
+                      matRipple
+                      (click)="navMenu.toggle()">menu</mat-icon>
 
-        <span class="flex-1">{{title}}</span>
-        <app-session-menu></app-session-menu>
+            <span class="flex-1">{{title}}</span>
+            <app-session-menu></app-session-menu>
+
+        </mat-toolbar-row>
+
+        <mat-toolbar-row *ngIf="isLoggedOn">
+            <app-search-bar placeholder="Suchen..."
+                            class="flex-1"
+                            (found)="onSearchResult($event)"></app-search-bar>
+        </mat-toolbar-row>
 
     </mat-toolbar>
 

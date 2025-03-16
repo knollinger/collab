@@ -5,9 +5,18 @@
 </span>
 
 <mat-menu #contextMenu="matMenu">
+
+    <!-- Einen neuen Ordner anlegen -->
+    <button mat-menu-item
+            (click)="onCreateFolder()">
+        <mat-icon class="material-symbols-outlined">create_new_folder</mat-icon>Einen Ordner anlegen
+    </button>
+
+    <!-- Den Ordner als ZIP herunter laden -->
+    <mat-divider></mat-divider>
     <button mat-menu-item
             (click)="onDownload()">
-        <mat-icon class="material-symbols-outlined">cloud_download</mat-icon>Als ZIP-Archiv herunter laden
+        <mat-icon class="material-symbols-outlined">cloud_download</mat-icon>Als ZIP herunter laden
     </button>
 
     <!-- Paste -->
@@ -21,6 +30,7 @@
 
     </div>
 
+    <!-- Den Eingenschafften-Dialog anzeigen -->
     <mat-divider></mat-divider>
     <button mat-menu-item
             (click)="onShowProperties()">

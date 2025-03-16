@@ -69,7 +69,6 @@ export class SessionMenuComponent implements OnInit {
     this.sessionSvc.logout()
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe(() => {
-
     });
   }
 }

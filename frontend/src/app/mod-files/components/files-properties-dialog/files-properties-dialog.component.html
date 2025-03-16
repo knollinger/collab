@@ -4,15 +4,24 @@
 
     <mat-tab-group mat-align-tabs="start">
         <mat-tab label="Allgemein">
-            <app-files-properties-commons class="tab-content" [inode]="data.inode"></app-files-properties-commons>
+            <app-files-properties-commons class="tab-content"
+                                          [inode]="inode"></app-files-properties-commons>
         </mat-tab>
 
         <mat-tab label="Berechtigungen">
-            <app-files-properties-permissions class="tab-content" [inode]="data.inode"></app-files-properties-permissions>
+            <app-files-properties-permissions class="tab-content"
+                                              [(inode)]="inode"></app-files-properties-permissions>
         </mat-tab>
     </mat-tab-group>
 </mat-dialog-content>
 
 <mat-dialog-actions>
-    <button mat-flat-button color="primary" mat-dialog-close>Schließen</button>
+    <button mat-flat-button
+            color="primary"
+            mat-dialog-close
+            [disabled]="disableSaveBtn"
+            (click)="onSave()">Speichern</button>
+    <button mat-button
+            color="primary"
+            mat-dialog-close>Schließen</button>
 </mat-dialog-actions>

@@ -46,7 +46,7 @@ public class FileSysController
 
     @Autowired
     private IUploadService uploadSvc;
-    
+
     @Autowired
     private ICopyINodeService copySvc;
 
@@ -258,6 +258,30 @@ public class FileSysController
         catch (DuplicateEntryException e)
         {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
+        }
+        catch (TechnicalFileSysException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param parentId
+     * @param name
+     * @return
+     */
+    @PostMapping(path = "/update")
+    public INodeDTO updateINode(//
+        @RequestBody() INodeDTO inode)
+    {
+        try
+        {
+            INode result = this.fileSysService.updateINode(this.fileSysMapper.fromDTO(inode));
+            return this.fileSysMapper.toDTO(result);
+        }
+        catch (NotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
         catch (TechnicalFileSysException e)
         {

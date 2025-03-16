@@ -53,8 +53,9 @@ export class UserEditComponent implements OnInit {
     this.reload();
   }
 
-  private reload(currentUser?: User) {
+  public reload(currentUser?: User) {
 
+    this.showEditor = false;
     this.user = currentUser || User.empty();
     this.newAvatar = undefined;
 

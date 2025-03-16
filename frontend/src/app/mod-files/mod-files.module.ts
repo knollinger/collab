@@ -9,7 +9,9 @@ import { FilesMainViewComponent } from './components/files-main-view/files-main-
 
 import { ModFilesRoutingModule } from './mod-files-routing.module';
 import { FilesGridViewItemComponent } from './components/files-grid-view-item/files-grid-view-item.component';
-import { FilesPropertiesDialogComponent, FilesPropertiesCommonsComponent, FilesPropertiesPermissionsComponent } from './components/files-properties-dialog/files-properties-dialog.component';
+import { FilesPropertiesDialogComponent } from './components/files-properties-dialog/files-properties-dialog.component';
+import { FilesPropertiesCommonsComponent } from './components/files-properties-dialog/files-properties-commons.component';
+import { FilesPropertiesPermissionsComponent } from './components/files-properties-dialog/files-properties-permissions.component';
 import { FilesBreadCrumbItemComponent } from './components/files-bread-crumb-item/files-bread-crumb-item.component';
 import { FilesFolderViewComponent } from './components/files-folder-view/files-folder-view.component';
 import { FilesGridViewComponent } from './components/files-grid-view/files-grid-view.component';

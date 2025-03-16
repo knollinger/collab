@@ -4,7 +4,8 @@ import { Router } from '@angular/router';
 
 import { Observable, map, of } from 'rxjs';
 
-import { User } from '../../mod-userdata/mod-userdata.module';
+import { Group, User } from '../../mod-userdata/mod-userdata.module';
+import { ITokenPayload } from '../models/token-payload';
 
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 import { LoginRequest } from '../models/login-request';
@@ -24,6 +25,7 @@ export class SessionService {
   );
 
   private _currentUser: User = User.empty();
+  private _groups: Group[] = new Array<Group>();
   private timerId: number = -1;
   private refreshSub: any;
 
@@ -53,7 +55,8 @@ export class SessionService {
     return this.http.post<ILoginResponse>(url, req.toJSON()).pipe(
       map(json => {
         const rsp = LoginResponse.fromJSON(json);
-        this._currentUser = this.parseToken(rsp.token);
+        this.parseToken(rsp.token);
+
         this.startRefreshTimer();
         return rsp;
       })
@@ -69,6 +72,8 @@ export class SessionService {
     return this.http.delete(url).pipe(
       map(() => {
         this.stopRefreshTimer();
+        this._currentUser = User.empty();
+        this._groups = new Array<Group>();
         this.router.navigateByUrl('/session/login');
       })
     );
@@ -82,24 +87,32 @@ export class SessionService {
     return this._currentUser;
   }
 
+  public get groups(): Group[] {
+    return this._groups;
+  }
+
   /**
    * 
    * @param token 
    * @returns 
    */
-  private parseToken(token: string): User {
+  private parseToken(token: string) {
 
-    let user: User = User.empty();
     if (token) {
 
       const parts = token?.split('.');
       if (parts.length === 3) {
 
-        const json = JSON.parse(atob(parts[1]));
-        user = User.fromJSON(json.user);
+        const json = JSON.parse(atob(parts[1])) as ITokenPayload;
+        this._currentUser = User.fromJSON(json.user);
+
+        const groups = new Array<Group>();
+        json.groups.forEach(group => {
+          groups.push(Group.fromJSON(group));
+        });
+        this._groups = groups;
       }
     }
-    return user;
   }
 
   /**
@@ -109,17 +122,17 @@ export class SessionService {
   private startRefreshTimer() {
 
     if (!this.isRefreshTimerRunning()) {
-      
+
       this.timerId = window.setInterval(() => {
-        
-        console.log('start refresh timer');
+
         if (this.refreshSub) {
           this.refreshSub.unsubscribe();
         }
 
-        this.refreshSub = this.refreshToken().subscribe(user => {
-          this._currentUser = user;
-        })
+        this.refreshSub = this.refreshToken()
+          .subscribe(payload => {
+            ;
+          })
       }, 60000);
     }
   }
@@ -128,12 +141,13 @@ export class SessionService {
    * 
    * @returns 
    */
-  private refreshToken(): Observable<User> {
+  private refreshToken(): Observable<void> {
 
     const url = this.backendRouter.getRouteForName('refreshToken', SessionService.routes);
     return this.http.get<ILoginResponse>(url).pipe(
       map(rsp => {
-        return this.parseToken(rsp.token);
+        this.parseToken(rsp.token);
+        return;
       })
     );
   }

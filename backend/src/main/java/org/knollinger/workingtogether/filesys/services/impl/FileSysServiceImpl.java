@@ -38,6 +38,11 @@ public class FileSysServiceImpl implements IFileSysService
         + "insert into `inodes`" // 
         + "  set `uuid`=?, `parent`=?, `owner`=?, `group`=?, `perms`=?, `name`=?, `size`=?, `type`=?";
 
+    private static final String SQL_UPDATE_INODE = "" //
+        + "update `inodes`" //
+        + "  set `owner`=?, `group`=?, `perms`=?" //
+        + "  where `uuid`=?";
+
     private static final String SQL_RENAME_INODE = "" //
         + "update `inodes` set `name`=?" //
         + "  where `uuid`=?";
@@ -50,8 +55,8 @@ public class FileSysServiceImpl implements IFileSysService
         + "update `inodes` set `parent`=?" //
         + "  where `uuid`=?";
 
-    private static final short DEFAULT_PERMISSION = 077; // read, write, delete für owner und gruppe
-    
+    private static final short DEFAULT_PERMISSION = 0770; // read, write, delete für owner und gruppe
+
     @Autowired
     private IDbService dbService;
 
@@ -82,6 +87,15 @@ public class FileSysServiceImpl implements IFileSysService
         }
     }
 
+    /**
+     * private getINode-Implementierung, um den getter auch innerhalb einer DB-Transaktion 
+     * verwenden zu können.
+     * @param uuid
+     * @param conn
+     * @return
+     * @throws SQLException
+     * @throws NotFoundException
+     */
     private INode getINode(UUID uuid, Connection conn) throws SQLException, NotFoundException
     {
         PreparedStatement stmt = null;
@@ -101,7 +115,7 @@ public class FileSysServiceImpl implements IFileSysService
                 .uuid(uuid) //
                 .parent(UUID.fromString(rs.getString("parent"))) //
                 .owner(UUID.fromString(rs.getString("owner"))) //
-                .group(UUID.fromString(rs.getString("group")) )//
+                .group(UUID.fromString(rs.getString("group")))//
                 .perms(rs.getShort("perms")) //
                 .name(rs.getString("name")) //
                 .type(rs.getString("type")) //
@@ -152,11 +166,10 @@ public class FileSysServiceImpl implements IFileSysService
                     .modified(rs.getTimestamp("modified")) //
                     .build();
 
-//                if (!foldersOnly || inode.isDirectory())
-//                {
-//                    result.add(inode);
-//                }
-              result.add(inode);
+                if (!foldersOnly || inode.isDirectory())
+                {
+                    result.add(inode);
+                }
             }
             return result;
         }
@@ -200,6 +213,9 @@ public class FileSysServiceImpl implements IFileSysService
     }
 
     /**
+     * Private getPath-Implementierung um den Pfad auch innerhalb einer DB-Transaktion
+     * ermitteln zu können.
+     * 
      * @param uuid
      * @param conn
      * @return
@@ -366,7 +382,7 @@ public class FileSysServiceImpl implements IFileSysService
 
             UUID uuid = UUID.randomUUID();
             TokenPayload token = this.currUserSvc.get();
-            
+
             UUID userId = token.getUser().getUserId();
 
             // TODO: Parent existenz und isDirectory testen
@@ -471,6 +487,42 @@ public class FileSysServiceImpl implements IFileSysService
             {
                 // TODO: throw something
             }
+        }
+    }
+
+    @Override
+    public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException
+    {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+
+        try
+        {
+            conn = this.dbService.openConnection();
+            stmt = conn.prepareStatement(SQL_UPDATE_INODE);
+            stmt.setString(1, inode.getOwner().toString());
+            stmt.setString(2, inode.getGroup().toString());
+            stmt.setInt(3, inode.getPerms());
+            stmt.setString(4, inode.getUuid().toString());
+            if (stmt.executeUpdate() == 0)
+            {   
+                throw new NotFoundException(inode.getUuid());
+            }
+
+            return this.getINode(inode.getUuid());
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            String msg = String.format(
+                "Das Dateisystem-Object `%1$s` konnte aufgrund eines technischen Problems nicht aktualisiert werden.",
+                inode.getName());
+            throw new TechnicalFileSysException(msg, e);
+        }
+        finally
+        {
+            this.dbService.closeQuitely(stmt);
+            this.dbService.closeQuitely(conn);
         }
     }
 }

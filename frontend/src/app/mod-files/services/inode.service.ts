@@ -26,6 +26,7 @@ export class INodeService {
       ['copyINode', 'v1/filesys/copy'],
       ['moveINode', 'v1/filesys/move'],
       ['createFolder', 'v1/filesys/createFolder/{1}/{2}'],
+      ['updateINode', 'v1/filesys/update'],
       ['getContent', 'v1/filecontent/{1}'],
     ]
   );
@@ -137,6 +138,21 @@ export class INodeService {
     const toMove = Array.isArray(src) ? src : Array.of(src);
     const req = new MoveINodeRequest(toMove, parent);
     return this.httpClient.post<void>(url, req.toJSON());
+  }
+
+  /**
+   * 
+   * @param inode 
+   * @returns 
+   */
+  update(inode: INode): Observable<INode> {
+
+    const url = this.backendRouter.getRouteForName('updateINode', INodeService.routes);
+    return this.httpClient.post<IINode>(url, inode.toJSON()).pipe(
+      map(json => {
+        return INode.fromJSON(json);
+      })
+    );
   }
 
   /**

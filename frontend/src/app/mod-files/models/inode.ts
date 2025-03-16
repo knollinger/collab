@@ -10,7 +10,8 @@ export interface IINode {
     created: Date,
     modified: Date,
     owner: string,
-    group: string
+    group: string,
+    perms: number
 }
 
 /**
@@ -37,6 +38,9 @@ export class INode {
      * @param size 
      * @param created 
      * @param modified 
+     * @param owner 
+     * @param group 
+     * @param perms 
      */
     constructor(
         public readonly name: string,
@@ -47,7 +51,8 @@ export class INode {
         public readonly created: Date,
         public readonly modified: Date,
         public readonly owner: string,
-        public readonly group: string) {
+        public readonly group: string,
+        public readonly perms: number) {
     }
 
     /**
@@ -66,7 +71,8 @@ export class INode {
             json.created,
             json.modified,
             json.owner,
-            json.group);
+            json.group,
+            json.perms);
     }
 
     /**
@@ -84,7 +90,8 @@ export class INode {
             created: this.created,
             modified: this.modified,
             owner: this.owner,
-            group: this.group
+            group: this.group,
+            perms: this.perms
         }
     }
 
@@ -113,7 +120,8 @@ export class INode {
             now,
             now,
             '',
-            '');
+            '',
+            0);
     }
 
     /**
@@ -123,7 +131,7 @@ export class INode {
      */
     public static empty(): INode {
         const now = new Date();
-        return new INode('', EINodeUUIDs.INODE_NONE, EINodeUUIDs.INODE_NONE, '', 0, now, now, '', '');
+        return new INode('', EINodeUUIDs.INODE_NONE, EINodeUUIDs.INODE_NONE, '', 0, now, now, '', '', 0);
     }
 
     /**

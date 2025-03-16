@@ -9,6 +9,12 @@
         </button>
 
         <button mat-icon-button
+                matTooltip="Ansicht aktualisieren"
+                (click)="reload()">
+            <mat-icon class="material-symbols-outlined">refresh</mat-icon>
+        </button>
+
+        <button mat-icon-button
                 *ngIf="isUserSelected()"
                 matTooltip="Den ausgewählten Benutzer löschen">
             <mat-icon class="material-symbols-outlined">delete</mat-icon>

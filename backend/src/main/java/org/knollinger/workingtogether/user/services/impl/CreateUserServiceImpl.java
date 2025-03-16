@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.jsonwebtoken.lang.Arrays;
-import io.jsonwebtoken.lang.Collections;
 
 @Service
 public class CreateUserServiceImpl implements ICreateUserService
@@ -33,7 +32,7 @@ public class CreateUserServiceImpl implements ICreateUserService
 
     private static final String SQL_CREATE_DIRECTORY = "" //
         + "insert into inodes" //
-        + "  set uuid=?, parent=?, name=?, owner=?, size=?, type=?";
+        + "  set uuid=?, parent=?, name=?, owner=?, `group`=?, perms=?, size=?, type=?";
 
     private static final String SQL_CREATE_GROUP = "" //
         + "insert into groups" //
@@ -161,13 +160,17 @@ public class CreateUserServiceImpl implements ICreateUserService
 
         try
         {
+//            + "  set uuid=?, parent=?, name=?, owner=?, `group`=?, perms=?, size=?, type=?";
+            
             stmt = conn.prepareStatement(SQL_CREATE_DIRECTORY);
             stmt.setString(1, user.getUserId().toString());
             stmt.setString(2, EWellknownINodeIDs.ROOT.value().toString());
             stmt.setString(3, user.getAccountName());
             stmt.setString(4, user.getUserId().toString());
-            stmt.setLong(5, 0);
-            stmt.setString(6, "inode/directory");
+            stmt.setString(5, user.getUserId().toString());
+            stmt.setInt(6, 077); // read, write, delete for owner and group
+            stmt.setLong(7, 0);
+            stmt.setString(8, "inode/directory");
             stmt.executeUpdate();
 
             String[] commonDirs = {"Dokumente", "Musik", "Videos", "Bilder"};
@@ -178,8 +181,10 @@ public class CreateUserServiceImpl implements ICreateUserService
                 stmt.setString(2, user.getUserId().toString());
                 stmt.setString(3, dirName);
                 stmt.setString(4, user.getUserId().toString());
-                stmt.setLong(5, 0);
-                stmt.setString(6, "inode/directory");
+                stmt.setString(5, user.getUserId().toString());
+                stmt.setInt(6, 077); // read, write, delete for owner and group
+                stmt.setLong(7, 0);
+                stmt.setString(8, "inode/directory");
                 stmt.executeUpdate();
             }
         }

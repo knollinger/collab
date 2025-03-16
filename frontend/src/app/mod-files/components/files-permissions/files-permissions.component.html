@@ -1,28 +1,60 @@
 <table>
     <tr>
-        <th></th>
-        <th>Lesen</th>
-        <th>Schreiben</th>
-        <th>Löschen</th>
+        <td></td>
+        <td>Lesen</td>
+        <td>Schreiben</td>
+        <td>Löschen</td>
     </tr>
     <tr>
-        <th>Besitzer:</th>
-        <td><mat-checkbox color="primary"></mat-checkbox></td>
-        <td><mat-checkbox color="primary"></mat-checkbox></td>
-        <td><mat-checkbox color="primary"></mat-checkbox></td>
+        <td>Besitzer:</td>
+        <td><mat-checkbox color="primary"
+                          [disabled]="disabled"
+                          [checked]="hasPermission(usrRead)"
+                          (change)="onPermChange($event, usrRead)"></mat-checkbox></td>
+        <td><mat-checkbox color="primary"
+                          [disabled]="disabled"
+                          [checked]="hasPermission(usrWrite)"
+                          (change)="onPermChange($event, usrWrite)"></mat-checkbox></td>
+        <td><mat-checkbox color="primary"
+                          [disabled]="disabled"
+                          [checked]="hasPermission(usrDelete)"
+                          (change)="onPermChange($event, usrDelete)"></mat-checkbox></td>
     </tr>
 
     <tr>
-        <th>Gruppe:</th>
-        <td><mat-checkbox color="primary"></mat-checkbox></td>
-        <td><mat-checkbox color="primary"></mat-checkbox></td>
-        <td><mat-checkbox color="primary"></mat-checkbox></td>
+        <td>Gruppe:</td>
+        <td><mat-checkbox color="primary"
+                          [disabled]="disabled"
+                          [checked]="hasPermission(grpRead)"
+                          (change)="onPermChange($event, grpRead)"></mat-checkbox></td>
+        <td><mat-checkbox color="primary"
+                          [disabled]="disabled"
+                          [checked]="hasPermission(grpWrite)"
+                          (change)="onPermChange($event, grpWrite)"></mat-checkbox></td>
+        <td><mat-checkbox color="primary"
+                          [disabled]="disabled"
+                          [checked]="hasPermission(grpDelete)"
+                          (change)="onPermChange($event, grpDelete)"></mat-checkbox></td>
     </tr>
 
     <tr>
-        <th>Andere:</th>
-        <td><mat-checkbox color="primary"></mat-checkbox></td>
-        <td><mat-checkbox color="primary"></mat-checkbox></td>
-        <td><mat-checkbox color="primary"></mat-checkbox></td>
+        <td>Andere:</td>
+        <td><mat-checkbox color="primary"
+                          [disabled]="disabled"
+                          [checked]="hasPermission(worldRead)"
+                          (change)="onPermChange($event, worldRead)"></mat-checkbox></td>
+        <td><mat-checkbox color="primary"
+                          [disabled]="disabled"
+                          [checked]="hasPermission(worldWrite)"
+                          (change)="onPermChange($event, worldWrite)"></mat-checkbox></td>
+        <td><mat-checkbox color="primary"
+                          [disabled]="disabled"
+                          [checked]="hasPermission(worldDelete)"
+                          (change)="onPermChange($event, worldDelete)"></mat-checkbox></td>
+    </tr>
+
+    <tr>
+        <td>Numerisch:</td>
+        <td>{{octalPresentation}}</td>
     </tr>
 </table>

@@ -169,13 +169,6 @@ public class ListGroupServiceImpl implements IListGroupService
                     .build();
                 result.add(g);
             }
-            
-            Group g = Group.builder() //
-                .uuid(user.getUserId()) //
-                .name(user.getAccountName()) //
-                .primary(true)
-                .build();
-            result.add(g);            
             return result;
         }
         catch (SQLException e)

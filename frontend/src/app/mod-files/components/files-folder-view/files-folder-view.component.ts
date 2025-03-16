@@ -443,7 +443,14 @@ export class FilesFolderViewComponent implements OnInit {
    * @param inode 
    */
   onShowProps(inode: INode) {
-    this.propsSvc.showPropDialog(inode);
+    this.propsSvc.showPropDialog(inode) //
+      .pipe(takeUntilDestroyed(this.destroyRef)) //
+      .subscribe(result => {
+
+        if (result) {
+          this.refresh();
+        }
+      });
   }
 
   /**

@@ -132,6 +132,7 @@
         <!-- Das ContextMenu für den Folder selbst -->
         <app-files-folder-context-menu #contextMenu
                                        [inode]="currentFolder"
+                                       (createFolder)="onCreateFolder()"
                                        (paste)="onPaste()"
                                        (showProps)="onShowProps($event)"></app-files-folder-context-menu>
 
