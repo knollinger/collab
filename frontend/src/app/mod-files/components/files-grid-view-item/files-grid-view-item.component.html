@@ -3,7 +3,7 @@
      (contextmenu)="contextMenu.show($event)">
 
      <app-files-item-context-menu #contextMenu
-                                  (inode)="inode"
+                                  [inode]="inode"
                                   (open)="onOpen()"
                                   (rename)="onRename()"
                                   (delete)="onDelete()"
@@ -20,6 +20,7 @@
           [style.height]="iconWidth"
           draggable="false"
           (click)="onOpen()">
+          
      <div class="label"
           [style.width]="iconWidth"
           (click)="onOpen()">{{inode.name}}</div>

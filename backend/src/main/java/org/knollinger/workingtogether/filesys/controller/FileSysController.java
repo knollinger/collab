@@ -10,12 +10,14 @@ import org.knollinger.workingtogether.filesys.dtos.INodeDTO;
 import org.knollinger.workingtogether.filesys.dtos.MoveINodeRequestDTO;
 import org.knollinger.workingtogether.filesys.dtos.RenameINodeRequestDTO;
 import org.knollinger.workingtogether.filesys.dtos.UploadFilesResponseDTO;
+import org.knollinger.workingtogether.filesys.exceptions.AccessDeniedException;
 import org.knollinger.workingtogether.filesys.exceptions.DuplicateEntryException;
 import org.knollinger.workingtogether.filesys.exceptions.NotFoundException;
 import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.workingtogether.filesys.exceptions.UploadException;
 import org.knollinger.workingtogether.filesys.mapper.IFileSysMapper;
 import org.knollinger.workingtogether.filesys.models.INode;
+import org.knollinger.workingtogether.filesys.models.IPermissions;
 import org.knollinger.workingtogether.filesys.services.ICopyINodeService;
 import org.knollinger.workingtogether.filesys.services.IDeleteService;
 import org.knollinger.workingtogether.filesys.services.IFileSysService;
@@ -63,7 +65,7 @@ public class FileSysController
     {
         try
         {
-            INode inode = this.fileSysService.getINode(uuid);
+            INode inode = this.fileSysService.getINode(uuid, IPermissions.READ);
             if (inode == null)
             {
                 String msg = String.format("Die INode mit der UUID '%1§s' existieret nicht", uuid);
@@ -73,13 +75,15 @@ public class FileSysController
         }
         catch (NotFoundException e)
         {
-            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
         catch (TechnicalFileSysException e)
         {
-            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
         }
     }
 
@@ -101,12 +105,14 @@ public class FileSysController
         }
         catch (NotFoundException e)
         {
-            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
         }
         catch (TechnicalFileSysException e)
         {
-            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
@@ -128,6 +134,10 @@ public class FileSysController
         {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
         }
         catch (TechnicalFileSysException e)
         {
@@ -151,6 +161,10 @@ public class FileSysController
         catch (NotFoundException e)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
         }
         catch (TechnicalFileSysException e)
         {
@@ -204,6 +218,10 @@ public class FileSysController
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+        }
         catch (DuplicateEntryException e)
         {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
@@ -230,6 +248,10 @@ public class FileSysController
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+        }
         catch (DuplicateEntryException e)
         {
             throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
@@ -254,6 +276,10 @@ public class FileSysController
         catch (NotFoundException e)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
         }
         catch (DuplicateEntryException e)
         {
@@ -282,6 +308,10 @@ public class FileSysController
         catch (NotFoundException e)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
         }
         catch (TechnicalFileSysException e)
         {

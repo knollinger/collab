@@ -160,20 +160,18 @@ public class CreateUserServiceImpl implements ICreateUserService
 
         try
         {
-//            + "  set uuid=?, parent=?, name=?, owner=?, `group`=?, perms=?, size=?, type=?";
-            
             stmt = conn.prepareStatement(SQL_CREATE_DIRECTORY);
             stmt.setString(1, user.getUserId().toString());
-            stmt.setString(2, EWellknownINodeIDs.ROOT.value().toString());
+            stmt.setString(2, EWellknownINodeIDs.HOME.value().toString());
             stmt.setString(3, user.getAccountName());
             stmt.setString(4, user.getUserId().toString());
             stmt.setString(5, user.getUserId().toString());
-            stmt.setInt(6, 077); // read, write, delete for owner and group
+            stmt.setInt(6, 0600); // read and write for owner and group
             stmt.setLong(7, 0);
             stmt.setString(8, "inode/directory");
             stmt.executeUpdate();
 
-            String[] commonDirs = {"Dokumente", "Musik", "Videos", "Bilder"};
+            String[] commonDirs = {"Dokumente", "Musik", "Videos", "Bilder", "Notizen", "Whiteboards"};
             for (String dirName : commonDirs)
             {
                 UUID newUUID = UUID.randomUUID();
@@ -182,7 +180,7 @@ public class CreateUserServiceImpl implements ICreateUserService
                 stmt.setString(3, dirName);
                 stmt.setString(4, user.getUserId().toString());
                 stmt.setString(5, user.getUserId().toString());
-                stmt.setInt(6, 077); // read, write, delete for owner and group
+                stmt.setInt(6, 0700); // read, write, delete for owner and group
                 stmt.setLong(7, 0);
                 stmt.setString(8, "inode/directory");
                 stmt.executeUpdate();

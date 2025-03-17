@@ -2,6 +2,8 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angu
 import { MatMenuTrigger } from '@angular/material/menu';
 import { INode } from '../../models/inode';
 import { ClipboardService } from '../../services/clipboard.service';
+import { CheckPermissionsService } from '../../services/check-permissions.service';
+import { Permissions } from '../../models/permissions';
 
 @Component({
   selector: 'app-files-folder-context-menu',
@@ -35,6 +37,7 @@ export class FilesFolderContextMenuComponent implements OnInit {
    * 
    */
   constructor(
+    private checkPermsSvc: CheckPermissionsService,
     private clipboardSvc: ClipboardService) {
 
   }
@@ -67,7 +70,7 @@ export class FilesFolderContextMenuComponent implements OnInit {
    * Soll die Paste-Option angezeigt werden?  
   */
   get isShowPasteEntry(): boolean {
-    return !this.clipboardSvc.isEmpty;
+    return this.isWriteAllowed && !this.clipboardSvc.isEmpty;
   }
 
   /**
@@ -94,5 +97,15 @@ export class FilesFolderContextMenuComponent implements OnInit {
 
   onShowProperties() {
     this.showProps.emit(this.inode);
+  }
+
+  get isReadAllowed(): boolean {
+
+    return this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode);
+  }
+
+  get isWriteAllowed(): boolean {
+
+    return this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.inode);
   }
 }

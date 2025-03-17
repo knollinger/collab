@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { INode } from '../../models/inode';
+import { CheckPermissionsService } from '../../services/check-permissions.service';
+import { Permissions } from '../../models/permissions';
 
 @Component({
   selector: 'app-files-item-context-menu',
@@ -41,6 +43,10 @@ export class FilesItemContextMenuComponent {
 
   triggerPosX: string = '';
   triggerPosY: string = '';
+
+  constructor(private checkPermsSvc: CheckPermissionsService) {
+
+  }
 
   /**
    * 
@@ -107,5 +113,21 @@ export class FilesItemContextMenuComponent {
    */
   onShowProps() {
     this.showProps.emit(this.inode);
+  }
+
+
+  get isReadAllowed(): boolean {
+
+    return this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode);
+  }
+
+  get isWriteAllowed(): boolean {
+
+    return this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.inode);
+  }
+
+  get isDeleteAllowed(): boolean {
+
+    return this.checkPermsSvc.hasPermissions(Permissions.DELETE, this.inode);
   }
 }

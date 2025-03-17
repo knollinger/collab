@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.knollinger.workingtogether.user.exceptions.TechnicalGroupException;
@@ -16,10 +18,13 @@ import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.log4j.Log4j2;
+
 /**
  * Liefer die Auflistung aller Gruppen
  */
 @Service
+@Log4j2
 public class ListGroupServiceImpl implements IListGroupService
 {
     private static final String SQL_GET_ALL_GROUPS = "" //
@@ -34,16 +39,10 @@ public class ListGroupServiceImpl implements IListGroupService
         + "    (select memberId from groupMembers where parentId=?)" //
         + "  order by name";
 
-    private static final String SQL_GET_USER_GROUPS = "" //
-        + "select uuid, name, isPrimary from `groups`" // 
-        + "  where uuid in (" //
-        + "    select parentId from groupMembers where memberId=?" //
-        + "  )";
-
     private static final String ERR_GET_USER_GROUPS = "" //
         + "Die Gruppen-Zugehörigkeiten für den Benutzer mit der " //
         + "UUID '%14s' konnten aufgrund eines technischen Problems nicht ermittelt werden";
-    
+
     @Autowired
     private IDbService dbService;
 
@@ -149,27 +148,18 @@ public class ListGroupServiceImpl implements IListGroupService
     @Override
     public List<Group> getGroupsByUser(User user) throws TechnicalGroupException
     {
-        List<Group> result = new ArrayList<>();
+        log.info("getGroupsByUser `{}'", user);
         Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
 
         try
         {
             conn = this.dbService.openConnection();
-            stmt = conn.prepareStatement(SQL_GET_USER_GROUPS);
-            stmt.setString(1, user.getUserId().toString());
-            rs = stmt.executeQuery();
-            while (rs.next())
-            {
-                Group g = Group.builder() //
-                    .uuid(UUID.fromString(rs.getString("uuid"))) //
-                    .name(rs.getString("name")) //
-                    .primary(rs.getBoolean("isPrimary"))
-                    .build();
-                result.add(g);
-            }
-            return result;
+            Set<UUID> allGroupIds = this.getGroupIdsRecursive(user.getUserId(), conn);
+            log.info("groupIds: {}", allGroupIds);
+
+            List<Group> allGroups = this.resolveAllGroupIDs(allGroupIds, conn);
+            log.info("allGroups: {}", allGroups);
+            return allGroups;
         }
         catch (SQLException e)
         {
@@ -178,9 +168,93 @@ public class ListGroupServiceImpl implements IListGroupService
         }
         finally
         {
+            this.dbService.closeQuitely(conn);
+        }
+    }
+
+
+    /**
+     * Löse Rekursiv das Set aller GroupIds auf, ausgehend von einer gegebenen GroupId
+     * 
+     * @param groupId
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
+    private Set<UUID> getGroupIdsRecursive(UUID groupId, Connection conn) throws SQLException
+    {
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try
+        {
+            Set<UUID> result = new HashSet<>();
+            result.add(groupId);
+
+            stmt = conn.prepareStatement("select parentId from groupMembers where memberId=?");
+            stmt.setString(1, groupId.toString());
+            rs = stmt.executeQuery();
+            while (rs.next())
+            {
+                UUID parentId = UUID.fromString(rs.getString("parentId"));
+                result.add(parentId);
+                
+                // PrimärGruppen beinhalten die BenutzerId als Member und diese hat den selben Wert wie
+                // die GruppenId. In diesem Fall darf nicht weiter rekursiv gescannt werden, es würde
+                // in einer Endlos-Rekursion enden!
+                if (!parentId.equals(groupId))
+                {
+                    result.addAll(this.getGroupIdsRecursive(parentId, conn));
+                }
+            }
+            return result;
+        }
+        finally
+        {
             this.dbService.closeQuitely(rs);
             this.dbService.closeQuitely(stmt);
-            this.dbService.closeQuitely(conn);
+        }
+    }
+
+    /**
+     * Löse das Set der GroupIds in eine Liste der Gruppen auf
+     * 
+     * @param groupIds
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
+    private List<Group> resolveAllGroupIDs(Set<UUID> groupIds, Connection conn) throws SQLException
+    {
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try
+        {
+            List<Group> result = new ArrayList<>();
+            stmt = conn.prepareStatement("select `name`, `isPrimary` from `groups` where `uuid`=?");
+
+            for (UUID groupId : groupIds)
+            {
+                stmt.setString(1, groupId.toString());
+                rs = stmt.executeQuery();
+                while (rs.next())
+                {
+                    Group g = Group.builder() //
+                        .uuid(groupId) //
+                        .name(rs.getString("name")).primary(rs.getBoolean("isPrimary")) //
+                        .build();
+                    result.add(g);
+                }
+                this.dbService.closeQuitely(rs);
+            }
+            return result;
+        }
+        finally
+        {
+            this.dbService.closeQuitely(rs);
+            this.dbService.closeQuitely(stmt);
         }
     }
 }

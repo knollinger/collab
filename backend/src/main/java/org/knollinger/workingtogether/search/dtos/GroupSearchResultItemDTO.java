@@ -1,4 +1,4 @@
-package org.knollinger.workingtogether.search.models;
+package org.knollinger.workingtogether.search.dtos;
 
 import java.util.UUID;
 
@@ -10,7 +10,7 @@ import lombok.ToString;
 
 @Builder
 @ToString
-public class INodeSearchResultItem
+public class GroupSearchResultItemDTO
 {
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
@@ -19,8 +19,5 @@ public class INodeSearchResultItem
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
     private UUID uuid;
-    
-    @Getter(AccessLevel.PUBLIC)
-    @Setter(AccessLevel.NONE)
-    private UUID parent;
+
 }

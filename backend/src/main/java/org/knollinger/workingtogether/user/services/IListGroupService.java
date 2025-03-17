@@ -29,6 +29,16 @@ public interface IListGroupService extends IGroupService
     public List<Group> getAllGroups(boolean deepScan) throws TechnicalGroupException;
     
     /**
+     * Liefere die Liste aller Gruppen, welcher ein User angehört. 
+     * 
+     * Dabei werden Gruppen-Zugehörigkeiten rekursiv aufgelöst, so das alle Gruppen
+     * in der Liste enthalten sind.
+     * 
+     * Ein Beispiel:
+     * 
+     * Der Benutzer gehört der Gruppe "B" an, die Gruppe ist Mitglied der Gruppe "A".
+     * In der Ergebis-Liste sind beide Gruppen ("A" und "B") enthalten.
+     * 
      * @param user
      * @return
      * @throws TechnicalGroupException

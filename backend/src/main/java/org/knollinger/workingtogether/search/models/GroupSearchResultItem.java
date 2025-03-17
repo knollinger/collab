@@ -10,7 +10,7 @@ import lombok.ToString;
 
 @Builder
 @ToString
-public class INodeSearchResultItem
+public class GroupSearchResultItem
 {
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
@@ -19,8 +19,5 @@ public class INodeSearchResultItem
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
     private UUID uuid;
-    
-    @Getter(AccessLevel.PUBLIC)
-    @Setter(AccessLevel.NONE)
-    private UUID parent;
+
 }

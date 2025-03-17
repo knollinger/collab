@@ -3,6 +3,7 @@ package org.knollinger.workingtogether.filesys.services;
 import java.util.List;
 import java.util.UUID;
 
+import org.knollinger.workingtogether.filesys.exceptions.AccessDeniedException;
 import org.knollinger.workingtogether.filesys.exceptions.DuplicateEntryException;
 import org.knollinger.workingtogether.filesys.exceptions.NotFoundException;
 import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysException;
@@ -16,8 +17,9 @@ public interface IFileSysService {
      * @return
      * @throws TechnicalFileSysException
      * @throws NotFoundException
+     * @throws AccessDeniedException 
      */
-    public INode getINode(UUID uuid) throws TechnicalFileSysException, NotFoundException;
+    public INode getINode(UUID uuid, int reqPerm) throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
     
     /**
      * 
@@ -26,8 +28,9 @@ public interface IFileSysService {
      * @return
      * @throws TechnicalFileSysException
      * @throws NotFoundException
+     * @throws AccessDeniedException 
      */
-    public List<INode> getAllChilds(UUID parentId, boolean foldersOnly) throws TechnicalFileSysException, NotFoundException;
+    public List<INode> getAllChilds(UUID parentId, boolean foldersOnly) throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
     
     /**
      * 
@@ -35,8 +38,9 @@ public interface IFileSysService {
      * @return
      * @throws TechnicalFileSysException
      * @throws NotFoundException
+     * @throws AccessDeniedException 
      */
-    public List<INode> getPath(UUID uuid) throws TechnicalFileSysException, NotFoundException;
+    public List<INode> getPath(UUID uuid) throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
     
     /**
      * 
@@ -45,8 +49,9 @@ public interface IFileSysService {
      * @throws TechnicalFileSysException
      * @throws NotFoundException
      * @throws DuplicateEntryException
+     * @throws AccessDeniedException 
      */
-    public void rename(UUID uuid, String name) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException;
+    public void rename(UUID uuid, String name) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
     
     /**
      * 
@@ -55,8 +60,9 @@ public interface IFileSysService {
      * @throws TechnicalFileSysException
      * @throws NotFoundException
      * @throws DuplicateEntryException
+     * @throws AccessDeniedException 
      */
-    public void move(List<INode> src, INode target) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException;
+    public void move(List<INode> src, INode target) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
     
     /**
      * 
@@ -66,14 +72,16 @@ public interface IFileSysService {
      * @throws TechnicalFileSysException
      * @throws NotFoundException
      * @throws DuplicateEntryException
+     * @throws AccessDeniedException 
      */
-    public INode createFolder(UUID parentId, String name) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException;
+    public INode createFolder(UUID parentId, String name) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
 
     /**
      * @param inode
      * @return
      * @throws TechnicalFileSysException
      * @throws NotFoundException
+     * @throws AccessDeniedException 
      */
-    public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException;
+    public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
 }

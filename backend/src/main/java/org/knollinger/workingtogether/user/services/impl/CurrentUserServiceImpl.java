@@ -10,20 +10,29 @@ import org.springframework.stereotype.Service;
 @Service
 public class CurrentUserServiceImpl implements ICurrentUserService
 {
-    private ThreadLocal<TokenPayload> currentUser = new ThreadLocal<>(); // ThreadLocal.withInitial(() -> TokenPayload.empty());
+    private ThreadLocal<TokenPayload> currentUser = ThreadLocal.withInitial(() -> TokenPayload.empty());
 
+    /**
+     *
+     */
     @Override
     public TokenPayload get()
     {
         return this.currentUser.get();
     }
 
+    /**
+     *
+     */
     @Override
     public void clear()
     {
         this.currentUser.set(TokenPayload.empty());
     }
 
+    /**
+     *
+     */
     @Override
     public void set(TokenPayload payload)
     {

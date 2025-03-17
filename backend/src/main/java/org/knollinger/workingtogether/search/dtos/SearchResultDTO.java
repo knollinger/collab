@@ -13,4 +13,12 @@ public class SearchResultDTO
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
     List<INodeSearchResultItemDTO> inodes;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    List<UserSearchResultItemDTO> users;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    List<GroupSearchResultItemDTO> groups;
 }

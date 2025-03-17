@@ -10,11 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.knollinger.workingtogether.filesys.exceptions.AccessDeniedException;
 import org.knollinger.workingtogether.filesys.exceptions.DuplicateEntryException;
 import org.knollinger.workingtogether.filesys.exceptions.NotFoundException;
 import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysException;
+import org.knollinger.workingtogether.filesys.models.IPermissions;
 import org.knollinger.workingtogether.filesys.models.EWellknownINodeIDs;
 import org.knollinger.workingtogether.filesys.models.INode;
+import org.knollinger.workingtogether.filesys.services.ICheckPermsService;
 import org.knollinger.workingtogether.filesys.services.IFileSysService;
 import org.knollinger.workingtogether.user.models.TokenPayload;
 import org.knollinger.workingtogether.user.services.ICurrentUserService;
@@ -62,19 +65,22 @@ public class FileSysServiceImpl implements IFileSysService
 
     @Autowired
     private ICurrentUserService currUserSvc;
+    
+    @Autowired()
+    private ICheckPermsService checkPermsSvc;
 
     /**
      *
      */
     @Override
-    public INode getINode(UUID uuid) throws TechnicalFileSysException, NotFoundException
+    public INode getINode(UUID uuid, int reqPermission) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
         Connection conn = null;
 
         try
         {
             conn = this.dbService.openConnection();
-            return this.getINode(uuid, conn);
+            return this.getINode(uuid, reqPermission, conn);
         }
         catch (SQLException e)
         {
@@ -90,13 +96,16 @@ public class FileSysServiceImpl implements IFileSysService
     /**
      * private getINode-Implementierung, um den getter auch innerhalb einer DB-Transaktion 
      * verwenden zu können.
+     * 
      * @param uuid
+     * @param reqPermission
      * @param conn
      * @return
      * @throws SQLException
      * @throws NotFoundException
+     * @throws AccessDeniedException 
      */
-    private INode getINode(UUID uuid, Connection conn) throws SQLException, NotFoundException
+    private INode getINode(UUID uuid, int reqPermission, Connection conn) throws SQLException, NotFoundException, AccessDeniedException
     {
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -111,11 +120,14 @@ public class FileSysServiceImpl implements IFileSysService
                 throw new NotFoundException(uuid);
             }
 
+            UUID owner = UUID.fromString(rs.getString("owner"));
+            UUID group = UUID.fromString(rs.getString("group"));
+
             INode inode = INode.builder() //
                 .uuid(uuid) //
                 .parent(UUID.fromString(rs.getString("parent"))) //
-                .owner(UUID.fromString(rs.getString("owner"))) //
-                .group(UUID.fromString(rs.getString("group")))//
+                .owner(owner) //
+                .group(group)//
                 .perms(rs.getShort("perms")) //
                 .name(rs.getString("name")) //
                 .type(rs.getString("type")) //
@@ -123,6 +135,8 @@ public class FileSysServiceImpl implements IFileSysService
                 .created(rs.getTimestamp("created")) //
                 .modified(rs.getTimestamp("modified")) //
                 .build();
+
+            this.checkPermsSvc.hasPermission(reqPermission, inode);
             return inode;
         }
         finally
@@ -134,10 +148,12 @@ public class FileSysServiceImpl implements IFileSysService
 
     /**
      * @throws TechnicalFileSysException 
+     * @throws AccessDeniedException 
+     * @throws NotFoundException 
      *
      */
     @Override
-    public List<INode> getAllChilds(UUID parentId, boolean foldersOnly) throws TechnicalFileSysException
+    public List<INode> getAllChilds(UUID parentId, boolean foldersOnly) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -148,6 +164,8 @@ public class FileSysServiceImpl implements IFileSysService
             List<INode> result = new ArrayList<INode>();
 
             conn = this.dbService.openConnection();
+            this.getINode(parentId, IPermissions.READ, conn); // prüft existenz und berechtigungen
+            
             stmt = conn.prepareStatement(SQL_GET_ALL_CHILDS);
             stmt.setString(1, parentId.toString());
             rs = stmt.executeQuery();
@@ -189,10 +207,11 @@ public class FileSysServiceImpl implements IFileSysService
 
     /**
      * @throws NotFoundException 
+     * @throws AccessDeniedException 
      *
      */
     @Override
-    public List<INode> getPath(UUID uuid) throws TechnicalFileSysException, NotFoundException
+    public List<INode> getPath(UUID uuid) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
         Connection conn = null;
 
@@ -221,8 +240,9 @@ public class FileSysServiceImpl implements IFileSysService
      * @return
      * @throws TechnicalFileSysException
      * @throws NotFoundException
+     * @throws AccessDeniedException 
      */
-    public List<INode> getPath(UUID uuid, Connection conn) throws TechnicalFileSysException, NotFoundException
+    private List<INode> getPath(UUID uuid, Connection conn) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -231,6 +251,8 @@ public class FileSysServiceImpl implements IFileSysService
         {
             List<INode> result = new ArrayList<INode>();
             stmt = conn.prepareStatement(SQL_GET_INODE);
+
+            this.getINode(uuid, IPermissions.READ, conn); // testet existenz und permissions
 
             UUID currentUUID = uuid;
             while (!currentUUID.equals(EWellknownINodeIDs.NONE.value()))
@@ -275,11 +297,12 @@ public class FileSysServiceImpl implements IFileSysService
     }
 
     /**
+     * @throws AccessDeniedException 
      *
      */
     @Override
     public void rename(UUID uuid, String name)
-        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -287,11 +310,7 @@ public class FileSysServiceImpl implements IFileSysService
         try
         {
             conn = this.dbService.openConnection();
-            node = this.getINode(uuid, conn);
-            if (node == null)
-            {
-                throw new NotFoundException(uuid);
-            }
+            node = this.getINode(uuid, IPermissions.WRITE, conn);
 
             stmt = conn.prepareStatement(SQL_RENAME_INODE);
             stmt.setString(1, name);
@@ -368,17 +387,20 @@ public class FileSysServiceImpl implements IFileSysService
     }
 
     /**
+     * @throws AccessDeniedException 
      * 
      */
     @Override
     public INode createFolder(UUID parentId, String name)
-        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
         Connection conn = null;
         PreparedStatement stmt = null;
         try
         {
             conn = this.dbService.openConnection();
+            
+            this.getINode(parentId, IPermissions.WRITE, conn); // check existence and write perm for parent
 
             UUID uuid = UUID.randomUUID();
             TokenPayload token = this.currUserSvc.get();
@@ -423,11 +445,12 @@ public class FileSysServiceImpl implements IFileSysService
     }
 
     /**
+     * @throws AccessDeniedException 
      *
      */
     @Override
     public void move(List<INode> src, INode target)
-        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
         // TODO testen, ob das objekt nicht in eines seiner kinder verschoben werden soll
         // Dazu getPath (target), die src darf nicht darin enthalten sein!
@@ -476,9 +499,10 @@ public class FileSysServiceImpl implements IFileSysService
      * @param conn
      * @throws TechnicalFileSysException
      * @throws NotFoundException
+     * @throws AccessDeniedException 
      */
     private void checkMoveAllowed(INode src, INode target, Connection conn)
-        throws TechnicalFileSysException, NotFoundException
+        throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
         List<INode> path = this.getPath(target.getUuid(), conn);
         for (INode iNode : path)
@@ -491,7 +515,7 @@ public class FileSysServiceImpl implements IFileSysService
     }
 
     @Override
-    public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException
+    public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -499,17 +523,16 @@ public class FileSysServiceImpl implements IFileSysService
         try
         {
             conn = this.dbService.openConnection();
+            this.getINode(inode.getUuid(), IPermissions.WRITE, conn); // check existence and write permission of current inode
+            
             stmt = conn.prepareStatement(SQL_UPDATE_INODE);
             stmt.setString(1, inode.getOwner().toString());
             stmt.setString(2, inode.getGroup().toString());
             stmt.setInt(3, inode.getPerms());
             stmt.setString(4, inode.getUuid().toString());
-            if (stmt.executeUpdate() == 0)
-            {   
-                throw new NotFoundException(inode.getUuid());
-            }
+            stmt.executeUpdate();
 
-            return this.getINode(inode.getUuid());
+            return this.getINode(inode.getUuid(), IPermissions.READ, conn);
         }
         catch (SQLException e)
         {

@@ -10,10 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.knollinger.workingtogether.filesys.exceptions.AccessDeniedException;
 import org.knollinger.workingtogether.filesys.exceptions.DuplicateEntryException;
 import org.knollinger.workingtogether.filesys.exceptions.NotFoundException;
 import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysException;
+import org.knollinger.workingtogether.filesys.models.IPermissions;
 import org.knollinger.workingtogether.filesys.models.INode;
+import org.knollinger.workingtogether.filesys.services.ICheckPermsService;
 import org.knollinger.workingtogether.filesys.services.ICopyINodeService;
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,9 @@ public class CopyINodeServiceImpl implements ICopyINodeService
 {
     @Autowired
     private IDbService dbSvc;
+    
+    @Autowired()
+    private ICheckPermsService checkPermsSvc;
 
     private static final String SQL_COPY = "" //
         + "insert into `inodes` ( `uuid`, `parent`, `owner`, `group`, `perms`, `name`, `size`, `type`, `data`, `hash`)" //
@@ -36,11 +42,12 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         + "  where `parent`=?";
 
     /**
+     * @throws AccessDeniedException 
      *
      */
     @Override
     public List<INode> copyINodes(List<INode> inodes, INode target)
-        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
         Connection conn = null;
         List<INode> result = new ArrayList<INode>();
@@ -51,6 +58,8 @@ public class CopyINodeServiceImpl implements ICopyINodeService
             conn = this.dbSvc.openConnection();
             conn.setAutoCommit(false);
 
+            this.checkPermsSvc.hasPermission(IPermissions.WRITE, target);
+            
             for (INode inode : inodes)
             {
                 INode newINode = this.copyOneINode(inode, target, conn);
@@ -91,9 +100,10 @@ public class CopyINodeServiceImpl implements ICopyINodeService
      * @throws SQLException 
      * @throws NotFoundException 
      * @throws TechnicalFileSysException 
+     * @throws AccessDeniedException 
      */
     private INode copyOneINode(INode inode, INode target, Connection conn)
-        throws NotFoundException, TechnicalFileSysException
+        throws NotFoundException, TechnicalFileSysException, AccessDeniedException
     {
         PreparedStatement stmt = null;
 
@@ -123,7 +133,8 @@ public class CopyINodeServiceImpl implements ICopyINodeService
                 .size(inode.getSize()) //
                 .type(inode.getType()) //
                 .build();
-
+            
+            this.checkPermsSvc.hasPermission(IPermissions.READ, newINode);
             if (inode.isDirectory())
             {
                 this.copyChilds(inode, newINode, conn);
@@ -151,9 +162,10 @@ public class CopyINodeServiceImpl implements ICopyINodeService
      * @param conn
      * @throws TechnicalFileSysException 
      * @throws NotFoundException 
+     * @throws AccessDeniedException 
      */
     private void copyChilds(INode parent, INode target, Connection conn)
-        throws NotFoundException, TechnicalFileSysException
+        throws NotFoundException, TechnicalFileSysException, AccessDeniedException
     {
         try
         {

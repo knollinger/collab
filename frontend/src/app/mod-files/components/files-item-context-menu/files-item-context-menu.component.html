@@ -6,29 +6,35 @@
 
 <mat-menu #contextMenu="matMenu">
     <button mat-menu-item
+            [disabled]="!this.isReadAllowed"
             (click)="onOpen()">
         <mat-icon class="material-symbols-outlined">open_in_new</mat-icon><b>Öffnen</b>
     </button>
     <mat-divider></mat-divider>
 
     <button mat-menu-item
+            [disabled]="!this.isWriteAllowed"
             (click)="onRename()">
         <mat-icon class="material-symbols-outlined">edit</mat-icon>Umbenennen
     </button>
     <button mat-menu-item
+            [disabled]="!this.isDeleteAllowed"
             (click)="onDelete()">
         <mat-icon class="material-symbols-outlined">delete</mat-icon>Löschen
     </button>
     <mat-divider></mat-divider>
     <button mat-menu-item
+            [disabled]="!this.isDeleteAllowed"
             (click)="onCut()">
         <mat-icon class="material-symbols-outlined">content_cut</mat-icon>Ausschneiden
     </button>
     <button mat-menu-item
+            [disabled]="!this.isReadAllowed"
             (click)="onCopy()">
         <mat-icon class="material-symbols-outlined">file_copy</mat-icon>Kopieren
     </button>
     <button mat-menu-item
+            [disabled]="!this.isWriteAllowed"
             *ngIf="inode.isDirectory()"
             (click)="onPaste()">
         <mat-icon class="material-symbols-outlined">content_paste</mat-icon>Einfügen
@@ -36,6 +42,7 @@
 
     <mat-divider></mat-divider>
     <button mat-menu-item
+            [disabled]="!this.isReadAllowed"
             (click)="onShowProps()">
         <mat-icon class="material-symbols-outlined">settings</mat-icon>Eigenschaften
     </button>
