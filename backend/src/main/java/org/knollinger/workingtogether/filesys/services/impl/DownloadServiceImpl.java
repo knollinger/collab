@@ -21,7 +21,6 @@ import org.knollinger.workingtogether.filesys.services.IDownloadService;
 import org.knollinger.workingtogether.utils.io.FileDeletingInputStream;
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,11 +29,8 @@ public class DownloadServiceImpl implements IDownloadService
     private static final String ERR_LOAD_FILE = "Die Datei mit der UUID '%1$s' konnte aufgrund eines technischen Problems nicht geladen werden.";
 
     private static final String SQL_LOAD_FILE = "" //
-        + "select `size`, `type`, `hash`, `data` from `inodes`" //
+        + "select `name`, `size`, `type`, `hash`, `data` from `inodes`" //
         + "  where `uuid`=?";
-
-    @Value("${blobstore.basePath}")
-    private String basePath;
 
     @Autowired
     private IDbService dbSvc;
@@ -61,6 +57,7 @@ public class DownloadServiceImpl implements IDownloadService
             InputStream in = this.getFile(uuid, type, rs.getBinaryStream("data"));
 
             return BlobInfo.builder() //
+                .name(rs.getString("name")) //
                 .contentType(type) //
                 .size(rs.getLong("size")) //
                 .eTag(rs.getString("hash")) //

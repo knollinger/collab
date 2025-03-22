@@ -281,6 +281,7 @@ public class LoginServiceImpl implements ILoginService
             });
 
             result = TokenPayload.builder() //
+                .token(token) //
                 .user(this.userMapper.fromDTO(user)) //
                 .groups(this.groupMapper.fromDTO(groups)) //
                 .build();

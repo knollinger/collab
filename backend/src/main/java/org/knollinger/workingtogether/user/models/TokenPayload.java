@@ -15,6 +15,10 @@ public class TokenPayload
 {
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
+    private String token;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
     private User user;
 
     @Getter(AccessLevel.PUBLIC)

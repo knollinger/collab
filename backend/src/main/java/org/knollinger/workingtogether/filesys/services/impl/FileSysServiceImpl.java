@@ -136,7 +136,7 @@ public class FileSysServiceImpl implements IFileSysService
                 .modified(rs.getTimestamp("modified")) //
                 .build();
 
-            this.checkPermsSvc.hasPermission(reqPermission, inode);
+            this.checkPermsSvc.checkPermission(reqPermission, inode);
             return inode;
         }
         finally

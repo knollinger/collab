@@ -67,6 +67,10 @@ export class FilesGridViewItemComponent {
     return this.iconSvc.getTypeIconUrl(this.inode.type);
   }
 
+  get iconUrl1() {
+    return `url("${this.iconSvc.getTypeIconUrl(this.inode.type)}"`;
+  }
+
   get iconWidth(): string {
     return `${this.iconSize}px`;
   }

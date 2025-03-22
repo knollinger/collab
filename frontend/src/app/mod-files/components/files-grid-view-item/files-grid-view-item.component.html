@@ -1,6 +1,23 @@
-<div class="outer-cnr"
-     matTooltip="{{inode.name}}"
+<div [style.width]="iconWidth"
      (contextmenu)="contextMenu.show($event)">
+
+     <div class="image"
+          [style.backgroundImage]="iconUrl1"
+          [style.height]="iconWidth"
+          (click)="onOpen()">
+          <!-- <mat-icon class="material-symbols-outlined lock-sym">lock</mat-icon> -->
+     </div>
+
+     <div class="label"
+          (click)="onOpen()">{{inode.name}}
+     </div>
+
+     <mat-checkbox class="selector"
+                   color="primary"
+                   (change)="onSelectorChange($event)"
+                   [checked]="selected">
+     </mat-checkbox>
+
 
      <app-files-item-context-menu #contextMenu
                                   [inode]="inode"
@@ -11,22 +28,6 @@
                                   (copy)="onCopy()"
                                   (paste)="onPaste()"
                                   (showProps)="onShowProps()">
-
      </app-files-item-context-menu>
 
-     <img class="thumbnail"
-          [src]="iconUrl"
-          [style.width]="iconWidth"
-          [style.height]="iconWidth"
-          draggable="false"
-          (click)="onOpen()">
-          
-     <div class="label"
-          [style.width]="iconWidth"
-          (click)="onOpen()">{{inode.name}}</div>
-
-     <mat-checkbox class="selector"
-                   color="primary"
-                   (change)="onSelectorChange($event)"
-                   [checked]="selected"></mat-checkbox>
 </div>

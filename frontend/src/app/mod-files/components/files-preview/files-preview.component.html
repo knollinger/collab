@@ -1,49 +1,39 @@
-<div mat-dialog-title
-     class="disp-flex flex-row">
-    <img class="flex-0 mimetype-icon"
-         [src]="getMimeTypeIcon()">
-    <div class="flex-1">{{currentINode.name}}</div>
-    <button mat-icon-button
-            [mat-dialog-close]=""
-            class="flex-0">
-        <mat-icon class="material-symbols-outlined">close</mat-icon>
-    </button>
-</div>
+<div class="outer-cnr disp-flex flex-col scrollable">
 
-<mat-dialog-content>
-
-    <div [ngSwitch]="mainType">
-        <img *ngSwitchCase="'image'"
-             class="image-preview"
-             [src]="srcUrl | safe:'resourceUrl'">
-
-        <embed *ngSwitchDefault
-               class="default-preview"
-               [src]="srcUrl | safe:'resourceUrl'"
-               [type]="currentINode.type">
-
-        <button mat-mini-fab
-                *ngIf="canScroll()"
-                color="white"
-                class="scroll-left"
-                (click)="onScrollLeft()">
-            <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
-        </button>
-
-        <button mat-mini-fab
-                *ngIf="canScroll()"
-                color="white"
-                class="scroll-right"
-                (click)="onScrollRight()">
-            <mat-icon class="material-symbols-outlined">chevron_right</mat-icon>
+    <div class="title flex-0 disp-flex flex-row flex-alignitems-center">
+        <span class="flex-1">{{inode.name}}</span>
+        <button mat-icon-button
+                class="flex-0"
+                (click)="onClosePreview()">
+            <mat-icon class="material-symbols-outlined">cancel</mat-icon>
         </button>
     </div>
-</mat-dialog-content>
+    <div class="flex-1 scrollable">
 
-<mat-dialog-actions>
-    <mat-slide-toggle color="primary"
-                      *ngIf="canScroll()"
-                      (change)="onAutoLoop($event)">
-        Automatisch weiter spulen
-    </mat-slide-toggle>
-</mat-dialog-actions>
+        <div [ngSwitch]="detectType"
+             class="preview">
+
+            <img *ngSwitchCase="'image'"
+                 [src]="srcUrl | safe:'resourceUrl'">
+
+            <div *ngSwitchCase="'video'"
+                 class="preview">
+                Video preview feht noch
+            </div>
+
+            <embed *ngSwitchCase="'text'"
+                   [src]="srcUrl | safe:'resourceUrl'"
+                   class="mat-elevation-z4 small-lightgray-border">
+
+            <app-office-preview *ngSwitchCase="'office'"
+                                class="preview"
+                                [inode]="inode">
+            </app-office-preview>
+
+            <!-- <embed [src]="srcUrl" *ngSwitchDefault> -->
+
+            <h2 class="no-viewer"
+                *ngSwitchDefault>Es existiert kein Viewer für den Dateitype {{inode.type}}</h2>
+        </div>
+    </div>
+</div>

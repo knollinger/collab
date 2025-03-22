@@ -20,6 +20,10 @@ public class BlobInfo
 
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
+    private String name;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
     private String contentType;
     
     @Getter(AccessLevel.PUBLIC)
