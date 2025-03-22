@@ -11,5 +11,13 @@ public interface ICheckPermsService
      * @return
      * @throws AccessDeniedException 
      */
-    public void hasPermission(int perm, INode node) throws AccessDeniedException;
+    public void checkPermission(int perm, INode node) throws AccessDeniedException;
+
+    /**
+     * @param perm
+     * @param node
+     * @return
+     * @throws AccessDeniedException 
+     */
+    public boolean hasPermission(int perm, INode node);
 }

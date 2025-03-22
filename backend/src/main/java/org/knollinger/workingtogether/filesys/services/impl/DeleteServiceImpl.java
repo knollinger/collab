@@ -1,6 +1,5 @@
 package org.knollinger.workingtogether.filesys.services.impl;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,7 +13,6 @@ import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysExcepti
 import org.knollinger.workingtogether.filesys.services.IDeleteService;
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,9 +33,6 @@ public class DeleteServiceImpl implements IDeleteService
 
     @Autowired
     private IDbService dbSvc;
-
-    @Value("${blobstore.basePath}")
-    private String basePath;
 
     @Override
     public void deleteINode(List<UUID> uuids) throws TechnicalFileSysException, NotFoundException
@@ -62,8 +57,6 @@ public class DeleteServiceImpl implements IDeleteService
             {
                 stmtINode.setString(1, id.toString());
                 stmtINode.executeUpdate();
-                
-                this.deleteFromFileSys(id);
             }
 
             conn.commit();
@@ -106,14 +99,4 @@ public class DeleteServiceImpl implements IDeleteService
         }
         return result;
     }
-    
-    /**
-     * @param id
-     */
-    private void deleteFromFileSys(UUID id)
-    {
-        File file = new File(this.basePath, id.toString());
-        file.delete();
-    }
-
 }

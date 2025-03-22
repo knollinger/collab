@@ -10,7 +10,6 @@ import { ContentTypeService } from '../../services/content-type.service';
 import { ShowDuplicateFilesService } from '../../services/show-duplicate-files.service';
 import { FilesPropertiesService } from '../../services/files-properties.service';
 import { ClipboardService } from '../../services/clipboard.service';
-import { PreviewService } from '../../services/preview.service';
 import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
 
 @Component({
@@ -26,7 +25,6 @@ export class FilesFolderViewComponent implements OnInit {
   public inodes: INode[] = new Array<INode>();
   public path: INode[] = new Array<INode>();
   public selectedINodes: Set<INode> = new Set<INode>();
-  public showPreview: boolean = false;
   public previewINode: INode = INode.empty();
 
   @ViewChild(FileDropINodeMenuComponent)
@@ -62,7 +60,6 @@ export class FilesFolderViewComponent implements OnInit {
     private messageBoxSvc: MessageBoxService,
     private inputBoxSvc: InputBoxService,
     private clipboardSvc: ClipboardService,
-    private previewSvc: PreviewService,
     private contentTypeSvc: ContentTypeService,
     private showDuplFilesSvc: ShowDuplicateFilesService,
     private propsSvc: FilesPropertiesService) {
@@ -96,7 +93,7 @@ export class FilesFolderViewComponent implements OnInit {
 
         this.inodes = inodes;
         this.selectedINodes.clear();
-        this.showPreview = false;
+        this.previewINode = INode.empty();
       });
   }
 
@@ -282,8 +279,15 @@ export class FilesFolderViewComponent implements OnInit {
       this.refresh();
     }
     else {
-      this.previewSvc.showPreview(inode, this.inodes);
+      this.previewINode = inode;
     }
+  }
+
+  /**
+   * 
+   */
+  onClosePreview() {
+    this.previewINode = INode.empty();
   }
 
   /**

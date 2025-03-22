@@ -1,27 +1,26 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 
 import { INode } from '../../models/inode';
 import { INodeService } from '../../services/inode.service';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ContentTypeService } from '../../services/content-type.service';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-
-export interface IFilesPreviewInput {
-  current: INode,
-  siblings: INode[]
-}
+import { WopiService } from '../../services/wopi.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-files-preview',
   templateUrl: './files-preview.component.html',
   styleUrls: ['./files-preview.component.css']
 })
-export class FilesPreviewComponent implements OnInit, OnDestroy {
+export class FilesPreviewComponent implements OnInit {
 
-  currentIdx: number = 0;
-  inodes: INode[] = new Array<INode>();
+  private patternsToType: Map<RegExp, string> = new Map<RegExp, string>();
 
-  private timerId: number = -1;
+  @Input()
+  inode: INode = INode.empty();
+
+  @Output()
+  close: EventEmitter<void> = new EventEmitter<void>();
+
+  private destroyRef = inject(DestroyRef);
 
   /**
    * 
@@ -32,23 +31,7 @@ export class FilesPreviewComponent implements OnInit, OnDestroy {
    */
   constructor(
     private inodeSvc: INodeService,
-    private contentTypeSvc: ContentTypeService,
-    public dialogRef: MatDialogRef<FilesPreviewComponent>,
-    @Inject(MAT_DIALOG_DATA)
-    private data: IFilesPreviewInput) {
-
-    data.siblings.forEach(sibling => {
-      if (!sibling.isDirectory()) {
-        this.inodes.push(sibling);
-      }
-    });
-
-    for (let i = 0; i < this.inodes.length; ++i) {
-      if (this.inodes[i].uuid === data.current.uuid) {
-        this.currentIdx = i;
-        break;
-      }
-    }
+    private wopiSvc: WopiService) {
   }
 
   /**
@@ -56,83 +39,50 @@ export class FilesPreviewComponent implements OnInit, OnDestroy {
    */
   ngOnInit(): void {
 
+    this.patternsToType = new Map<RegExp, string>();
+    this.patternsToType.set(/image\/.*/, 'image');
+    this.patternsToType.set(/video\/.*/, 'video');
+    this.patternsToType.set(/text\/.*/, 'text');
+    
+    this.wopiSvc.getWOPIMimeTypes()
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(mimeTypes => {
+      
+      mimeTypes.map(type => {
+        
+        const masked = type.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+        console.log(`${type} => ${masked}`);
+        const regex = new RegExp(masked, 'g');
+        this.patternsToType.set(regex, 'office');
+      })
+
+    });
   }
 
-  ngOnDestroy() {
-    if (this.timerId != -1) {
-      window.clearInterval(this.timerId);
+  /**
+   * 
+   * @returns 
+   */
+  public get detectType(): string {
+
+    for (const [regExp, val] of this.patternsToType.entries()) {
+      const res = this.inode.type.match(regExp);
+
+      if (res) {
+        return val;
+      }
     }
-  }
-
-  /**
-   * 
-   */
-  onScrollLeft() {
-    this.currentIdx--;
-    if (this.currentIdx < 0) {
-      this.currentIdx = this.inodes.length - 1;
-    }
-  }
-
-  /**
-   * 
-   */
-  onScrollRight() {
-    this.currentIdx++;
-    if (this.currentIdx >= this.inodes.length) {
-      this.currentIdx = 0;
-    }
-  }
-
-  /**
-   * 
-   */
-  public get currentINode(): INode {
-    return this.inodes[this.currentIdx];
-  }
-
-  /**
-   * 
-   */
-  public get mainType(): string {
-
-    return this.currentINode.type.split('/')[0];
+    return '';
   }
 
   /**
    * 
    */
   public get srcUrl(): string {
-    return this.inodeSvc.getContentUrl(this.currentINode.uuid);
+    return this.inodeSvc.getContentUrl(this.inode.uuid);
   }
 
-  /**
-   * 
-   * @returns 
-   */
-  getMimeTypeIcon(): string {
-    return this.contentTypeSvc.getTypeIconUrl(this.currentINode.type);
-  }
-
-  onAutoLoop(evt: MatSlideToggleChange) {
-
-    if (evt.checked) {
-
-      this.timerId = window.setInterval(() => {
-        this.onScrollRight();
-      }, 10000);
-    }
-    else {
-      window.clearInterval(this.timerId);
-      this.timerId = -1;
-    }
-  }
-
-  /**
-   * 
-   * @returns 
-   */
-  canScroll() {
-    return this.inodes.length > 1;
+  onClosePreview() {
+    this.close.emit();
   }
 }

@@ -35,7 +35,7 @@ public class CheckTokenFilter extends OncePerRequestFilter
 {
     @Autowired
     private ILoginService loginSvc;
-    
+
     @Autowired
     private ICurrentUserService currentUserSvc;
 
@@ -47,6 +47,10 @@ public class CheckTokenFilter extends OncePerRequestFilter
     public CheckTokenFilter()
     {
         this.excluded.add(Pattern.compile("/v1/session/login"));
+
+        // Der OfficeIntegration-Kram verwendet keine Cookies 
+        // sondern RequestParameter. Eine Sec-Katastophe!
+//        this.excluded.add(Pattern.compile("/wopi/files/.*"));
     }
 
     /**
@@ -65,9 +69,9 @@ public class CheckTokenFilter extends OncePerRequestFilter
         throws IOException, ServletException
     {
         String reqUri = httpReq.getRequestURI();
-        String authorization = this.getBearerCookie(httpReq);
+        String token = this.getTokenValue(httpReq);
+        TokenPayload payload = this.extractPayload(token);
 
-        TokenPayload payload = this.extractPayload(authorization);
         if (this.isOptionsRequest(httpReq) || !this.mustHaveAuthorization(reqUri) || !payload.isEmpty())
         {
             try
@@ -138,10 +142,32 @@ public class CheckTokenFilter extends OncePerRequestFilter
     }
 
     /**
+     * Die "normalen" REST-Calls senden den Bearer-Token natürlich als Cookie.
+     * Es gibt leider die WOPI-Exoten (für die LibreOffice-Integration). Diese 
+     * senden das Token als "access-token"-Query-Parameter.
+     * 
+     * Die Methode checked zuerst das Cookie, danach den QueryParam.
+     * 
+     * @param req
+     * @return <code>null</code> wenn weder Cookie noch QueryParam gefunden 
+     *         worden. Sonst den TokenString
+     */
+    private String getTokenValue(HttpServletRequest req)
+    {
+
+        String result = this.getTokenFromCookie(req);
+        if (result == null)
+        {
+            result = this.getTokenFromQueryParam(req);
+        }
+        return result;
+    }
+
+    /**
      * @param req
      * @return
      */
-    private String getBearerCookie(HttpServletRequest req)
+    private String getTokenFromCookie(HttpServletRequest req)
     {
 
         Cookie[] cookies = req.getCookies();
@@ -155,6 +181,33 @@ public class CheckTokenFilter extends OncePerRequestFilter
                 }
             }
         }
+        return null;
+    }
+
+    /**
+     * Einige RestCalls (vor allem die WOPI-Calls) können keinen Cookie liefern, 
+     * statt dessen kommt das Token als QueryParameter "access-token".
+     * 
+     * Das ist eine Security-technische Katasrophe, aber es geht leider nicht 
+     * anders.
+     * 
+     * @param req
+     * @return
+     */
+    private String getTokenFromQueryParam(HttpServletRequest req)
+    {
+        String queryString = req.getQueryString();
+        if (queryString != null)
+        {
+            for (String keyValue : queryString.split("&"))
+            {
+                if (keyValue.startsWith("access_token="))
+                {
+                    return keyValue.substring("access_token=".length());
+                }
+            }
+        }
+
         return null;
     }
 }

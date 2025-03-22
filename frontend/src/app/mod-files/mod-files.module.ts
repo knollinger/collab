@@ -27,6 +27,7 @@ import { FilesIconsizeMenuComponent } from './components/files-iconsize-menu/fil
 import { FilesListviewItemComponent } from './components/files-listview-item/files-listview-item.component';
 import { FilesPermissionsComponent } from './components/files-permissions/files-permissions.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { OfficePreviewComponent } from './components/office-preview/office-preview.component';
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     FilesIconsizeMenuComponent,
     FilesListviewItemComponent,
     FilesPermissionsComponent,
+    OfficePreviewComponent,
   ],
   imports: [
     CommonModule,

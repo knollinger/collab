@@ -1,0 +1,6 @@
+{
+	"view": "http: localhost:9980/browser/ded56d8ff7/cool.html?",
+	"edit": "http: //localhost:9980/browser/ded56d8ff7/cool.html?",
+	"view_comment": "http://localhost:9980/browser/ded56d8ff7/cool.html?",
+	"iframe": "http: //localhost:9980/browser/ded56d8ff7/admin/adminIntegratorSettings.html",
+	"getinfo": "http: //localhost:9980/hosting/capabilities"

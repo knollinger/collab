@@ -19,12 +19,12 @@ public class CheckPermsServiceImpl implements ICheckPermsService
     @Autowired()
     ICurrentUserService currUserSvc;
 
+
     /**
-     * @throws AccessDeniedException 
      *
      */
     @Override
-    public void hasPermission(int perm, INode inode) throws AccessDeniedException
+    public boolean hasPermission(int perm, INode inode)
     {
         boolean result = false;
 
@@ -41,8 +41,17 @@ public class CheckPermsServiceImpl implements ICheckPermsService
                 }
             }
         }
+        return result;
+    }
 
-        if (!result)
+    /**
+     * @throws AccessDeniedException 
+     *
+     */
+    @Override
+    public void checkPermission(int perm, INode inode) throws AccessDeniedException
+    {
+        if (!this.hasPermission(perm, inode))
         {
             throw new AccessDeniedException(inode);
         }

@@ -58,7 +58,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
             conn = this.dbSvc.openConnection();
             conn.setAutoCommit(false);
 
-            this.checkPermsSvc.hasPermission(IPermissions.WRITE, target);
+            this.checkPermsSvc.checkPermission(IPermissions.WRITE, target);
             
             for (INode inode : inodes)
             {
@@ -134,7 +134,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
                 .type(inode.getType()) //
                 .build();
             
-            this.checkPermsSvc.hasPermission(IPermissions.READ, newINode);
+            this.checkPermsSvc.checkPermission(IPermissions.READ, newINode);
             if (inode.isDirectory())
             {
                 this.copyChilds(inode, newINode, conn);

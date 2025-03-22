@@ -1,10 +1,7 @@
 package org.knollinger.workingtogether.filesys.services.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.knollinger.workingtogether.filesys.exceptions.DuplicateEntryException;
 import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.workingtogether.filesys.exceptions.UploadException;
@@ -25,10 +21,8 @@ import org.knollinger.workingtogether.filesys.services.IUploadService;
 import org.knollinger.workingtogether.user.models.TokenPayload;
 import org.knollinger.workingtogether.user.models.User;
 import org.knollinger.workingtogether.user.services.ICurrentUserService;
-import org.knollinger.workingtogether.utils.io.HashCalculatingInputStream;
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,9 +41,6 @@ public class UploadServiceImpl implements IUploadService
 
     private static final short DEFAULT_PERMISSION = 077; // read, write, delete für owner und gruppe
     
-    @Value("${blobstore.basePath}")
-    private String basePath;
-
     @Autowired
     private IDbService dbSvc;
     
@@ -124,11 +115,9 @@ public class UploadServiceImpl implements IUploadService
         INode result = null;
         PreparedStatement stmt = null;
 
-        FileAndHash fileSysObj = null;
         try
         {
             UUID newUUID = UUID.randomUUID();
-            fileSysObj = this.saveToFileSys(newUUID, file);
 
             UUID userId = user.getUserId();
             stmt = conn.prepareStatement(SQL_CREATE_INODE);
@@ -140,8 +129,8 @@ public class UploadServiceImpl implements IUploadService
             stmt.setString(6, file.getOriginalFilename());
             stmt.setLong(7, file.getSize());
             stmt.setString(8, file.getContentType());
-            stmt.setString(9, fileSysObj.hash());
-            stmt.setBinaryStream(10, new FileInputStream(fileSysObj.file));
+            stmt.setString(9, ""); // TODO: Hash muss berechnet werden
+            stmt.setBinaryStream(10, new BufferedInputStream(file.getInputStream()));
 
             stmt.executeUpdate();
 
@@ -164,49 +153,10 @@ public class UploadServiceImpl implements IUploadService
         }
         finally
         {
-            this.deleteFileSysObj(fileSysObj);
             this.dbSvc.closeQuitely(stmt);
         }
         return result;
     }
-
-
-    /**
-     * @param fileSysObj
-     */
-    private void deleteFileSysObj(FileAndHash fileSysObj)
-    {
-        if (fileSysObj != null)
-        {
-            fileSysObj.file.delete();
-        }
-    }
-
-    /**
-     * @param newUUID
-     * @param multipartIn
-     * @return
-     * @throws IOException
-     * @throws NoSuchAlgorithmException
-     */
-    private FileAndHash saveToFileSys(UUID newUUID, MultipartFile multipartIn) throws IOException, NoSuchAlgorithmException
-    {
-        File tmpFile = new File(this.basePath, newUUID.toString());
-        tmpFile.createNewFile();
-        try (HashCalculatingInputStream hashIn = new HashCalculatingInputStream(multipartIn.getInputStream());
-            OutputStream out = new FileOutputStream(tmpFile))
-        {
-            IOUtils.copy(hashIn, out);
-            out.flush();
-            return new FileAndHash(tmpFile, hashIn.getHashAsString());
-        }
-        catch (IOException | NoSuchAlgorithmException e)
-        {
-            tmpFile.delete();
-            throw e;
-        }
-    }
-
 
     /**
      * @param parentId
@@ -249,12 +199,5 @@ public class UploadServiceImpl implements IUploadService
             this.dbSvc.closeQuitely(rs);
             this.dbSvc.closeQuitely(stmt);
         }
-    }
-
-    /**
-     * Das Daten-Objekt um ein File und dessen Hash zurück liefern zu können
-     */
-    private static record FileAndHash(File file, String hash)
-    {
     }
 }
