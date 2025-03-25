@@ -54,9 +54,8 @@ public class WOPIControler
 {
     private static final String LAUNCHER_FORM = "" //
         + "<html>" //
-        + "  <body>" //
-        //        + "    <form action=\"http://localhost:9980/browser/ded56d8ff7/cool.html??WOPISrc=http://192.168.1.153:8080/wopi/files/{fileId}\" enctype=\"multipart/form-data\" method=\"post\">" //
-        + "    <form action=\"{baseUrl}?WOPISrc=http://192.168.1.153:8080/wopi/files/{fileId}\" enctype=\"multipart/form-data\" method=\"post\">" //
+        + "  <body onload=\"document.getElementById('form').submit()\">" //
+        + "    <form style=\"display: none;\" id=\"form\" action=\"{baseUrl}?WOPISrc=http://192.168.1.153:8080/wopi/files/{fileId}\" enctype=\"multipart/form-data\" method=\"post\">" //
         + "      <input name=\"access_token\" value=\"{token}\" type=\"text\"/>" //
         + "      <input type=\"submit\" value=\"Load Collabora Online\"/>" //
         + "    </form>" //
