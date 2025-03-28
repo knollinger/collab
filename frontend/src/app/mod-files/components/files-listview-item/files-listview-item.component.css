@@ -12,3 +12,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.locked {
+    filter: opacity(50%);
+}

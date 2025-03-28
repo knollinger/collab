@@ -6,18 +6,15 @@ import org.knollinger.workingtogether.filesys.models.INode;
 public interface ICheckPermsService
 {
     /**
-     * @param perm
-     * @param node
+     * @param inode
      * @return
-     * @throws AccessDeniedException 
      */
-    public void checkPermission(int perm, INode node) throws AccessDeniedException;
+    public int getEffectivePermissions(INode inode);
 
     /**
-     * @param perm
-     * @param node
-     * @return
-     * @throws AccessDeniedException 
+     * 
+     * @param perms
+     * @param target
      */
-    public boolean hasPermission(int perm, INode node);
+    public void checkPermission(int perms, INode target) throws AccessDeniedException;
 }

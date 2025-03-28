@@ -9,6 +9,7 @@ export interface IUser {
 export class User {
 
     public static readonly EMPTY_USER_ID = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+    public static readonly ROOT_USER_ID = '00000000-0000-0000-0000-100000000000';
 
     constructor(
         public readonly userId: string,
@@ -39,5 +40,9 @@ export class User {
 
     public isEmpty(): boolean {
         return this.userId === User.EMPTY_USER_ID;
+    }
+
+    isRoot(): boolean {
+        return this.userId === User.ROOT_USER_ID;
     }
 }

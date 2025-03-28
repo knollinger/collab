@@ -148,7 +148,6 @@ public class ListGroupServiceImpl implements IListGroupService
     @Override
     public List<Group> getGroupsByUser(User user) throws TechnicalGroupException
     {
-        log.info("getGroupsByUser `{}'", user);
         Connection conn = null;
 
         try

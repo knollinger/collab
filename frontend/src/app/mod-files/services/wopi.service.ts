@@ -4,6 +4,14 @@ import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 import { HttpClient } from '@angular/common/http';
 import { INode } from '../models/inode';
 
+/**
+ * WOPI...Lustiger ServiceName. 
+ * 
+ * Aber WOPI ist das WEB APPLICATION OPEN PLATFORM INTERFACE.
+ * 
+ * Dummerweise von MS, ist aber OpenSource.
+ * 
+ */
 @Injectable({
   providedIn: 'root'
 })

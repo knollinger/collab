@@ -1,5 +1,6 @@
 <div [style.width]="iconWidth"
-     (contextmenu)="contextMenu.show($event)">
+     [class.locked]="isLocked"
+     (contextmenu)="onContextMenu($event, contextMenu)">
 
      <div class="image"
           [style.backgroundImage]="iconUrl1"
@@ -15,7 +16,8 @@
      <mat-checkbox class="selector"
                    color="primary"
                    (change)="onSelectorChange($event)"
-                   [checked]="selected">
+                   [checked]="selected"
+                   [disabled]="isLocked">
      </mat-checkbox>
 
 

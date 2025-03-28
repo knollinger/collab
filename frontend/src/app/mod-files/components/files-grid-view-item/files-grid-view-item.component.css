@@ -7,6 +7,10 @@
     border-radius: 4px;
 }
 
+.locked {
+    filter: opacity(50%);
+}
+
 .image {
     position: relative;
     background-position: center;

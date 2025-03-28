@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
+import { SessionService } from '../../../mod-session/session.module';
 
 import { EINodeUUIDs, INode } from '../../models/inode';
 import { INodeService } from '../../services/inode.service';
@@ -45,9 +46,9 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
    */
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private titlebarSvc: TitlebarService,
-    private inodeSvc: INodeService) {
+    private inodeSvc: INodeService,
+    private sessionSvc: SessionService) {
 
   }
 
@@ -65,7 +66,7 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
     this.titlebarSvc.subTitle = 'Dateien';
     this.route.params.subscribe(params => {
 
-      const uuid = params['uuid'] || EINodeUUIDs.INODE_ROOT;
+      const uuid = params['uuid'] || this.sessionSvc.currentUser.userId;
       this.inodeSvc.getINode(uuid)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(inode => {

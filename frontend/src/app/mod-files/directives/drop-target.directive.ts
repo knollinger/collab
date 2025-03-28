@@ -1,5 +1,7 @@
 import { Directive, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
 import { INode } from '../models/inode';
+import { CheckPermissionsService } from '../services/check-permissions.service';
+import { Permissions } from '../models/permissions';
 
 export class FilesDroppedEvent {
 
@@ -30,6 +32,14 @@ export class DropTargetDirective {
   @HostBinding('style.borderStyle') style = 'dashed';
   @HostBinding('style.borderWidth') size = '3px';
   @HostBinding('style.borderColor') color = 'transparent';
+
+  /**
+   * 
+   * @param checkPermsSvc #
+   */
+  constructor(private checkPermsSvc: CheckPermissionsService) {
+
+  }
 
   /**
    * Nimmt die ZielINode auf. Bei der Annotation des Target wird 
@@ -134,7 +144,9 @@ export class DropTargetDirective {
     const dataTransfer = evt.dataTransfer;
     if (dataTransfer) {
 
-      result = this.target.isDirectory() && (this.isFileTransfer(evt) || this.isINodeTransfer(evt));
+      result = this.target.isDirectory() && //
+        this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.target) && //
+        (this.isFileTransfer(evt) || this.isINodeTransfer(evt));
     }
     return result;
   }

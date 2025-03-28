@@ -33,10 +33,6 @@ public class INodeDTO
 
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
-    private short perms;
-
-    @Getter(AccessLevel.PUBLIC)
-    @Setter(AccessLevel.NONE)
     private String type;
 
     @Getter(AccessLevel.PUBLIC)
@@ -50,4 +46,12 @@ public class INodeDTO
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
     private Timestamp modified;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    private int perms;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    private int effectivePerms;
 }

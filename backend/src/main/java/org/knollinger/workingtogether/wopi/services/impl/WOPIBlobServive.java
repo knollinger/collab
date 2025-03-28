@@ -10,13 +10,13 @@ import java.util.UUID;
 
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.knollinger.workingtogether.wopi.exceptions.TechnicalWOPIException;
-import org.knollinger.workingtogether.wopi.services.WOPIBlobService;
+import org.knollinger.workingtogether.wopi.services.IWOPIBlobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
 @Service
-public class WOPIBlobServive implements WOPIBlobService
+public class WOPIBlobServive implements IWOPIBlobService
 {
     private static final String SQL_UPDATE_BLOB = "" //
         + "update inodes set data=?" //
@@ -40,7 +40,7 @@ public class WOPIBlobServive implements WOPIBlobService
             stmt = conn.prepareStatement(SQL_UPDATE_BLOB);
             stmt.setBinaryStream(1, bufIn);
             stmt.setString(2,  fileId.toString());
-            stmt.executeUpdate(); // Count auswerten!
+            stmt.executeUpdate(); // TODO: Count auswerten und ggf NotFound schmeißen
         }
         catch (SQLException | IOException e)
         {

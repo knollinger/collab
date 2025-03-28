@@ -99,7 +99,8 @@ export class FilesPropertiesPermissionsComponent implements OnInit {
             this.inode.modified, //
             evt.value, //
             this.inode.group, //
-            this.inode.perms);
+            this.inode.perms, //
+            this.inode.effectivePerms);
         this.inodeChange.emit(this.inode);
     }
 
@@ -120,7 +121,8 @@ export class FilesPropertiesPermissionsComponent implements OnInit {
             this.inode.modified, //
             this.inode.owner, //
             evt.value, //
-            this.inode.perms);
+            this.inode.perms, //
+            this.inode.effectivePerms);
         this.inodeChange.emit(this.inode);
     }
 
@@ -140,7 +142,8 @@ export class FilesPropertiesPermissionsComponent implements OnInit {
             this.inode.modified, //
             this.inode.owner, //
             this.inode.group, //
-            perms);
+            perms,
+            this.inode.effectivePerms); // TODO: wrong!!!
         this.inodeChange.emit(this.inode);
     }
 }

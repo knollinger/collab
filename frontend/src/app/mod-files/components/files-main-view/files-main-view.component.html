@@ -44,6 +44,7 @@
 
         <app-folder-view #leftPane
                          class="flex-1 full-height"
+                         [current]="currentFolder"
                          [active]="isViewActive(0)"
                          (activated)="onActivateView(0, $event)"
                          [viewMode]="viewMode"
@@ -63,6 +64,7 @@
         <app-folder-view #rightPane
                          class="flex-1 full-height"
                          [class.hidden]="!showSplit"
+                         [current]="currentFolder"
                          [active]="isViewActive(1)"
                          (activated)="onActivateView(1, $event)"
                          [viewMode]="viewMode"

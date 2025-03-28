@@ -1,14 +1,12 @@
 package org.knollinger.workingtogether.filesys.services.impl;
 
-import java.util.UUID;
-
 import org.knollinger.workingtogether.filesys.exceptions.AccessDeniedException;
 import org.knollinger.workingtogether.filesys.models.INode;
 import org.knollinger.workingtogether.filesys.models.IPermissions;
 import org.knollinger.workingtogether.filesys.services.ICheckPermsService;
-import org.knollinger.workingtogether.user.models.EWellknownUserIDs;
 import org.knollinger.workingtogether.user.models.Group;
 import org.knollinger.workingtogether.user.models.TokenPayload;
+import org.knollinger.workingtogether.user.models.User;
 import org.knollinger.workingtogether.user.services.ICurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,23 +19,52 @@ public class CheckPermsServiceImpl implements ICheckPermsService
 
 
     /**
+     * @throws AccessDeniedException 
      *
      */
     @Override
-    public boolean hasPermission(int perm, INode inode)
+    public void checkPermission(int required, INode inode) throws AccessDeniedException
     {
-        boolean result = false;
-
-        TokenPayload token = this.currUserSvc.get();
-        if (!token.isEmpty())
+        int effectivePerm = this.getEffectivePermissions(inode);
+        if ((effectivePerm & required) != required)
         {
-            result = this.checkUserPerms(token, perm, inode);
-            if (!result)
+            throw new AccessDeniedException(inode);
+        }
+    }
+
+    /**
+     * Berechne die effektive Permission auf die INode.
+     * 
+     * EffectivePermission meint dabei folgendes:
+     * 
+     * 
+     */
+    public int getEffectivePermissions(INode inode)
+    {
+        int inodePerms = inode.getPerms();
+
+        int result = this.extractWorldPerms(inodePerms);
+        if (result != IPermissions.ALL_PERMS)
+        {
+            TokenPayload token = this.currUserSvc.get();
+            if (!token.isEmpty())
             {
-                result = this.checkGroupPerms(token, perm, inode);
-                if (!result)
+                User user = token.getUser();
+                if (user.getUserId().equals(inode.getOwner()))
                 {
-                    result = this.checkWorldPerms(perm, inode);
+                    result |= this.extractUserPerms(inodePerms);
+                }
+
+                if (result != IPermissions.ALL_PERMS)
+                {
+                    for (Group group : token.getGroups())
+                    {
+                        if (group.getUuid().equals(inode.getGroup()))
+                        {
+                            result |= this.extractGroupPerms(inodePerms);
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -45,69 +72,35 @@ public class CheckPermsServiceImpl implements ICheckPermsService
     }
 
     /**
-     * @throws AccessDeniedException 
-     *
-     */
-    @Override
-    public void checkPermission(int perm, INode inode) throws AccessDeniedException
-    {
-        if (!this.hasPermission(perm, inode))
-        {
-            throw new AccessDeniedException(inode);
-        }
-    }
-
-    /**
-     * Root darf immer alles!
+     * Extrahiere die Benutzer-Permissions aus der CompoundPermissionMask
      * 
-     * @param token
-     * @param perm
-     * @param inode
+     * @param perms
      * @return
      */
-    private boolean checkUserPerms(TokenPayload token, int perm, INode inode)
+    private int extractUserPerms(int perms)
     {
-        UUID userId = token.getUser().getUserId();
-        boolean result = userId.equals(EWellknownUserIDs.ROOT.value());
-
-        if (!result)
-        {
-            if (userId.equals(inode.getOwner()))
-            {
-                int val = (inode.getPerms() & IPermissions.USR_PERMS_MASK) >> IPermissions.USR_PERMS_SHIFT;
-                result = (val & perm) == perm;
-            }
-        }
-        return result;
+        return (perms & IPermissions.USR_PERMS_MASK) >> IPermissions.USR_PERMS_SHIFT;
     }
 
     /**
-     * @param token
-     * @param perm
-     * @param inode
+     * Extrahiere die Group-Permissions aus der CompoundPermissionMask
+     * 
+     * @param perms
      * @return
      */
-    private boolean checkGroupPerms(TokenPayload token, int perm, INode inode)
+    private int extractGroupPerms(int perms)
     {
-        for (Group g : token.getGroups())
-        {
-            if (g.getUuid().equals(inode.getGroup()))
-            {
-                int val = (inode.getPerms() & IPermissions.GRP_PERMS_MASK) >> IPermissions.GRP_PERMS_SHIFT;
-                return (val & perm) == perm;
-            }
-        }
-        return false;
+        return (perms & IPermissions.GRP_PERMS_MASK) >> IPermissions.GRP_PERMS_SHIFT;
     }
 
     /**
-     * @param perm
-     * @param inode
+     * Extrahiere die World-Permissions aus der CompoundPermissionMask
+     * 
+     * @param perms
      * @return
      */
-    private boolean checkWorldPerms(int perm, INode inode)
+    private int extractWorldPerms(int perms)
     {
-        int val = (inode.getPerms() & IPermissions.WORLD_PERMS_MASK) >> IPermissions.WORLD_PERMS_SHIFT;
-        return (val & perm) == perm;
+        return (perms & IPermissions.WORLD_PERMS_MASK) >> IPermissions.WORLD_PERMS_SHIFT;
     }
 }

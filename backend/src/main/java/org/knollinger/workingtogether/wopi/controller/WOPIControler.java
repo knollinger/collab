@@ -1,6 +1,9 @@
 package org.knollinger.workingtogether.wopi.controller;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,15 +15,14 @@ import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysExcepti
 import org.knollinger.workingtogether.filesys.models.BlobInfo;
 import org.knollinger.workingtogether.filesys.models.INode;
 import org.knollinger.workingtogether.filesys.models.IPermissions;
-import org.knollinger.workingtogether.filesys.services.ICheckPermsService;
 import org.knollinger.workingtogether.filesys.services.IDownloadService;
 import org.knollinger.workingtogether.filesys.services.IFileSysService;
 import org.knollinger.workingtogether.user.models.User;
 import org.knollinger.workingtogether.user.services.ICurrentUserService;
 import org.knollinger.workingtogether.wopi.dtos.WOPIFileInfoDTO;
 import org.knollinger.workingtogether.wopi.exceptions.TechnicalWOPIException;
-import org.knollinger.workingtogether.wopi.services.WOPIBlobService;
-import org.knollinger.workingtogether.wopi.services.impl.WOPIDiscoryService;
+import org.knollinger.workingtogether.wopi.services.IWOPIBlobService;
+import org.knollinger.workingtogether.wopi.services.IWOPIDiscoveryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -33,29 +35,37 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 
 /**
- * Der WOPI-Controller dient der Integration von LibreOffice-Online. Es sollte 
- * auch mit MS-Office funktionieren, aber wer brazcht das schon... :-)
+ * Intro:
+ * WOPI ist das WEB APPLICATION OPEN PLATFORM INTERFACE.
+ * Dummerweise von MS, ist aber OpenSource.
+ * 
+ * Der WOPI-Controller dient der Integration von LibreOffice-Online (Collabra). 
+ * Es sollte auch mit MS-Office funktionieren, aber wer braucht das schon... :-)
  * 
  * Im wesentlichen sind drei EndPoints zu implementieren:
  * <ul>
  *  <li>CheckFileInfo</li>
  *  <li>GetFile</li>
  *  <li>PutFile</li>
- *  
  * </ul>
+ * 
+ * Wir implementieren hier noch EndPoints welche nicht von Collabra gerufen werden,
+ * jedoch von den Integrations-Componenten/Services der Angular-App.
  */
 @RestController()
 @RequestMapping(path = "/wopi")
 @Log4j2
 public class WOPIControler
 {
-    private static final String LAUNCHER_FORM = "" //
+    private static final String LAUNCHER_FORM = "" // ggf von extern mittels JSOUP laden?
         + "<html>" //
         + "  <body onload=\"document.getElementById('form').submit()\">" //
-        + "    <form style=\"display: none;\" id=\"form\" action=\"{baseUrl}?WOPISrc=http://192.168.1.153:8080/wopi/files/{fileId}\" enctype=\"multipart/form-data\" method=\"post\">" //
+//        + "    <form style=\"display: none;\" id=\"form\" action=\"{baseUrl}?WOPISrc=http://{wopiHost}:{wopiPort}/wopi/files/{fileId}\" enctype=\"multipart/form-data\" method=\"post\">" //
+        + "    <form style=\"display: none;\" id=\"form\" action=\"{baseUrl}?WOPISrc={wopiSrc}\" enctype=\"multipart/form-data\" method=\"post\">" //
         + "      <input name=\"access_token\" value=\"{token}\" type=\"text\"/>" //
         + "      <input type=\"submit\" value=\"Load Collabora Online\"/>" //
         + "    </form>" //
@@ -72,18 +82,17 @@ public class WOPIControler
     private ICurrentUserService currUserSvc;
 
     @Autowired()
-    private ICheckPermsService checkPermsSvc;
+    private IWOPIBlobService wopiBlobSvc;
 
     @Autowired()
-    private WOPIBlobService wopiBlobSvc;
-
-    @Autowired()
-    private WOPIDiscoryService wopiDiscoverySvc;
+    private IWOPIDiscoveryService wopiDiscoverySvc;
 
     /**
      * Implementiert die CheckFileInfo-API eines WOPI-Controllers.
      * 
-     * Nachzulesen unter <a href="https://sdk.collaboraonline.com/docs/How_to_integrate.html#connection-to-the-file-storage">WOPI#heckFileInfo</a>
+     * Nachzulesen unter 
+     * <a href="https://sdk.collaboraonline.com/docs/How_to_integrate.html#connection-to-the-file-storage">WOPI#heckFileInfo</a>
+     * 
      * @param fileId
      * @return
      */
@@ -103,7 +112,7 @@ public class WOPIControler
                 .userId(currentUser.getUserId()) //
                 .userFriendlyName(String.format("%1$s %2$s", currentUser.getSurname(), currentUser.getLastname())) //
                 .size(inode.getSize()) //
-                .canWrite(this.checkPermsSvc.hasPermission(IPermissions.WRITE, inode)) //
+                .canWrite(inode.hasEffectivePermission(IPermissions.WRITE)) //
                 .build();
         }
         catch (NotFoundException e)
@@ -124,6 +133,8 @@ public class WOPIControler
     }
 
     /**
+     * Dieser EndPoint wird von Collabra gerufen, um den Inhalt eines Dokumentes zu lesen
+     * 
      * @param fileId
      * @return
      */
@@ -154,6 +165,8 @@ public class WOPIControler
     }
 
     /**
+     * Dieser EndPoint wird von Collabra gerufen, um den Inhalt eines Dokumentes zu speichern.
+     * 
      * @param fileId
      * @param bodyIn
      */
@@ -172,8 +185,26 @@ public class WOPIControler
         }
     }
 
+    /**
+     * Um Collabra in einem iframe einbetten zu können braucht es ein HTML-Form. Ursache ist,
+     * dass Collabra Parameter wie den access_token oder die token_ttl als multipart/form-data
+     * erwartet.
+     * 
+     * Die Angular-App stellt also erst mal die iframe-src auf diesen EndPoint. Wir generieren
+     * hier ein (auto-submit) Form mit allen Parametern und der ZielURL entsprechend den Collabra-
+     * Docs.
+     * 
+     * Der iframe lädt also das Form, es wird auto-submitted und durch pure Magie erscheint 
+     * Collabra im iframe :-)
+     * 
+     * @param fileId
+     * @param httpReq
+     * @return
+     */
     @GetMapping(path = "/createLauncherForm/{fileId}")
-    public String createLauncherForm(@PathVariable("fileId") UUID fileId)
+    public String createLauncherForm(//
+        @PathVariable("fileId") UUID fileId, //
+        HttpServletRequest httpReq)
     {
         try
         {
@@ -186,12 +217,13 @@ public class WOPIControler
             {
                 baseUrl = actionsByMimeType.get("view");
             }
+
             return LAUNCHER_FORM //
                 .replace("{baseUrl}", baseUrl) //
-                .replace("{fileId}", inode.getUuid().toString()) //
+                .replace("{wopiSrc}", this.createWOpiSrcUrl(httpReq, fileId).toExternalForm()) //
                 .replace("{token}", this.currUserSvc.get().getToken());
         }
-        catch (TechnicalWOPIException | TechnicalFileSysException e)
+        catch (TechnicalWOPIException | TechnicalFileSysException | IOException e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
@@ -205,7 +237,22 @@ public class WOPIControler
         }
     }
 
+    private URL createWOpiSrcUrl(HttpServletRequest httpReq, UUID fileId) throws IOException
+    {
+        String proto = httpReq.getScheme();
+        String host = InetAddress.getLocalHost().getHostName();
+        int port = httpReq.getLocalPort();
+        String path = "/wopi/files/{fileId}".replace("{fileId}", fileId.toString());
+        return new URL(proto, host, port, path);
+    }
+
     /**
+     * Liefere die Liste aller durch Collabra unterstützten ContentTypes
+     * 
+     * Mit dieser Liste kann die Angular-App entscheiden, ob die zu öffnende INode in
+     * Collabra geöffnet werden soll oder ob ein anderer Viewer/Editor instantiiert
+     * werden muss.
+     * 
      * @return
      */
     @GetMapping(path = "/mimetypes")

@@ -4,15 +4,23 @@
     <app-toolbar class="flex-0 small-bottom-lightgray-border">
 
         <button mat-icon-button
-                matTooltip="Neuen Ordner anlegen"
-                (click)="onCreateFolder()">
-            <mat-icon class="material-symbols-outlined">create_new_folder</mat-icon>
+                matTooltip="Zum Home-Ordner wechseln"
+                (click)="onGoHome()">
+            <mat-icon class="material-symbols-outlined">home</mat-icon>
         </button>
 
         <button mat-icon-button
                 matTooltip="Aktualisieren"
                 (click)="reloadEntries()">
             <mat-icon class="material-symbols-outlined">refresh</mat-icon>
+        </button>
+
+        <app-toolbar-separator></app-toolbar-separator>
+        <button mat-icon-button
+                [disabled]="!isWriteable"
+                matTooltip="Neuen Ordner anlegen"
+                (click)="onCreateFolder()">
+            <mat-icon class="material-symbols-outlined">create_new_folder</mat-icon>
         </button>
 
         <!-- Selection/deselectopn -->
@@ -57,6 +65,7 @@
         <!-- Cloud Ops -->
         <app-toolbar-separator></app-toolbar-separator>
         <button mat-icon-button
+                [disabled]="!isWriteable"
                 matTooltip="Dateien hoch laden"
                 (click)="fileInput.click()">
             <mat-icon class="material-symbols-outlined">cloud_upload</mat-icon>

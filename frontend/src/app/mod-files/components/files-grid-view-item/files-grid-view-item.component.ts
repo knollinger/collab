@@ -1,10 +1,13 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 import { ContentTypeService } from '../../services/content-type.service';
+import { CheckPermissionsService } from '../../services/check-permissions.service';
+import { FilesItemContextMenuComponent } from '../files-item-context-menu/files-item-context-menu.component';
 
 import { INode } from '../../models/inode';
-import { MatMenuTrigger } from '@angular/material/menu';
-import { MatCheckboxChange } from '@angular/material/checkbox';
+import { Permissions } from '../../models/permissions';
+
 
 /**
  * 
@@ -16,9 +19,6 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 })
 export class FilesGridViewItemComponent {
 
-  @ViewChild(MatMenuTrigger)
-  trigger: MatMenuTrigger | undefined;
-  
   @Input()
   inode: INode = INode.empty();
 
@@ -57,7 +57,8 @@ export class FilesGridViewItemComponent {
    * @param iconSvc 
    */
   constructor(
-    private iconSvc: ContentTypeService) {
+    private iconSvc: ContentTypeService,
+    private checkPermsSvc: CheckPermissionsService) {
   }
 
   /**
@@ -74,16 +75,21 @@ export class FilesGridViewItemComponent {
   get iconWidth(): string {
     return `${this.iconSize}px`;
   }
-  
+
+  get isLocked(): boolean {
+    return !this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode);
+  }
+
   /**
    * 
    * @param evt 
    */
-  onContextMenu(evt: Event) {
+  onContextMenu(evt: MouseEvent, menu: FilesItemContextMenuComponent) {
     evt.stopPropagation();
     evt.preventDefault();
-    if (this.trigger) {
-      this.trigger.openMenu();
+
+    if (this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode)) {
+      menu.show(evt);
     }
   }
 
@@ -99,9 +105,11 @@ export class FilesGridViewItemComponent {
    * 
    */
   onOpen() {
-    this.open.emit(this.inode);
+    if (this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode)) {
+      this.open.emit(this.inode);
+    }
   }
-  
+
   onRename() {
     this.rename.emit(this.inode);
   }

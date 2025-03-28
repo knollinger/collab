@@ -10,7 +10,10 @@ import { ContentTypeService } from '../../services/content-type.service';
 import { ShowDuplicateFilesService } from '../../services/show-duplicate-files.service';
 import { FilesPropertiesService } from '../../services/files-properties.service';
 import { ClipboardService } from '../../services/clipboard.service';
+import { SessionService } from '../../../mod-session/session.module';
 import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
+import { CheckPermissionsService } from '../../services/check-permissions.service';
+import { Permissions } from '../../models/permissions';
 
 @Component({
   selector: 'app-folder-view',
@@ -29,6 +32,12 @@ export class FilesFolderViewComponent implements OnInit {
 
   @ViewChild(FileDropINodeMenuComponent)
   dropInodesMenu: FileDropINodeMenuComponent | undefined;
+
+  @Input()
+  set current(inode: INode) {
+    this.currentFolder = inode;
+    this.refresh();
+  }
 
   @Input()
   viewMode: string = 'grid';
@@ -62,7 +71,9 @@ export class FilesFolderViewComponent implements OnInit {
     private clipboardSvc: ClipboardService,
     private contentTypeSvc: ContentTypeService,
     private showDuplFilesSvc: ShowDuplicateFilesService,
-    private propsSvc: FilesPropertiesService) {
+    private propsSvc: FilesPropertiesService,
+    private sessionSvc: SessionService,
+    private checkPermsSvc: CheckPermissionsService) {
 
   }
 
@@ -102,6 +113,23 @@ export class FilesFolderViewComponent implements OnInit {
    */
   public onActivateView() {
     this.activated.emit(this.currentFolder);
+  }
+
+  /**
+   * 
+   */
+  public onGoHome() {
+    const uuid = this.sessionSvc.currentUser.userId;
+    this.inodeSvc.getINode(uuid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(inode => {
+        this.currentFolder = inode;
+        this.refresh();
+      })
+  }
+
+  get isWriteable(): boolean {
+    return this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.currentFolder);
   }
 
   /**

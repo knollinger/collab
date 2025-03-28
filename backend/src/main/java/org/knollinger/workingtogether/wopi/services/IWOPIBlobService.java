@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import org.knollinger.workingtogether.wopi.exceptions.TechnicalWOPIException;
 
-public interface WOPIBlobService
+public interface IWOPIBlobService
 {
     public void saveFile(UUID fileId, InputStream blob) throws TechnicalWOPIException;
 }

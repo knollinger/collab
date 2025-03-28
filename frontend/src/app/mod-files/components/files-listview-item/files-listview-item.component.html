@@ -1,11 +1,13 @@
 <div class="disp-flex flex-row flex-alignitems-center outer mat-elevation-z2"
+     [class.locked]="isLocked"
      matTooltip="{{inode.name}}"
-     (contextmenu)="contextMenu.show($event)">
+     (contextmenu)="onContextMenu($event, contextMenu)">
 
      <mat-checkbox color="primary"
                    class="small-right-spacer"
                    (change)="onSelectorChange($event)"
-                   [checked]="selected">
+                   [checked]="selected"
+                   [disabled]="isLocked">
      </mat-checkbox>
 
      <img class="flex-0 small-right-spacer"

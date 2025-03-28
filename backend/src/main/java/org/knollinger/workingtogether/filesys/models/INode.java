@@ -33,10 +33,6 @@ public class INode
 
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
-    private short perms;
-
-    @Getter(AccessLevel.PUBLIC)
-    @Setter(AccessLevel.NONE)
     private String type;
 
     @Getter(AccessLevel.PUBLIC)
@@ -50,6 +46,14 @@ public class INode
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
     private Timestamp modified;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    private int perms;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.PUBLIC)
+    private int effectivePerms;
 
     /**
      * 
@@ -76,11 +80,21 @@ public class INode
             .modified(new Timestamp(0)) //
             .build();
     }
-    
+
     /**
      * @return
      */
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return this.uuid.equals(EWellknownINodeIDs.NONE.value());
+    }
+
+    /**
+     * @param perm
+     * @return
+     */
+    public boolean hasEffectivePermission(int perm)
+    {
+        return (this.effectivePerms & perm) == perm;
     }
 }

@@ -3,6 +3,9 @@ import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { INode } from '../../models/inode';
 import { ContentTypeService } from '../../services/content-type.service';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { CheckPermissionsService } from '../../services/check-permissions.service';
+import { FilesItemContextMenuComponent } from '../files-item-context-menu/files-item-context-menu.component';
+import { Permissions } from '../../models/permissions';
 
 @Component({
   selector: 'app-files-listview-item',
@@ -48,7 +51,8 @@ export class FilesListviewItemComponent implements OnInit {
    * @param iconSvc 
    */
   constructor(
-    private iconSvc: ContentTypeService) {
+    private iconSvc: ContentTypeService,
+    private checkPermsSvc: CheckPermissionsService) {
 
   }
 
@@ -66,6 +70,23 @@ export class FilesListviewItemComponent implements OnInit {
     return `${this.iconSize}px`;
   }
 
+  get isLocked(): boolean {
+    return !this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode);
+  }
+
+  /**
+   * 
+   * @param evt 
+   */
+  onContextMenu(evt: MouseEvent, menu: FilesItemContextMenuComponent) {
+    evt.stopPropagation();
+    evt.preventDefault();
+
+    if (this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode)) {
+      menu.show(evt);
+    }
+  }
+
   /**
      * 
      * @param evt 
@@ -78,7 +99,9 @@ export class FilesListviewItemComponent implements OnInit {
    * 
    */
   onOpen() {
-    this.open.emit(this.inode);
+    if (this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode)) {
+      this.open.emit(this.inode);
+    }
   }
 
   onRename() {
