@@ -4,6 +4,17 @@ import { INode } from '../../models/inode';
 import { Permissions } from '../../models/permissions';
 import { ClipboardService } from '../../services/clipboard.service';
 
+/**
+ * Die Toolbar für den FolderView.
+ * 
+ * Im wesentlichen dient die Component nur der Anzeige der Toolbar-Options
+ * sowie der Steuerung deren enabled/disabled-States. Die Aktivierung
+ * dieser Optionen wird durch Events an den Parent gemeldet.
+ * 
+ * Ausnahme sind hier CUT und COPY, diese Aktionen können problemlos
+ * innerhalb dieser Component verarbeitet werden.
+ * 
+ */
 @Component({
   selector: 'app-files-folderview-toolbar',
   templateUrl: './files-folderview-toolbar.component.html',
@@ -120,6 +131,10 @@ export class FilesFolderviewToolbarComponent {
     this.clipBoardSvc.clear();
   }
 
+  /**
+   * Hilfsmethode um aus dem Set<INode> ein Array
+   * zu machen.
+   */
   private get selectedINodesAsArray(): INode[] {
 
     const inodes: INode[] = new Array<INode>();
