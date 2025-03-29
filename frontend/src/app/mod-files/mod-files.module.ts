@@ -28,6 +28,7 @@ import { FilesListviewItemComponent } from './components/files-listview-item/fil
 import { FilesPermissionsComponent } from './components/files-permissions/files-permissions.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { OfficePreviewComponent } from './components/office-preview/office-preview.component';
+import { FilesFolderviewToolbarComponent } from './components/files-folderview-toolbar/files-folderview-toolbar.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +52,7 @@ import { OfficePreviewComponent } from './components/office-preview/office-previ
     FilesListviewItemComponent,
     FilesPermissionsComponent,
     OfficePreviewComponent,
+    FilesFolderviewToolbarComponent,
   ],
   imports: [
     CommonModule,

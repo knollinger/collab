@@ -27,6 +27,7 @@ export class FilesFolderViewComponent implements OnInit {
   public currentFolder: INode = INode.root();
   public inodes: INode[] = new Array<INode>();
   public path: INode[] = new Array<INode>();
+  public selectableINodes: Set<INode> = new Set<INode>();
   public selectedINodes: Set<INode> = new Set<INode>();
   public previewINode: INode = INode.empty();
 
@@ -103,8 +104,21 @@ export class FilesFolderViewComponent implements OnInit {
       .subscribe(inodes => {
 
         this.inodes = inodes;
+        this.selectableINodes = this.extractSelectableNodes(inodes);
         this.selectedINodes.clear();
         this.previewINode = INode.empty();
+      });
+  }
+
+  /**
+   * Lade den Path für die aktuelle INode
+   */
+  private loadPathInfo() {
+
+    this.inodeSvc.getPath(this.currentFolder.uuid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(path => {
+        this.path = path;
       });
   }
 
@@ -128,10 +142,6 @@ export class FilesFolderViewComponent implements OnInit {
       })
   }
 
-  get isWriteable(): boolean {
-    return this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.currentFolder);
-  }
-
   /**
    * 
    */
@@ -147,56 +157,70 @@ export class FilesFolderViewComponent implements OnInit {
       })
   }
 
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* all about selection                                                     */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
   /**
-   * 
+   * liefere alle selektierbaren Inodes aus der gegebenen Collection
    */
-  private loadPathInfo() {
+  public extractSelectableNodes(inodes: INode[]): Set<INode> {
 
-    this.inodeSvc.getPath(this.currentFolder.uuid)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(path => {
-        this.path = path;
-      });
-  }
-
-  public get showSelectAll(): boolean {
-
-    return this.inodes.length !== this.selectedINodes.size;
-  }
-
-  public get hasSelection(): boolean {
-    return this.selectedINodes.size !== 0;
+    const selectable = new Set<INode>();
+    inodes.forEach(inode => {
+      if (this.checkPermsSvc.hasPermissions(Permissions.READ, inode)) {
+        selectable.add(inode);
+      }
+    })
+    return selectable;
   }
 
   /**
-   * 
+   * Selektiere alle selektierbaren INodes
    */
   public onSelectAll() {
 
     const inodes: Set<INode> = new Set<INode>();
-    this.inodes.forEach(inode => {
+    this.selectableINodes.forEach(inode => {
       inodes.add(inode);
     })
     this.selectedINodes = inodes;
   }
 
+  /**
+   * Deselektiere alle ausgewählten INodes
+   */
   public onDeselectAll() {
     this.selectedINodes = new Set<INode>();
   }
 
-  onFileUpload(evt: Event) {
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about file upload/download                                          */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
 
-    const input = evt.target as HTMLInputElement;
-    if (input.files && input.files.length) {
+  /**
+   * 
+   * @param fileList 
+   */
+  onFileUpload(fileList: FileList) {
 
-      const files: File[] = new Array<File>();
-      for (let i = 0; i < input.files.length; ++i) {
-        files.push(input.files[i]);
-      }
-      this.uploadFiles(this.currentFolder, files);
+    const files: File[] = new Array<File>();
+    for (let i = 0; i < fileList.length; ++i) {
+      files.push(fileList[i]);
     }
+    this.uploadFiles(this.currentFolder, files);
   }
 
+  /**
+   * 
+   */
+  onFileDownload() {
+    alert('not yet implemented');
+  }
 
   /**
    * Auf eines der GridView-Items wurde ein FileDrop durchgeführt.
@@ -239,11 +263,11 @@ export class FilesFolderViewComponent implements OnInit {
   /*-------------------------------------------------------------------------*/
   /*                                                                         */
   /* Drop-Operationen von INodes lösen zunächst erst einmal ein ent-         */
-  /* sprechendesEvent aus. Dies wird innerhalb des HTML-Templates an die     */
+  /* sprechendes Event aus. Dies wird innerhalb des HTML-Templates an die    */
   /* show()-Methode einer *FileDropINodeMenuComponent* delegiert.            */
   /*                                                                         */
   /* Diese zeigt darauf hin ein Context-Menu mit den möglichen Operationen   */
-  /* (copy, move, link) an                                                   */
+  /* (copy, move) an                                                         */
   /*                                                                         */
   /* Und je nach Auswahl wird eine der folgenden Methoden gerufen...         */
   /*                                                                         */
@@ -273,16 +297,6 @@ export class FilesFolderViewComponent implements OnInit {
         this.inodesGrabbed.emit();
         this.reloadEntries();
       })
-  }
-
-  /**
-   * Für die gedroppte INode soll ein symbolischer Link erstellt werden. 
-   * Quelle und Target stehen im Event.
-   * 
-   * @param event 
-   */
-  onLinkDroppedINodes(event: INodeDroppedEvent) {
-
   }
 
   /*-------------------------------------------------------------------------*/
@@ -397,14 +411,6 @@ export class FilesFolderViewComponent implements OnInit {
   /*-------------------------------------------------------------------------*/
 
   /**
-   * ist das Clipboard leer? Wird benötigt um die disabled-states in der 
-   * Toolbar zu steuern
-   */
-  public get isClipbordEmpty(): boolean {
-    return this.clipboardSvc.isEmpty;
-  }
-
-  /**
    * Eine CUT-Operation wurde angeforder. Entweder ist diese via ContextMenu
    * auf einer INode passiert oder aus der Toolbar.
    * 
@@ -415,9 +421,9 @@ export class FilesFolderViewComponent implements OnInit {
    *  
    * @param inode 
    */
-  onCut(inode?: INode) {
+  onCut(inode: INode) {
 
-    this.clipboardSvc.cut(inode || this.selectedINodesAsArray);
+    this.clipboardSvc.cut(inode);
   }
 
   /**
@@ -431,9 +437,9 @@ export class FilesFolderViewComponent implements OnInit {
    *  
    * @param inode 
    */
-  onCopy(inode?: INode) {
+  onCopy(inode: INode) {
 
-    this.clipboardSvc.copy(inode || this.selectedINodesAsArray);
+    this.clipboardSvc.copy(inode);
   }
 
   /**
@@ -459,6 +465,7 @@ export class FilesFolderViewComponent implements OnInit {
           .subscribe(() => {
             this.inodesGrabbed.emit();
             this.reloadEntries();
+            this.clipboardSvc.clear();
           })
         break;
 
@@ -466,7 +473,6 @@ export class FilesFolderViewComponent implements OnInit {
         break;
     }
   }
-
   /**
    * An einem GridViewItem wurde ein showProps() angefordert.
    * Wir behandeln das nicht selber sondern geben das 
@@ -519,17 +525,5 @@ export class FilesFolderViewComponent implements OnInit {
       result += inode.size;
     }
     return result;
-  }
-
-  /**
-   * Liefere das Set der selektierten INodes als Array
-   */
-  private get selectedINodesAsArray(): INode[] {
-
-    const inodes: INode[] = new Array<INode>();
-    this.selectedINodes.forEach(inode => {
-      inodes.push(inode);
-    });
-    return inodes;
   }
 }

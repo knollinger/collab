@@ -25,6 +25,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatSelectModule } from '@angular/material/select';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @NgModule({
   declarations: [],
@@ -53,7 +54,8 @@ import { MatSelectModule } from '@angular/material/select';
     MatSidenavModule,
     MatRippleModule,
     MatTreeModule,
-    MatSelectModule
+    MatSelectModule,
+    MatBadgeModule
   ],
   exports: [
     MatToolbarModule,
@@ -79,7 +81,8 @@ import { MatSelectModule } from '@angular/material/select';
     MatSidenavModule,
     MatRippleModule,
     MatTreeModule,
-    MatSelectModule
+    MatSelectModule,
+    MatBadgeModule
   ]
 })
 export class ModMaterialImportModule { }
