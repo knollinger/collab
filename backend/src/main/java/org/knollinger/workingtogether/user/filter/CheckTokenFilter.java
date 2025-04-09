@@ -10,7 +10,7 @@ import org.knollinger.workingtogether.user.exceptions.InvalidTokenException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
 import org.knollinger.workingtogether.user.models.TokenPayload;
 import org.knollinger.workingtogether.user.services.ICurrentUserService;
-import org.knollinger.workingtogether.user.services.ILoginService;
+import org.knollinger.workingtogether.user.services.ITokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -34,7 +34,7 @@ import lombok.extern.log4j.Log4j2;
 public class CheckTokenFilter extends OncePerRequestFilter
 {
     @Autowired
-    private ILoginService loginSvc;
+    private ITokenService tokenSvc;
 
     @Autowired
     private ICurrentUserService currentUserSvc;
@@ -131,7 +131,7 @@ public class CheckTokenFilter extends OncePerRequestFilter
         {
             try
             {
-                result = this.loginSvc.validateToken(authorization);
+                result = this.tokenSvc.validateToken(authorization);
             }
             catch (InvalidTokenException | ExpiredTokenException | TechnicalLoginException e)
             {

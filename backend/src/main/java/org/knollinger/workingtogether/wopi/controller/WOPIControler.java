@@ -17,8 +17,13 @@ import org.knollinger.workingtogether.filesys.models.INode;
 import org.knollinger.workingtogether.filesys.models.IPermissions;
 import org.knollinger.workingtogether.filesys.services.IDownloadService;
 import org.knollinger.workingtogether.filesys.services.IFileSysService;
+import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
+import org.knollinger.workingtogether.user.models.Group;
+import org.knollinger.workingtogether.user.models.TokenCreatorResult;
+import org.knollinger.workingtogether.user.models.TokenPayload;
 import org.knollinger.workingtogether.user.models.User;
 import org.knollinger.workingtogether.user.services.ICurrentUserService;
+import org.knollinger.workingtogether.user.services.ITokenService;
 import org.knollinger.workingtogether.wopi.dtos.WOPIFileInfoDTO;
 import org.knollinger.workingtogether.wopi.exceptions.TechnicalWOPIException;
 import org.knollinger.workingtogether.wopi.services.IWOPIBlobService;
@@ -40,6 +45,7 @@ import lombok.extern.log4j.Log4j2;
 
 /**
  * Intro:
+ * 
  * WOPI ist das WEB APPLICATION OPEN PLATFORM INTERFACE.
  * Dummerweise von MS, ist aber OpenSource.
  * 
@@ -64,13 +70,14 @@ public class WOPIControler
     private static final String LAUNCHER_FORM = "" // ggf von extern mittels JSOUP laden?
         + "<html>" //
         + "  <body onload=\"document.getElementById('form').submit()\">" //
-//        + "    <form style=\"display: none;\" id=\"form\" action=\"{baseUrl}?WOPISrc=http://{wopiHost}:{wopiPort}/wopi/files/{fileId}\" enctype=\"multipart/form-data\" method=\"post\">" //
         + "    <form style=\"display: none;\" id=\"form\" action=\"{baseUrl}?WOPISrc={wopiSrc}\" enctype=\"multipart/form-data\" method=\"post\">" //
         + "      <input name=\"access_token\" value=\"{token}\" type=\"text\"/>" //
         + "      <input type=\"submit\" value=\"Load Collabora Online\"/>" //
         + "    </form>" //
         + "  </body>" //
         + "</html>";
+
+    private static final long TWO_HOURS_IN_MILLIES = 2 * 60 * 60 * 1000L;
 
     @Autowired()
     private IFileSysService fileSysServive;
@@ -80,6 +87,9 @@ public class WOPIControler
 
     @Autowired()
     private ICurrentUserService currUserSvc;
+
+    @Autowired()
+    private ITokenService tokenUserSvc;
 
     @Autowired()
     private IWOPIBlobService wopiBlobSvc;
@@ -221,7 +231,7 @@ public class WOPIControler
             return LAUNCHER_FORM //
                 .replace("{baseUrl}", baseUrl) //
                 .replace("{wopiSrc}", this.createWOpiSrcUrl(httpReq, fileId).toExternalForm()) //
-                .replace("{token}", this.currUserSvc.get().getToken());
+                .replace("{token}", this.createAccessToken(inode));
         }
         catch (TechnicalWOPIException | TechnicalFileSysException | IOException e)
         {
@@ -235,8 +245,42 @@ public class WOPIControler
         {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
         }
+        catch (TechnicalLoginException e)
+        {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
+        }
     }
 
+    /**
+     * @param inode
+     * @return
+     * @throws TechnicalLoginException
+     */
+    private String createAccessToken(INode inode) throws TechnicalLoginException
+    {
+
+        TokenPayload currToken = this.currUserSvc.get();
+
+        List<Group> groups = new ArrayList<>();
+        for (Group g : currToken.getGroups())
+        {
+            if (g.getUuid().equals(inode.getGroup()))
+            {
+                groups.add(g);
+                break;
+            }
+        }
+        TokenCreatorResult accessToken = this.tokenUserSvc.createToken(currToken.getUser(), groups,
+            TWO_HOURS_IN_MILLIES);
+        return accessToken.token();
+    }
+
+    /**
+     * @param httpReq
+     * @param fileId
+     * @return
+     * @throws IOException
+     */
     private URL createWOpiSrcUrl(HttpServletRequest httpReq, UUID fileId) throws IOException
     {
         String proto = httpReq.getScheme();

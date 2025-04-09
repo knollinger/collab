@@ -10,7 +10,9 @@ import org.knollinger.workingtogether.user.exceptions.LoginNotFoundException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
 import org.knollinger.workingtogether.user.mapper.ILoginMapper;
 import org.knollinger.workingtogether.user.models.LoginResponse;
+import org.knollinger.workingtogether.user.models.TokenCreatorResult;
 import org.knollinger.workingtogether.user.services.ILoginService;
+import org.knollinger.workingtogether.user.services.ITokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -32,8 +34,13 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping(path = "/v1/session")
 public class LoginController
 {
+    private static final long TWO_HOURS_IN_MILLIES = 2 * 60 * 60 * 1000L;
+
     @Autowired
     private ILoginService loginSvc;
+
+    @Autowired
+    private ITokenService tokenSvc;
 
     @Autowired
     private ILoginMapper loginMapper;
@@ -73,7 +80,7 @@ public class LoginController
                 rsp = this.loginSvc.login(request.getEmail(), request.getPassword());
             }
 
-            Cookie cookie = this.createCookie(rsp);
+            Cookie cookie = this.createCookie(rsp.getToken());
             httpRsp.addCookie(cookie);
             return this.loginMapper.toDTO(rsp);
         }
@@ -99,10 +106,14 @@ public class LoginController
         {
             try
             {
-                LoginResponse rsp = this.loginSvc.refreshToken(token);
-                Cookie cookie = this.createCookie(rsp);
+                TokenCreatorResult result = this.tokenSvc.refreshToken(token, TWO_HOURS_IN_MILLIES);
+                Cookie cookie = this.createCookie(result.token());
                 httpRsp.addCookie(cookie);
-                return rsp;
+                
+                return LoginResponse.builder() //
+                    .expires(new Timestamp(result.expires())) //
+                    .token(result.token()) //
+                    .build();
             }
             catch (TechnicalLoginException e)
             {
@@ -125,9 +136,9 @@ public class LoginController
      * @param rememberMe 
      * @return
      */
-    private Cookie createCookie(LoginResponse rsp)
+    private Cookie createCookie(String token)
     {
-        Cookie cookie = new Cookie("Bearer", rsp.getToken());
+        Cookie cookie = new Cookie("Bearer", token);
         cookie.setMaxAge(-1);
         cookie.setHttpOnly(true);
         cookie.setPath("/");

@@ -12,7 +12,14 @@
             <app-files-properties-permissions class="tab-content"
                                               [(inode)]="inode"></app-files-properties-permissions>
         </mat-tab>
+
+        <mat-tab label="Hashtags">
+            <app-files-hashtags class="tab-content"
+                                [(inode)]="inode"
+                                (hashTagsChanged)="onHashTagChange($event)"></app-files-hashtags>
+        </mat-tab>
     </mat-tab-group>
+
 </mat-dialog-content>
 
 <mat-dialog-actions>

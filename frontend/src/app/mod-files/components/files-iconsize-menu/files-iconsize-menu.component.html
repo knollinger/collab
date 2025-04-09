@@ -6,11 +6,14 @@
 
 <mat-menu #sizeMenu="matMenu">
 
-    <button mat-menu-item
-            *ngFor="let size of iconSizes"
-            (click)="onIconSize(size)">
-        <mat-icon class="material-symbols-outlined">cloud_download</mat-icon>
-        {{size.text}}
-    </button>
+    <mat-radio-group [(ngModel)]="currSize">
+        <div mat-menu-item
+             *ngFor="let size of iconSizes"
+             (click)="onIconSize(size)"
+             class="disp-flex flex-alignitems-center">
+            <mat-radio-button color="primary" class="flex-0" [value]="size.size"></mat-radio-button>
+            <span class="flex-1">{{size.text}}</span>
+        </div>
+    </mat-radio-group>
 
 </mat-menu>

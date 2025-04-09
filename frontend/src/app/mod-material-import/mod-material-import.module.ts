@@ -26,6 +26,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTreeModule } from '@angular/material/tree';
 import { MatSelectModule } from '@angular/material/select';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatChipsModule } from '@angular/material/chips';
 
 @NgModule({
   declarations: [],
@@ -55,7 +56,8 @@ import { MatBadgeModule } from '@angular/material/badge';
     MatRippleModule,
     MatTreeModule,
     MatSelectModule,
-    MatBadgeModule
+    MatBadgeModule,
+    MatChipsModule
   ],
   exports: [
     MatToolbarModule,
@@ -82,7 +84,8 @@ import { MatBadgeModule } from '@angular/material/badge';
     MatRippleModule,
     MatTreeModule,
     MatSelectModule,
-    MatBadgeModule
+    MatBadgeModule,
+    MatChipsModule
   ]
 })
 export class ModMaterialImportModule { }

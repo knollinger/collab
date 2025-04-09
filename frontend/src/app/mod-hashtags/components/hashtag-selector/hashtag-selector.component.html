@@ -1,0 +1,33 @@
+<form class="full-width">
+  <mat-form-field class="full-width">
+    <mat-label>Hashtags</mat-label>
+    <mat-chip-grid color="primary"
+                   #chipGrid
+                   aria-label="Fruit selection">
+      <mat-chip-row highlighted
+                    color="primary"
+                    *ngFor="let hashCode of hashTags"
+                    (removed)="onRemove(hashCode)">
+        #{{hashCode}}
+        <button matChipRemove>
+          <mat-icon class="material-symbols-outlined">cancel</mat-icon>
+        </button>
+      </mat-chip-row>
+    </mat-chip-grid>
+    <input placeholder="Neuer Hashcode"
+           #hashCodeInput
+           [formControl]="hashTagCtrl"
+           [matChipInputFor]="chipGrid"
+           [matAutocomplete]="auto"
+           [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+           (matChipInputTokenEnd)="onAdd($event)" />
+    <mat-autocomplete #auto="matAutocomplete"
+                      hideSingleSelectionIndicator="true"
+                      (optionSelected)="onAutoCompleteSelected($event)">
+      <mat-option *ngFor="let hashCode of filteredHashTags | async"
+                  [value]="hashCode">
+        {{hashCode}}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+</form>

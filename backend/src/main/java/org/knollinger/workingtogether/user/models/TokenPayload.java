@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * 
+ */
 @Builder()
 @ToString
 public class TokenPayload
@@ -25,6 +28,13 @@ public class TokenPayload
     @Setter(AccessLevel.NONE)
     private List<Group> groups;
 
+    /**
+     * Erzeuge eine leere Instanz der TokenPayload. Das ganze dient dazu,
+     * null-Results zu vermeiden. In solchen Fällen kann einfach eine
+     * empty()-Instanz geliefert werden.
+     * 
+     * @return
+     */
     public static TokenPayload empty()
     {
 
@@ -33,6 +43,11 @@ public class TokenPayload
             .groups(new ArrayList<Group>()).build();
     }
 
+    /**
+     * Ist die aktuelle Instanz leer?
+     * 
+     * @return
+     */
     public boolean isEmpty()
     {
         return this.user.isEmpty();

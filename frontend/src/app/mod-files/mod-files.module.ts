@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModUserDataModule } from '../mod-userdata/mod-userdata.module';
+import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 
 import { FilesMainViewComponent } from './components/files-main-view/files-main-view.component';
@@ -27,8 +28,8 @@ import { FilesIconsizeMenuComponent } from './components/files-iconsize-menu/fil
 import { FilesListviewItemComponent } from './components/files-listview-item/files-listview-item.component';
 import { FilesPermissionsComponent } from './components/files-permissions/files-permissions.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { OfficePreviewComponent } from './components/office-preview/office-preview.component';
 import { FilesFolderviewToolbarComponent } from './components/files-folderview-toolbar/files-folderview-toolbar.component';
+import { FilesHashtagsComponent } from './components/files-properties-dialog/files-hashtags.component';
 
 @NgModule({
   declarations: [
@@ -51,13 +52,14 @@ import { FilesFolderviewToolbarComponent } from './components/files-folderview-t
     FilesIconsizeMenuComponent,
     FilesListviewItemComponent,
     FilesPermissionsComponent,
-    OfficePreviewComponent,
     FilesFolderviewToolbarComponent,
+    FilesHashtagsComponent,
   ],
   imports: [
     CommonModule,
     ModCommonsModule,
     ModUserDataModule,
+    ModHashTagsModule,
     ModMaterialImportModule,
     FormsModule,
     ReactiveFormsModule,

@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { INode } from '../../models/inode';
 import { INodeService } from '../../services/inode.service';
+import { HashTagService } from '../../../mod-hashtags/mod-hashtags.module';
 
 /**
  * 
@@ -35,6 +36,8 @@ export class FilesPropertiesDialogComponent implements OnInit {
     return this._inode;
   }
 
+  private newHashTags: string[] | null = null;
+
   disableSaveBtn: boolean = true;
 
   /**
@@ -45,7 +48,8 @@ export class FilesPropertiesDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     public data: FilesPropertiesDialogData,
     public dialogRef: MatDialogRef<FilesPropertiesDialogComponent>,
-    private inodeSvc: INodeService) {
+    private inodeSvc: INodeService,
+    private hashTagSvc: HashTagService) {
 
     this.inode = data.inode;
     this.disableSaveBtn = true;
@@ -57,11 +61,32 @@ export class FilesPropertiesDialogComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  /**
+   * 
+   * @param tags 
+   */
+  onHashTagChange(tags: string[]) {
+
+    this.newHashTags = tags;
+    this.disableSaveBtn = false;
+  }
+
   onSave() {
     this.inodeSvc.update(this.inode) //
       .pipe(takeUntilDestroyed(this.destroyRef)) //
       .subscribe(inode => {
-        this.dialogRef.close(inode);
+
+        if (!this.newHashTags) {
+          this.dialogRef.close(inode);
+        }
+        else {
+          this.hashTagSvc.saveHashTags(this.inode.uuid, this.newHashTags)
+            .pipe(takeUntilDestroyed(this.destroyRef)) //
+            .subscribe(_ => {
+              this.dialogRef.close(inode);
+            })
+        }
+
       })
   }
 }

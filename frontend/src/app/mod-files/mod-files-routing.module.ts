@@ -13,11 +13,16 @@ const routes: Routes = [
     canActivate: [SessionRequiredGuard],
   },
   {
-    path: ':uuid',
+    path: ':leftPanel',
     component: FilesMainViewComponent,
     canActivate: [SessionRequiredGuard],
   },
   
+  {
+    path: ':leftPanel/:rightPanel',
+    component: FilesMainViewComponent,
+    canActivate: [SessionRequiredGuard],
+  },
   {
     path: 'preview/:uuid',
     component: FilesPreviewComponent,

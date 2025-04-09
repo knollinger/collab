@@ -30,6 +30,9 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
   @Output()
   public viewModeChange: EventEmitter<string> = new EventEmitter<string>();
 
+  public leftPanelFolder: INode = INode.empty();
+  public rightPanelFolder: INode = INode.empty();
+
   public currentFolder: INode = INode.root();
   public inodes: INode[] = new Array<INode>();
   public path: INode[] = new Array<INode>();
@@ -46,6 +49,7 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
    */
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private titlebarSvc: TitlebarService,
     private inodeSvc: INodeService,
     private sessionSvc: SessionService) {
@@ -64,16 +68,33 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
 
     this.titlebarSvc.subTitle = 'Dateien';
-    this.route.params.subscribe(params => {
 
-      const uuid = params['uuid'] || this.sessionSvc.currentUser.userId;
-      this.inodeSvc.getINode(uuid)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(inode => {
+    this.route.params
+      // .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => { // takeUntilDestroyed
 
-        this.currentFolder = inode;
-      })
-    });
+        const leftPanelUUID = params['leftPanel'] || this.sessionSvc.currentUser.userId;
+        this.inodeSvc.getINode(leftPanelUUID)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(inode => {
+
+            this.leftPanelFolder = inode;
+
+            const rightPanelUUID = params['rightPanel'] || EINodeUUIDs.INODE_NONE;
+            if (!rightPanelUUID || rightPanelUUID === EINodeUUIDs.INODE_NONE) {
+              this.rightPanelFolder = INode.empty();
+              this.showSplit = false;
+            }
+            else {
+              this.inodeSvc.getINode(rightPanelUUID)
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe(inode => {
+                  this.rightPanelFolder = inode;
+                })
+              this.showSplit = true;
+            }
+          })
+      });
   }
 
   /*-------------------------------------------------------------------------*/
@@ -97,8 +118,40 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
 
     if (this.showSplit) {
       this.activeView = 0;
+      this.showSplit = false;
+      this.rightPanelFolder = INode.empty();
     }
-    this.showSplit = !this.showSplit;
+    else {
+      this.showSplit = true;
+      this.rightPanelFolder = this.leftPanelFolder;
+    }
+    const route = `/files/${this.leftPanelFolder.uuid}/${this.rightPanelFolder.uuid}`;
+    this.router.navigateByUrl(route);
+  }
+
+  /**
+   * 
+   * @param panelId 
+   * @param inode 
+   */
+  onOpenFolder(panelId: number, inode: INode) {
+
+    switch (panelId) {
+      case 0:
+        this.leftPanelFolder = inode;
+        break;
+
+      case 1:
+        this.rightPanelFolder = inode;
+        break;
+
+      default:
+        break;
+    }
+
+    // baue die Route und navigiere dorthin
+    const route = `/files/${this.leftPanelFolder.uuid}/${this.rightPanelFolder.uuid}`;
+    this.router.navigateByUrl(route);
   }
 
   /**

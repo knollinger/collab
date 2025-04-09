@@ -14,6 +14,7 @@ import { SessionService } from '../../../mod-session/session.module';
 import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
 import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { Permissions } from '../../models/permissions';
+import { WopiService } from '../../services/wopi.service';
 
 @Component({
   selector: 'app-folder-view',
@@ -37,7 +38,9 @@ export class FilesFolderViewComponent implements OnInit {
   @Input()
   set current(inode: INode) {
     this.currentFolder = inode;
-    this.refresh();
+    if (!this.currentFolder.isEmpty()) {
+      this.refresh();
+    }
   }
 
   @Input()
@@ -50,10 +53,15 @@ export class FilesFolderViewComponent implements OnInit {
   iconSize: number = 128;
 
   @Output()
+  openFolder: EventEmitter<INode> = new EventEmitter<INode>();
+
+  @Output()
   activated: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Output()
   inodesGrabbed: EventEmitter<void> = new EventEmitter<void>();
+
+  private wopiPatterns: RegExp[] = new Array<RegExp>();
 
   /**
    * 
@@ -74,7 +82,8 @@ export class FilesFolderViewComponent implements OnInit {
     private showDuplFilesSvc: ShowDuplicateFilesService,
     private propsSvc: FilesPropertiesService,
     private sessionSvc: SessionService,
-    private checkPermsSvc: CheckPermissionsService) {
+    private checkPermsSvc: CheckPermissionsService,
+    private wopiSvc: WopiService) {
 
   }
 
@@ -82,6 +91,17 @@ export class FilesFolderViewComponent implements OnInit {
    * 
    */
   ngOnInit(): void {
+
+    this.wopiSvc.getWOPIMimeTypes()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(mimeTypes => {
+        mimeTypes.map(type => {
+
+          const masked = type.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+          const regex = new RegExp(masked, 'g');
+          this.wopiPatterns.push(regex);
+        })
+      });
     this.refresh();
   }
 
@@ -90,14 +110,17 @@ export class FilesFolderViewComponent implements OnInit {
    */
   private refresh() {
 
-    this.reloadEntries();
-    this.loadPathInfo();
+    if (!this.currentFolder.isEmpty()) {
+      this.reloadEntries();
+      this.loadPathInfo();
+    }
   }
 
   /**
    * 
    */
   public reloadEntries() {
+
 
     this.inodeSvc.getAllChilds(this.currentFolder.uuid)
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -223,9 +246,9 @@ export class FilesFolderViewComponent implements OnInit {
   }
 
   /**
-   * Auf eines der GridView-Items wurde ein FileDrop durchgeführt.
-   * Das behandeln wir hier nicht sondern geben das einfach an den
-   * Parent weiter.
+   * Ein FileDrop wurde ausgelöst. Entweder auf dem Folder
+   * selbst oder auf einem seiner Childs. Lade die Files
+   * hoch
    * 
    */
   onFilesDropped(event: FilesDroppedEvent) {
@@ -307,21 +330,29 @@ export class FilesFolderViewComponent implements OnInit {
 
   /**
    * Ein Open-Request wurde auf einem Item ausgelöst. Wenn es sich um eine
-   * Directory-Inode handelt, so wird dorthin navigiert.
+   * Directory-Inode handelt, so wird dorthin navigiert. Die Navigation übernimmt
+   * der Parent.
    * 
-   * Anderenfalls wird ein preview()-Event ausgelöst- Soll sich doch der 
-   * Parent drum kümmern ob, wo und wie er die Datei-Vorschau anzeigt.
+   * Anderenfalls wird geprüft, ob es sich um ein OfficeDoc handelt. In diesem
+   * Fall wird der Collabra-Editor in einem neuen Tab gestartet. Wenn das nicht
+   * def Fall ist, wird die Preview-Component anktiviert.
+   * 
    * 
    * @param inode 
    */
   onOpen(inode: INode) {
 
     if (inode.isDirectory()) {
-      this.currentFolder = inode;
-      this.refresh();
+      this.openFolder.emit(inode);
     }
     else {
-      this.previewINode = inode;
+
+      if (this.isOfficeDocument(inode)) {
+        this.openOfficeDocument(inode);
+      }
+      else {
+        this.previewINode = inode;
+      }
     }
   }
 
@@ -330,6 +361,40 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onClosePreview() {
     this.previewINode = INode.empty();
+  }
+
+  /**
+   * Handelt es sich um ein Office-Dokument?
+   * 
+   * Solche Dokumente werden nicht im Preview angezeigt sondernn
+   * als eigener BrowserTab via Collabra
+   * 
+   * @param inode 
+   * @returns 
+   */
+  private isOfficeDocument(inode: INode): boolean {
+
+    for(let pattern of this.wopiPatterns) {
+      if (inode.type.match(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Öffne die INode als eigenen Tab in Collabra
+   * 
+   * @param inode 
+   */
+  private openOfficeDocument(inode: INode) {
+
+    const link = document.createElement("a");
+    link.href = this.wopiSvc.getLauncherFormUrl(inode);
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 
   /**

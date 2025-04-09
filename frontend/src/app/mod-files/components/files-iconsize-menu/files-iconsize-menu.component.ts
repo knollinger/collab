@@ -30,6 +30,7 @@ export class FilesIconsizeMenuComponent {
     new IconSize(192, "Groß"),
     new IconSize(256, "Sehr groß")  ]
 
+  currSize: number = 128;
   triggerPosX: string = '';
   triggerPosY: string = '';
 
@@ -54,6 +55,7 @@ export class FilesIconsizeMenuComponent {
 
   onIconSize(size: IconSize) {
 
+    this.currSize = size.size;
     this.iconSize.emit(size.size);
   }
 }

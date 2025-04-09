@@ -51,7 +51,6 @@ export class FilesPreviewComponent implements OnInit {
       mimeTypes.map(type => {
         
         const masked = type.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-        console.log(`${type} => ${masked}`);
         const regex = new RegExp(masked, 'g');
         this.patternsToType.set(regex, 'office');
       })
