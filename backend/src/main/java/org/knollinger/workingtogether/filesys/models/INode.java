@@ -61,7 +61,7 @@ public class INode
      */
     public boolean isDirectory()
     {
-        return this.type.equalsIgnoreCase("inode/directory");
+        return this.type.toLowerCase().startsWith("inode/directory");
     }
 
     /**

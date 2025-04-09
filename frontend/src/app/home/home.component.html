@@ -1,10 +1,17 @@
-<div class="full-height scrollable middle-padding">
+<div class="full-height scrollable middle-padding disp-flex flex-col">
 
-    <h1>Willkommen!</h1>
+    <h1 class="flex-0">Willkommen!</h1>
 
-    <p>
-        Diese Seite ist einfach nur ein Versuch, eine Collaboration-Suite
-        als reine Open-Source-Lösung zu implementieren.
-    </p>
-    
+    <div class="flex-1 workspace">
+
+        <mat-card class="app-btn"
+                  *ngFor="let app of applications"
+                  [routerLink]="app.url">
+            <div class="icon-cnr">
+                <mat-icon class="material-symbols-outlined">{{app.icon}}</mat-icon>
+            </div>
+            <h2>{{app.name}}</h2>
+        </mat-card>
+    </div>
+
 </div>

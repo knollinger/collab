@@ -37,18 +37,24 @@ public class CreateUserServiceImpl implements ICreateUserService
     private static final String SQL_CREATE_GROUP = "" //
         + "insert into groups" //
         + "  set uuid=?, name=?, isPrimary=?";
-    
+
     private static final String SQL_ADD_TO_GROUP = "" //
         + "insert into groupMembers set parentId=?, memberId=?";
 
     private static final String SQL_SAVE_AVATAR = "" //
         + "update users set avatar=?, avatarType=?" //
         + "  where uuid=?";
-    
-    private static final UUID[] DEFAULT_GROUPS = {
-        EWellknownGroupIDs.GROUP_USERS.value()
-    };
 
+    private static final UUID[] DEFAULT_GROUPS = {EWellknownGroupIDs.GROUP_USERS.value()};
+
+    public static RNameAndMimetype COMMON_DIRS[] = {
+        new RNameAndMimetype("Dokumente", "inode/directory+documents"),
+        new RNameAndMimetype("Musik", "inode/directory+sound"),
+        new RNameAndMimetype("Videos", "inode/directory+video"),
+        new RNameAndMimetype("Bilder", "inode/directory+image"),
+        new RNameAndMimetype("Notizen", "inode/directory"),
+        new RNameAndMimetype("Whiteboards", "inode/directory")
+    };
 
     @Autowired
     IDbService dbSvc;
@@ -74,7 +80,7 @@ public class CreateUserServiceImpl implements ICreateUserService
             user = this.createAccount(accountName, email, surName, lastName, conn);
             this.createHomeDirectory(user, conn);
             this.createUserGroup(user, conn);
-            this.addToDefaultGroups(user,  conn);
+            this.addToDefaultGroups(user, conn);
 
             if (avatar != null)
             {
@@ -171,18 +177,18 @@ public class CreateUserServiceImpl implements ICreateUserService
             stmt.setString(8, "inode/directory");
             stmt.executeUpdate();
 
-            String[] commonDirs = {"Dokumente", "Musik", "Videos", "Bilder", "Notizen", "Whiteboards"};
-            for (String dirName : commonDirs)
+//            String[] commonDirs = {"Dokumente", "Musik", "Videos", "Bilder", "Notizen", "Whiteboards"};
+            for (RNameAndMimetype commonDir: COMMON_DIRS)
             {
                 UUID newUUID = UUID.randomUUID();
                 stmt.setString(1, newUUID.toString());
                 stmt.setString(2, user.getUserId().toString());
-                stmt.setString(3, dirName);
+                stmt.setString(3, commonDir.name);
                 stmt.setString(4, user.getUserId().toString());
                 stmt.setString(5, user.getUserId().toString());
                 stmt.setInt(6, 0700); // read, write, delete for owner and group
                 stmt.setLong(7, 0);
-                stmt.setString(8, "inode/directory");
+                stmt.setString(8, commonDir.mimeType);
                 stmt.executeUpdate();
             }
         }
@@ -223,11 +229,11 @@ public class CreateUserServiceImpl implements ICreateUserService
         List<UUID> groups = new ArrayList<>();
         groups.add(user.getUserId());
         groups.addAll(Arrays.asList(DEFAULT_GROUPS));
-        
+
         try
         {
             stmt = conn.prepareStatement(SQL_ADD_TO_GROUP);
-            
+
             for (UUID groupId : groups)
             {
                 stmt.setString(1, groupId.toString());
@@ -263,5 +269,10 @@ public class CreateUserServiceImpl implements ICreateUserService
         {
             this.dbSvc.closeQuitely(stmt);
         }
+    }
+
+    public record RNameAndMimetype(String name, String mimeType)
+    {
+
     }
 }

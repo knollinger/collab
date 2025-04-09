@@ -1,5 +1,9 @@
 package org.knollinger.workingtogether.filesys.controller;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import org.knollinger.workingtogether.filesys.services.IContentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,10 +31,12 @@ public class ContentTypeController
      * @return die URI auf das Image
      */
     @GetMapping("/{mainType}/{subType}")
-    public RedirectView getContentTypeIcon(
-        @PathVariable("mainType") String mainType,
+    public RedirectView getContentTypeIcon( //
+        @PathVariable("mainType") String mainType, //
         @PathVariable("subType") String subType)
     {
-        return new RedirectView(this.contentTypeSvc.getTypeIcon(mainType, subType));
+        String main = URLDecoder.decode(mainType, StandardCharsets.UTF_8);
+        String sub = URLDecoder.decode(subType, StandardCharsets.UTF_8);
+        return new RedirectView(this.contentTypeSvc.getTypeIcon(main, sub));
     }
 }

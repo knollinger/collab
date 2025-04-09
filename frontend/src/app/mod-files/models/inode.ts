@@ -155,6 +155,6 @@ export class INode {
      * @returns 
      */
     public isDirectory(): boolean {
-        return this.type === 'inode/directory';
+        return this.type.toLowerCase().startsWith('inode/directory');
     }
 }
