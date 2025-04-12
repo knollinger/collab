@@ -26,6 +26,7 @@ export class INodeService {
       ['copyINode', 'v1/filesys/copy'],
       ['moveINode', 'v1/filesys/move'],
       ['createFolder', 'v1/filesys/createFolder/{1}/{2}'],
+      ['createDocument', 'v1/filesys/createDocument/{1}/{2}/{3}'],
       ['updateINode', 'v1/filesys/update'],
       ['getContent', 'v1/filecontent/{1}'],
     ]
@@ -164,6 +165,22 @@ export class INodeService {
   public createFolder(uuid: string, name: string): Observable<INode> {
 
     const url = this.backendRouter.getRouteForName('createFolder', INodeService.routes, uuid, name);
+    return this.httpClient.put<IINode>(url, null).pipe(
+      map(json => {
+        return INode.fromJSON(json);
+      })
+    );
+  }
+
+  /**
+   * 
+   * @param uuid 
+   * @param name 
+   * @returns 
+   */
+  public createDocument(uuid: string, name: string, contentType: string): Observable<INode> {
+
+    const url = this.backendRouter.getRouteForName('createDocument', INodeService.routes, uuid, name, contentType);
     return this.httpClient.put<IINode>(url, null).pipe(
       map(json => {
         return INode.fromJSON(json);

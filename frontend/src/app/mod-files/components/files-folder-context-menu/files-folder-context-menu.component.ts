@@ -1,9 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 import { INode } from '../../models/inode';
 import { ClipboardService } from '../../services/clipboard.service';
 import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { Permissions } from '../../models/permissions';
+import { CreateMenuService } from '../../services/create-menu.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CreateMenuItemDesc, CreateMenuItemGroup } from '../../models/create-menu-item';
 
 @Component({
   selector: 'app-files-folder-context-menu',
@@ -11,6 +14,8 @@ import { Permissions } from '../../models/permissions';
   styleUrls: ['./files-folder-context-menu.component.css']
 })
 export class FilesFolderContextMenuComponent implements OnInit {
+
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild(MatMenuTrigger)
   trigger: MatMenuTrigger | undefined;
@@ -22,6 +27,9 @@ export class FilesFolderContextMenuComponent implements OnInit {
   createFolder: EventEmitter<void> = new EventEmitter();
 
   @Output()
+  createDocument: EventEmitter<CreateMenuItemDesc> = new EventEmitter<CreateMenuItemDesc>();
+  
+  @Output()
   paste: EventEmitter<void> = new EventEmitter();
 
   @Output()
@@ -32,13 +40,15 @@ export class FilesFolderContextMenuComponent implements OnInit {
 
   triggerPosX: string = '';
   triggerPosY: string = '';
+  createGroups: CreateMenuItemGroup[] = new Array<CreateMenuItemGroup>();
 
   /**
    * 
    */
   constructor(
     private checkPermsSvc: CheckPermissionsService,
-    private clipboardSvc: ClipboardService) {
+    private clipboardSvc: ClipboardService,
+    private createMenuSvc: CreateMenuService) {
 
   }
 
@@ -46,6 +56,12 @@ export class FilesFolderContextMenuComponent implements OnInit {
    * 
    */
   ngOnInit(): void {
+
+    this.createMenuSvc.getMenuGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(groups => {
+        this.createGroups = groups;
+      })
   }
 
   /**
@@ -80,8 +96,18 @@ export class FilesFolderContextMenuComponent implements OnInit {
     return this.clipboardSvc.inodes.length
   }
 
+  /**
+   * 
+   */
   onCreateFolder() {
     this.createFolder.emit();
+  }
+  
+  /**
+   * 
+   */
+  onCreateDocument(desc: CreateMenuItemDesc) {
+    this.createDocument.emit(desc);
   }
 
   /**
@@ -91,19 +117,31 @@ export class FilesFolderContextMenuComponent implements OnInit {
     this.paste.emit();
   }
 
+  /**
+   * 
+   */
   onDownload() {
     this.download.emit(this.inode);
   }
 
+  /**
+   * 
+   */
   onShowProperties() {
     this.showProps.emit(this.inode);
   }
 
+  /**
+   * 
+   */
   get isReadAllowed(): boolean {
 
     return this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode);
   }
 
+  /**
+   * 
+   */
   get isWriteAllowed(): boolean {
 
     return this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.inode);

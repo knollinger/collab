@@ -15,6 +15,7 @@ import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode
 import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { Permissions } from '../../models/permissions';
 import { WopiService } from '../../services/wopi.service';
+import { CreateMenuItemDesc } from '../../models/create-menu-item';
 
 @Component({
   selector: 'app-folder-view',
@@ -174,9 +175,35 @@ export class FilesFolderViewComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(name => {
 
-        this.inodeSvc.createFolder(this.currentFolder.uuid, name).subscribe(() => {
-          this.reloadEntries();
-        })
+        if (name) {
+          this.inodeSvc.createFolder(this.currentFolder.uuid, name)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              this.reloadEntries();
+            })
+        }
+      })
+  }
+
+  /**
+   * 
+   * @param contentType 
+   */
+  public onCreateDocument(desc: CreateMenuItemDesc) {
+
+    this.inputBoxSvc.showInputBox('Ein neues Dokument anlegen', 'Name')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(name => {
+
+        if (name) {
+
+          name = `${name}.${desc.ext}`;
+          this.inodeSvc.createDocument(this.currentFolder.uuid, name, desc.contentType)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(() => {
+              this.reloadEntries();
+            })
+        }
       })
   }
 
@@ -374,7 +401,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   private isOfficeDocument(inode: INode): boolean {
 
-    for(let pattern of this.wopiPatterns) {
+    for (let pattern of this.wopiPatterns) {
       if (inode.type.match(pattern)) {
         return true;
       }

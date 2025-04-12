@@ -30,6 +30,7 @@ import { FilesPermissionsComponent } from './components/files-permissions/files-
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesFolderviewToolbarComponent } from './components/files-folderview-toolbar/files-folderview-toolbar.component';
 import { FilesHashtagsComponent } from './components/files-properties-dialog/files-hashtags.component';
+import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
 
 @NgModule({
   declarations: [
@@ -54,6 +55,7 @@ import { FilesHashtagsComponent } from './components/files-properties-dialog/fil
     FilesPermissionsComponent,
     FilesFolderviewToolbarComponent,
     FilesHashtagsComponent,
+    FilesCreateMenuComponent,
   ],
   imports: [
     CommonModule,

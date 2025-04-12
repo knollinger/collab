@@ -1,5 +1,35 @@
 [
 	{
+		"name": "Ordner",
+		"items": [
+			{
+				"name": "Einfacher Ordner",
+				"ext": "",
+				"contentType": "inode/directory"
+			},			
+			{
+				"name": "Bilder-Ordner",
+				"ext": "",
+				"contentType": "inode/directory+image"
+			},
+			{
+				"name": "Dokumenten-Ordner",
+				"ext": "",
+				"contentType": "inode/directory+documents"
+			},
+			{
+				"name": "Musik-Ordner",
+				"ext": "",
+				"contentType": "inode/directory+sound"
+			},
+			{
+				"name": "Video-Ordner",
+				"ext": "",
+				"contentType": "inode/directory+video"
+			}
+		]
+	},
+	{
 		"name": "Allgemein",
 		"items": [
 			{

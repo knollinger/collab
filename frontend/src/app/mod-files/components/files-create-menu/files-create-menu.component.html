@@ -1,0 +1,8 @@
+<button mat-menu-item
+        [matMenuTriggerFor]="menu">{{group.name}}</button>
+
+<mat-menu #menu>
+    <button mat-menu-item
+            *ngFor="let item of group.items"
+            (click)="onClick(item)">{{item.name}}</button>
+</mat-menu>

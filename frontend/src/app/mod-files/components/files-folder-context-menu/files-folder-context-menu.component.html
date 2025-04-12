@@ -6,11 +6,12 @@
 
 <mat-menu #contextMenu="matMenu">
 
-    <!-- Einen neuen Ordner anlegen -->
+    <!-- Das SubMenu mit den Create-Optionen -->
     <button mat-menu-item
             [disabled]="!isWriteAllowed"
-            (click)="onCreateFolder()">
-        <mat-icon class="material-symbols-outlined">create_new_folder</mat-icon>Einen Ordner anlegen
+            [matMenuTriggerFor]="createMenu">
+        <mat-icon class="material-symbols-outlined">add</mat-icon>
+        Neu
     </button>
 
     <!-- Den Ordner als ZIP herunter laden -->
@@ -40,3 +41,11 @@
         <mat-icon class="material-symbols-outlined">settings</mat-icon>Eigenschafften
     </button>
 </mat-menu>
+
+<mat-menu #createMenu>
+    <app-files-create-menu *ngFor="let group of createGroups"
+                           [group]="group"
+                           (click)="onCreateDocument($event)"></app-files-create-menu>
+</mat-menu>
+
+<mat-menu menu0></mat-menu>
