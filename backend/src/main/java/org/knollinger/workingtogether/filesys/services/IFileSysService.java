@@ -75,6 +75,19 @@ public interface IFileSysService {
      * @throws AccessDeniedException 
      */
     public INode createFolder(UUID parentId, String name) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
+    
+    /**
+     * 
+     * @param parentId
+     * @param name
+     * @param contentType
+     * @return
+     * @throws TechnicalFileSysException
+     * @throws NotFoundException
+     * @throws DuplicateEntryException
+     * @throws AccessDeniedException 
+     */
+    public INode createDocument(UUID parentId, String name, String contentType) throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
 
     /**
      * @param inode

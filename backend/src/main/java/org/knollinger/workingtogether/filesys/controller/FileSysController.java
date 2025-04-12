@@ -296,6 +296,43 @@ public class FileSysController
      * @param name
      * @return
      */
+    @PutMapping(path = "/createDocument/{parentId}/{name}/{contentType}")
+    public INodeDTO createDocument(//
+        @PathVariable("parentId") UUID parentId, //
+        @PathVariable("name") String name, //
+        @PathVariable("contentType") String contentType)
+    {
+        try
+        {
+            INode inode = this.fileSysService.createDocument(//
+                parentId, //
+                URLDecoder.decode(name, StandardCharsets.UTF_8),
+                URLDecoder.decode(contentType, StandardCharsets.UTF_8));
+            return this.fileSysMapper.toDTO(inode);
+        }
+        catch (NotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+        }
+        catch (DuplicateEntryException e)
+        {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
+        }
+        catch (TechnicalFileSysException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param parentId
+     * @param name
+     * @return
+     */
     @PostMapping(path = "/update")
     public INodeDTO updateINode(//
         @RequestBody() INodeDTO inode)

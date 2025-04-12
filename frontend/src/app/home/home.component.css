@@ -31,12 +31,13 @@ h1, h2 {
 
 .icon-cnr {
     position: relative;
-    margin-bottom: 2rem;
 }
 
-mat-icon {
+img {
     position: relative;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
+    width: 128px;
+    height: 128px;
 }

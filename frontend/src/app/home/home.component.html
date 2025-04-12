@@ -8,7 +8,7 @@
                   *ngFor="let app of applications"
                   [routerLink]="app.url">
             <div class="icon-cnr">
-                <mat-icon class="material-symbols-outlined">{{app.icon}}</mat-icon>
+                <img [src]="app.icon">
             </div>
             <h2>{{app.name}}</h2>
         </mat-card>

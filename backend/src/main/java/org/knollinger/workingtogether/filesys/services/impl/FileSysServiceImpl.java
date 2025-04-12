@@ -1,5 +1,7 @@
 package org.knollinger.workingtogether.filesys.services.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,9 +16,9 @@ import org.knollinger.workingtogether.filesys.exceptions.AccessDeniedException;
 import org.knollinger.workingtogether.filesys.exceptions.DuplicateEntryException;
 import org.knollinger.workingtogether.filesys.exceptions.NotFoundException;
 import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysException;
-import org.knollinger.workingtogether.filesys.models.IPermissions;
 import org.knollinger.workingtogether.filesys.models.EWellknownINodeIDs;
 import org.knollinger.workingtogether.filesys.models.INode;
+import org.knollinger.workingtogether.filesys.models.IPermissions;
 import org.knollinger.workingtogether.filesys.services.ICheckPermsService;
 import org.knollinger.workingtogether.filesys.services.IFileSysService;
 import org.knollinger.workingtogether.user.models.TokenPayload;
@@ -37,9 +39,13 @@ public class FileSysServiceImpl implements IFileSysService
         + "  where `parent`=?" //
         + "  order by `name` asc";
 
-    private static final String SQL_CREATE_INODE = "" //
+    private static final String SQL_CREATE_FOLDER = "" //
         + "insert into `inodes`" // 
         + "  set `uuid`=?, `parent`=?, `owner`=?, `group`=?, `perms`=?, `name`=?, `size`=?, `type`=?";
+
+    private static final String SQL_CREATE_DOCUMENT = "" //
+        + "insert into `inodes`" // 
+        + "  set `uuid`=?, `parent`=?, `owner`=?, `group`=?, `perms`=?, `name`=?, `size`=?, `type`=?, data=?";
 
     private static final String SQL_UPDATE_INODE = "" //
         + "update `inodes`" //
@@ -420,7 +426,7 @@ public class FileSysServiceImpl implements IFileSysService
                 IPermissions.GRP_WRITE | //
                 IPermissions.GRP_DELETE;
             
-            stmt = conn.prepareStatement(SQL_CREATE_INODE);
+            stmt = conn.prepareStatement(SQL_CREATE_FOLDER);
             stmt.setString(1, uuid.toString());
             stmt.setString(2, parentId.toString());
             stmt.setString(3, userId.toString());
@@ -458,6 +464,72 @@ public class FileSysServiceImpl implements IFileSysService
         }
     }
 
+    /**
+     *
+     */
+    @Override
+    public INode createDocument(UUID parentId, String name, String contentType)
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
+    {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        String resourcePath = String.format("templates/%1$s.template", contentType);
+        try(InputStream in = this.getClass().getClassLoader().getResourceAsStream(resourcePath))
+        {
+            conn = this.dbService.openConnection();
+
+            this.getINode(parentId, IPermissions.WRITE, conn); // check existence and write perm for parent
+
+            UUID uuid = UUID.randomUUID();
+            TokenPayload token = this.currUserSvc.get();
+
+            UUID userId = token.getUser().getUserId();
+            int perms = IPermissions.USR_READ | //
+                IPermissions.USR_WRITE | //
+                IPermissions.USR_DELETE | //
+                IPermissions.GRP_READ | //
+                IPermissions.GRP_WRITE | //
+                IPermissions.GRP_DELETE;
+            
+            stmt = conn.prepareStatement(SQL_CREATE_DOCUMENT);
+            stmt.setString(1, uuid.toString());
+            stmt.setString(2, parentId.toString());
+            stmt.setString(3, userId.toString());
+            stmt.setString(4, userId.toString());
+            stmt.setInt(5, perms);
+            stmt.setString(6, name.trim());
+            stmt.setLong(7, 0);
+            stmt.setString(8, contentType);
+            stmt.setBinaryStream(9, in);
+            stmt.executeUpdate();
+
+            Timestamp now = new Timestamp(System.currentTimeMillis());
+            return INode.builder() //
+                .uuid(uuid) //
+                .parent(parentId) //
+                .name(name.trim()) //
+                .owner(userId) //
+                .group(userId) //
+                .size(0) //
+                .type("inode/directory") //
+                .created(now) //
+                .modified(now) //
+                .perms(perms) //
+                .effectivePerms(IPermissions.READ | IPermissions.WRITE | IPermissions.DELETE)
+                .build();
+        }
+        catch (SQLException | IOException e)
+        {
+            String msg = String.format("Der Ordner '%1$s' konnte nicht angelegt werden", e);
+            throw new TechnicalFileSysException(msg, e);
+        }
+        finally
+        {
+            this.dbService.closeQuitely(stmt);
+            this.dbService.closeQuitely(conn);
+        }
+    }
+    
     /**
      * @throws AccessDeniedException 
      *
