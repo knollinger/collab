@@ -21,4 +21,8 @@ public class LoginRequestDTO
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
     private String newPwd;
+    
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    private boolean keepLoggedIn;
 }

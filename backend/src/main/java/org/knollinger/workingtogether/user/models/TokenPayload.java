@@ -27,6 +27,10 @@ public class TokenPayload
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
     private List<Group> groups;
+    
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    private long expires;
 
     /**
      * Erzeuge eine leere Instanz der TokenPayload. Das ganze dient dazu,

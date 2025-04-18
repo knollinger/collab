@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +13,6 @@ import org.knollinger.workingtogether.user.exceptions.LoginNotFoundException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalGroupException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
 import org.knollinger.workingtogether.user.models.Group;
-import org.knollinger.workingtogether.user.models.LoginResponse;
 import org.knollinger.workingtogether.user.models.TokenCreatorResult;
 import org.knollinger.workingtogether.user.models.User;
 import org.knollinger.workingtogether.user.services.IListGroupService;
@@ -31,6 +29,8 @@ import org.springframework.stereotype.Service;
 public class LoginServiceImpl implements ILoginService
 {
     private static final long TWO_HOURS_IN_MILLIES = 2 * 60 * 60 * 1000;
+    private static final long NINETY_DAYS_IN_MILLIES = 90 * 24 * 60 * 60 * 1000;
+    
 
     private static final String SQL_LOGIN = "" //
         + "select * from users" //
@@ -63,7 +63,7 @@ public class LoginServiceImpl implements ILoginService
      *
      */
     @Override
-    public LoginResponse login(String email, String password) throws LoginNotFoundException, TechnicalLoginException
+    public TokenCreatorResult login(String email, String password, boolean keepLoggedIn) throws LoginNotFoundException, TechnicalLoginException
     {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -87,11 +87,8 @@ public class LoginServiceImpl implements ILoginService
             User user = this.getUser(email, conn);
             List<Group> groups = this.listGroupSvc.getGroupsByUser(user);
 
-            TokenCreatorResult tokenBuilderResult = this.tokenSvc.createToken(user, groups, TWO_HOURS_IN_MILLIES);
-            return LoginResponse.builder() //
-                .token(tokenBuilderResult.token()) //
-                .expires(new Timestamp(tokenBuilderResult.expires())) //
-                .build();
+            long ttl = keepLoggedIn ? NINETY_DAYS_IN_MILLIES : TWO_HOURS_IN_MILLIES;
+            return this.tokenSvc.createToken(user, groups, ttl);
         }
         catch (SQLException | NoSuchAlgorithmException | TechnicalGroupException e)
         {
@@ -112,7 +109,7 @@ public class LoginServiceImpl implements ILoginService
      *
      */
     @Override
-    public LoginResponse changePwd(String email, String password, String newPwd)
+    public TokenCreatorResult changePwd(String email, String password, String newPwd, boolean keepLoggedIn)
         throws LoginNotFoundException, TechnicalLoginException
     {
         Connection conn = null;
@@ -138,11 +135,8 @@ public class LoginServiceImpl implements ILoginService
             User user = this.getUser(email, conn);
             List<Group> groups = this.listGroupSvc.getGroupsByUser(user);
 
-            TokenCreatorResult tokenBuilderResult = this.tokenSvc.createToken(user, groups, TWO_HOURS_IN_MILLIES);
-            return LoginResponse.builder() //
-                .token(tokenBuilderResult.token()) //
-                .expires(new Timestamp(tokenBuilderResult.expires())) //
-                .build();
+            long ttl = keepLoggedIn ? NINETY_DAYS_IN_MILLIES : TWO_HOURS_IN_MILLIES;
+            return this.tokenSvc.createToken(user, groups, ttl);
         }
         catch (SQLException | NoSuchAlgorithmException | TechnicalGroupException e)
         {

@@ -26,7 +26,8 @@ export class SessionRequiredGuard  {
     state: RouterStateSnapshot): boolean {
 
     if (this.sessionService.currentUser.isEmpty()) {
-      const url = `/session/login?redirUrl=${state.url}`;
+      const url = `/init?redirUrl=${state.url}`;
+      console.log(url);
       this.router.navigateByUrl(url);
       return false;
     }

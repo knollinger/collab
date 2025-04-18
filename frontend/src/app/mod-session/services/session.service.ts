@@ -48,15 +48,14 @@ export class SessionService {
    * @param rememberMe 
    * @returns 
    */
-  login(email: string, password: string, newPwd?: string): Observable<LoginResponse> {
+  public login(email: string, password: string, keepLoggedIn: boolean, newPwd?: string): Observable<LoginResponse> {
 
     const url = this.backendRouter.getRouteForName('login', SessionService.routes);
-    const req = new LoginRequest(email, password, newPwd);
+    const req = new LoginRequest(email, password, keepLoggedIn, newPwd);
     return this.http.post<ILoginResponse>(url, req.toJSON()).pipe(
       map(json => {
         const rsp = LoginResponse.fromJSON(json);
         this.parseToken(rsp.token);
-
         this.startRefreshTimer();
         return rsp;
       })
@@ -66,7 +65,7 @@ export class SessionService {
   /**
    * 
    */
-  logout(): Observable<void> {
+  public logout(): Observable<void> {
 
     const url = this.backendRouter.getRouteForName('logout', SessionService.routes);
     return this.http.delete(url).pipe(
@@ -80,10 +79,26 @@ export class SessionService {
   }
 
   /**
+   * 
+   * @returns 
+   */
+  public refreshToken(): Observable<LoginResponse> {
+
+    const url = this.backendRouter.getRouteForName('refreshToken', SessionService.routes);
+    return this.http.get<ILoginResponse>(url).pipe(
+      map(json => {
+
+        const rsp = LoginResponse.fromJSON(json);
+        this.parseToken(rsp.token);
+        return rsp;
+      })
+    );
+  }
+
+  /**
    * liefere den aktuellen Benutzer oder User.empty() wenn kein Login vor liegt
    */
   public get currentUser(): User {
-
     return this._currentUser;
   }
 
@@ -135,21 +150,6 @@ export class SessionService {
           })
       }, 60000);
     }
-  }
-
-  /**
-   * 
-   * @returns 
-   */
-  private refreshToken(): Observable<void> {
-
-    const url = this.backendRouter.getRouteForName('refreshToken', SessionService.routes);
-    return this.http.get<ILoginResponse>(url).pipe(
-      map(rsp => {
-        this.parseToken(rsp.token);
-        return;
-      })
-    );
   }
 
   /**

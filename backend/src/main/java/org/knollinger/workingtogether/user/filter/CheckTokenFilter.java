@@ -46,11 +46,8 @@ public class CheckTokenFilter extends OncePerRequestFilter
      */
     public CheckTokenFilter()
     {
-        this.excluded.add(Pattern.compile("/v1/session/login"));
-
-        // Der OfficeIntegration-Kram verwendet keine Cookies 
-        // sondern RequestParameter. Eine Sec-Katastophe!
-//        this.excluded.add(Pattern.compile("/wopi/files/.*"));
+        this.excluded.add(Pattern.compile("/v1/session/.*"));
+        this.excluded.add(Pattern.compile("/icons/.*"));
     }
 
     /**
@@ -177,6 +174,7 @@ public class CheckTokenFilter extends OncePerRequestFilter
             {
                 if (cookie.getName().equalsIgnoreCase("Bearer"))
                 {
+                    System.err.println(cookie.getValue());
                     return cookie.getValue();
                 }
             }

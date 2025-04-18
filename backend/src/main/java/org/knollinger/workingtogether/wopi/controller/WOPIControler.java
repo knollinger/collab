@@ -70,7 +70,7 @@ public class WOPIControler
     private static final String LAUNCHER_FORM = "" // ggf von extern mittels JSOUP laden?
         + "<html>" //
         + "  <body onload=\"document.getElementById('form').submit()\">" //
-        + "    <form style=\"display: none;\" id=\"form\" action=\"{baseUrl}?WOPISrc={wopiSrc}\" enctype=\"multipart/form-data\" method=\"post\">" //
+        + "    <form style=\"display: none;\" id=\"form\" action=\"{baseUrl}?WOPISrc={wopiSrc}&lang={lang}\" enctype=\"multipart/form-data\" method=\"post\">" //
         + "      <input name=\"access_token\" value=\"{token}\" type=\"text\"/>" //
         + "      <input type=\"submit\" value=\"Load Collabora Online\"/>" //
         + "    </form>" //
@@ -231,6 +231,7 @@ public class WOPIControler
             return LAUNCHER_FORM //
                 .replace("{baseUrl}", baseUrl) //
                 .replace("{wopiSrc}", this.createWOpiSrcUrl(httpReq, fileId).toExternalForm()) //
+                .replace("{lang}", this.getRequestedLanguage(httpReq)) //
                 .replace("{token}", this.createAccessToken(inode));
         }
         catch (TechnicalWOPIException | TechnicalFileSysException | IOException e)
@@ -249,6 +250,21 @@ public class WOPIControler
         {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
         }
+    }
+
+    /**
+     * @param httpReq
+     * @return
+     */
+    private String getRequestedLanguage(HttpServletRequest httpReq)
+    {
+        String requested = httpReq.getHeader(HttpHeaders.ACCEPT_LANGUAGE);
+        if(requested == null || requested.isBlank()) {
+            requested = "de-de";
+        }
+        
+        String[] languages = requested.split(",");
+        return languages[0].split(";")[0];
     }
 
     /**
@@ -286,7 +302,8 @@ public class WOPIControler
         String proto = httpReq.getScheme();
         String host = InetAddress.getLocalHost().getHostName();
         int port = httpReq.getLocalPort();
-        String path = "/wopi/files/{fileId}".replace("{fileId}", fileId.toString());
+        String path = "/wopi/files/{fileId}" //
+            .replace("{fileId}", fileId.toString());
         return new URL(proto, host, port, path);
     }
 

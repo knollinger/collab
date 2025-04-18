@@ -44,7 +44,6 @@ public interface ITokenService
      * validiert. Die Claims aus dem JWT werden geparsed und ls {@link TokenCreatorResult} geliefert.
      * 
      * @param token
-     * @param ttl
      * @return
      * @throws InvalidTokenException
      * @throws ExpiredTokenException

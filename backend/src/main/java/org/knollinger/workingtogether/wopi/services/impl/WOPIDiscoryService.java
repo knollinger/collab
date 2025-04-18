@@ -35,6 +35,7 @@ public class WOPIDiscoryService implements IWOPIDiscoveryService
     private static final String APP_XPATH = "//wopi-discovery/net-zone/app";
     private static final String ACTION_XPATH = "//action";
     private static final Pattern MIMETYPE_PATTERN = Pattern.compile(".*/.*");
+    private static final String ERR_LOAD_MIMETYPES = "Die Liste der Datei-Typen konnte nicht geladen werden da der Collabra-Dienst nicht erreichbar ist.";
     @Value("${collabre.discoveryUrl}")
     private URL discoveryUrl;
 
@@ -60,7 +61,7 @@ public class WOPIDiscoryService implements IWOPIDiscoveryService
         }
         catch (SAXException | ParserConfigurationException | IOException | XPathExpressionException e)
         {
-            throw new TechnicalWOPIException("", e);
+            throw new TechnicalWOPIException(ERR_LOAD_MIMETYPES, e);
         }
     }
 

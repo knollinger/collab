@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, throwError } from 'rxjs';
+import { Observable, catchError, throwError, of } from 'rxjs';
 
 import { MessageBoxService } from '../services/message-box.service';
 import { Router } from '@angular/router';
@@ -42,9 +42,9 @@ export class ErrorInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
     return next.handle(req).pipe(
-      catchError((err: any) => {
+      catchError((err: HttpErrorResponse) => {
 
-        console.log(err.status);
+        console.log(err);
         if (err.status === 401) {
 
           if (err.error.message) {
@@ -60,7 +60,7 @@ export class ErrorInterceptor implements HttpInterceptor {
       })
     );
   }
-
+  
   /**
    *
    * @param err

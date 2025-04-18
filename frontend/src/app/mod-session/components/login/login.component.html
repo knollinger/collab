@@ -38,6 +38,15 @@
             <div class="grid-row-1">
                 <div class="grid-col-4 disp-flex flex-row flex-alignitems-center">
                     <mat-slide-toggle color="primary"
+                                      [checked]="keepLoggedIn"
+                                      (change)="keepLoggedIn = $event.checked">Angemeldet bleiben</mat-slide-toggle>
+                </div>
+            </div>
+
+
+            <div class="grid-row-1">
+                <div class="grid-col-4 disp-flex flex-row flex-alignitems-center">
+                    <mat-slide-toggle color="primary"
                                       #forceChange>Kennwort ändern</mat-slide-toggle>
                 </div>
             </div>

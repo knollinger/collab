@@ -42,6 +42,7 @@ export class FilesPreviewComponent implements OnInit {
     this.patternsToType = new Map<RegExp, string>();
     this.patternsToType.set(/image\/.*/, 'image');
     this.patternsToType.set(/video\/.*/, 'video');
+    this.patternsToType.set(/audio\/.*/, 'audio');
     this.patternsToType.set(/text\/.*/, 'text');
     
     this.wopiSvc.getWOPIMimeTypes()

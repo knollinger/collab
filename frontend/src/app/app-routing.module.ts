@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
+import { InitComponent } from './init/init.component';
 import { SessionRequiredGuard } from './mod-session/session.module';
 
 const routes: Routes = [
@@ -8,6 +9,10 @@ const routes: Routes = [
     path: '',
     redirectTo: '/home',
     pathMatch: 'full'
+  },
+  {
+    path: 'init',
+    component: InitComponent,
   },
   {
     path: 'home',

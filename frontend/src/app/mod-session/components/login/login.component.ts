@@ -17,6 +17,7 @@ export class LoginComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   private redirUrl: string = '';
+  private _keepLoggedIn: boolean = false;
   loginForm: FormGroup;
   hidePwds: boolean = true;
 
@@ -53,7 +54,12 @@ export class LoginComponent implements OnInit {
       this.redirUrl = params.get('redirUrl') || '';
     });
   }
-  toggleValidators(changePwd: MatSlideToggleChange) {
+
+  /**
+   * 
+   * @param changePwd 
+   */
+  private toggleValidators(changePwd: MatSlideToggleChange) {
 
     const pwd1 = this.loginForm.get('newPwd1');
     const pwd2 = this.loginForm.get('newPwd2');
@@ -101,6 +107,21 @@ export class LoginComponent implements OnInit {
     }
     return null;
   }
+
+  /**
+   * 
+   */
+  set keepLoggedIn(val: boolean) {
+    this._keepLoggedIn = val;
+  }
+
+  /**
+   * 
+   */
+  get keepLoggedIn(): boolean {
+    return this._keepLoggedIn;
+  }
+
   /**
    *
    */
@@ -110,7 +131,7 @@ export class LoginComponent implements OnInit {
     const passwd = this.loginForm.get('passwd')!.value || '';
     const newPwd = this.loginForm.get('newPwd1')!.value || '';
 
-    this.sessSvc.login(email, passwd, newPwd)
+    this.sessSvc.login(email, passwd, this.keepLoggedIn, newPwd)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(session => {
 

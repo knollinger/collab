@@ -113,6 +113,7 @@ public class TokenServiceImpl implements ITokenService
 
             Jws<Claims> claims = parser.parseSignedClaims(token);
             Claims payload = claims.getPayload();
+            Date expires = payload.getExpiration();
 
             Object flatUser = payload.get("user");
             ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
@@ -127,6 +128,7 @@ public class TokenServiceImpl implements ITokenService
                 .token(token) //
                 .user(this.userMapper.fromDTO(user)) //
                 .groups(this.groupMapper.fromDTO(groups)) //
+                .expires(expires.getTime()) //
                 .build();
         }
         catch (ExpiredJwtException e)
@@ -148,6 +150,7 @@ public class TokenServiceImpl implements ITokenService
         throws InvalidTokenException, ExpiredTokenException, TechnicalLoginException
     {
         TokenPayload payload = this.validateToken(token);
+        
         return this.createToken(payload.getUser(), payload.getGroups(), ttl);
     }
 

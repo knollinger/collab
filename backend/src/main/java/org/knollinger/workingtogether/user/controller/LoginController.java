@@ -8,7 +8,6 @@ import org.knollinger.workingtogether.user.exceptions.ExpiredTokenException;
 import org.knollinger.workingtogether.user.exceptions.InvalidTokenException;
 import org.knollinger.workingtogether.user.exceptions.LoginNotFoundException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
-import org.knollinger.workingtogether.user.mapper.ILoginMapper;
 import org.knollinger.workingtogether.user.models.LoginResponse;
 import org.knollinger.workingtogether.user.models.TokenCreatorResult;
 import org.knollinger.workingtogether.user.services.ILoginService;
@@ -42,9 +41,6 @@ public class LoginController
     @Autowired
     private ITokenService tokenSvc;
 
-    @Autowired
-    private ILoginMapper loginMapper;
-
     /**
      * Beim Logout wird einfach nur das Cookie gelöscht. EIne Session in dem Sinne
      * gibt es nicht, das Cookie beonhaltet einen JWT-BearerToken.
@@ -62,27 +58,31 @@ public class LoginController
     }
 
     /**
-     * @param request
+     * @param req
      * @return
      */
     @PostMapping(path = "/login")
-    public LoginResponseDTO login(@RequestBody LoginRequestDTO request, HttpServletResponse httpRsp)
+    public LoginResponseDTO login(@RequestBody LoginRequestDTO req, HttpServletResponse httpRsp)
     {
         try
         {
-            LoginResponse rsp;
-            if (this.isPwdChange(request))
+            TokenCreatorResult rsp;
+            if (this.isPwdChange(req))
             {
-                rsp = this.loginSvc.changePwd(request.getEmail(), request.getPassword(), request.getNewPwd());
+                rsp = this.loginSvc.changePwd(req.getEmail(), req.getPassword(), req.getNewPwd(), req.isKeepLoggedIn());
             }
             else
             {
-                rsp = this.loginSvc.login(request.getEmail(), request.getPassword());
+                rsp = this.loginSvc.login(req.getEmail(), req.getPassword(), req.isKeepLoggedIn());
             }
 
-            Cookie cookie = this.createCookie(rsp.getToken());
+            Cookie cookie = this.createCookie(rsp);
             httpRsp.addCookie(cookie);
-            return this.loginMapper.toDTO(rsp);
+
+            return LoginResponseDTO.builder() //
+                .token(rsp.token()) //
+                .expires(new Timestamp(rsp.expires())) //
+                .build();
         }
         catch (LoginNotFoundException e)
         {
@@ -107,9 +107,9 @@ public class LoginController
             try
             {
                 TokenCreatorResult result = this.tokenSvc.refreshToken(token, TWO_HOURS_IN_MILLIES);
-                Cookie cookie = this.createCookie(result.token());
+                Cookie cookie = this.createCookie(result);
                 httpRsp.addCookie(cookie);
-                
+
                 return LoginResponse.builder() //
                     .expires(new Timestamp(result.expires())) //
                     .token(result.token()) //
@@ -119,7 +119,7 @@ public class LoginController
             {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
             }
-            catch (InvalidTokenException  | ExpiredTokenException e)
+            catch (InvalidTokenException | ExpiredTokenException e)
             {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
             }
@@ -136,10 +136,11 @@ public class LoginController
      * @param rememberMe 
      * @return
      */
-    private Cookie createCookie(String token)
+    private Cookie createCookie(TokenCreatorResult token)
     {
-        Cookie cookie = new Cookie("Bearer", token);
-        cookie.setMaxAge(-1);
+        int maxAge = (int) ((token.expires() - System.currentTimeMillis()) / 1000);
+        Cookie cookie = new Cookie("Bearer", token.token());
+        cookie.setMaxAge(maxAge);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         return cookie;

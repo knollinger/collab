@@ -15,11 +15,13 @@ import { ModSearchModule } from './mod-search/mod-search.module';
 import { EnsureCookiesInterceptor } from './mod-commons/mod-commons.module';
 
 import { HomeComponent } from './home/home.component';
+import { InitComponent } from './init/init.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
+    InitComponent,
   ],
   imports: [
     BrowserModule,
