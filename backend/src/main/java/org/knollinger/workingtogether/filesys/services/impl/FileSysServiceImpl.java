@@ -473,7 +473,7 @@ public class FileSysServiceImpl implements IFileSysService
     {
         Connection conn = null;
         PreparedStatement stmt = null;
-        String resourcePath = String.format("templates/%1$s.template", contentType);
+        String resourcePath = String.format("create-new-menu/templates/%1$s.template", contentType);
         try(InputStream in = this.getClass().getClassLoader().getResourceAsStream(resourcePath))
         {
             conn = this.dbService.openConnection();

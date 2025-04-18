@@ -18,4 +18,8 @@ public class SaveHashtagsReq
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
     private List<String> tags;
+
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    public EHashTagType type;
 }

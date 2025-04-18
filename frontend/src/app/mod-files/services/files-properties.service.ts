@@ -26,6 +26,7 @@ export class FilesPropertiesService {
   public showPropDialog(inode: INode): Observable<INode> {
 
     const dlgRef = this.dialog.open(FilesPropertiesDialogComponent, {
+      width: '600px',
       data: {
         inode: inode,
       },

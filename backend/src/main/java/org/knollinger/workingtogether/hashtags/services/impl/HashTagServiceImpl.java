@@ -40,7 +40,7 @@ public class HashTagServiceImpl implements IHashTagService
         + "delete from hashtags where refId=?";
     
     private static final String SQL_INSERT_HASHTAG = "" //
-        + "insert into hashtags set refId=?, name=?";
+        + "insert into hashtags set refId=?, type=?, name=?";
     
     @Autowired()
     private IDbService dbSvc;
@@ -128,10 +128,10 @@ public class HashTagServiceImpl implements IHashTagService
             
             stmt = conn.prepareStatement(SQL_INSERT_HASHTAG);
             stmt.setString(1, req.getRefId().toString());
-                
+            stmt.setString(2, req.getType().toString());
             for (String tag : req.getTags())
             {
-                stmt.setString(2, tag);
+                stmt.setString(3, tag);
                 stmt.executeUpdate();
             }
             

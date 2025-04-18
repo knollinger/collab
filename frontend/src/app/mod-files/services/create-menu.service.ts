@@ -5,6 +5,9 @@ import { Observable, map} from 'rxjs';
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 import { CreateMenuItemGroup, ICreateMenuItemGroup } from '../models/create-menu-item';
 
+/**
+ * Liefert die Struktur-Beschreibung für das "Create new"-Menu.
+ */
 @Injectable({
     providedIn: 'root'
 })

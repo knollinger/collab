@@ -173,14 +173,16 @@ export class INodeService {
   }
 
   /**
+   * Erzeugt ein neues Dokument mit dem angegebenen Namen und ContentType
+   * im angegebenen ParentFolder.
    * 
-   * @param uuid 
+   * @param parentFolder 
    * @param name 
    * @returns 
    */
-  public createDocument(uuid: string, name: string, contentType: string): Observable<INode> {
+  public createDocument(parentFolder: string, name: string, contentType: string): Observable<INode> {
 
-    const url = this.backendRouter.getRouteForName('createDocument', INodeService.routes, uuid, name, contentType);
+    const url = this.backendRouter.getRouteForName('createDocument', INodeService.routes, parentFolder, name, contentType);
     return this.httpClient.put<IINode>(url, null).pipe(
       map(json => {
         return INode.fromJSON(json);
