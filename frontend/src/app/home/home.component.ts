@@ -4,7 +4,8 @@ import { BackendRoutingService, TitlebarService } from '../mod-commons/mod-commo
 export interface IAppDesc {
   name: string,
   icon: string,
-  url: string
+  url: string,
+  disabled: boolean
 }
 
 /**
@@ -36,33 +37,38 @@ export class HomeComponent implements OnInit {
       {
         name: 'Dateien',
         icon: this.backendRouterSvc.getRouteForName("getIcon", HomeComponent.routes, "folder"),
-        url: '/files'
+        url: '/files',
+        disabled: false
       },
       {
         name: 'Kalender',
         icon: this.backendRouterSvc.getRouteForName("getIcon", HomeComponent.routes, "calendar"),
-        url: ''
-
+        url: '',
+        disabled: true
       },
       {
         name: 'Mail',
         icon: this.backendRouterSvc.getRouteForName("getIcon", HomeComponent.routes, "mail"),
-        url: ''
+        url: '',
+        disabled: true
       },
       {
         name: 'Chat',
         icon: this.backendRouterSvc.getRouteForName("getIcon", HomeComponent.routes, "chat"),
-        url: ''
+        url: '',
+        disabled: true
       },
       {
         name: 'Pin-Wand',
         icon: this.backendRouterSvc.getRouteForName("getIcon", HomeComponent.routes, "pinwall"),
-        url: ''
+        url: '',
+        disabled: true
       },
       {
         name: 'Benutzer-Verwaltung',
         icon: this.backendRouterSvc.getRouteForName("getIcon", HomeComponent.routes, "user"),
-        url: '/user'
+        url: '/user',
+        disabled: false
       }
     ]
   }

@@ -9,6 +9,9 @@ import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { HashTagService } from './services/hash-tag.service';
 export { HashTagService };
 
+import { HashTagConstants } from './models/hash-tag-constants';
+export { HashTagConstants }
+
 import { HashTagSelectorComponent } from './components/hashtag-selector/hashtag-selector.component';
 
 @NgModule({

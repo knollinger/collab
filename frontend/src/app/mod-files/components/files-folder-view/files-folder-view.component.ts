@@ -168,25 +168,6 @@ export class FilesFolderViewComponent implements OnInit {
 
   /**
    * 
-   */
-  public onCreateFolder() {
-
-    this.inputBoxSvc.showInputBox('Einen neuen Ordner anlegen', 'Name')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(name => {
-
-        if (name) {
-          this.inodeSvc.createFolder(this.currentFolder.uuid, name)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(() => {
-              this.reloadEntries();
-            })
-        }
-      })
-  }
-
-  /**
-   * 
    * @param contentType 
    */
   public onCreateDocument(desc: CreateMenuItemDesc) {

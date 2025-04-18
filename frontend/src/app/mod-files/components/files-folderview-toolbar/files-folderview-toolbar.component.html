@@ -15,10 +15,17 @@
     <app-toolbar-separator></app-toolbar-separator>
     <button mat-icon-button
             [disabled]="!isWriteable"
-            matTooltip="Neuen Ordner anlegen"
-            (click)="onCreateFolder()">
-        <mat-icon class="material-symbols-outlined">create_new_folder</mat-icon>
+            matTooltip="Neu"
+            [matMenuTriggerFor]="createMenu">
+        <mat-icon class="material-symbols-outlined">add</mat-icon>
     </button>
+
+    <mat-menu #createMenu>
+        <app-files-create-menu *ngFor="let group of createGroups"
+                               [group]="group"
+                               (click)="onCreateDocument($event)"></app-files-create-menu>
+    </mat-menu>
+    
 
     <!-- Selection/deselectopn -->
     <app-toolbar-separator></app-toolbar-separator>

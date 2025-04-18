@@ -8,7 +8,7 @@
         [selectableINodes]="selectableINodes"
         (goHome)="onGoHome()"
         (reload)="reloadEntries()"
-        (createFolder)="onCreateFolder()"
+        (createDocument)="onCreateDocument($event)"
         (selectAll)="onSelectAll()"
         (deselectAll)="onDeselectAll()"
         (paste)="onPaste()"
@@ -72,7 +72,6 @@
         <!-- Das ContextMenu für den Folder selbst -->
         <app-files-folder-context-menu #contextMenu
                                        [inode]="currentFolder"
-                                       (createFolder)="onCreateFolder()"
                                        (createDocument)="onCreateDocument($event)"
                                        (paste)="onPaste()"
                                        (showProps)="onShowProps($event)"></app-files-folder-context-menu>

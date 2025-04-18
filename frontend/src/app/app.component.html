@@ -24,7 +24,7 @@
     <div class="scrollable full-height">
         <mat-drawer-container class="full-height">
             <mat-drawer #navMenu
-                        mode="push"
+                        mode="over"
                         (click)="navMenu.close()">
 
                 <!-- Home -->
@@ -40,15 +40,6 @@
                         matTooltip="Dateien">
                     <mat-icon class="material-symbols-outlined">folder</mat-icon>
                     <span>Dateien</span>
-                </button>
-
-                <!-- PinBoard -->
-                <button mat-menu-item
-                        routerLink="/pinboard"
-                        matTooltip="Pin-Wand"
-                        disabled="true">
-                    <mat-icon class="material-symbols-outlined">pinboard</mat-icon>
-                    <span>Pin-Wand</span>
                 </button>
 
                 <!-- Kalender -->
@@ -69,13 +60,22 @@
                     <span>Mail</span>
                 </button>
 
-                <!-- Message -->
+                <!-- Chat -->
                 <button mat-menu-item
                         routerLink="/message"
                         matTooltip="Chat"
                         disabled="true">
                     <mat-icon class="material-symbols-outlined">message</mat-icon>
                     <span>Chat</span>
+                </button>
+
+                <!-- PinBoard -->
+                <button mat-menu-item
+                        routerLink="/pinboard"
+                        matTooltip="Pin-Wand"
+                        disabled="true">
+                    <mat-icon class="material-symbols-outlined">pinboard</mat-icon>
+                    <span>Pin-Wand</span>
                 </button>
 
                 <!-- User -->

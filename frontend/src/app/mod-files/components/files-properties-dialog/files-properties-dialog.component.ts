@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { INode } from '../../models/inode';
 import { INodeService } from '../../services/inode.service';
-import { HashTagService } from '../../../mod-hashtags/mod-hashtags.module';
+import { HashTagConstants, HashTagService } from '../../../mod-hashtags/mod-hashtags.module';
 
 /**
  * 
@@ -80,7 +80,7 @@ export class FilesPropertiesDialogComponent implements OnInit {
           this.dialogRef.close(inode);
         }
         else {
-          this.hashTagSvc.saveHashTags(this.inode.uuid, this.newHashTags)
+          this.hashTagSvc.saveHashTags(this.inode.uuid, HashTagConstants.INODE, this.newHashTags)
             .pipe(takeUntilDestroyed(this.destroyRef)) //
             .subscribe(_ => {
               this.dialogRef.close(inode);

@@ -3,6 +3,7 @@
  */
 export interface ISaveHashtagsReq {
     refId: string,
+    type: string,
     tags: string[]
 }
 
@@ -18,6 +19,7 @@ export class SaveHashtagsReq {
      */
     constructor(
         public readonly refId: string,
+        public readonly type: string,
         public readonly tags: string[]) {
 
     }
@@ -29,6 +31,7 @@ export class SaveHashtagsReq {
     public toJSON(): ISaveHashtagsReq {
         return {
             refId: this.refId,
+            type: this.type,
             tags: this.tags
         }
     }

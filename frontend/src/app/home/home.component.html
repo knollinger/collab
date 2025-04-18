@@ -6,6 +6,7 @@
 
         <mat-card class="app-btn"
                   *ngFor="let app of applications"
+                  [class.locked]="app.disabled"
                   [routerLink]="app.url">
             <div class="icon-cnr">
                 <img [src]="app.icon">

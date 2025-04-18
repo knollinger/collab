@@ -6,7 +6,8 @@ mat-card:active {
     transform: translate(2px, 2px);
 }
 
-h1, h2 {
+h1,
+h2 {
     text-align: center;
 }
 
@@ -40,4 +41,8 @@ img {
     transform: translateX(-50%);
     width: 128px;
     height: 128px;
+}
+
+.locked {
+    filter: opacity(50%);
 }

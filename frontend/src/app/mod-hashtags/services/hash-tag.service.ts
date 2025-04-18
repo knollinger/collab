@@ -58,10 +58,10 @@ export class HashTagService {
    * @param tags 
    * @returns 
    */
-  public saveHashTags(resId: string, tags: string[]): Observable<void> {
+  public saveHashTags(resId: string, type: string, tags: string[]): Observable<void> {
 
     const url = this.backendRouterSvc.getRouteForName('save', HashTagService.routes);
-    const req = new SaveHashtagsReq(resId, tags);
+    const req = new SaveHashtagsReq(resId, type, tags);
     return this.http.post<void>(url, req);
   }
 }

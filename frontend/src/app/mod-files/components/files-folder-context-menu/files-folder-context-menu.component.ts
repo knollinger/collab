@@ -24,9 +24,6 @@ export class FilesFolderContextMenuComponent implements OnInit {
   inode: INode = INode.empty();
 
   @Output()
-  createFolder: EventEmitter<void> = new EventEmitter();
-
-  @Output()
   createDocument: EventEmitter<CreateMenuItemDesc> = new EventEmitter<CreateMenuItemDesc>();
   
   @Output()
@@ -96,13 +93,6 @@ export class FilesFolderContextMenuComponent implements OnInit {
     return this.clipboardSvc.inodes.length
   }
 
-  /**
-   * 
-   */
-  onCreateFolder() {
-    this.createFolder.emit();
-  }
-  
   /**
    * 
    */
