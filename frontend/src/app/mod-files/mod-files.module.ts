@@ -31,6 +31,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesFolderviewToolbarComponent } from './components/files-folderview-toolbar/files-folderview-toolbar.component';
 import { FilesHashtagsComponent } from './components/files-properties-dialog/files-hashtags.component';
 import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
+import { FileCollabraComponent } from './components/file-collabra/file-collabra.component';
 
 @NgModule({
   declarations: [
@@ -56,6 +57,7 @@ import { FilesCreateMenuComponent } from './components/files-create-menu/files-c
     FilesFolderviewToolbarComponent,
     FilesHashtagsComponent,
     FilesCreateMenuComponent,
+    FileCollabraComponent,
   ],
   imports: [
     CommonModule,

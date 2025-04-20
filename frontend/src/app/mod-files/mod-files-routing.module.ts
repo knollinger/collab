@@ -9,17 +9,22 @@ import { FilesPreviewComponent } from './components/files-preview/files-preview.
 const routes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
+    redirectTo: 'show'
+  },
+  {
+    path: 'show',
     component: FilesMainViewComponent,
     canActivate: [SessionRequiredGuard],
   },
   {
-    path: ':leftPanel',
+    path: 'show/:leftPanel',
     component: FilesMainViewComponent,
     canActivate: [SessionRequiredGuard],
   },
   
   {
-    path: ':leftPanel/:rightPanel',
+    path: 'show/:leftPanel/:rightPanel',
     component: FilesMainViewComponent,
     canActivate: [SessionRequiredGuard],
   },
@@ -28,7 +33,6 @@ const routes: Routes = [
     component: FilesPreviewComponent,
     canActivate: [SessionRequiredGuard],
   },
-  
 ]
 
 @NgModule({

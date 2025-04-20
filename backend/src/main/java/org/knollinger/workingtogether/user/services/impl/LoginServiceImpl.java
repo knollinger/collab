@@ -28,10 +28,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class LoginServiceImpl implements ILoginService
 {
-    private static final long TWO_HOURS_IN_MILLIES = 2 * 60 * 60 * 1000;
-    private static final long NINETY_DAYS_IN_MILLIES = 90 * 24 * 60 * 60 * 1000;
+    private static final long TWO_HOURS_IN_MILLIES = 2L * 60L * 60L * 1000L;
+    private static final long NINETY_DAYS_IN_MILLIES = 90L * 24L * 60L * 60L * 1000L;
     
-
     private static final String SQL_LOGIN = "" //
         + "select * from users" //
         + "  where email=? and pwdhash=?";

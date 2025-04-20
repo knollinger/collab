@@ -90,8 +90,4 @@
             {{selectedINodes.size}} Objekte mit {{selectedObjectSize | fileSize}} ausgewählt
         </div>
     </app-toolbar>
-
-    <app-files-preview *ngIf="!previewINode.isEmpty()"
-                       [inode]="previewINode"
-                       (close)="onClosePreview()"></app-files-preview>
 </div>

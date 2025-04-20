@@ -14,8 +14,8 @@ import { SessionService } from '../../../mod-session/session.module';
 import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
 import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { Permissions } from '../../models/permissions';
-import { WopiService } from '../../services/wopi.service';
 import { CreateMenuItemDesc } from '../../models/create-menu-item';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-folder-view',
@@ -74,6 +74,7 @@ export class FilesFolderViewComponent implements OnInit {
    * @param propsSvc 
    */
   constructor(
+    private router: Router,
     private inodeSvc: INodeService,
     private uploadSvc: UploadService,
     private messageBoxSvc: MessageBoxService,
@@ -83,8 +84,7 @@ export class FilesFolderViewComponent implements OnInit {
     private showDuplFilesSvc: ShowDuplicateFilesService,
     private propsSvc: FilesPropertiesService,
     private sessionSvc: SessionService,
-    private checkPermsSvc: CheckPermissionsService,
-    private wopiSvc: WopiService) {
+    private checkPermsSvc: CheckPermissionsService) {
 
   }
 
@@ -93,16 +93,6 @@ export class FilesFolderViewComponent implements OnInit {
    */
   ngOnInit(): void {
 
-    this.wopiSvc.getWOPIMimeTypes()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(mimeTypes => {
-        mimeTypes.map(type => {
-
-          const masked = type.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-          const regex = new RegExp(masked, 'g');
-          this.wopiPatterns.push(regex);
-        })
-      });
     this.refresh();
   }
 
@@ -354,13 +344,9 @@ export class FilesFolderViewComponent implements OnInit {
       this.openFolder.emit(inode);
     }
     else {
-
-      if (this.isOfficeDocument(inode)) {
-        this.openOfficeDocument(inode);
-      }
-      else {
-        this.previewINode = inode;
-      }
+      const url = `/files/preview/${inode.uuid}`;
+      this.router.navigateByUrl(url);
+        // this.previewINode = inode;
     }
   }
 
@@ -369,40 +355,6 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onClosePreview() {
     this.previewINode = INode.empty();
-  }
-
-  /**
-   * Handelt es sich um ein Office-Dokument?
-   * 
-   * Solche Dokumente werden nicht im Preview angezeigt sondernn
-   * als eigener BrowserTab via Collabra
-   * 
-   * @param inode 
-   * @returns 
-   */
-  private isOfficeDocument(inode: INode): boolean {
-
-    for (let pattern of this.wopiPatterns) {
-      if (inode.type.match(pattern)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Öffne die INode als eigenen Tab in Collabra
-   * 
-   * @param inode 
-   */
-  private openOfficeDocument(inode: INode) {
-
-    const link = document.createElement("a");
-    link.href = this.wopiSvc.getLauncherFormUrl(inode);
-    link.target = "_blank";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
   }
 
   /**

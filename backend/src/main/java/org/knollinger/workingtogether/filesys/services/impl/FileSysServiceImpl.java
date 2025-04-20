@@ -482,8 +482,8 @@ public class FileSysServiceImpl implements IFileSysService
 
             UUID uuid = UUID.randomUUID();
             TokenPayload token = this.currUserSvc.get();
-
             UUID userId = token.getUser().getUserId();
+
             int perms = IPermissions.USR_READ | //
                 IPermissions.USR_WRITE | //
                 IPermissions.USR_DELETE | //

@@ -174,7 +174,6 @@ public class CheckTokenFilter extends OncePerRequestFilter
             {
                 if (cookie.getName().equalsIgnoreCase("Bearer"))
                 {
-                    System.err.println(cookie.getValue());
                     return cookie.getValue();
                 }
             }

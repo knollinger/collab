@@ -1,9 +1,12 @@
 import { Component, DestroyRef, EventEmitter, inject, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Observable, map } from 'rxjs';
 
 import { INode } from '../../models/inode';
 import { INodeService } from '../../services/inode.service';
 import { WopiService } from '../../services/wopi.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
   selector: 'app-files-preview',
@@ -14,7 +17,6 @@ export class FilesPreviewComponent implements OnInit {
 
   private patternsToType: Map<RegExp, string> = new Map<RegExp, string>();
 
-  @Input()
   inode: INode = INode.empty();
 
   @Output()
@@ -30,7 +32,9 @@ export class FilesPreviewComponent implements OnInit {
    * @param data 
    */
   constructor(
+    private route: ActivatedRoute,
     private inodeSvc: INodeService,
+    private titleBarSvc: TitlebarService,
     private wopiSvc: WopiService) {
   }
 
@@ -39,24 +43,58 @@ export class FilesPreviewComponent implements OnInit {
    */
   ngOnInit(): void {
 
-    this.patternsToType = new Map<RegExp, string>();
-    this.patternsToType.set(/image\/.*/, 'image');
-    this.patternsToType.set(/video\/.*/, 'video');
-    this.patternsToType.set(/audio\/.*/, 'audio');
-    this.patternsToType.set(/text\/.*/, 'text');
-    
-    this.wopiSvc.getWOPIMimeTypes()
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(mimeTypes => {
-      
-      mimeTypes.map(type => {
-        
-        const masked = type.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-        const regex = new RegExp(masked, 'g');
-        this.patternsToType.set(regex, 'office');
-      })
+    // UUID aus der Route lesen und inode laden
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
 
-    });
+        // INode laden
+        this.inodeSvc.getINode(params.get('uuid') || '')
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(inode => {
+            
+            this.inode = inode;
+            this.titleBarSvc.subTitle = inode.name;
+
+            this.loadContentTypePatterns()
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe(patterns => {
+
+                this.patternsToType = patterns;
+
+              })
+          })
+     })
+  }
+
+  private loadINode(uuid: string): Observable<INode> {
+
+    return this.inodeSvc.getINode(uuid);
+  }
+
+  /**
+   * 
+   * @returns 
+   */
+  private loadContentTypePatterns(): Observable<Map<RegExp, string>> {
+
+
+    return this.wopiSvc.getWOPIMimeTypes()
+      .pipe(map(mimeTypes => {
+        const patternsToType = new Map<RegExp, string>();
+        patternsToType.set(/image\/.*/, 'image');
+        patternsToType.set(/video\/.*/, 'video');
+        patternsToType.set(/audio\/.*/, 'audio');
+        patternsToType.set(/text\/.*/, 'text');
+
+        mimeTypes.map(type => {
+
+          const masked = type.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+          const regex = new RegExp(masked, 'g');
+          patternsToType.set(regex, 'office');
+        })
+        return patternsToType;
+      }));
   }
 
   /**
@@ -82,7 +120,7 @@ export class FilesPreviewComponent implements OnInit {
     return this.inodeSvc.getContentUrl(this.inode.uuid);
   }
 
-  onClosePreview() {
-    this.close.emit();
+  onGoBack() {
+    alert('not yet implemented');
   }
 }

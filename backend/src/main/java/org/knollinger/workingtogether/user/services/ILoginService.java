@@ -2,7 +2,6 @@ package org.knollinger.workingtogether.user.services;
 
 import org.knollinger.workingtogether.user.exceptions.LoginNotFoundException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
-import org.knollinger.workingtogether.user.models.LoginResponse;
 import org.knollinger.workingtogether.user.models.TokenCreatorResult;
 
 public interface ILoginService
