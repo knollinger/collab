@@ -43,8 +43,8 @@ export class HomeComponent implements OnInit {
       {
         name: 'Kalender',
         icon: this.backendRouterSvc.getRouteForName("getIcon", HomeComponent.routes, "calendar"),
-        url: '',
-        disabled: true
+        url: '/calendar',
+        disabled: false
       },
       {
         name: 'Mail',

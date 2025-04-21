@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { InitComponent } from './init/init.component';
+import { LicencesComponent } from './licences/licences.component';
 import { SessionRequiredGuard } from './mod-session/session.module';
 
 const routes: Routes = [
@@ -20,8 +21,16 @@ const routes: Routes = [
     canActivate: [SessionRequiredGuard],
   },
   {
+    path: 'licences',
+    component: LicencesComponent,
+  },
+  {
     path: 'files',
     loadChildren: () => import('./mod-files/mod-files.module').then(mod => mod.ModFilesModule)
+  },
+  {
+    path: 'calendar',
+    loadChildren: () => import('./mod-calendar/mod-calendar.module').then(mod => mod.ModCalendarModule)
   },
   {
     path: 'pinboard',

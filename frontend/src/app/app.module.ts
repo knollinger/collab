@@ -16,12 +16,14 @@ import { EnsureCookiesInterceptor } from './mod-commons/mod-commons.module';
 
 import { HomeComponent } from './home/home.component';
 import { InitComponent } from './init/init.component';
+import { LicencesComponent } from './licences/licences.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     InitComponent,
+    LicencesComponent,
   ],
   imports: [
     BrowserModule,

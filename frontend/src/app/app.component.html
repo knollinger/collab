@@ -3,13 +3,28 @@
     <mat-toolbar color="primary">
 
         <mat-toolbar-row>
-            <mat-icon class="material-symbols-outlined flex-0 small-right-spacer"
+
+            <!-- MainMenu-->
+            <mat-icon class="material-symbols-outlined flex-0"
                       *ngIf="isLoggedOn"
                       matRipple
                       (click)="navMenu.toggle()">menu</mat-icon>
 
-            <span class="flex-1">{{title}}</span>
-            <app-session-menu></app-session-menu>
+            <!-- Titel -->
+            <span class="flex-1 small-left-right-spacer">{{title}}</span>
+
+            <!-- SessionMenu -->
+            <app-session-menu class="flex-0 small-right-spacer"></app-session-menu>
+
+            <!-- Help -->
+            <mat-icon class="material-symbols-outlined flex-0"
+                      matRipple
+                      [matMenuTriggerFor]="helpMenu">help</mat-icon>
+            <mat-menu #helpMenu="matMenu">
+                <button mat-menu-item>Hilfe</button>
+                <mat-divider></mat-divider> 
+                <button mat-menu-item routerLink="/licences">Opensource-Lizenzen</button>
+            </mat-menu>
 
         </mat-toolbar-row>
 
@@ -45,8 +60,7 @@
                 <!-- Kalender -->
                 <button mat-menu-item
                         routerLink="/calendar"
-                        matTooltip="Kalender"
-                        disabled="true">
+                        matTooltip="Kalender">
                     <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
                     <span>Kalender</span>
                 </button>

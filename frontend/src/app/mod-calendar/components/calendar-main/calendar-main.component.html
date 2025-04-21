@@ -1,0 +1,45 @@
+<div class="full-height scrollable disp-flex flex-col">
+
+    <div class="header flex-0">
+        <button mat-flat-button color="primary">
+            <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
+            <span>Zurück</span>
+        </button>
+        <button mat-flat-button color="primary" class="small-left-right-spacer">
+            <mat-icon class="material-symbols-outlined">today</mat-icon>
+            Heute
+        </button>
+        <button mat-flat-button color="primary">
+            <span>Vorwärts</span>
+            <mat-icon class="material-symbols-outlined" iconPositionEnd>chevron_right</mat-icon>
+        </button>
+
+        <div class="flex-1 date-header"
+             [ngSwitch]="calendarConfig.viewType">
+            <span *ngSwitchCase="'Day'">{{today | date:"dd.MM.yyyy"}}</span>
+            <span *ngSwitchCase="'Week'">KW {{today | date:"ww - yyyy"}}</span>
+            <span *ngSwitchCase="'Month'">{{today | date:"LLLL yyyy"}}</span>
+        </div>
+
+        <mat-button-toggle-group [(value)]="calendarConfig.viewType"
+                                 class="flex-0">
+            <mat-button-toggle value="Day">Tag</mat-button-toggle>
+            <mat-button-toggle value="Week">Woche</mat-button-toggle>
+            <mat-button-toggle value="Month">Monat</mat-button-toggle>
+        </mat-button-toggle-group>
+    </div>
+
+    <div class="flex-1 scrollable"
+         [ngSwitch]="calendarConfig.viewType">
+        <daypilot-calendar *ngSwitchCase="'Day'"
+                           [config]="calendarConfig"
+                           [events]="events"></daypilot-calendar>
+        <daypilot-calendar *ngSwitchCase="'Week'"
+                           [config]="calendarConfig"
+                           [events]="events"></daypilot-calendar>
+        <daypilot-month *ngSwitchCase="'Month'"
+                        [config]="calendarConfig"
+                        [events]="events"
+                        #month></daypilot-month>
+    </div>
+</div>
