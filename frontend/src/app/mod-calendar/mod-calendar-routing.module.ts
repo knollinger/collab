@@ -1,9 +1,10 @@
 import { RouterModule, Routes } from "@angular/router";
 import { NgModule } from "@angular/core";
 
-import { CalendarMainComponent } from './components/calendar-main/calendar-main.component';
-
 import { SessionRequiredGuard } from '../mod-session/session.module';
+
+import { CalendarMainComponent } from './components/calendar-main/calendar-main.component';
+import { CalendarEventEditorComponent } from "./components/calendar-event-editor/calendar-event-editor.component";
 
 const routes: Routes = [
   {
@@ -15,7 +16,13 @@ const routes: Routes = [
     path: 'main',
     component: CalendarMainComponent,
     canActivate: [SessionRequiredGuard],
-  }
+  },
+  {
+    path: 'edit/:uuid',
+    component: CalendarEventEditorComponent,
+    canActivate: [SessionRequiredGuard],
+  },
+  
 ]
 
 @NgModule({

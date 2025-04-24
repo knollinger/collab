@@ -43,7 +43,7 @@ public class CalendarServiceImpl implements ICalendarService
      *
      */
     @Override
-    public List<CalendarEvent> getAllEvents(Timestamp start, Timestamp end) throws TechnicalCalendarException
+    public List<CalendarEvent> getAllEvents(Date start, Date end) throws TechnicalCalendarException
     {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -57,10 +57,10 @@ public class CalendarServiceImpl implements ICalendarService
             
             conn = this.dbSvc.openConnection();
             stmt = conn.prepareStatement(SQL_GET_ALL_EVENTS);
-            stmt.setTimestamp(1, start);
-            stmt.setTimestamp(2, end);
-            stmt.setTimestamp(3, start);
-            stmt.setTimestamp(4, end);
+            stmt.setTimestamp(1, new Timestamp(start.getTime()));
+            stmt.setTimestamp(2, new Timestamp(end.getTime()));
+            stmt.setTimestamp(3, new Timestamp(start.getTime()));
+            stmt.setTimestamp(4, new Timestamp(end.getTime()));
             stmt.setString(5, user.getUserId().toString());
             
             rs = stmt.executeQuery();
@@ -69,7 +69,7 @@ public class CalendarServiceImpl implements ICalendarService
                 CalendarEvent evt = CalendarEvent.builder() //
                     .uuid(UUID.fromString(rs.getString("uuid"))) //
                     .owner(UUID.fromString(rs.getString("owner"))) //
-                    .start(new Date(rs.getDate("start").getTime())) //
+                    .start(new Date(rs.getTimestamp("start").getTime())) //
                     .end(new Date(rs.getTimestamp("end").getTime()))
                     .text(rs.getString("text")) //
                     .build();

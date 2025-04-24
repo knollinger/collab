@@ -27,6 +27,8 @@ import { MatTreeModule } from '@angular/material/tree';
 import { MatSelectModule } from '@angular/material/select';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 @NgModule({
   declarations: [],
@@ -57,7 +59,9 @@ import { MatChipsModule } from '@angular/material/chips';
     MatTreeModule,
     MatSelectModule,
     MatBadgeModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   exports: [
     MatToolbarModule,
@@ -85,7 +89,9 @@ import { MatChipsModule } from '@angular/material/chips';
     MatTreeModule,
     MatSelectModule,
     MatBadgeModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ]
 })
 export class ModMaterialImportModule { }

@@ -27,7 +27,6 @@ export class SessionRequiredGuard  {
 
     if (this.sessionService.currentUser.isEmpty()) {
       const url = `/init?redirUrl=${state.url}`;
-      console.log(url);
       this.router.navigateByUrl(url);
       return false;
     }

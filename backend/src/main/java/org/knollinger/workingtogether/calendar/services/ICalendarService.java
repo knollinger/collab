@@ -1,6 +1,6 @@
 package org.knollinger.workingtogether.calendar.services;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import org.knollinger.workingtogether.calendar.TechnicalCalendarException;
@@ -19,5 +19,5 @@ public interface ICalendarService
      * @return niemals <code>null</code>, ggf. eine leere Liste
      * @throws TechnicalCalendarException 
      */
-    List<CalendarEvent> getAllEvents(Timestamp start, Timestamp end) throws TechnicalCalendarException;
+    List<CalendarEvent> getAllEvents(Date start, Date end) throws TechnicalCalendarException;
 }

@@ -1,0 +1,75 @@
+<form class="full-height scrollable"
+      [formGroup]="eventForm">
+
+    <div class="grid middle-padding">
+        <!-- Titel-Control -->
+        <div class="grid-row-0">
+            <mat-form-field class="grid-col-4">
+                <mat-label>Titel</mat-label>
+                <input matInput
+                type="time"
+                       appAutoFocus
+                       formControlName="title">
+            </mat-form-field>
+        </div>
+
+        <div class="grid-row-0">
+            <div class="grid-col-4">
+
+                <!-- Ganztägig? -->
+                <mat-slide-toggle color="primary"
+                                  formControlName="fullDay">Ganz-tägig</mat-slide-toggle>
+
+                <!-- Das Wiederhol-Menu -->
+                <button mat-button
+                        [matMenuTriggerFor]="repeatMenu">
+                    <mat-icon class="material-symbols-outlined">history</mat-icon>
+                    <span>{{repeatModeName}}</span>
+                </button>
+                <mat-menu #repeatMenu>
+                    <mat-radio-group formControlName="repeatMode">
+                        <button mat-menu-item
+                                *ngFor="let mode of repeatModes">
+                            <mat-radio-button color="primary"
+                                              [value]="mode.value">{{mode.title}}</mat-radio-button>
+                        </button>
+                    </mat-radio-group>
+                </mat-menu>
+
+            </div>
+        </div>
+
+        <!-- start und ende -->
+        <div class="grid-row-0">
+            <mat-form-field class="grid-col-2">
+                <mat-label>Beginn</mat-label>
+                <input matInput
+                       formControlName="start">
+                <button matSuffix
+                        mat-icon-button>
+                    <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
+                </button>
+            </mat-form-field>
+
+            <mat-form-field class="grid-col-2">
+                <mat-label>Ende</mat-label>
+                <input matInput
+                       formControlName="end">
+                <button matSuffix
+                        mat-icon-button>
+                    <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+
+        <!-- Beschreibung -->
+        <div class="grid-row-1">
+            <mat-form-field class="grid-col-4  full-height">
+                <mat-label>Beschreibung</mat-label>
+                <textarea matInput
+                          class="full-height"
+                          formControlName="desc"></textarea>
+            </mat-form-field>
+        </div>
+    </div>
+</form>

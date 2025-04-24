@@ -1,24 +1,34 @@
 <div class="full-height scrollable disp-flex flex-col">
 
+    <!-- der Header -->
     <div class="header flex-0">
-        <button mat-flat-button color="primary">
+        <button mat-flat-button
+                color="primary"
+                (click)="onGoBack()">
             <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
-            <span>Zurück</span>
+            <!-- <span>Zurück</span> -->
         </button>
-        <button mat-flat-button color="primary" class="small-left-right-spacer">
-            <mat-icon class="material-symbols-outlined">today</mat-icon>
-            Heute
+        <button mat-flat-button
+                color="primary"
+                class="small-left-right-spacer"
+                (click)="onGoToday()">
+            <mat-icon class="material-symbols-outlined"
+                      iconPositionCenter>today</mat-icon>
+            <span>Heute</span>
         </button>
-        <button mat-flat-button color="primary">
-            <span>Vorwärts</span>
-            <mat-icon class="material-symbols-outlined" iconPositionEnd>chevron_right</mat-icon>
+        <button mat-flat-button
+                color="primary"
+                (click)="onGoFore()">
+            <!-- <span>Vorwärts</span> -->
+            <mat-icon class="material-symbols-outlined"
+                      iconPositionEnd>chevron_right</mat-icon>
         </button>
 
         <div class="flex-1 date-header"
              [ngSwitch]="calendarConfig.viewType">
-            <span *ngSwitchCase="'Day'">{{today | date:"dd.MM.yyyy"}}</span>
-            <span *ngSwitchCase="'Week'">KW {{today | date:"ww - yyyy"}}</span>
-            <span *ngSwitchCase="'Month'">{{today | date:"LLLL yyyy"}}</span>
+            <span *ngSwitchCase="'Day'">{{today.toDate() | date:"dd.MM.yyyy"}}</span>
+            <span *ngSwitchCase="'Week'">KW {{today.toDate() | date:"ww - yyyy"}}</span>
+            <span *ngSwitchCase="'Month'">{{today.toDate() | date:"LLLL yyyy"}}</span>
         </div>
 
         <mat-button-toggle-group [(value)]="calendarConfig.viewType"
@@ -29,17 +39,53 @@
         </mat-button-toggle-group>
     </div>
 
-    <div class="flex-1 scrollable"
-         [ngSwitch]="calendarConfig.viewType">
-        <daypilot-calendar *ngSwitchCase="'Day'"
-                           [config]="calendarConfig"
-                           [events]="events"></daypilot-calendar>
-        <daypilot-calendar *ngSwitchCase="'Week'"
-                           [config]="calendarConfig"
-                           [events]="events"></daypilot-calendar>
-        <daypilot-month *ngSwitchCase="'Month'"
-                        [config]="calendarConfig"
-                        [events]="events"
-                        #month></daypilot-month>
+    <div class="flex-1 disp-flex flex-row scrollable">
+
+        <!-- die Sidebar -->
+        <div class="flex-0 disp-flex flex-col scrollable middle-padding">
+
+            <!-- Der DatePicker -->
+            <mat-card class="demo-inline-calendar-card flex-0 middle-bottom-spacer">
+                <!-- <mat-calendar [(selected)]="selected"></mat-calendar> -->
+                <mat-calendar></mat-calendar>
+            </mat-card>
+
+            <!-- DIe Benutzer-Liste -->
+            <mat-card class="flex-1 scrollable">
+                <mat-card-header>
+                    <h2>Team-Kalender</h2>
+                </mat-card-header>
+                <mat-card-content class="scrollable">
+                    <mat-selection-list #shoes>
+                        <mat-list-option *ngFor="let user of users"
+                                         color="primary"
+                                         togglePosition="before">
+                            <img matListItemAvatar
+                                 [src]="getAvatar(user)">
+                            <span matListItemLine>{{user.surname}} {{user.lastname}}</span>
+                        </mat-list-option>
+                    </mat-selection-list>
+                </mat-card-content>
+            </mat-card>
+
+        </div>
+
+        <!-- Der Kalender -->
+        <div class="flex-1 scrollable middle-padding">
+            <mat-card class="flex-1 scrollable">
+                <div [ngSwitch]="calendarConfig.viewType">
+                    <daypilot-calendar *ngSwitchCase="'Day'"
+                                       [config]="calendarConfig"
+                                       [events]="events"></daypilot-calendar>
+                    <daypilot-calendar *ngSwitchCase="'Week'"
+                                       [config]="calendarConfig"
+                                       [events]="events"></daypilot-calendar>
+                    <daypilot-month *ngSwitchCase="'Month'"
+                                    [config]="calendarConfig"
+                                    [events]="events"
+                                    #month></daypilot-month>
+                </div>
+            </mat-card>
+        </div>
     </div>
 </div>

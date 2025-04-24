@@ -1,6 +1,6 @@
 package org.knollinger.workingtogether.calendar.controller;
 
-import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import org.knollinger.workingtogether.calendar.TechnicalCalendarException;
@@ -9,6 +9,7 @@ import org.knollinger.workingtogether.calendar.mapper.ICalendarMapper;
 import org.knollinger.workingtogether.calendar.models.CalendarEvent;
 import org.knollinger.workingtogether.calendar.services.ICalendarService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,8 +37,8 @@ public class CalendarController
      */
     @GetMapping(path = "/all")
     public List<CalendarEventDTO> getAllEvents(//
-        @RequestParam("start") Timestamp start, //
-        @RequestParam("end") Timestamp end)
+        @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date start, //
+        @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date end)
     {
         try
         {
