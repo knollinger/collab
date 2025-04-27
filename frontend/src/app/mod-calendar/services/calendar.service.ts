@@ -21,6 +21,15 @@ export class CalendarService {
     ]
   );
 
+  public static colors = {
+    green: "#6aa84f",
+    yellow: "#f1c232",
+    red: "#cc4125",
+    gray: "#808080",
+    blue: "#2e78d6",
+  };
+
+
   /**
    * 
    * @param http 
@@ -60,4 +69,17 @@ export class CalendarService {
       })
     );
   }
+
+
+  getColors(): any[] {
+    const colors = [
+      { name: "Green", id: CalendarService.colors.green },
+      { name: "Yellow", id: CalendarService.colors.yellow },
+      { name: "Red", id: CalendarService.colors.red },
+      { name: "Gray", id: CalendarService.colors.gray },
+      { name: "Blue", id: CalendarService.colors.blue },
+    ];
+    return colors;
+  }
+
 }

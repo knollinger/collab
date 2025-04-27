@@ -1,90 +1,38 @@
-<div class="full-height scrollable disp-flex flex-col">
-
-    <!-- der Header -->
-    <div class="header flex-0">
-        <button mat-flat-button
-                color="primary"
-                (click)="onGoBack()">
-            <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
-            <!-- <span>Zurück</span> -->
-        </button>
-        <button mat-flat-button
-                color="primary"
-                class="small-left-right-spacer"
-                (click)="onGoToday()">
-            <mat-icon class="material-symbols-outlined"
-                      iconPositionCenter>today</mat-icon>
-            <span>Heute</span>
-        </button>
-        <button mat-flat-button
-                color="primary"
-                (click)="onGoFore()">
-            <!-- <span>Vorwärts</span> -->
-            <mat-icon class="material-symbols-outlined"
-                      iconPositionEnd>chevron_right</mat-icon>
-        </button>
-
-        <div class="flex-1 date-header"
-             [ngSwitch]="viewMode">
-            <span *ngSwitchCase="'Day'">{{today.toDate() | date:"dd.MM.yyyy"}}</span>
-            <span *ngSwitchCase="'Week'">KW {{today.toDate() | date:"ww - yyyy"}}</span>
-            <span *ngSwitchCase="'Month'">{{today.toDate() | date:"LLLL yyyy"}}</span>
-        </div>
-
-        <mat-button-toggle-group [(value)]="viewMode"
-                                 class="flex-0">
-            <mat-button-toggle value="Day">Tag</mat-button-toggle>
-            <mat-button-toggle value="Week">Woche</mat-button-toggle>
-            <mat-button-toggle value="Month">Monat</mat-button-toggle>
-        </mat-button-toggle-group>
+<div class="container">
+    
+    <div class="navigator">
+        <daypilot-navigator [config]="configNavigator"
+                            [events]="events"
+                            [(date)]="date"
+                            (dateChange)="changeDate($event)"
+                            #navigator>
+        </daypilot-navigator>
     </div>
 
-    <div class="flex-1 disp-flex flex-row scrollable">
+    <div class="content">
 
-        <!-- die Sidebar -->
-        <div class="flex-0 disp-flex flex-col scrollable middle-padding">
-
-            <!-- Der DatePicker -->
-            <mat-card class="demo-inline-calendar-card flex-0 middle-bottom-spacer">
-                <mat-calendar [(selected)]="selectedDate"></mat-calendar>
-            </mat-card>
-
-            <!-- DIe Benutzer-Liste -->
-            <mat-card class="flex-1 scrollable">
-                <mat-card-header>
-                    <h2>Team-Kalender</h2>
-                </mat-card-header>
-                <mat-card-content class="scrollable">
-                    <mat-selection-list #shoes>
-                        <mat-list-option *ngFor="let user of users"
-                                         color="primary"
-                                         togglePosition="before">
-                            <img matListItemAvatar
-                                 [src]="getAvatar(user)">
-                            <span matListItemLine>{{user.surname}} {{user.lastname}}</span>
-                        </mat-list-option>
-                    </mat-selection-list>
-                </mat-card-content>
-            </mat-card>
-
+        <div class="buttons">
+            <mat-button-toggle-group [value]="this.configNavigator.selectMode"
+                                     (change)="onViewModeChange($event.value)">
+                <mat-button-toggle value="Day">Tag</mat-button-toggle>
+                <mat-button-toggle value="Week">Woche</mat-button-toggle>
+                <mat-button-toggle value="Month">Monat</mat-button-toggle>
+            </mat-button-toggle-group>
         </div>
 
-        <!-- Der Kalender -->
-        <div class="flex-1 scrollable middle-padding">
-            <mat-card class="flex-1 scrollable">
-                <daypilot-calendar [class.hidden]="viewMode !== 'Day'"
-                                   #dayCalendar
-                                   [config]="calendarConfig"
-                                   [events]="events"></daypilot-calendar>
-                <daypilot-calendar [class.hidden]="viewMode !== 'Week'"
-                                   #weekCalendar
-                                   [config]="calendarConfig"
-                                   [events]="events"></daypilot-calendar>
-                <!-- <daypilot-month [class.hidden]="viewMode !== 'Month'"
-                                #monthCalendar
-                                [config]="calendarConfig"
-                                [events]="events"></daypilot-month> -->
-            </mat-card>
-        </div>
+        <daypilot-calendar [config]="configDay"
+                           [events]="events"
+                           #day>
+        </daypilot-calendar>
+        
+        <daypilot-calendar [config]="configWeek"
+                           [events]="events"
+                           #week>
+        </daypilot-calendar>
+        
+        <daypilot-month [config]="configMonth"
+                        [events]="events"
+                        #month>
+        </daypilot-month>
     </div>
 </div>
