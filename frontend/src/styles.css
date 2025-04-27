@@ -42,3 +42,7 @@ body {
 {
   flex-grow: 1 !important;
 }
+
+.cdk-overlay-pane {
+    background-color: white !important;
+}

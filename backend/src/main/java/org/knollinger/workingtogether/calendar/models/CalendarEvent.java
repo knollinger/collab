@@ -21,7 +21,7 @@ public class CalendarEvent
 
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
-    private String text;
+    private String title;
 
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
@@ -30,4 +30,12 @@ public class CalendarEvent
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.NONE)
     private Date end;
+    
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    private String desc;
+    
+    @Getter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.NONE)
+    private boolean fullDay;
 }

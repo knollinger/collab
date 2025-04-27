@@ -16,7 +16,8 @@ export class CalendarService {
 
   private static routes: Map<string, string> = new Map<string, string>(
     [
-      ['getAllEvents', 'v1/calendar/all?start={1}&end={2}']
+      ['getAllEvents', 'v1/calendar/all?start={1}&end={2}'],
+      ['getEvent', 'v1/calendar/get/{1}']
     ]
   );
 
@@ -40,13 +41,22 @@ export class CalendarService {
    */
   public getAllEvents(start: Date, end: Date): Observable<CalendarEvent[]> {
 
-    // TODO: toUTCString?
     const url = this.backendRouter.getRouteForName('getAllEvents', CalendarService.routes, start.toISOString(), end.toISOString());
     return this.http.get<ICalendarEvent[]>(url).pipe(
       map(events => {
         return events.map(event => {
           return CalendarEvent.fromJSON(event);
         })
+      })
+    );
+  }
+
+  public getEvent(uuid: string): Observable<CalendarEvent> {
+
+    const url = this.backendRouter.getRouteForName('getEvent', CalendarService.routes, uuid);
+    return this.http.get<ICalendarEvent>(url).pipe(
+      map(event => {
+        return CalendarEvent.fromJSON(event);
       })
     );
   }

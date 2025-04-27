@@ -61,7 +61,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatBadgeModule,
     MatChipsModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
   ],
   exports: [
     MatToolbarModule,
@@ -91,7 +91,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatBadgeModule,
     MatChipsModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
   ]
 })
 export class ModMaterialImportModule { }

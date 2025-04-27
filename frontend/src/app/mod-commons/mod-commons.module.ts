@@ -46,11 +46,11 @@ import { HintComponent } from './components/hint/hint.component';
 
 @NgModule({
   declarations: [
-    ToolbarComponent,
     ToolbarSeparatorComponent,
     FooterComponent,
     FileSizePipe,
     SafePipe,
+    ToolbarComponent,
     SpinnerComponent,
     MessageBoxComponent,
     InputBoxComponent,
@@ -60,7 +60,8 @@ import { HintComponent } from './components/hint/hint.component';
   imports: [
     CommonModule,
     ModMaterialImportModule,
-    FormsModule
+    FormsModule,
+
   ],
   exports: [
     ToolbarComponent,

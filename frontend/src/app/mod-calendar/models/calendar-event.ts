@@ -4,9 +4,11 @@ export interface ICalendarEvent {
 
     uuid: string,
     owner: string,
-    text: string,
+    title: string,
     start: Date,
-    end: Date
+    end: Date,
+    desc: string,
+    fullDay: boolean
 }
 
 export class CalendarEvent {
@@ -15,16 +17,19 @@ export class CalendarEvent {
      * 
      * @param uuid 
      * @param owner 
-     * @param text 
+     * @param title 
      * @param start 
      * @param end 
+     * @param desc
      */
     constructor(
         public readonly uuid: string,
         public readonly owner: string,
-        public readonly text: string,
+        public readonly title: string,
         public readonly start: Date,
-        public readonly end: Date) {
+        public readonly end: Date,
+        public readonly desc: string,
+        public readonly fullDay: boolean = false) {
 
     }
 
@@ -34,7 +39,7 @@ export class CalendarEvent {
      * @returns 
      */
     public static fromJSON(json: ICalendarEvent): CalendarEvent {
-        return new CalendarEvent(json.uuid, json.owner, json.text, json.start, json.end);
+        return new CalendarEvent(json.uuid, json.owner, json.title, json.start, json.end, json.desc, json.fullDay);
     }
 
     /**
@@ -45,9 +50,11 @@ export class CalendarEvent {
         return {
             uuid: this.uuid,
             owner: this.owner,
-            text: this.text,
+            title: this.title,
             start: this.start,
-            end: this.end
+            end: this.end,
+            desc: this.desc,
+            fullDay: this.fullDay
         }
     }
 
@@ -58,7 +65,7 @@ export class CalendarEvent {
      */
     public static fromDayPilotEvent(evt: DayPilot.Event): CalendarEvent {
 
-        return new CalendarEvent(evt.id().toString(), '', evt.text(), evt.start().toDate(), evt.end().toDate());
+        return new CalendarEvent(evt.id().toString(), '', evt.text(), evt.start().toDate(), evt.end().toDate(), '', false);
     }
 
     /**
@@ -71,7 +78,7 @@ export class CalendarEvent {
             start: new DayPilot.Date(this.start, true),
             end: new DayPilot.Date(this.end, true),
             id: this.uuid,
-            text: this.text
+            text: this.title
         }
         return data;
     }

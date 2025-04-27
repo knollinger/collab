@@ -17,6 +17,7 @@ import { EnsureCookiesInterceptor } from './mod-commons/mod-commons.module';
 import { HomeComponent } from './home/home.component';
 import { InitComponent } from './init/init.component';
 import { LicencesComponent } from './licences/licences.component';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 @NgModule({
   declarations: [
@@ -59,6 +60,9 @@ import { LicencesComponent } from './licences/licences.component';
       provide: HTTP_INTERCEPTORS,
       useClass: ErrorInterceptor,
       multi: true
+    },
+    { provide: MAT_DATE_LOCALE, 
+      useValue: 'de-DE' 
     },
   ],
   bootstrap: [AppComponent]

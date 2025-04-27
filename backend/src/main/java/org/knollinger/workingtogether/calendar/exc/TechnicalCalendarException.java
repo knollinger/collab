@@ -1,4 +1,4 @@
-package org.knollinger.workingtogether.calendar;
+package org.knollinger.workingtogether.calendar.exc;
 
 /**
  * 

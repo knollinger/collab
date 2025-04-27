@@ -2,8 +2,10 @@ package org.knollinger.workingtogether.calendar.services;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
-import org.knollinger.workingtogether.calendar.TechnicalCalendarException;
+import org.knollinger.workingtogether.calendar.exc.NotFoundException;
+import org.knollinger.workingtogether.calendar.exc.TechnicalCalendarException;
 import org.knollinger.workingtogether.calendar.models.CalendarEvent;
 
 /**
@@ -20,4 +22,12 @@ public interface ICalendarService
      * @throws TechnicalCalendarException 
      */
     List<CalendarEvent> getAllEvents(Date start, Date end) throws TechnicalCalendarException;
+
+    /**
+     * @param uuid
+     * @return
+     * @throws NotFoundException
+     * @throws TechnicalCalendarException
+     */
+    CalendarEvent getEvent(UUID uuid) throws NotFoundException, TechnicalCalendarException;
 }
