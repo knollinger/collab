@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
@@ -80,16 +80,35 @@ export class CalendarEventEditorComponent implements OnInit {
       .subscribe(params => {
 
         const uuid = params['uuid'];
-        this.calSvc.getEvent(uuid)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(evt => {
+        this.loadEvent(uuid);
+      });
+  }
 
-            this.eventForm.get('title')?.setValue(evt.title);
-            this.eventForm.get('start')?.setValue(evt.start);
-            this.eventForm.get('end')?.setValue(evt.end);
-            this.eventForm.get('desc')?.setValue(evt.desc);
-            this.eventForm.get('fullDay')?.setValue(evt.fullDay);
-          });
+  /**
+   * Wenn die Component embedded wird, so ist die uuid als 
+   * InputProperty zu setzen
+   */
+  @Input()
+  set uuid(uuid: string) {
+    this.loadEvent(uuid);
+  }
+
+  /**
+   * Lade das Event
+   * 
+   * @param uuid 
+   */
+  private loadEvent(uuid: string) {
+
+    this.calSvc.getEvent(uuid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(evt => {
+
+        this.eventForm.get('title')?.setValue(evt.title);
+        this.eventForm.get('start')?.setValue(evt.start);
+        this.eventForm.get('end')?.setValue(evt.end);
+        this.eventForm.get('desc')?.setValue(evt.desc);
+        this.eventForm.get('fullDay')?.setValue(evt.fullDay);
       });
   }
 

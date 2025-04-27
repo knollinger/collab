@@ -25,7 +25,7 @@ export class CalendarMainComponent implements AfterViewInit {
   date = DayPilot.Date.today();
 
   configNavigator: DayPilot.NavigatorConfig = {
-    locale: navigator.language,
+    locale: navigator.language, // TODO: in FF kommt hier nur ein 'de'. da wirft im Navigator einen "TypeError: r.locale() is undefined"
     showMonths: 3,
     cellWidth: 25,
     cellHeight: 25,
@@ -40,6 +40,7 @@ export class CalendarMainComponent implements AfterViewInit {
     weekStarts: 1,
     cellHeight: 32,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
+    onEventMove: this.onEventMove.bind(this),
     onBeforeEventRender: this.onBeforeEventRender.bind(this),
     onEventClick: this.onEventClick.bind(this),
   };
@@ -50,6 +51,7 @@ export class CalendarMainComponent implements AfterViewInit {
     locale: navigator.language,
     weekStarts: 1,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
+    onEventMove: this.onEventMove.bind(this),
     onBeforeEventRender: this.onBeforeEventRender.bind(this),
     onEventClick: this.onEventClick.bind(this),
   };
@@ -59,6 +61,8 @@ export class CalendarMainComponent implements AfterViewInit {
     locale: navigator.language,
     weekStarts: 1,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
+    onEventMove: this.onEventMove.bind(this),
+    onBeforeEventRender: this.onBeforeEventRender.bind(this),
     onEventClick: this.onEventClick.bind(this),
   };
 
@@ -79,6 +83,54 @@ export class CalendarMainComponent implements AfterViewInit {
     this.configWeek.startDate = date;
     this.configMonth.startDate = date;
   }
+
+  /**
+   * 
+   */
+  onGoBack() {
+
+    switch (this.configNavigator.selectMode) {
+      case 'Day':
+        this.date = this.date.addDays(-1);
+        break;
+
+      case 'Week':
+        this.date = this.date.addDays(-7);
+        break;
+
+      case 'Month':
+        this.date = this.date.addMonths(1);
+        break;
+    }
+  }
+
+  /**
+   * 
+   */
+  onGoToday() {
+    this.date = DayPilot.Date.today();
+  }
+
+  /**
+   * 
+   */
+  onGoFore() {
+
+    switch (this.configNavigator.selectMode) {
+      case 'Day':
+        this.date = this.date.addDays(1);
+        break;
+
+      case 'Week':
+        this.date = this.date.addDays(7);
+        break;
+
+      case 'Month':
+        this.date = this.date.addMonths(1);
+        break;
+    }
+  }
+
 
   loadEvents(): void {
     const from = this.nav.control.visibleStart();
@@ -128,7 +180,7 @@ export class CalendarMainComponent implements AfterViewInit {
         right: 4,
         width: 24,
         height: 24,
-        html: '<mat-icon class="material-symbols-outlined">delete</mat-icon>',
+        html: '<mat-icon class="material-symbols-outlined" style="background-color: white;">delete</mat-icon>',
         action: "None",
         toolTip: "Löschen",
         onClick: async (args: any) => {
@@ -158,7 +210,7 @@ export class CalendarMainComponent implements AfterViewInit {
   onEventMove(args: any) {
 
     // doMove(args.control, args.e.id(), args.newStart, args.newEnd);
-
+    alert('not yet implemented');
   }
 
 }

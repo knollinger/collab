@@ -1,5 +1,5 @@
 <div class="container">
-    
+
     <div class="navigator">
         <daypilot-navigator [config]="configNavigator"
                             [events]="events"
@@ -12,7 +12,24 @@
     <div class="content">
 
         <div class="buttons">
-            <mat-button-toggle-group [value]="this.configNavigator.selectMode"
+
+            <div class="date-selection">
+
+                <button class="date-sel-btn" mat-flat-button color="primary" (click)="onGoBack()">
+                    <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
+                </button>
+                <button class="date-sel-btn"  mat-flat-button color="primary" (click)="onGoToday()">
+                    <mat-icon class="material-symbols-outlined">today</mat-icon>
+                    <span>Heute</span>
+                </button>
+                <button class="date-sel-btn" mat-flat-button color="primary" (click)="onGoFore()">
+                    <mat-icon class="material-symbols-outlined" iconPositionEnd>chevron_right</mat-icon>
+                </button>
+            </div>
+            <span class="title"></span>
+
+            <mat-button-toggle-group class="view-mode"
+                                     [value]="this.configNavigator.selectMode"
                                      (change)="onViewModeChange($event.value)">
                 <mat-button-toggle value="Day">Tag</mat-button-toggle>
                 <mat-button-toggle value="Week">Woche</mat-button-toggle>
@@ -24,12 +41,12 @@
                            [events]="events"
                            #day>
         </daypilot-calendar>
-        
+
         <daypilot-calendar [config]="configWeek"
                            [events]="events"
                            #week>
         </daypilot-calendar>
-        
+
         <daypilot-month [config]="configMonth"
                         [events]="events"
                         #month>

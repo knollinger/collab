@@ -14,4 +14,21 @@
 
 .buttons {
     margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.date-selection {
+    flex: 0 0 auto;
+}
+
+.date-sel-btn {
+    margin-right: 0.5rem;
+} 
+
+.title {
+    flex: 1 1 auto;
+}
+.viewm-ode {
+    flex: 0 0 auto;
 }
