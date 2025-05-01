@@ -45,7 +45,7 @@ export class CalendarEventMainEditorComponent implements OnInit {
       title: 'Benutzer-Definiert',
       value: 'USER_DEFINED'
     },
-  ]
+  ];
 
   /**
    * 
@@ -73,7 +73,7 @@ export class CalendarEventMainEditorComponent implements OnInit {
     this.eventForm.get('start')?.setValue(this.event.start);
     this.eventForm.get('end')?.setValue(this.event.end);
     this.eventForm.get('desc')?.setValue(this.event.desc);
-    this.eventForm.get('fullDay')?.setValue(this.event.fullDay);    
+    this.eventForm.get('fullDay')?.setValue(this.event.fullDay);
   }
 
   /**

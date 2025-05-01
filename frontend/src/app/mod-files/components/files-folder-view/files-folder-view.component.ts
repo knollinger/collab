@@ -5,7 +5,7 @@ import { INode } from '../../models/inode';
 import { FilesDroppedEvent, INodeDroppedEvent } from '../../directives/drop-target.directive';
 import { INodeService } from '../../services/inode.service';
 import { UploadService } from '../../services/upload.service';
-import { InputBoxService, MessageBoxService } from '../../../mod-commons/mod-commons.module';
+import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 import { ContentTypeService } from '../../services/content-type.service';
 import { ShowDuplicateFilesService } from '../../services/show-duplicate-files.service';
 import { ClipboardService } from '../../services/clipboard.service';
@@ -80,8 +80,7 @@ export class FilesFolderViewComponent implements OnInit {
     private router: Router,
     private inodeSvc: INodeService,
     private uploadSvc: UploadService,
-    private messageBoxSvc: MessageBoxService,
-    private inputBoxSvc: InputBoxService,
+    private commonsDlgSvc: CommonDialogsService,
     private clipboardSvc: ClipboardService,
     private contentTypeSvc: ContentTypeService,
     private showDuplFilesSvc: ShowDuplicateFilesService,
@@ -166,7 +165,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   public onCreateDocument(desc: CreateMenuItemDesc) {
 
-    this.inputBoxSvc.showInputBox('Ein neues Dokument anlegen', 'Name')
+    this.commonsDlgSvc.showInputBox('Ein neues Dokument anlegen', 'Name')
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(name => {
 
@@ -371,7 +370,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onRename(inode: INode) {
 
-    this.inputBoxSvc.showInputBox('Umbenennen', 'Neuer Datei-Name', inode.name)
+    this.commonsDlgSvc.showInputBox('Umbenennen', 'Neuer Datei-Name', inode.name)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(newName => {
 
@@ -409,7 +408,7 @@ export class FilesFolderViewComponent implements OnInit {
         uuids.push(node.uuid);
       })
       msg += '<p class=\"small-top-spacer\">Diese Operation kann nicht rückgängig gemacht werden!</p>';
-      this.messageBoxSvc.showQueryBox('Bist Du sicher?', msg).subscribe(rsp => {
+      this.commonsDlgSvc.showQueryBox('Bist Du sicher?', msg).subscribe(rsp => {
 
         if (rsp) {
           this.inodeSvc.delete(uuids)

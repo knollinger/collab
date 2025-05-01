@@ -6,7 +6,7 @@ import { UserService } from '../../services/user.service';
 import { User } from '../../../mod-userdata/models/user';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
-import { MessageBoxService } from '../../../mod-commons/mod-commons.module';
+import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
   selector: 'app-user-edit',
@@ -32,7 +32,7 @@ export class UserEditComponent implements OnInit {
     formBuilder: FormBuilder,
     private userSvc: UserService,
     private avatarSvc: AvatarService,
-    private msgBoxSvc: MessageBoxService) {
+    private msgBoxSvc: CommonDialogsService) {
 
     this.profileForm = formBuilder.nonNullable.group(
       {

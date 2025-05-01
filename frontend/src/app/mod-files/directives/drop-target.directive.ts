@@ -24,7 +24,8 @@ export class INodeDroppedEvent {
  * 
  */
 @Directive({
-  selector: '[appDropTarget]'
+  selector: '[appDropTarget]',
+  standalone: false
 })
 export class DropTargetDirective {
 

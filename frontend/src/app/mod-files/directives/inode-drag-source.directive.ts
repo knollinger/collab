@@ -4,7 +4,8 @@ import { CheckPermissionsService } from '../services/check-permissions.service';
 import { Permissions } from '../models/permissions';
 
 @Directive({
-  selector: '[appINodeDragSource]'
+  selector: '[appINodeDragSource]',
+  standalone: false
 })
 export class INodeDragSourceDirective {
 

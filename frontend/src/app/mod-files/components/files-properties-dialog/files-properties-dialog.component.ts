@@ -20,7 +20,8 @@ export interface FilesPropertiesDialogData {
 @Component({
   selector: 'app-files-properties-dialog',
   templateUrl: './files-properties-dialog.component.html',
-  styleUrls: ['./files-properties-dialog.component.css']
+  styleUrls: ['./files-properties-dialog.component.css'],
+  standalone: false
 })
 export class FilesPropertiesDialogComponent implements OnInit {
 

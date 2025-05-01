@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, throwError, of } from 'rxjs';
 
-import { MessageBoxService } from '../services/message-box.service';
+import { CommonDialogsService } from '../services/common-dialogs.service';
 import { Router } from '@angular/router';
 
 /**
  * Der Error-Interceptor springt bei allen HttpErrorResponses an und zeigt
- * einen Fehler mittels des **MessageBoxService** an. 
+ * einen Fehler mittels des **CommonDialogsService** an. 
  * 
  * Wenn im Body ein JSON-Objekt mit der eigenschafft "message" geliefert wird, 
  * so wird diese angezeigt. Anderenfalls generiert der Interceptor eine mehr
@@ -31,7 +31,7 @@ export class ErrorInterceptor implements HttpInterceptor {
    */
   constructor(
     private router: Router,
-    private msgService: MessageBoxService) {
+    private msgService: CommonDialogsService) {
   }
 
   /**

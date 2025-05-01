@@ -12,11 +12,8 @@ export { BackendRoutingService }
 import { SpinnerService } from './services/spinner.service';
 export { SpinnerService }
 
-import { InputBoxService } from './services/input-box.service';
-export { InputBoxService }
-
-import { MessageBoxService } from './services/message-box.service';
-export { MessageBoxService }
+import { CommonDialogsService } from './services/common-dialogs.service';
+export { CommonDialogsService }
 
 import { CryptoService } from './services/crypto.service';
 export { CryptoService }
