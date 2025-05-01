@@ -14,9 +14,8 @@
         </mat-tab>
 
         <mat-tab label="Hashtags">
-            <app-files-hashtags class="tab-content"
-                                [(inode)]="inode"
-                                (hashTagsChanged)="onHashTagChange($event)"></app-files-hashtags>
+            <app-hashtag-selector class="tab-content"
+                                  [(hashTags)]="hashTags"></app-hashtag-selector>
         </mat-tab>
     </mat-tab-group>
 

@@ -43,6 +43,10 @@ const routes: Routes = [
   {
     path: 'session',
     loadChildren: () => import('./mod-session/session.module').then(mod => mod.ModSessionModule)
+  },
+  {
+    path: 'search',
+    loadChildren: () => import('./mod-search/mod-search.module').then(mod => mod.ModSearchModule)
   }
 ];
 

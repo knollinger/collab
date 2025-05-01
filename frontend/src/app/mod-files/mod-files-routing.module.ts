@@ -8,23 +8,18 @@ import { FilesPreviewComponent } from './components/files-preview/files-preview.
 
 const routes: Routes = [
   {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: 'show'
-  },
-  {
-    path: 'show',
+    path: 'main',
     component: FilesMainViewComponent,
     canActivate: [SessionRequiredGuard],
   },
   {
-    path: 'show/:leftPanel',
+    path: 'main/:leftPanel',
     component: FilesMainViewComponent,
     canActivate: [SessionRequiredGuard],
   },
   
   {
-    path: 'show/:leftPanel/:rightPanel',
+    path: 'main/:leftPanel/:rightPanel',
     component: FilesMainViewComponent,
     canActivate: [SessionRequiredGuard],
   },

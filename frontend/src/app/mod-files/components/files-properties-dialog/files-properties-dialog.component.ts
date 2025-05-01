@@ -11,6 +11,7 @@ import { HashTagConstants, HashTagService } from '../../../mod-hashtags/mod-hash
  */
 export interface FilesPropertiesDialogData {
   inode: INode;
+  hashTags: string[],
 }
 
 /**
@@ -24,19 +25,8 @@ export interface FilesPropertiesDialogData {
 export class FilesPropertiesDialogComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
-
   private _inode: INode = INode.empty();
-
-  set inode(val: INode) {
-    this._inode = val;
-    this.disableSaveBtn = false;
-  }
-
-  get inode(): INode {
-    return this._inode;
-  }
-
-  private newHashTags: string[] | null = null;
+  private _hashTags: string[] = new Array<string>();
 
   disableSaveBtn: boolean = true;
 
@@ -52,6 +42,7 @@ export class FilesPropertiesDialogComponent implements OnInit {
     private hashTagSvc: HashTagService) {
 
     this.inode = data.inode;
+    this.hashTags = data.hashTags;
     this.disableSaveBtn = true;
   }
 
@@ -63,31 +54,43 @@ export class FilesPropertiesDialogComponent implements OnInit {
 
   /**
    * 
-   * @param tags 
    */
-  onHashTagChange(tags: string[]) {
-
-    this.newHashTags = tags;
+  set inode(val: INode) {
+    this._inode = val;
     this.disableSaveBtn = false;
   }
 
+  /**
+   * 
+   */
+  get inode(): INode {
+    return this._inode;
+  }
+
+  /**
+   * 
+   */
+  set hashTags(tags: string[]) {
+    this._hashTags = tags;
+    this.disableSaveBtn = false;
+  }
+  
+  /**
+   * 
+   */
+  get hashTags(): string[] {
+    return this._hashTags;
+  }
+  
+  /**
+   * 
+   */
   onSave() {
-    this.inodeSvc.update(this.inode) //
-      .pipe(takeUntilDestroyed(this.destroyRef)) //
-      .subscribe(inode => {
 
-        if (!this.newHashTags) {
-          this.dialogRef.close(inode);
-        }
-        else {
-          this.hashTagSvc.saveHashTags(this.inode.uuid, HashTagConstants.INODE, this.newHashTags)
-            .pipe(takeUntilDestroyed(this.destroyRef)) //
-            .subscribe(_ => {
-              this.dialogRef.close(inode);
-            })
-        }
-
-      })
+    const result = {
+      inode: this.inode,
+      hashTags: this.hashTags
+    }
+    this.dialogRef.close(result);
   }
 }
-

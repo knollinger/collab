@@ -7,7 +7,8 @@ import { INode } from "../../models/inode";
 @Component({
     selector: 'app-files-properties-commons',
     templateUrl: './files-properties-commons.component.html',
-    styleUrls: ['./files-properties-commons.component.css']
+    styleUrls: ['./files-properties-commons.component.css'],
+    standalone: false
 })
 export class FilesPropertiesCommonsComponent implements OnInit {
 

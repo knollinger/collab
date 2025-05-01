@@ -1,6 +1,5 @@
-<form class="full-height middle-padding scrollable disp-flex flex-col"
-      [formGroup]="eventForm"
-      (ngSubmit)="onSubmit()">
+<form class="outer-cnr scrollable disp-flex flex-col"
+      [formGroup]="eventForm">
 
     <div class="grid scrollable flex-1">
         <!-- Titel-Control -->
@@ -43,7 +42,7 @@
         <div class="grid-row-0"
              *ngIf="!isFullDay">
 
-            <mat-form-field class="grid-col-1">
+            <mat-form-field class="grid-col-2">
                 <mat-label>Beginn</mat-label>
                 <input matInput
                        [ngxMatDatetimePicker]="startDatePicker"
@@ -55,7 +54,7 @@
                 </ngx-mat-datetime-picker>
             </mat-form-field>
 
-            <mat-form-field class="grid-col-1">
+            <mat-form-field class="grid-col-2">
                 <mat-label>Ende</mat-label>
                 <input matInput
                        [ngxMatDatetimePicker]="endDatePicker"
@@ -90,7 +89,7 @@
         </div>
 
         <!-- Beschreibung -->
-        <div class="grid-row">
+        <div class="grid-row-1">
             <mat-form-field class="grid-col-4  full-height">
                 <mat-label>Beschreibung</mat-label>
                 <textarea matInput
@@ -99,14 +98,4 @@
             </mat-form-field>
         </div>
     </div>
-    
-    <div class="flex-0">
-        <button mat-flat-button
-                color="primary"
-                class="small-right-spacer"
-                type="submit">Speichern</button>
-        <button mat-button
-                (click)="onGoBack()">Abbrechen</button>
-    </div>
-
 </form>

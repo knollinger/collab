@@ -14,25 +14,34 @@ import { FormControl } from '@angular/forms';
 @Component({
   selector: 'app-hashtag-selector',
   templateUrl: './hashtag-selector.component.html',
-  styleUrls: ['./hashtag-selector.component.css']
+  styleUrls: ['./hashtag-selector.component.css'],
+  standalone: false
 })
 export class HashTagSelectorComponent implements OnInit {
 
-  @Input()
-  resourceId: string = '';
-
   @Output()
-  hashTagsChanged: EventEmitter<string[]> = new EventEmitter<string[]>();
+  hashTagsChange: EventEmitter<string[]> = new EventEmitter<string[]>();
 
   private destroyRef = inject(DestroyRef);
 
   separatorKeysCodes: number[] = [ENTER, COMMA, SPACE];
 
   allHashTags: string[] = new Array<string>();
-  hashTags: Set<string> = new Set<string>();
+  tags: Set<string> = new Set<string>();
   filteredHashTags: Observable<string[]>;
 
   hashTagCtrl = new FormControl('');
+
+  @Input()
+  set hashTags(tags: string[]) {
+
+    const unique = new Set<string>();
+    tags.forEach(tag => {
+      unique.add(tag);
+    });
+    this.tags = unique;
+  }
+
 
   /**
    * 
@@ -54,13 +63,6 @@ export class HashTagSelectorComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(allTags => {
         this.allHashTags = allTags;
-
-        this.hashTagSvc.getHashTagsByResourceId(this.resourceId)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(tags => {
-
-            this.hashTags = new Set<string>(tags);
-          })
       })
   }
 
@@ -77,7 +79,7 @@ export class HashTagSelectorComponent implements OnInit {
     }
 
     if (value) {
-      this.hashTags.add(value);
+      this.tags.add(value);
       this.notifyObservers();
     }
 
@@ -91,7 +93,7 @@ export class HashTagSelectorComponent implements OnInit {
    * @param hashTag 
    */
   onRemove(hashTag: string): void {
-    this.hashTags.delete(hashTag.toLowerCase());
+    this.tags.delete(hashTag.toLowerCase());
     this.notifyObservers();
   }
 
@@ -100,7 +102,7 @@ export class HashTagSelectorComponent implements OnInit {
    * @param event 
    */
   onAutoCompleteSelected(event: MatAutocompleteSelectedEvent): void {
-    this.hashTags.add(event.option.viewValue);
+    this.tags.add(event.option.viewValue);
     this.hashTagCtrl.setValue(null);
     this.notifyObservers();
   }
@@ -111,10 +113,10 @@ export class HashTagSelectorComponent implements OnInit {
   private notifyObservers() {
 
     const result = new Array<string>();
-    this.hashTags.forEach(tag => {
+    this.tags.forEach(tag => {
       result.push(tag);
     })
-    this.hashTagsChanged.emit(result);
+    this.hashTagsChange.emit(result);
   }
 
   private _filter(value: string): string[] {

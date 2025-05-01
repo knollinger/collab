@@ -11,7 +11,8 @@ import { SpinnerService } from '../../services/spinner.service';
 @Component({
   selector: 'app-spinner',
   templateUrl: './spinner.component.html',
-  styleUrls: ['./spinner.component.css']
+  styleUrls: ['./spinner.component.css'],
+  standalone: false
 })
 @Injectable({
   providedIn: 'root'

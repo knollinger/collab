@@ -10,7 +10,8 @@ export interface MessageBoxData {
 @Component({
   selector: 'app-message-box',
   templateUrl: './message-box.component.html',
-  styleUrls: ['./message-box.component.css']
+  styleUrls: ['./message-box.component.css'],
+  standalone: false
 })
 export class MessageBoxComponent implements OnInit {
 

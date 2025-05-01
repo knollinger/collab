@@ -13,7 +13,8 @@ export interface IInputBoxData {
 @Component({
   selector: 'app-input-box',
   templateUrl: './input-box.component.html',
-  styleUrls: ['./input-box.component.css']
+  styleUrls: ['./input-box.component.css'],
+  standalone: false
 })
 export class InputBoxComponent implements OnInit {
 

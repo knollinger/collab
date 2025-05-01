@@ -3,12 +3,17 @@ import { NgModule } from "@angular/core";
 
 import { SessionRequiredGuard } from '../mod-session/session.module';
 
-import { CalendarMainComponent } from './components/calendar-main/calendar-main.component';
+import { SearchMainComponent } from './components/search-main/search-main.component';
 
 const routes: Routes = [
   {
-    path: 'show',
-    component: CalendarMainComponent,
+    path: '',
+    pathMatch: 'full',
+    redirectTo: 'main'
+  },
+  {
+    path: 'main',
+    component: SearchMainComponent,
     canActivate: [SessionRequiredGuard],
   },
 ]
@@ -17,6 +22,6 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class ModCalendarRoutingModule {
+export class ModSearchRoutingModule {
 
 }

@@ -13,7 +13,8 @@ import { MatSelectChange } from "@angular/material/select";
 @Component({
     selector: 'app-files-properties-permissions',
     templateUrl: './files-properties-permissions.component.html',
-    styleUrls: ['./files-properties-permissions.component.css']
+    styleUrls: ['./files-properties-permissions.component.css'],
+    standalone: false
 })
 export class FilesPropertiesPermissionsComponent implements OnInit {
 

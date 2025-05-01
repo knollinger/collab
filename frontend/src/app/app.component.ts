@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { filter } from 'rxjs';
 
 import { TitlebarService } from './mod-commons/mod-commons.module';
 import { SessionService } from './mod-session/session.module';
 import { INodeSearchResultItem, ISearchResultItem } from './mod-search/models/search-result';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +14,7 @@ import { Router } from '@angular/router';
 export class AppComponent implements OnInit {
 
   public title: string = '';
+  private _showSearch: boolean = false;
 
   /**
    * 
@@ -38,6 +40,8 @@ export class AppComponent implements OnInit {
         document.title = newTitle;
       }, 10);
     });
+
+    this.establishRouterGuard();
   }
 
   /**
@@ -46,6 +50,10 @@ export class AppComponent implements OnInit {
    */
   get isLoggedOn(): boolean {
     return !this.sessSvc.currentUser.isEmpty();
+  }
+
+  get isShowSearch(): boolean {
+    return this.isLoggedOn && this._showSearch;
   }
 
   /** 
@@ -60,8 +68,17 @@ export class AppComponent implements OnInit {
         break;
 
       default:
-//        console.log(`unexpected search result type ${search.type}`);
+        //        console.log(`unexpected search result type ${search.type}`);
         break;
     }
+  }
+  private establishRouterGuard() {
+
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd))
+      .subscribe(event => {
+        const url = (event as NavigationEnd).url;
+        this._showSearch = (url !== '/search');
+      });
   }
 }

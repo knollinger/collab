@@ -29,6 +29,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatExpansionModule } from '@angular/material/expansion'
 
 @NgModule({
   declarations: [],
@@ -62,6 +63,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatChipsModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatExpansionModule
   ],
   exports: [
     MatToolbarModule,
@@ -92,6 +94,7 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatChipsModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatExpansionModule
   ]
 })
 export class ModMaterialImportModule { }

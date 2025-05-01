@@ -37,13 +37,13 @@ export class HomeComponent implements OnInit {
       {
         name: 'Dateien',
         icon: this.backendRouterSvc.getRouteForName("getIcon", HomeComponent.routes, "folder"),
-        url: '/files',
+        url: '/files/main',
         disabled: false
       },
       {
         name: 'Kalender',
         icon: this.backendRouterSvc.getRouteForName("getIcon", HomeComponent.routes, "calendar"),
-        url: '/calendar',
+        url: '/calendar/show',
         disabled: false
       },
       {

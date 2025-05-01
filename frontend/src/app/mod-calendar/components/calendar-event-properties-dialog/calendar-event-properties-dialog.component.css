@@ -1,0 +1,18 @@
+
+.buttons {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.tab-content {
+    display: block;
+    height: 400px;
+    /* width: 350px; */
+    margin-top: 1rem;
+}
+
+.tab-icon {
+    margin-right: 0.5rem;
+}
+

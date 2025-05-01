@@ -1,0 +1,69 @@
+<h1 mat-dialog-title>Kalender-Eintrag bearbeiten</h1>
+<mat-dialog-content class="mat-typography">
+    <mat-tab-group>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="material-symbols-outlined"
+                          class="tab-icon">calendar_today</mat-icon>
+                Termin
+            </ng-template>
+            <div class="tab-content">
+                <app-calendar-event-main-editor [event]="event"></app-calendar-event-main-editor>
+
+            </div>
+        </mat-tab>
+
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="material-symbols-outlined"
+                          class="tab-icon">person</mat-icon>
+                Personen
+            </ng-template>
+            <div class="tab-content">
+
+            </div>
+        </mat-tab>
+
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="material-symbols-outlined"
+                          class="tab-icon">location_on</mat-icon>
+                Ort
+            </ng-template>
+            <div class="tab-content">
+            </div>
+        </mat-tab>
+
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="material-symbols-outlined"
+                          class="tab-icon">description</mat-icon>
+                Dateien
+            </ng-template>
+            <div class="tab-content">
+
+            </div>
+        </mat-tab>
+
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="material-symbols-outlined"
+                          class="tab-icon">tag</mat-icon>
+                Hashtags
+            </ng-template>
+            <div class="tab-content">
+                <app-hashtag-selector [(hashTags)]="hashTags"></app-hashtag-selector>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+</mat-dialog-content>
+
+<!-- die ButtonArea -->
+<mat-dialog-actions>
+    <button mat-flat-button
+            color="primary"
+            (click)="onSave()">Speichern</button>
+    <button mat-button
+            color="primary"
+            [mat-dialog-close]="false">Abbrechen</button>
+</mat-dialog-actions>

@@ -5,6 +5,7 @@ import { Observable, map } from 'rxjs';
 
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 import { CalendarEvent, ICalendarEvent } from '../models/calendar-event';
+import { FullCalendarEvent, IFullCalendarEvent } from '../models/full-calendar-event';
 
 /**
  * 
@@ -60,26 +61,13 @@ export class CalendarService {
     );
   }
 
-  public getEvent(uuid: string): Observable<CalendarEvent> {
+  public getEvent(uuid: string): Observable<FullCalendarEvent> {
 
     const url = this.backendRouter.getRouteForName('getEvent', CalendarService.routes, uuid);
-    return this.http.get<ICalendarEvent>(url).pipe(
+    return this.http.get<IFullCalendarEvent>(url).pipe(
       map(event => {
-        return CalendarEvent.fromJSON(event);
+        return FullCalendarEvent.fromJSON(event);
       })
     );
   }
-
-
-  getColors(): any[] {
-    const colors = [
-      { name: "Green", id: CalendarService.colors.green },
-      { name: "Yellow", id: CalendarService.colors.yellow },
-      { name: "Red", id: CalendarService.colors.red },
-      { name: "Gray", id: CalendarService.colors.gray },
-      { name: "Blue", id: CalendarService.colors.blue },
-    ];
-    return colors;
-  }
-
 }

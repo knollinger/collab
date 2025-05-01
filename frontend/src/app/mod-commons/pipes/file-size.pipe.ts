@@ -15,7 +15,8 @@ import { Pipe, PipeTransform } from '@angular/core';
  * Verantwortung von Intl.NumberFormat
  */
 @Pipe({
-  name: 'fileSize'
+  name: 'fileSize',
+  standalone: false
 })
 export class FileSizePipe implements PipeTransform {
 

@@ -7,7 +7,8 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-hint',
   templateUrl: './hint.component.html',
-  styleUrls: ['./hint.component.css']
+  styleUrls: ['./hint.component.css'],
+  standalone: false
 })
 export class HintComponent {
 

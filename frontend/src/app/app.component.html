@@ -13,25 +13,17 @@
             <!-- Titel -->
             <span class="flex-1 small-left-right-spacer">{{title}}</span>
 
+            <!-- Suche -->
+            <button mat-icon-button
+                    routerLink="/search"
+                    class="flex-0"
+                    *ngIf="isShowSearch">
+                <mat-icon class="material-symbols-outlined">search</mat-icon>
+            </button>
+
             <!-- SessionMenu -->
             <app-session-menu class="flex-0 small-right-spacer"></app-session-menu>
 
-            <!-- Help -->
-            <mat-icon class="material-symbols-outlined flex-0"
-                      matRipple
-                      [matMenuTriggerFor]="helpMenu">help</mat-icon>
-            <mat-menu #helpMenu="matMenu">
-                <button mat-menu-item>Hilfe</button>
-                <mat-divider></mat-divider> 
-                <button mat-menu-item routerLink="/licences">Opensource-Lizenzen</button>
-            </mat-menu>
-
-        </mat-toolbar-row>
-
-        <mat-toolbar-row *ngIf="isLoggedOn">
-            <app-search-bar placeholder="Suchen..."
-                            class="flex-1"
-                            (found)="onSearchResult($event)"></app-search-bar>
         </mat-toolbar-row>
 
     </mat-toolbar>
@@ -51,7 +43,7 @@
 
                 <!-- Dateien -->
                 <button mat-menu-item
-                        routerLink="/files"
+                        routerLink="/files/main"
                         matTooltip="Dateien">
                     <mat-icon class="material-symbols-outlined">folder</mat-icon>
                     <span>Dateien</span>
@@ -59,7 +51,7 @@
 
                 <!-- Kalender -->
                 <button mat-menu-item
-                        routerLink="/calendar"
+                        routerLink="/calendar/show"
                         matTooltip="Kalender">
                     <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
                     <span>Kalender</span>

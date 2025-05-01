@@ -35,6 +35,22 @@ export class CalendarEvent {
 
     /**
      * 
+     * @returns 
+     */
+    public static empty(): CalendarEvent {
+        return new CalendarEvent('', '', '', new Date(), new Date(), '');
+    }
+
+    /**
+     * 
+     * @returns 
+     */
+    public isEmpty(): boolean {
+        return !this.uuid;
+    }
+
+    /**
+     * 
      * @param json 
      * @returns 
      */

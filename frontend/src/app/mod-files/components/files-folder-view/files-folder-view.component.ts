@@ -8,7 +8,6 @@ import { UploadService } from '../../services/upload.service';
 import { InputBoxService, MessageBoxService } from '../../../mod-commons/mod-commons.module';
 import { ContentTypeService } from '../../services/content-type.service';
 import { ShowDuplicateFilesService } from '../../services/show-duplicate-files.service';
-import { FilesPropertiesService } from '../../services/files-properties.service';
 import { ClipboardService } from '../../services/clipboard.service';
 import { SessionService } from '../../../mod-session/session.module';
 import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
@@ -16,6 +15,9 @@ import { CheckPermissionsService } from '../../services/check-permissions.servic
 import { Permissions } from '../../models/permissions';
 import { CreateMenuItemDesc } from '../../models/create-menu-item';
 import { Router } from '@angular/router';
+import { HashTagService } from '../../../mod-hashtags/mod-hashtags.module';
+import { MatDialog } from '@angular/material/dialog';
+import { FilesPropertiesDialogComponent } from '../files-properties-dialog/files-properties-dialog.component';
 
 @Component({
   selector: 'app-folder-view',
@@ -82,9 +84,10 @@ export class FilesFolderViewComponent implements OnInit {
     private clipboardSvc: ClipboardService,
     private contentTypeSvc: ContentTypeService,
     private showDuplFilesSvc: ShowDuplicateFilesService,
-    private propsSvc: FilesPropertiesService,
+    private hashTagSvc: HashTagService,
     private sessionSvc: SessionService,
-    private checkPermsSvc: CheckPermissionsService) {
+    private checkPermsSvc: CheckPermissionsService,
+    private dialog: MatDialog) {
 
   }
 
@@ -346,7 +349,7 @@ export class FilesFolderViewComponent implements OnInit {
     else {
       const url = `/files/preview/${inode.uuid}`;
       this.router.navigateByUrl(url);
-        // this.previewINode = inode;
+      // this.previewINode = inode;
     }
   }
 
@@ -498,6 +501,7 @@ export class FilesFolderViewComponent implements OnInit {
         break;
     }
   }
+
   /**
    * An einem GridViewItem wurde ein showProps() angefordert.
    * Wir behandeln das nicht selber sondern geben das 
@@ -506,14 +510,28 @@ export class FilesFolderViewComponent implements OnInit {
    * @param inode 
    */
   onShowProps(inode: INode) {
-    this.propsSvc.showPropDialog(inode) //
-      .pipe(takeUntilDestroyed(this.destroyRef)) //
-      .subscribe(result => {
 
-        if (result) {
-          this.refresh();
-        }
-      });
+    this.hashTagSvc.getHashTagsByResourceId(inode.uuid) //
+      .pipe(takeUntilDestroyed(this.destroyRef)) //
+      .subscribe(tags => {
+
+        const dlgRef = this.dialog.open(FilesPropertiesDialogComponent, {
+          width: '600px',
+          data: {
+            inode: inode,
+            hashTags: tags
+          },
+        });
+
+        dlgRef.afterClosed() //
+          .pipe(takeUntilDestroyed(this.destroyRef)) //
+          .subscribe(result => {
+
+            if (result) {
+              alert(JSON.stringify(result));
+            }
+          })
+      })
   }
 
   /**

@@ -3,20 +3,23 @@ import { CommonModule } from '@angular/common';
 
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 
-import { SearchBarComponent } from './components/search-bar/search-bar.component';
-
+import { SearchMainComponent } from './components/search-main/search-main.component';
+import { ModSearchRoutingModule } from './mod-search-routing.module';
+import { SearchResultItemComponent } from './components/search-result-item/search-result-item.component';
 
 
 @NgModule({
   declarations: [
-    SearchBarComponent
+    SearchMainComponent,
+    SearchResultItemComponent
   ],
   imports: [
     CommonModule,
-    ModMaterialImportModule
+    ModMaterialImportModule,
+    ModSearchRoutingModule
   ],
   exports: [
-    SearchBarComponent
+    ModSearchRoutingModule
   ]
 })
 export class ModSearchModule { }

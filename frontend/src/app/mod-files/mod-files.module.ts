@@ -29,9 +29,11 @@ import { FilesListviewItemComponent } from './components/files-listview-item/fil
 import { FilesPermissionsComponent } from './components/files-permissions/files-permissions.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesFolderviewToolbarComponent } from './components/files-folderview-toolbar/files-folderview-toolbar.component';
-import { FilesHashtagsComponent } from './components/files-properties-dialog/files-hashtags.component';
 import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
 import { FileCollabraComponent } from './components/file-collabra/file-collabra.component';
+
+import { IINode, INode } from './models/inode';
+export { IINode, INode };
 
 @NgModule({
   declarations: [
@@ -55,7 +57,6 @@ import { FileCollabraComponent } from './components/file-collabra/file-collabra.
     FilesListviewItemComponent,
     FilesPermissionsComponent,
     FilesFolderviewToolbarComponent,
-    FilesHashtagsComponent,
     FilesCreateMenuComponent,
     FileCollabraComponent,
   ],

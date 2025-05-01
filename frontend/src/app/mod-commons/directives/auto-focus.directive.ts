@@ -8,7 +8,8 @@ import { AfterContentInit, Directive, ElementRef } from '@angular/core';
  * <input appAutoFocus [value]="someValue">
  */
 @Directive({
-  selector: '[appAutoFocus]'
+  selector: '[appAutoFocus]',
+  standalone: false
 })
 export class AutoFocusDirective implements AfterContentInit {
 

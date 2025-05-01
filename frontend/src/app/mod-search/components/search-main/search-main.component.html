@@ -1,0 +1,91 @@
+<div class="outer-cnr">
+
+    <div class="search-cnr">
+
+        <div class="search-bar">
+
+            <input #search
+                   class="search-field"
+                   (input)="onInput($event)"
+                   (keyup)="onKeyUp($event)">
+
+            <mat-icon class="filter-btn material-symbols-outlined"
+                      *ngIf="search.value"
+                      (click)="onClear(search)">close_small</mat-icon>
+        </div>
+
+        <button class="filter-btn"
+                mat-icon-button
+                [matMenuTriggerFor]="filterMenu">
+            <mat-icon class="material-symbols-outlined">filter_list</mat-icon>
+        </button>
+
+        <mat-menu #filterMenu="matMenu">
+
+            <p mat-menu-item
+               *ngFor="let entry of filterMenuEntries">
+                <mat-checkbox color="primary"
+                              (click)="onFilterSelection($event, entry.filter)"
+                              [checked]="isFilterSelected(entry.filter)">{{entry.name}}
+                </mat-checkbox>
+            </p>
+        </mat-menu>
+    </div>
+    <div class="result-cnr">
+        <!-- <mat-tab-group>
+
+            <mat-tab label="Dateien"
+                     *ngIf="results.inodes.length">
+                <div *ngFor="let file of results.inodes">{{file.name}}</div>
+            </mat-tab>
+            
+            <mat-tab label="Benutzer"
+                     *ngIf="results.users.length">
+                <div *ngFor="let user of results.users">{{user.surName}} {{user.lastName}} </div>
+            </mat-tab>
+            
+            <mat-tab label="Gruppen"
+                     *ngIf="results.groups.length">
+                <div *ngFor="let group of results.groups">{{group.name}}</div>
+            </mat-tab>
+            
+        </mat-tab-group> -->
+
+        <mat-accordion multi>
+
+            <!-- Gefundene Dateien -->
+            <mat-expansion-panel *ngIf="results.inodes.length">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-icon class="material-symbols-outlined section-icon"
+                                  color="primary">description</mat-icon>
+                        <span>Dateien</span>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <app-search-result-item *ngFor="let file of results.inodes"
+                                        icon="description" 
+                                        [name]="file.name"></app-search-result-item>
+            </mat-expansion-panel>
+
+            <!-- Gefundene Benutzer -->
+            <mat-expansion-panel *ngIf="results.users.length">
+                <mat-expansion-panel-header>
+                    <mat-icon class="material-symbols-outlined section-icon"
+                              color="primary">person</mat-icon>
+                    <span>Benutzer</span>
+                </mat-expansion-panel-header>
+                <div *ngFor="let user of results.users">{{user.surName}} {{user.lastName}} </div>
+            </mat-expansion-panel>
+
+            <!-- Gefundene Gruppen -->
+            <mat-expansion-panel *ngIf="results.groups.length">
+                <mat-expansion-panel-header>
+                    <mat-icon class="material-symbols-outlined section-icon"
+                              color="primary">groups</mat-icon>
+                    <span>Gruppen</span>
+                </mat-expansion-panel-header>
+                <div *ngFor="let group of results.groups">{{group.name}}</div>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </div>
+</div>

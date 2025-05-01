@@ -1,4 +1,6 @@
-import { Component, ViewChild, AfterViewInit } from "@angular/core";
+import { Component, ViewChild, AfterViewInit, DestroyRef, inject } from "@angular/core";
+import { MatDialog } from "@angular/material/dialog";
+
 import {
   DayPilot,
   DayPilotCalendarComponent,
@@ -7,11 +9,16 @@ import {
 } from "@daypilot/daypilot-lite-angular";
 
 import { CalendarService } from '../../services/calendar.service';
+import { TitlebarService } from "../../../mod-commons/mod-commons.module";
+
+import { CalendarEventPropertiesDialogComponent } from "../calendar-event-properties-dialog/calendar-event-properties-dialog.component";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-calendar-main-component',
   templateUrl: './calendar-main.component.html',
-  styleUrls: ['./calendar-main.component.css']
+  styleUrls: ['./calendar-main.component.css'],
+  standalone: false
 })
 export class CalendarMainComponent implements AfterViewInit {
 
@@ -20,13 +27,14 @@ export class CalendarMainComponent implements AfterViewInit {
   @ViewChild("month") month!: DayPilotMonthComponent;
   @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
 
-  events: DayPilot.EventData[] = [];
+  private destroyRef = inject(DestroyRef);
 
+  events: DayPilot.EventData[] = [];
   date = DayPilot.Date.today();
 
   configNavigator: DayPilot.NavigatorConfig = {
     locale: navigator.language, // TODO: in FF kommt hier nur ein 'de'. da wirft im Navigator einen "TypeError: r.locale() is undefined"
-    showMonths: 3,
+    showMonths: 2,
     cellWidth: 25,
     cellHeight: 25,
     onVisibleRangeChanged: args => {
@@ -66,11 +74,18 @@ export class CalendarMainComponent implements AfterViewInit {
     onEventClick: this.onEventClick.bind(this),
   };
 
-  constructor(private ds: CalendarService) {
+  constructor(
+    private dialog: MatDialog,
+    private titlebarSvc: TitlebarService,
+    private calSvc: CalendarService) {
     this.onViewModeChange('Week');
   }
 
+  /**
+   * 
+   */
   ngAfterViewInit(): void {
+    this.titlebarSvc.subTitle = 'Kalender';
     this.loadEvents();
   }
 
@@ -135,7 +150,7 @@ export class CalendarMainComponent implements AfterViewInit {
   loadEvents(): void {
     const from = this.nav.control.visibleStart();
     const to = this.nav.control.visibleEnd();
-    this.ds.getAllEvents(from.toDate(), to.toDate()).subscribe(result => {
+    this.calSvc.getAllEvents(from.toDate(), to.toDate()).subscribe(result => {
 
       this.events = result.map(e => {
         return e.toDayPilotEvent();
@@ -203,10 +218,46 @@ export class CalendarMainComponent implements AfterViewInit {
     }));
   }
 
+  /**
+   * 
+   * @param args 
+   * @returns 
+   */
   onEventClick(args: any) {
-    alert('not yet implemented');
+
+    const cal = args.control;
+
+    this.calSvc.getEvent(args.e.id()) //
+      .pipe(takeUntilDestroyed(this.destroyRef)) //
+      .subscribe(fullEvt => {
+
+
+        const dialogRef = this.dialog.open(CalendarEventPropertiesDialogComponent, {
+          width: '80%',
+          maxWidth: '600px',
+          data: {
+            event: fullEvt
+          }
+        });
+
+        dialogRef.afterClosed() //
+          .pipe(takeUntilDestroyed(this.destroyRef)) //
+          .subscribe(result => {
+
+            if (result) {
+              alert(JSON.stringify(result));
+            }
+            else {
+              alert('dialog aborted');
+            }
+          });
+      })
   }
 
+  /**
+   * 
+   * @param args 
+   */
   onEventMove(args: any) {
 
     // doMove(args.control, args.e.id(), args.newStart, args.newEnd);

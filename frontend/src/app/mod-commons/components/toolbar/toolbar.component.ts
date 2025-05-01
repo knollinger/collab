@@ -3,7 +3,8 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'app-toolbar',
   templateUrl: './toolbar.component.html',
-  styleUrls: ['./toolbar.component.css']
+  styleUrls: ['./toolbar.component.css'],
+  standalone: false
 })
 export class ToolbarComponent implements OnInit {
 
@@ -17,7 +18,8 @@ export class ToolbarComponent implements OnInit {
 @Component({
   selector: 'app-toolbar-separator',
   templateUrl: './toolbar-separator.component.html',
-  styleUrls: ['./toolbar-separator.component.css']
+  styleUrls: ['./toolbar-separator.component.css'],
+  standalone: false
 })
 export class ToolbarSeparatorComponent implements OnInit {
 

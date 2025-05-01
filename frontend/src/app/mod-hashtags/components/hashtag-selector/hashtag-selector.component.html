@@ -6,15 +6,15 @@
                    aria-label="Fruit selection">
       <mat-chip-row highlighted
                     color="primary"
-                    *ngFor="let hashCode of hashTags"
-                    (removed)="onRemove(hashCode)">
-        #{{hashCode}}
+                    *ngFor="let tag of tags"
+                    (removed)="onRemove(tag)">
+        #{{tag}}
         <button matChipRemove>
           <mat-icon class="material-symbols-outlined">cancel</mat-icon>
         </button>
       </mat-chip-row>
     </mat-chip-grid>
-    <input placeholder="Neuer Hashcode"
+    <input placeholder="Neuer Hashtag"
            #hashCodeInput
            [formControl]="hashTagCtrl"
            [matChipInputFor]="chipGrid"

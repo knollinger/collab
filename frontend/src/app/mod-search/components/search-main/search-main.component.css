@@ -1,0 +1,47 @@
+.outer-cnr {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.search-cnr {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    background-color: white;
+    border-bottom: 1px solid #d0d0d0;
+}
+
+.search-bar {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    background-color: white;
+    margin: 1rem 5% 1rem 1%;
+}
+
+.search-field {
+    flex: 1 1 auto;
+    height: 2rem;
+    padding: 0.25rem;
+    border: none;
+    outline: none;
+}
+
+.filter-btn {
+    flex: 0 0 auto;
+    margin-left: 0.5rem;
+}
+
+.result-cnr {
+    flex: 1 1 auto;
+    padding: 1rem 1rem 1rem 1rem;
+    overflow: auto;
+}
+
+.section-icon {
+    margin-right: 0.5rem;
+}

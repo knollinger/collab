@@ -11,7 +11,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ModMaterialImportModule } from './mod-material-import/mod-material-import.module';
 import { ModCommonsModule, SpinnerInterceptor, ErrorInterceptor } from './mod-commons/mod-commons.module';
 import { ModSessionModule } from './mod-session/session.module';
-import { ModSearchModule } from './mod-search/mod-search.module';
 import { EnsureCookiesInterceptor } from './mod-commons/mod-commons.module';
 
 import { HomeComponent } from './home/home.component';
@@ -36,14 +35,12 @@ import { MAT_DATE_LOCALE } from '@angular/material/core';
     ModMaterialImportModule,
     ModCommonsModule,
     ModSessionModule,
-    ModSearchModule
   ],
   exports: [
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     ModCommonsModule,
-    ModSearchModule
   ],
   providers: [
     {
