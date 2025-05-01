@@ -5,7 +5,8 @@ import { CreateMenuItemDesc, CreateMenuItemGroup } from '../../models/create-men
 @Component({
   selector: 'app-files-create-menu',
   templateUrl: './files-create-menu.component.html',
-  styleUrls: ['./files-create-menu.component.css']
+  styleUrls: ['./files-create-menu.component.css'],
+  standalone: false
 })
 export class FilesCreateMenuComponent {
 

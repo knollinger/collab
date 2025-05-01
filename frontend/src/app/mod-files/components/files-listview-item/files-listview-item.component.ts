@@ -10,7 +10,8 @@ import { Permissions } from '../../models/permissions';
 @Component({
   selector: 'app-files-listview-item',
   templateUrl: './files-listview-item.component.html',
-  styleUrls: ['./files-listview-item.component.css']
+  styleUrls: ['./files-listview-item.component.css'],
+  standalone: false
 })
 export class FilesListviewItemComponent implements OnInit {
 

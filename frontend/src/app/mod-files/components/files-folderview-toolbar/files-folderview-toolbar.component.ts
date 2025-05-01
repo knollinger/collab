@@ -21,7 +21,8 @@ import { CreateMenuItemDesc, CreateMenuItemGroup } from '../../models/create-men
 @Component({
   selector: 'app-files-folderview-toolbar',
   templateUrl: './files-folderview-toolbar.component.html',
-  styleUrls: ['./files-folderview-toolbar.component.css']
+  styleUrls: ['./files-folderview-toolbar.component.css'],
+  standalone: false
 })
 export class FilesFolderviewToolbarComponent implements OnInit {
 

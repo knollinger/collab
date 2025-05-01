@@ -11,7 +11,8 @@ import { CreateMenuItemDesc, CreateMenuItemGroup } from '../../models/create-men
 @Component({
   selector: 'app-files-folder-context-menu',
   templateUrl: './files-folder-context-menu.component.html',
-  styleUrls: ['./files-folder-context-menu.component.css']
+  styleUrls: ['./files-folder-context-menu.component.css'],
+  standalone: false
 })
 export class FilesFolderContextMenuComponent implements OnInit {
 

@@ -6,7 +6,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-file-collabra',
   templateUrl: './file-collabra.component.html',
-  styleUrls: ['./file-collabra.component.css']
+  styleUrls: ['./file-collabra.component.css'],
+  standalone: false
 })
 export class FileCollabraComponent implements OnInit {
 

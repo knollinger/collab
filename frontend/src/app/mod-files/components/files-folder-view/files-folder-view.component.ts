@@ -23,6 +23,7 @@ import { FilesPropertiesDialogComponent } from '../files-properties-dialog/files
   selector: 'app-folder-view',
   templateUrl: './files-folder-view.component.html',
   styleUrls: ['./files-folder-view.component.css'],
+  standalone: false
 })
 export class FilesFolderViewComponent implements OnInit {
 

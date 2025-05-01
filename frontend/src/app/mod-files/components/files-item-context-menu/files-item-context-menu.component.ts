@@ -7,7 +7,8 @@ import { Permissions } from '../../models/permissions';
 @Component({
   selector: 'app-files-item-context-menu',
   templateUrl: './files-item-context-menu.component.html',
-  styleUrls: ['./files-item-context-menu.component.css']
+  styleUrls: ['./files-item-context-menu.component.css'],
+  standalone: false
 })
 export class FilesItemContextMenuComponent {
 

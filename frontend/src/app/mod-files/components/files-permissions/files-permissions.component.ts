@@ -4,7 +4,8 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 @Component({
   selector: 'app-files-permissions',
   templateUrl: './files-permissions.component.html',
-  styleUrls: ['./files-permissions.component.css']
+  styleUrls: ['./files-permissions.component.css'],
+  standalone: false
 })
 export class FilesPermissionsComponent {
 

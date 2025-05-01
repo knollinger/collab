@@ -21,7 +21,8 @@ import { INodeService } from '../../services/inode.service';
 @Component({
   selector: 'app-files-bread-crumb-item',
   templateUrl: './files-bread-crumb-item.component.html',
-  styleUrls: ['./files-bread-crumb-item.component.css']
+  styleUrls: ['./files-bread-crumb-item.component.css'],
+  standalone: false
 })
 export class FilesBreadCrumbItemComponent implements OnInit {
 

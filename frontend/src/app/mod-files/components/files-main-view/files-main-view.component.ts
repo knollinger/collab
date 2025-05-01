@@ -15,6 +15,7 @@ import { INodeService } from '../../services/inode.service';
   selector: 'app-files-main-view',
   templateUrl: './files-main-view.component.html',
   styleUrls: ['./files-main-view.component.css'],
+  standalone: false
 })
 
 export class FilesMainViewComponent implements OnInit, OnDestroy {

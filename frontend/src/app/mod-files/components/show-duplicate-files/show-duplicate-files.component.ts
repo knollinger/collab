@@ -6,7 +6,8 @@ import { ContentTypeService } from '../../services/content-type.service';
 @Component({
   selector: 'app-show-duplicate-files',
   templateUrl: './show-duplicate-files.component.html',
-  styleUrls: ['./show-duplicate-files.component.css']
+  styleUrls: ['./show-duplicate-files.component.css'],
+  standalone: false
 })
 export class ShowDuplicateFilesComponent implements OnInit {
 

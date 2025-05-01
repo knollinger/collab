@@ -14,7 +14,8 @@ export class IconSize {
 @Component({
   selector: 'app-files-iconsize-menu',
   templateUrl: './files-iconsize-menu.component.html',
-  styleUrls: ['./files-iconsize-menu.component.css']
+  styleUrls: ['./files-iconsize-menu.component.css'],
+  standalone: false
 })
 export class FilesIconsizeMenuComponent {
 

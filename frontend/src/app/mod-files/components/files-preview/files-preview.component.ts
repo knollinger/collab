@@ -11,7 +11,8 @@ import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 @Component({
   selector: 'app-files-preview',
   templateUrl: './files-preview.component.html',
-  styleUrls: ['./files-preview.component.css']
+  styleUrls: ['./files-preview.component.css'],
+  standalone: false
 })
 export class FilesPreviewComponent implements OnInit {
 

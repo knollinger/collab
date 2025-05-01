@@ -17,7 +17,8 @@ import { INodeDroppedEvent, FilesDroppedEvent } from '../../directives/drop-targ
 @Component({
   selector: 'app-files-grid-view',
   templateUrl: './files-grid-view.component.html',
-  styleUrls: ['./files-grid-view.component.css']
+  styleUrls: ['./files-grid-view.component.css'],
+  standalone: false
 })
 export class FilesGridViewComponent implements OnInit {
 

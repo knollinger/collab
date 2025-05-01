@@ -22,7 +22,8 @@ import { MatMenuTrigger } from '@angular/material/menu';
 @Component({
   selector: 'app-files-inode-drop-menu',
   templateUrl: './files-inode-drop-menu.component.html',
-  styleUrls: ['./files-inode-drop-menu.component.css']
+  styleUrls: ['./files-inode-drop-menu.component.css'],
+  standalone: false
 })
 export class FileDropINodeMenuComponent {
 

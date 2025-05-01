@@ -15,7 +15,8 @@ import { Permissions } from '../../models/permissions';
 @Component({
   selector: 'app-files-grid-view-item',
   templateUrl: './files-grid-view-item.component.html',
-  styleUrls: ['./files-grid-view-item.component.css']
+  styleUrls: ['./files-grid-view-item.component.css'],
+  standalone: false
 })
 export class FilesGridViewItemComponent {
 

@@ -7,7 +7,8 @@ import { FilesDroppedEvent, INodeDroppedEvent } from '../../directives/drop-targ
 @Component({
   selector: 'app-files-list-view',
   templateUrl: './files-list-view.component.html',
-  styleUrls: ['./files-list-view.component.css']
+  styleUrls: ['./files-list-view.component.css'],
+  standalone: false
 })
 export class FilesListViewComponent implements OnInit {
 
