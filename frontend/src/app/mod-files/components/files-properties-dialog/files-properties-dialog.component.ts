@@ -1,10 +1,7 @@
-import { Component, DestroyRef, inject, Inject, Input, OnInit } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, inject, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 import { INode } from '../../models/inode';
-import { INodeService } from '../../services/inode.service';
-import { HashTagConstants, HashTagService } from '../../../mod-hashtags/mod-hashtags.module';
 
 /**
  * 
@@ -38,9 +35,7 @@ export class FilesPropertiesDialogComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA)
     public data: FilesPropertiesDialogData,
-    public dialogRef: MatDialogRef<FilesPropertiesDialogComponent>,
-    private inodeSvc: INodeService,
-    private hashTagSvc: HashTagService) {
+    public dialogRef: MatDialogRef<FilesPropertiesDialogComponent>) {
 
     this.inode = data.inode;
     this.hashTags = data.hashTags;
@@ -57,6 +52,10 @@ export class FilesPropertiesDialogComponent implements OnInit {
    * 
    */
   set inode(val: INode) {
+    console.log(`inode changed`);
+    console.log(`  old: ${this._inode}`);
+    console.log(`  new: ${val}`);
+    
     this._inode = val;
     this.disableSaveBtn = false;
   }

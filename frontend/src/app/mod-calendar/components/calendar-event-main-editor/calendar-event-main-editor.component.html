@@ -1,65 +1,60 @@
-<form class="outer-cnr scrollable disp-flex flex-col"
+<form class="outer-cnr disp-flex flex-col"
       [formGroup]="eventForm">
 
-    <div class="grid scrollable flex-1">
+    <div class="grid flex-1">
         <!-- Titel-Control -->
         <div class="grid-row-0">
-            <mat-form-field class="grid-col-4">
+            <mat-form-field class="grid-col-8">
                 <mat-label>Titel</mat-label>
                 <input matInput
                        appAutoFocus
                        formControlName="title">
+                <mat-error *ngIf="eventForm.get('title')!.hasError('required')">Bitte ausfüllen</mat-error>
+            </mat-form-field>
+        </div>
+
+        <!-- Beschreibung -->
+        <div class="grid-row-1">
+            <mat-form-field class="grid-col-8  full-height">
+                <mat-label>Beschreibung</mat-label>
+                <textarea matInput
+                          class="full-height"
+                          formControlName="desc"></textarea>
             </mat-form-field>
         </div>
 
         <div class="grid-row-0">
-            <div class="grid-col-4">
+            <div class="grid-col-8">
 
                 <!-- Ganztägig? -->
                 <mat-slide-toggle color="primary"
                                   formControlName="fullDay">Ganz-tägig</mat-slide-toggle>
-
-                <!-- Das Wiederhol-Menu -->
-                <button mat-button
-                        [matMenuTriggerFor]="repeatMenu">
-                    <mat-icon class="material-symbols-outlined">history</mat-icon>
-                    <span>{{repeatModeName}}</span>
-                </button>
-                <mat-menu #repeatMenu>
-                    <mat-radio-group formControlName="repeatMode">
-                        <button mat-menu-item
-                                *ngFor="let mode of repeatModes">
-                            <mat-radio-button color="primary"
-                                              [value]="mode.value">{{mode.title}}</mat-radio-button>
-                        </button>
-                    </mat-radio-group>
-                </mat-menu>
-
             </div>
+
         </div>
 
         <!-- start und ende für nonFullDay -->
         <div class="grid-row-0"
              *ngIf="!isFullDay">
 
-            <mat-form-field class="grid-col-2">
+            <mat-form-field class="grid-col-4">
                 <mat-label>Beginn</mat-label>
                 <input matInput
                        [ngxMatDatetimePicker]="startDatePicker"
                        formControlName="start">
-                <mat-hint>TT.MM.JJJJ HH:MM</mat-hint>
+                <mat-error *ngIf="eventForm.get('start')!.hasError('required')">Bitte ausfüllen</mat-error>
                 <ngx-mat-datepicker-toggle matSuffix
                                            [for]="startDatePicker"></ngx-mat-datepicker-toggle>
                 <ngx-mat-datetime-picker #startDatePicker>
                 </ngx-mat-datetime-picker>
             </mat-form-field>
 
-            <mat-form-field class="grid-col-2">
+            <mat-form-field class="grid-col-4">
                 <mat-label>Ende</mat-label>
                 <input matInput
                        [ngxMatDatetimePicker]="endDatePicker"
                        formControlName="end">
-                <mat-hint>TT.MM.JJJJ HH:MM</mat-hint>
+                <mat-error *ngIf="eventForm.get('end')!.hasError('required')">Bitte ausfüllen</mat-error>
                 <ngx-mat-datepicker-toggle matSuffix
                                            [for]="endDatePicker"></ngx-mat-datepicker-toggle>
                 <ngx-mat-datetime-picker #endDatePicker>
@@ -71,7 +66,7 @@
         <div class="grid-row-0"
              *ngIf="isFullDay">
 
-            <mat-form-field class="grid-col-2">
+            <mat-form-field class="grid-col-4">
                 <mat-label>Begin und Ende</mat-label>
                 <mat-date-range-input [rangePicker]="rangePicker">
                     <input matStartDate
@@ -81,21 +76,79 @@
                            formControlName="end"
                            placeholder="Ende">
                 </mat-date-range-input>
-                <mat-hint>TT.MM.JJJJ – TT.MM.JJJJ</mat-hint>
+                <mat-error *ngIf="eventForm.get('start')!.hasError('required')">Bitte ausfüllen</mat-error>
+                <mat-error *ngIf="eventForm.get('end')!.hasError('required')">Bitte ausfüllen</mat-error>
                 <mat-datepicker-toggle matIconSuffix
                                        [for]="rangePicker"></mat-datepicker-toggle>
                 <mat-date-range-picker #rangePicker></mat-date-range-picker>
             </mat-form-field>
         </div>
 
-        <!-- Beschreibung -->
-        <div class="grid-row-1">
-            <mat-form-field class="grid-col-4  full-height">
-                <mat-label>Beschreibung</mat-label>
-                <textarea matInput
-                          class="full-height"
-                          formControlName="desc"></textarea>
+        <div class="grid-row-0">
+
+            <div class="grid-col-4">
+                <button mat-button
+                        [matMenuTriggerFor]="repeatMenu">
+                    <mat-icon class="material-symbols-outlined">history</mat-icon>
+                    <span>{{repeatModeName}}</span>
+                </button>
+                <mat-menu #repeatMenu>
+                    <mat-radio-group [value]="repeatMode"
+                                     (change)="onModeChange($event)">
+                        <button mat-menu-item
+                                *ngFor="let mode of repeatModes">
+                            <mat-radio-button color="primary"
+                                              [value]="mode.value">{{mode.title}}</mat-radio-button>
+                        </button>
+                    </mat-radio-group>
+                </mat-menu>
+            </div>
+        </div>
+
+        <div class="grid-row-0"
+             *ngIf="repeatMode === 'DAILY'">
+            Täglich
+        </div>
+
+        <div class="grid-row-0"
+             *ngIf="repeatMode === 'WEEKLY'">
+             <div class="grid-col-8">Jeweils am:</div>
+             <div class="grid-col-2"
+                  *ngFor="let day of daysOfWeek">
+                 <mat-checkbox color="primary" [value]="'' + day.value">{{day.title}}</mat-checkbox>
+             </div>
+         </div>
+
+        <div class="grid-row-0"
+             *ngIf="repeatMode === 'MONTHLY'">
+            <div class="grid-col-8">Jeweils am:</div>
+            <div class="grid-col-1"
+                 *ngFor="let day of daysOfMonth">
+                <mat-checkbox color="primary">{{day}}.</mat-checkbox>
+            </div>
+        </div>
+
+        <div class="grid-row-0"
+             *ngIf="repeatMode === 'YEARLY'">
+            Jährlich
+        </div>
+
+
+        <div class="grid-row-0"
+             *ngIf="repeatMode !== 'ONCE'">
+            <div class="grid-col-4">
+                <mat-radio-group>
+                    <mat-radio-button color="primary">Unendlich wiederholen</mat-radio-button>
+                    <mat-radio-button color="primary">Wiederholen bis</mat-radio-button>
+                    <mat-radio-button color="primary">X-mal wiederholen</mat-radio-button>
+                </mat-radio-group>
+            </div>
+
+            <mat-form-field class="grid-col-4">
+                <mat-label>???</mat-label>
+                <input matInput>
             </mat-form-field>
         </div>
+
     </div>
 </form>

@@ -31,9 +31,16 @@ export class CalendarEventPropertiesDialogComponent {
       this.attachments = data.event.attachments;
   }
 
+  /**
+   * 
+   * @param tags 
+   */
   onHashTagChanged(tags: string[]) {
   }
 
+  /**
+   * 
+   */
   onSave() {
     alert('save event not yet implemented!');
     this.dialogRef.close();

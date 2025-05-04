@@ -15,15 +15,25 @@
 
             <div class="date-selection">
 
-                <button class="date-sel-btn" mat-flat-button color="primary" (click)="onGoBack()">
+                <button class="date-sel-btn"
+                        mat-flat-button
+                        color="primary"
+                        (click)="onGoBack()">
                     <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
                 </button>
-                <button class="date-sel-btn"  mat-flat-button color="primary" (click)="onGoToday()">
+                <button class="date-sel-btn"
+                        mat-flat-button
+                        color="primary"
+                        (click)="onGoToday()">
                     <mat-icon class="material-symbols-outlined">today</mat-icon>
                     <span>Heute</span>
                 </button>
-                <button class="date-sel-btn" mat-flat-button color="primary" (click)="onGoFore()">
-                    <mat-icon class="material-symbols-outlined" iconPositionEnd>chevron_right</mat-icon>
+                <button class="date-sel-btn"
+                        mat-flat-button
+                        color="primary"
+                        (click)="onGoFore()">
+                    <mat-icon class="material-symbols-outlined"
+                              iconPositionEnd>chevron_right</mat-icon>
                 </button>
             </div>
             <span class="title"></span>
@@ -37,17 +47,20 @@
             </mat-button-toggle-group>
         </div>
 
-        <daypilot-calendar [config]="configDay"
+        <daypilot-calendar class="calendar"
+                           [config]="configDay"
                            [events]="events"
                            #day>
         </daypilot-calendar>
 
-        <daypilot-calendar [config]="configWeek"
+        <daypilot-calendar class="calendar"
+                           [config]="configWeek"
                            [events]="events"
                            #week>
         </daypilot-calendar>
 
-        <daypilot-month [config]="configMonth"
+        <daypilot-month class="calendar"
+                        [config]="configMonth"
                         [events]="events"
                         #month>
         </daypilot-month>

@@ -63,7 +63,7 @@ import { MatExpansionModule } from '@angular/material/expansion'
     MatChipsModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatExpansionModule
+    MatExpansionModule,
   ],
   exports: [
     MatToolbarModule,
@@ -94,7 +94,7 @@ import { MatExpansionModule } from '@angular/material/expansion'
     MatChipsModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatExpansionModule
+    MatExpansionModule,
   ]
 })
 export class ModMaterialImportModule { }

@@ -13,6 +13,8 @@ import { TitlebarService } from "../../../mod-commons/mod-commons.module";
 
 import { CalendarEventPropertiesDialogComponent } from "../calendar-event-properties-dialog/calendar-event-properties-dialog.component";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FullCalendarEvent } from "../../models/full-calendar-event";
+import { CalendarEvent } from "../../models/calendar-event";
 
 @Component({
   selector: 'app-calendar-main-component',
@@ -65,7 +67,7 @@ export class CalendarMainComponent implements AfterViewInit {
   };
 
   configMonth: DayPilot.MonthConfig = {
-    eventBarVisible: false,
+    eventBarVisible: true,
     locale: navigator.language,
     weekStarts: 1,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
@@ -187,14 +189,19 @@ export class CalendarMainComponent implements AfterViewInit {
     }
   }
 
+  /**
+   * Wird gerufen bevor ein Event gerendert wird. Hier können wir die
+   * "activeAreas" einfügen.
+   * @param args 
+   */
   onBeforeEventRender(args: any) {
     const dp = args.control;
     args.data.areas = [
       {
         top: 4,
         right: 4,
-        width: 24,
-        height: 24,
+        width: 32, // 24px breite + 2* padding 4px
+        height: 32, // 24px höhe + 2* padding 4px
         html: '<mat-icon class="material-symbols-outlined" style="background-color: white;">delete</mat-icon>',
         action: "None",
         toolTip: "Löschen",
@@ -205,17 +212,16 @@ export class CalendarMainComponent implements AfterViewInit {
     ];
   }
 
-  async onTimeRangeSelected(args: any) {
-    const modal = await DayPilot.Modal.prompt("Create a new event:", "Event 1");
-    const dp = args.control;
-    dp.clearSelection();
-    if (!modal.result) { return; }
-    dp.events.add(new DayPilot.Event({
-      start: args.start,
-      end: args.end,
-      id: DayPilot.guid(),
-      text: modal.result
-    }));
+  /**
+   * 
+   * @param args 
+   */
+  onTimeRangeSelected(args: any) {
+
+    args.control.clearSelection();
+    const calEvt = new CalendarEvent('', '', '', args.start.toDate(), args.end.toDate(), '', false);
+    const fullEvt = new FullCalendarEvent(calEvt, [], []);
+    this.showEventEditor(fullEvt);
   }
 
   /**
@@ -231,27 +237,37 @@ export class CalendarMainComponent implements AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef)) //
       .subscribe(fullEvt => {
 
+        this.showEventEditor(fullEvt);
+      });
+  }
 
-        const dialogRef = this.dialog.open(CalendarEventPropertiesDialogComponent, {
-          width: '80%',
-          maxWidth: '600px',
-          data: {
-            event: fullEvt
-          }
-        });
+  /**
+   * 
+   * @param fullEvt 
+   */
+  private showEventEditor(fullEvt: FullCalendarEvent) {
 
-        dialogRef.afterClosed() //
-          .pipe(takeUntilDestroyed(this.destroyRef)) //
-          .subscribe(result => {
+    console.log('showEvent');
+    console.dir(fullEvt);
+    const dialogRef = this.dialog.open(CalendarEventPropertiesDialogComponent, {
+      width: '80%',
+      maxWidth: '600px',
+      data: {
+        event: fullEvt
+      }
+    });
 
-            if (result) {
-              alert(JSON.stringify(result));
-            }
-            else {
-              alert('dialog aborted');
-            }
-          });
-      })
+    dialogRef.afterClosed() //
+      .pipe(takeUntilDestroyed(this.destroyRef)) //
+      .subscribe(result => {
+
+        if (result) {
+          alert(JSON.stringify(result));
+        }
+        else {
+          alert('dialog aborted');
+        }
+      });
   }
 
   /**

@@ -4,13 +4,13 @@
     <mat-card appearance="outlined">
 
         <mat-card-header>
-            <h2 class="grid-col-4">Anmelden</h2>
+            <h2 class="grid-col-8">Anmelden</h2>
         </mat-card-header>
 
         <mat-card-content class="grid">
 
             <div class="grid-row-1">
-                <mat-form-field class="grid-col-4">
+                <mat-form-field class="grid-col-8">
                     <mat-label>Email</mat-label>
                     <input matInput
                            formControlName="email"
@@ -21,7 +21,7 @@
             </div>
 
             <div class="grid-row-1">
-                <mat-form-field class="grid-col-4">
+                <mat-form-field class="grid-col-8">
                     <mat-label>Kennwort</mat-label>
                     <input matInput
                            [type]="hidePwds ? 'password' : 'text'"
@@ -36,7 +36,7 @@
             </div>
 
             <div class="grid-row-1">
-                <div class="grid-col-4 disp-flex flex-row flex-alignitems-center">
+                <div class="grid-col-8 disp-flex flex-row flex-alignitems-center">
                     <mat-slide-toggle color="primary"
                                       [checked]="keepLoggedIn"
                                       (change)="keepLoggedIn = $event.checked">Angemeldet bleiben</mat-slide-toggle>
@@ -45,7 +45,7 @@
 
 
             <div class="grid-row-1">
-                <div class="grid-col-4 disp-flex flex-row flex-alignitems-center">
+                <div class="grid-col-8 disp-flex flex-row flex-alignitems-center">
                     <mat-slide-toggle color="primary"
                                       #forceChange>Kennwort ändern</mat-slide-toggle>
                 </div>
@@ -56,7 +56,7 @@
             <div *ngIf="forceChange.checked">
 
                 <div class="grid-row-1">
-                    <mat-form-field class="grid-col-4">
+                    <mat-form-field class="grid-col-8">
                         <mat-label>Neues Kennwort</mat-label>
                         <input matInput
                                [type]="hidePwds ? 'password' : 'text'"
@@ -75,7 +75,7 @@
                 </div>
 
                 <div class="grid-row-1">
-                    <mat-form-field class="grid-col-4">
+                    <mat-form-field class="grid-col-8">
                         <mat-label>Eingabe-Wiederhohlung</mat-label>
                         <input matInput
                                [type]="hidePwds ? 'password' : 'text'"

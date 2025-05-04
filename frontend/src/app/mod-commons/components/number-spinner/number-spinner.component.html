@@ -1,0 +1,14 @@
+<div class="outer" [class.labelBefore]="labelBefore">
+    <div class="inner" [class.horizontal]="horizontal">
+        <mat-icon class="material-symbols-outlined">{{decrIcon}}</mat-icon>
+        <input type="number"
+               #input
+               [style.width]="fieldWidth"
+               (input)="onInput($event)"
+               [value]="value"
+               [min]="min"
+               [max]="max">
+        <mat-icon class="material-symbols-outlined">{{incrIcon}}</mat-icon>
+    </div>
+    <label [for]="input" *ngIf="!labelBefore">{{label}}</label>
+</div>

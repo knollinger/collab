@@ -1,7 +1,7 @@
 <form class="grid">
 
     <div class="grid-row-0">
-        <mat-form-field class="grid-col-4">
+        <mat-form-field class="grid-col-8">
             <mat-label>Besitzer</mat-label>
             <mat-select [disabled]="!hasOwnership()"
                         [value]="inode.owner"
@@ -19,7 +19,7 @@
     </div>
 
     <div class="grid-row-0">
-        <mat-form-field class="grid-col-4">
+        <mat-form-field class="grid-col-8">
             <mat-label>Gruppe</mat-label>
             <mat-select [disabled]="!hasOwnership()"
                         [value]="inode.group"
@@ -35,7 +35,7 @@
     </div>
 
     <div class="grid-row-1">
-        <div class="grid-col-4">
+        <div class="grid-col-8">
             <app-files-permissions [permission]="inode.perms"
                                    (permissionChange)="onPermissionChange($event)"
                                    [disabled]="!hasOwnership()"></app-files-permissions>

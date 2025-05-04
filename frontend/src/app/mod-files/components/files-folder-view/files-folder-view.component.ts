@@ -15,7 +15,7 @@ import { CheckPermissionsService } from '../../services/check-permissions.servic
 import { Permissions } from '../../models/permissions';
 import { CreateMenuItemDesc } from '../../models/create-menu-item';
 import { Router } from '@angular/router';
-import { HashTagService } from '../../../mod-hashtags/mod-hashtags.module';
+import { HashTagConstants, HashTagService } from '../../../mod-hashtags/mod-hashtags.module';
 import { MatDialog } from '@angular/material/dialog';
 import { FilesPropertiesDialogComponent } from '../files-properties-dialog/files-properties-dialog.component';
 
@@ -503,7 +503,7 @@ export class FilesFolderViewComponent implements OnInit {
   }
 
   /**
-   * An einem GridViewItem wurde ein showProps() angefordert.
+   * An einer INode wurde ein showProps() angefordert.
    * Wir behandeln das nicht selber sondern geben das 
    * einfach an den Parent weiter
    * 
@@ -528,7 +528,16 @@ export class FilesFolderViewComponent implements OnInit {
           .subscribe(result => {
 
             if (result) {
-              alert(JSON.stringify(result));
+              this.inodeSvc.update(result.inode) //
+                .pipe(takeUntilDestroyed(this.destroyRef)) //
+                .subscribe(_ => {
+
+                  this.hashTagSvc.saveHashTags(result.inode.uuid, HashTagConstants.INODE, result.hashTags) //
+                    .pipe(takeUntilDestroyed(this.destroyRef)) //
+                    .subscribe(_ => {
+                      this.refresh();
+                    });
+                });
             }
           })
       })

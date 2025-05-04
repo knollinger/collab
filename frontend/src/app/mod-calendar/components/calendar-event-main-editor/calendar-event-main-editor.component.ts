@@ -2,11 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { CalendarEvent } from '../../models/calendar-event';
-
-export interface IRepeatMode {
-  title: string,
-  value: string
-}
+import { MatRadioChange } from '@angular/material/radio';
 
 @Component({
   selector: 'app-calendar-event-main-editor',
@@ -19,8 +15,8 @@ export class CalendarEventMainEditorComponent implements OnInit {
   @Input()
   event: CalendarEvent = CalendarEvent.empty();
 
-  eventForm: FormGroup;
-  repeatModes: IRepeatMode[] = [
+  repeatMode: string = 'ONCE';
+  repeatModes = [
     {
       title: 'Einmalig',
       value: 'ONCE'
@@ -41,11 +37,31 @@ export class CalendarEventMainEditorComponent implements OnInit {
       title: 'Jährlich',
       value: 'YEARLY'
     },
-    {
-      title: 'Benutzer-Definiert',
-      value: 'USER_DEFINED'
-    },
   ];
+
+
+  daysOfMonth: number[];
+  daysOfWeek = [
+    { title: 'Montag', value: 1 },
+    { title: 'Dienstag', value: 2 },
+    { title: 'Mittwoch', value: 3 },
+    { title: 'Donnerstag', value: 4 },
+    { title: 'Freitag', value: 5 },
+    { title: 'Samstag', value: 6 },
+    { title: 'Sonntag', value: 0 },
+  ];
+
+  get repeatModeName(): string {
+
+    for (let mode of this.repeatModes) {
+      if (mode.value === this.repeatMode) {
+        return mode.title;
+      }
+    };
+    return '???';
+  }
+
+  eventForm: FormGroup;
 
   /**
    * 
@@ -62,6 +78,11 @@ export class CalendarEventMainEditorComponent implements OnInit {
       fullDay: new FormControl(false, [Validators.required]),
       repeatMode: new FormControl('ONCE', [Validators.required])
     });
+
+    this.daysOfMonth = new Array<number>(31);
+    for (let i = 1; i < 32; ++i) {
+      this.daysOfMonth[i - 1] = i;
+    }
   }
 
   /**
@@ -79,21 +100,11 @@ export class CalendarEventMainEditorComponent implements OnInit {
   /**
    * 
    */
-  get repeatModeName(): string {
-
-    const currMode = this.eventForm.get('repeatMode')!.value;
-    for (let mode of this.repeatModes) {
-      if (currMode === mode.value) {
-        return mode.title;
-      }
-    }
-    return '???';
-  }
-
-  /**
-   * 
-   */
   get isFullDay(): boolean {
     return this.eventForm.get('fullDay')?.value;
+  }
+
+  onModeChange(event: MatRadioChange) {
+    this.repeatMode = event.value;
   }
 }

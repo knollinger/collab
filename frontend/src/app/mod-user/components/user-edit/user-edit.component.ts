@@ -1,12 +1,12 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 import { UserService } from '../../services/user.service';
+import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 
 import { User } from '../../../mod-userdata/models/user';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
-import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
   selector: 'app-user-edit',

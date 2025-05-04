@@ -40,6 +40,7 @@ import { InputBoxComponent } from './components/input-box/input-box.component';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusDirective } from './directives/auto-focus.directive';
 import { HintComponent } from './components/hint/hint.component';
+import { NumberSpinnerComponent } from './components/number-spinner/number-spinner.component';
 
 @NgModule({
   declarations: [
@@ -53,6 +54,7 @@ import { HintComponent } from './components/hint/hint.component';
     InputBoxComponent,
     AutoFocusDirective,
     HintComponent,
+    NumberSpinnerComponent,
   ],
   imports: [
     CommonModule,
@@ -66,9 +68,11 @@ import { HintComponent } from './components/hint/hint.component';
     FooterComponent,
     SpinnerComponent,
     HintComponent,
+    NumberSpinnerComponent,
     FileSizePipe,
     SafePipe,
     AutoFocusDirective,
+
   ]
 })
 export class ModCommonsModule { }
