@@ -32,24 +32,6 @@
         </mat-menu>
     </div>
     <div class="result-cnr">
-        <!-- <mat-tab-group>
-
-            <mat-tab label="Dateien"
-                     *ngIf="results.inodes.length">
-                <div *ngFor="let file of results.inodes">{{file.name}}</div>
-            </mat-tab>
-            
-            <mat-tab label="Benutzer"
-                     *ngIf="results.users.length">
-                <div *ngFor="let user of results.users">{{user.surName}} {{user.lastName}} </div>
-            </mat-tab>
-            
-            <mat-tab label="Gruppen"
-                     *ngIf="results.groups.length">
-                <div *ngFor="let group of results.groups">{{group.name}}</div>
-            </mat-tab>
-            
-        </mat-tab-group> -->
 
         <mat-accordion multi>
 
@@ -74,7 +56,11 @@
                               color="primary">person</mat-icon>
                     <span>Benutzer</span>
                 </mat-expansion-panel-header>
-                <div *ngFor="let user of results.users">{{user.surName}} {{user.lastName}} </div>
+                <!-- <div *ngFor="let user of results.users">{{user.surName}} {{user.lastName}} </div> -->
+                <app-search-result-item *ngFor="let user of results.users"
+                                        icon="person" 
+                                        [name]="user.fullName"></app-search-result-item>
+
             </mat-expansion-panel>
 
             <!-- Gefundene Gruppen -->

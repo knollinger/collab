@@ -219,7 +219,9 @@ export class CalendarMainComponent implements AfterViewInit {
   onTimeRangeSelected(args: any) {
 
     args.control.clearSelection();
-    const calEvt = new CalendarEvent('', '', '', args.start.toDate(), args.end.toDate(), '', false);
+
+    console.log(`start: ${args.start} end: ${args.end}`);
+    const calEvt = new CalendarEvent('', '', '', args.start.toDateLocal(), args.end.toDateLocal(), '', false);
     const fullEvt = new FullCalendarEvent(calEvt, [], []);
     this.showEventEditor(fullEvt);
   }

@@ -68,7 +68,7 @@ public class FileSysController
             INode inode = this.fileSysService.getINode(uuid, IPermissions.READ);
             if (inode == null)
             {
-                String msg = String.format("Die INode mit der UUID '%1§s' existieret nicht", uuid);
+                String msg = String.format("Die INode mit der UUID '%1§s' existiert nicht", uuid);
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, msg);
             }
             return this.fileSysMapper.toDTO(inode);

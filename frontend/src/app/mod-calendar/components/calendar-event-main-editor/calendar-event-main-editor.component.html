@@ -1,7 +1,9 @@
-<form class="outer-cnr disp-flex flex-col"
+<form class="outer-cnr"
       [formGroup]="eventForm">
 
-    <div class="grid flex-1">
+
+    <div class="grid">
+
         <!-- Titel-Control -->
         <div class="grid-row-0">
             <mat-form-field class="grid-col-8">
@@ -84,6 +86,7 @@
             </mat-form-field>
         </div>
 
+        <!-- All about recurring events -->
         <div class="grid-row-0">
 
             <div class="grid-col-4">
@@ -112,12 +115,13 @@
 
         <div class="grid-row-0"
              *ngIf="repeatMode === 'WEEKLY'">
-             <div class="grid-col-8">Jeweils am:</div>
-             <div class="grid-col-2"
-                  *ngFor="let day of daysOfWeek">
-                 <mat-checkbox color="primary" [value]="'' + day.value">{{day.title}}</mat-checkbox>
-             </div>
-         </div>
+            <div class="grid-col-8">Jeweils am:</div>
+            <div class="grid-col-2"
+                 *ngFor="let day of daysOfWeek">
+                <mat-checkbox color="primary"
+                              [value]="'' + day.value">{{day.title}}</mat-checkbox>
+            </div>
+        </div>
 
         <div class="grid-row-0"
              *ngIf="repeatMode === 'MONTHLY'">

@@ -1,8 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
+
 import { INode } from '../../models/inode';
-import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { Permissions } from '../../models/permissions';
+
+import { CheckPermissionsService } from '../../services/check-permissions.service';
+import { ClipboardService } from '../../services/clipboard.service';
+import { CreateMenuService } from '../../services/create-menu.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CreateMenuItemGroup } from '../../models/create-menu-item';
 
 @Component({
   selector: 'app-files-item-context-menu',
@@ -10,7 +16,9 @@ import { Permissions } from '../../models/permissions';
   styleUrls: ['./files-item-context-menu.component.css'],
   standalone: false
 })
-export class FilesItemContextMenuComponent {
+export class FilesItemContextMenuComponent implements OnInit {
+
+  private destroyRef = inject(DestroyRef);
 
   @ViewChild(MatMenuTrigger)
   trigger: MatMenuTrigger | undefined;
@@ -44,9 +52,31 @@ export class FilesItemContextMenuComponent {
 
   triggerPosX: string = '';
   triggerPosY: string = '';
+  createGroups: CreateMenuItemGroup[] = new Array<CreateMenuItemGroup>();
 
-  constructor(private checkPermsSvc: CheckPermissionsService) {
+  /**
+   * 
+   * @param clipboardSvc 
+   * @param checkPermsSvc 
+   * @param createMenuSvc 
+   */
+  constructor(
+    private clipboardSvc: ClipboardService,
+    private checkPermsSvc: CheckPermissionsService,
+    private createMenuSvc: CreateMenuService) {
 
+  }
+
+  /**
+   * 
+   */
+  ngOnInit(): void {
+
+    this.createMenuSvc.getMenuGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(groups => {
+        this.createGroups = groups;
+      })
   }
 
   /**
@@ -130,5 +160,9 @@ export class FilesItemContextMenuComponent {
   get isDeleteAllowed(): boolean {
 
     return this.checkPermsSvc.hasPermissions(Permissions.DELETE, this.inode);
+  }
+
+  get isPasteEnabled(): boolean {
+    return !this.clipboardSvc.isEmpty && this.isWriteAllowed;
   }
 }

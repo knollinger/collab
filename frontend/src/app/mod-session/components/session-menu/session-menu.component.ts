@@ -7,7 +7,8 @@ import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 @Component({
   selector: 'app-session-menu',
   templateUrl: './session-menu.component.html',
-  styleUrls: ['./session-menu.component.css']
+  styleUrls: ['./session-menu.component.css'],
+  standalone: false
 })
 export class SessionMenuComponent implements OnInit {
 

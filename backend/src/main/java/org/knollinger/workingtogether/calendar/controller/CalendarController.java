@@ -40,7 +40,7 @@ public class CalendarController
     private IHashTagService hashTagSvc;
 
     /**
-     * Läd alle Kalender-Einträge zwischen dem angegebenen Start-Timestamp 
+     * Lädt alle Kalender-Einträge zwischen dem angegebenen Start-Timestamp 
      * und dem angegebenen End-Timestamp
      * 
      * @param start

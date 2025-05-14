@@ -42,7 +42,12 @@ export class User {
         return this.userId === User.EMPTY_USER_ID;
     }
 
-    isRoot(): boolean {
+    public isRoot(): boolean {
         return this.userId === User.ROOT_USER_ID;
+    }
+
+    public get fullName(): string {
+
+        return `${this.surname} ${this.lastname}`;
     }
 }

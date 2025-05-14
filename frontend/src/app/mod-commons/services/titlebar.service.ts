@@ -31,5 +31,6 @@ export class TitlebarService {
       title += ` - ${value}`;
     }
     this.title.next(title);
+    document.title = title;
   }
 }

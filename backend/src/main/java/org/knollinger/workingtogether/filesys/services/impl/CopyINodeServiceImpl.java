@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,8 +13,8 @@ import org.knollinger.workingtogether.filesys.exceptions.AccessDeniedException;
 import org.knollinger.workingtogether.filesys.exceptions.DuplicateEntryException;
 import org.knollinger.workingtogether.filesys.exceptions.NotFoundException;
 import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysException;
-import org.knollinger.workingtogether.filesys.models.IPermissions;
 import org.knollinger.workingtogether.filesys.models.INode;
+import org.knollinger.workingtogether.filesys.models.IPermissions;
 import org.knollinger.workingtogether.filesys.services.ICheckPermsService;
 import org.knollinger.workingtogether.filesys.services.ICopyINodeService;
 import org.knollinger.workingtogether.utils.services.IDbService;
@@ -27,7 +26,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
 {
     @Autowired
     private IDbService dbSvc;
-    
+
     @Autowired()
     private ICheckPermsService checkPermsSvc;
 
@@ -41,6 +40,11 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         + "select `uuid`, `type` from `inodes`" //
         + "  where `parent`=?";
 
+    private static final String SQL_GET_INODE = "" //
+        + "select `uuid`, `parent`, `name`, `owner`, `group`, `perms`, `created`, `modified`, `size`, `type`" //
+        + "  from inodes" //
+        + "    where uuid=?";
+    
     /**
      * @throws AccessDeniedException 
      *
@@ -59,7 +63,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
             conn.setAutoCommit(false);
 
             this.checkPermsSvc.checkPermission(IPermissions.WRITE, target);
-            
+
             for (INode inode : inodes)
             {
                 INode newINode = this.copyOneINode(inode, target, conn);
@@ -119,20 +123,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
                 throw new NotFoundException(inode.getUuid());
             }
 
-
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-            INode newINode = INode.builder() //
-                .uuid(newUUID) //
-                .parent(target.getUuid()) //
-                .name(inode.getName()) //
-                .owner(inode.getOwner()) //
-                .group(inode.getGroup()) //
-                .perms(inode.getPerms()) //
-                .created(now) //
-                .modified(now) //
-                .size(inode.getSize()) //
-                .type(inode.getType()) //
-                .build();
+            INode newINode = this.getINode(newUUID, conn);
             
             this.checkPermsSvc.checkPermission(IPermissions.READ, newINode);
             if (inode.isDirectory())
@@ -147,6 +138,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         }
         catch (SQLException e)
         {
+            e.printStackTrace();
             throw new TechnicalFileSysException("???", e);
         }
         finally
@@ -205,6 +197,48 @@ public class CopyINodeServiceImpl implements ICopyINodeService
                     .type(rs.getString("type")) //
                     .build();
                 result.add(inode);
+            }
+            return result;
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(rs);
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    /**
+     * @param uuid
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
+    private INode getINode(UUID uuid, Connection conn) throws SQLException
+    {
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        INode result = INode.empty();
+
+        try
+        {
+            stmt = conn.prepareStatement(SQL_GET_INODE);
+            stmt.setString(1, uuid.toString());
+            rs = stmt.executeQuery();
+            if (rs.next())
+            {
+                result = INode.builder() //
+                    .uuid(uuid) //
+                    .parent(UUID.fromString(rs.getString("parent"))) //
+                    .name(rs.getString("name")) //
+                    .owner(UUID.fromString(rs.getString("owner"))) //
+                    .group(UUID.fromString(rs.getString("group"))) //
+                    .perms(rs.getInt("perms")) //
+                    .created(rs.getTimestamp("created")) //
+                    .modified(rs.getTimestamp("modified")) //
+                    .size(rs.getInt("size")) //
+                    .type(rs.getString("type")) //                 
+                    .build();
             }
             return result;
         }

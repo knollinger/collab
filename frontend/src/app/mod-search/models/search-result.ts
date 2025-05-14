@@ -51,6 +51,10 @@ export class UserSearchResultItem {
     get type(): string {
         return 'user';
     }
+
+    get fullName(): string {
+        return `${this.surName} ${this.lastName}`;
+    }
 }
 
 export interface IGroupSearchResultItem {

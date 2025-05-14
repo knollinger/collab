@@ -171,7 +171,9 @@ export class FilesFolderViewComponent implements OnInit {
 
         if (name) {
 
-          name = `${name}.${desc.ext}`;
+          if (desc.ext) {
+            name = `${name}.${desc.ext}`;
+          }
           this.inodeSvc.createDocument(this.currentFolder.uuid, name, desc.contentType)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {

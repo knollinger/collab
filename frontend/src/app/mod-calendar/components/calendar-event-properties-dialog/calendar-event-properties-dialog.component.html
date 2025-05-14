@@ -1,61 +1,36 @@
-<h1 mat-dialog-title>Kalender-Eintrag bearbeiten</h1>
-<mat-dialog-content class="mat-typography">
-    <mat-tab-group>
-        <mat-tab>
-            <ng-template mat-tab-label>
-                <mat-icon class="material-symbols-outlined"
-                          class="tab-icon">calendar_today</mat-icon>
-                Termin
-            </ng-template>
-            <div class="tab-content">
-                <app-calendar-event-main-editor [event]="event"></app-calendar-event-main-editor>
+<h1 mat-dialog-title>Termin bearbeiten</h1>
+<mat-dialog-content>
 
-            </div>
-        </mat-tab>
+    <mat-accordion multi="true">
+        <mat-expansion-panel expanded="true">
+            <mat-expansion-panel-header>
+                <mat-panel-title>Termin</mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-calendar-event-main-editor [event]="event"></app-calendar-event-main-editor>
+        </mat-expansion-panel>
 
-        <mat-tab>
-            <ng-template mat-tab-label>
-                <mat-icon class="material-symbols-outlined"
-                          class="tab-icon">person</mat-icon>
-                Personen
-            </ng-template>
-            <div class="tab-content">
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>Personen</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>Bruno, Paul, Anne</div>
+        </mat-expansion-panel>
 
-            </div>
-        </mat-tab>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>Ort</mat-panel-title>
+            </mat-expansion-panel-header>
+            <div>Somewhere over the Rainbow</div>
+        </mat-expansion-panel>
 
-        <mat-tab>
-            <ng-template mat-tab-label>
-                <mat-icon class="material-symbols-outlined"
-                          class="tab-icon">location_on</mat-icon>
-                Ort
-            </ng-template>
-            <div class="tab-content">
-            </div>
-        </mat-tab>
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>Tags</mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-hashtag-selector [(hashTags)]="hashTags"></app-hashtag-selector>
+        </mat-expansion-panel>
 
-        <mat-tab>
-            <ng-template mat-tab-label>
-                <mat-icon class="material-symbols-outlined"
-                          class="tab-icon">description</mat-icon>
-                Dateien
-            </ng-template>
-            <div class="tab-content">
-
-            </div>
-        </mat-tab>
-
-        <mat-tab>
-            <ng-template mat-tab-label>
-                <mat-icon class="material-symbols-outlined"
-                          class="tab-icon">tag</mat-icon>
-                Hashtags
-            </ng-template>
-            <div class="tab-content">
-                <app-hashtag-selector [(hashTags)]="hashTags"></app-hashtag-selector>
-            </div>
-        </mat-tab>
-    </mat-tab-group>
+    </mat-accordion>
 </mat-dialog-content>
 
 <!-- die ButtonArea -->

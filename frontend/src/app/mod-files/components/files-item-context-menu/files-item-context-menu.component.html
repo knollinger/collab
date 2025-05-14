@@ -10,8 +10,24 @@
             (click)="onOpen()">
         <mat-icon class="material-symbols-outlined">open_in_new</mat-icon><b>Öffnen</b>
     </button>
-    <mat-divider></mat-divider>
 
+    <!-- Das SubMenu mit den Create-Optionen -->
+    <mat-divider *ngIf="inode.isDirectory()"></mat-divider>
+    <button mat-menu-item
+            *ngIf="inode.isDirectory()"
+            [disabled]="!isWriteAllowed"
+            [matMenuTriggerFor]="createMenu">
+        <mat-icon class="material-symbols-outlined">add</mat-icon>
+        Neu
+    </button>
+
+    <mat-menu #createMenu>
+        <app-files-create-menu *ngFor="let group of createGroups"
+                               [group]="group"></app-files-create-menu>
+    </mat-menu>
+
+
+    <mat-divider></mat-divider>
     <button mat-menu-item
             [disabled]="!this.isWriteAllowed"
             (click)="onRename()">
@@ -35,7 +51,7 @@
     </button>
     <button mat-menu-item
             [disabled]="!this.isWriteAllowed"
-            *ngIf="inode.isDirectory()"
+            *ngIf="isPasteEnabled"
             (click)="onPaste()">
         <mat-icon class="material-symbols-outlined">content_paste</mat-icon>Einfügen
     </button>

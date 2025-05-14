@@ -39,7 +39,7 @@ public class UploadServiceImpl implements IUploadService
 
     private static final String ERR_UPLOAD_FAILED = "Der Upload in den Ordner mit der UUID '%1$s' ist technisch fehl geschlagen.";
 
-    private static final short DEFAULT_PERMISSION = 077; // read, write, delete für owner und gruppe
+    private static final short DEFAULT_PERMISSION = 0770; // read, write, delete für owner und gruppe
     
     @Autowired
     private IDbService dbSvc;

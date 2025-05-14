@@ -5,7 +5,8 @@ import { TitlebarService } from '../mod-commons/mod-commons.module';
 @Component({
   selector: 'app-licences',
   templateUrl: './licences.component.html',
-  styleUrls: ['./licences.component.css']
+  styleUrls: ['./licences.component.css'],
+  standalone: false
 })
 export class LicencesComponent implements OnInit {
 
