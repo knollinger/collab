@@ -6,6 +6,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { FilesItemContextMenuComponent } from '../files-item-context-menu/files-item-context-menu.component';
 import { Permissions } from '../../models/permissions';
+import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 
 @Component({
   selector: 'app-files-listview-item',
@@ -29,6 +30,9 @@ export class FilesListviewItemComponent implements OnInit {
 
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
+
+  @Output()
+  create: EventEmitter<CreateMenuEvent> = new EventEmitter<CreateMenuEvent>();
 
   @Output()
   rename: EventEmitter<INode> = new EventEmitter<INode>();
@@ -103,6 +107,13 @@ export class FilesListviewItemComponent implements OnInit {
     if (this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode)) {
       this.open.emit(this.inode);
     }
+  }
+
+  /**
+   * 
+   */
+  onCreate(evt: CreateMenuEvent) {
+    this.create.emit(evt);
   }
 
   onRename() {

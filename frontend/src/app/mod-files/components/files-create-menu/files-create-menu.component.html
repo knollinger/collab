@@ -1,8 +1,45 @@
 <button mat-menu-item
-        [matMenuTriggerFor]="menu">{{group.name}}</button>
+        [matMenuTriggerFor]="mainMenu">
+        <mat-icon class="material-symbols-outlined">add</mat-icon>
+        Neu
+</button>
 
-<mat-menu #menu>
-    <button mat-menu-item
-            *ngFor="let item of group.items"
-            (click)="onClick(item)">{{item.name}}</button>
+<mat-menu #mainMenu>
+        <button mat-menu-item
+                [matMenuTriggerFor]="createFolderMenu">Ordner</button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item
+                [matMenuTriggerFor]="createCommonsMenu">Allgemein</button>
+        <button mat-menu-item
+                [matMenuTriggerFor]="createOfficeMenu">Office</button>
+</mat-menu>
+
+<mat-menu #createFolderMenu>
+        <button mat-menu-item
+                (click)="onMenuClick('inode/directory')">Einfacher Ordner</button>
+        <button mat-menu-item
+                (click)="onMenuClick('inode/directory+image')">Bilder-Ordner</button>
+        <button mat-menu-item
+                (click)="onMenuClick('inode/directory+documents')">Dokumenten-Ordner</button>
+        <button mat-menu-item
+                (click)="onMenuClick('inode/directory+sound')">Musik-Ordner</button>
+        <button mat-menu-item
+                (click)="onMenuClick('inode/directory+video')">Video-Ordner</button>
+</mat-menu>
+
+<mat-menu #createCommonsMenu>
+        <button mat-menu-item
+                (click)="onMenuClick('text/plain')">Text-Datei</button>
+</mat-menu>
+
+<mat-menu #createOfficeMenu>
+
+        <button mat-menu-item
+                (click)="onMenuClick('application/vnd.oasis.opendocument.presentation', 'odp')">Präsentation</button>
+        <button mat-menu-item
+                (click)="onMenuClick('application/vnd.oasis.opendocument.spreadsheet', 'ods')">Tabelle</button>
+        <button mat-menu-item
+                (click)="onMenuClick('application/vnd.oasis.opendocument.text', 'odt')">Text-Dokument</button>
+        <button mat-menu-item
+                (click)="onMenuClick('application/vnd.oasis.opendocument.graphics', 'odg')">Zeichnung</button>
 </mat-menu>

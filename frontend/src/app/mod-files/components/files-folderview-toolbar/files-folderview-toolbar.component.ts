@@ -3,9 +3,7 @@ import { CheckPermissionsService } from '../../services/check-permissions.servic
 import { INode } from '../../models/inode';
 import { Permissions } from '../../models/permissions';
 import { ClipboardService } from '../../services/clipboard.service';
-import { CreateMenuService } from '../../services/create-menu.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CreateMenuItemDesc, CreateMenuItemGroup } from '../../models/create-menu-item';
 
 /**
  * Die Toolbar für den FolderView.
@@ -44,9 +42,6 @@ export class FilesFolderviewToolbarComponent implements OnInit {
   reload: EventEmitter<void> = new EventEmitter<void>();
 
   @Output()
-  createDocument: EventEmitter<CreateMenuItemDesc> = new EventEmitter<CreateMenuItemDesc>();
-
-  @Output()
   selectAll: EventEmitter<void> = new EventEmitter<void>();
 
   @Output()
@@ -64,16 +59,13 @@ export class FilesFolderviewToolbarComponent implements OnInit {
   @Output()
   delete: EventEmitter<void> = new EventEmitter<void>();
 
-  createGroups: CreateMenuItemGroup[] = new Array<CreateMenuItemGroup>();
-
   /**
    * 
    * @param checkPermsSvc 
    */
   constructor(
     private clipBoardSvc: ClipboardService,
-    private checkPermsSvc: CheckPermissionsService,
-    private createMenuSvc: CreateMenuService) {
+    private checkPermsSvc: CheckPermissionsService) {
 
   }
 
@@ -82,12 +74,8 @@ export class FilesFolderviewToolbarComponent implements OnInit {
    */
   ngOnInit(): void {
 
-    this.createMenuSvc.getMenuGroups()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(groups => {
-        this.createGroups = groups;
-      })
   }
+
   /**
    * 
    */
@@ -100,13 +88,6 @@ export class FilesFolderviewToolbarComponent implements OnInit {
    */
   onReload() {
     this.reload.emit();
-  }
-
-  /**
-   * 
-   */
-   onCreateDocument(desc: CreateMenuItemDesc) {
-    this.createDocument.emit(desc);
   }
 
   /**

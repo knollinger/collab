@@ -12,21 +12,6 @@
         <mat-icon class="material-symbols-outlined">refresh</mat-icon>
     </button>
 
-    <app-toolbar-separator></app-toolbar-separator>
-    <button mat-icon-button
-            [disabled]="!isWriteable"
-            matTooltip="Neu"
-            [matMenuTriggerFor]="createMenu">
-        <mat-icon class="material-symbols-outlined">add</mat-icon>
-    </button>
-
-    <mat-menu #createMenu>
-        <app-files-create-menu *ngFor="let group of createGroups"
-                               [group]="group"
-                               (click)="onCreateDocument($event)"></app-files-create-menu>
-    </mat-menu>
-    
-
     <!-- Selection/deselectopn -->
     <app-toolbar-separator></app-toolbar-separator>
     <button mat-icon-button

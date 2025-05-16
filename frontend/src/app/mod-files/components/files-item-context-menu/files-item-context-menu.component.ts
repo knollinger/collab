@@ -1,14 +1,13 @@
-import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 
 import { INode } from '../../models/inode';
 import { Permissions } from '../../models/permissions';
 
+import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
+
 import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { ClipboardService } from '../../services/clipboard.service';
-import { CreateMenuService } from '../../services/create-menu.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CreateMenuItemGroup } from '../../models/create-menu-item';
 
 @Component({
   selector: 'app-files-item-context-menu',
@@ -17,8 +16,6 @@ import { CreateMenuItemGroup } from '../../models/create-menu-item';
   standalone: false
 })
 export class FilesItemContextMenuComponent implements OnInit {
-
-  private destroyRef = inject(DestroyRef);
 
   @ViewChild(MatMenuTrigger)
   trigger: MatMenuTrigger | undefined;
@@ -31,6 +28,9 @@ export class FilesItemContextMenuComponent implements OnInit {
 
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
+
+  @Output()
+  create: EventEmitter<CreateMenuEvent> = new EventEmitter<CreateMenuEvent>();
 
   @Output()
   rename: EventEmitter<INode> = new EventEmitter<INode>();
@@ -52,7 +52,6 @@ export class FilesItemContextMenuComponent implements OnInit {
 
   triggerPosX: string = '';
   triggerPosY: string = '';
-  createGroups: CreateMenuItemGroup[] = new Array<CreateMenuItemGroup>();
 
   /**
    * 
@@ -62,8 +61,7 @@ export class FilesItemContextMenuComponent implements OnInit {
    */
   constructor(
     private clipboardSvc: ClipboardService,
-    private checkPermsSvc: CheckPermissionsService,
-    private createMenuSvc: CreateMenuService) {
+    private checkPermsSvc: CheckPermissionsService) {
 
   }
 
@@ -72,11 +70,6 @@ export class FilesItemContextMenuComponent implements OnInit {
    */
   ngOnInit(): void {
 
-    this.createMenuSvc.getMenuGroups()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(groups => {
-        this.createGroups = groups;
-      })
   }
 
   /**
@@ -102,6 +95,14 @@ export class FilesItemContextMenuComponent implements OnInit {
    */
   onOpen() {
     this.open.emit(this.inode);
+  }
+
+  /**
+   * 
+   * @param evt 
+   */
+  onCreateDocument(evt: CreateMenuEvent) {
+    this.create.emit(evt);
   }
 
   /**

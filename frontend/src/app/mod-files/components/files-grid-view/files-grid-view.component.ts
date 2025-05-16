@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { INode } from '../../models/inode';
 import { INodeDroppedEvent, FilesDroppedEvent } from '../../directives/drop-target.directive';
+import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 
 /**
  * Stellt den GridView dar.
@@ -42,6 +43,9 @@ export class FilesGridViewComponent implements OnInit {
 
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
+
+  @Output()
+  create: EventEmitter<CreateMenuEvent> = new EventEmitter<CreateMenuEvent>();
 
   @Output()
   rename: EventEmitter<INode> = new EventEmitter<INode>();
@@ -156,6 +160,13 @@ export class FilesGridViewComponent implements OnInit {
     this.open.emit(inode);
   }
 
+  /**
+   * 
+   * @param evt 
+   */
+  onCreate(evt: CreateMenuEvent) {
+    this.create.emit(evt);
+  }
 
   /**
    * An einem GridViewItem wurde ein rename() angefordert.

@@ -13,11 +13,11 @@ import { SessionService } from '../../../mod-session/session.module';
 import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
 import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { Permissions } from '../../models/permissions';
-import { CreateMenuItemDesc } from '../../models/create-menu-item';
 import { Router } from '@angular/router';
 import { HashTagConstants, HashTagService } from '../../../mod-hashtags/mod-hashtags.module';
 import { MatDialog } from '@angular/material/dialog';
 import { FilesPropertiesDialogComponent } from '../files-properties-dialog/files-properties-dialog.component';
+import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 
 @Component({
   selector: 'app-folder-view',
@@ -163,7 +163,7 @@ export class FilesFolderViewComponent implements OnInit {
    * 
    * @param contentType 
    */
-  public onCreateDocument(desc: CreateMenuItemDesc) {
+  public onCreateDocument(desc: CreateMenuEvent) {
 
     this.commonsDlgSvc.showInputBox('Ein neues Dokument anlegen', 'Name')
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -174,10 +174,13 @@ export class FilesFolderViewComponent implements OnInit {
           if (desc.ext) {
             name = `${name}.${desc.ext}`;
           }
-          this.inodeSvc.createDocument(this.currentFolder.uuid, name, desc.contentType)
+          this.inodeSvc.createDocument(desc.parent.uuid, name, desc.type)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => {
-              this.reloadEntries();
+
+              if (this.currentFolder.uuid === desc.parent.uuid) {
+                this.reloadEntries();
+              }
             })
         }
       })

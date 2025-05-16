@@ -17,6 +17,7 @@
                                   [selected]="isSelected(inode)"
                                   (selectionChange)="onItemSelectionChange(inode, $event)"
                                   (open)="onOpen(inode)"
+                                  (create)="onCreate($event)"
                                   (rename)="onRename(inode)"
                                   (cut)="onCut(inode)"
                                   (copy)="onCopy(inode)"

@@ -151,7 +151,7 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
     }
 
     // baue die Route und navigiere dorthin
-    const route = `/files/show/${this.leftPanelFolder.uuid}/${this.rightPanelFolder.uuid}`;
+    const route = `/files/main/${this.leftPanelFolder.uuid}/${this.rightPanelFolder.uuid}`;
     this.router.navigateByUrl(route);
   }
 

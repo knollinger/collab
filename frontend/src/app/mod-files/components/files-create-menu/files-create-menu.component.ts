@@ -1,7 +1,19 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { INode } from '../../models/inode';
 
-import { CreateMenuItemDesc, CreateMenuItemGroup } from '../../models/create-menu-item';
+export class CreateMenuEvent {
 
+  constructor(
+    public readonly type: string,
+    public readonly ext: string,
+    public readonly parent: INode) {
+
+  }
+}
+
+/**
+ * 
+ */
 @Component({
   selector: 'app-files-create-menu',
   templateUrl: './files-create-menu.component.html',
@@ -11,12 +23,18 @@ import { CreateMenuItemDesc, CreateMenuItemGroup } from '../../models/create-men
 export class FilesCreateMenuComponent {
 
   @Input()
-  group: CreateMenuItemGroup = CreateMenuItemGroup.empty();
+  parent: INode = INode.empty();
 
   @Output()
-  click: EventEmitter<CreateMenuItemDesc> = new EventEmitter<CreateMenuItemDesc>();
+  create: EventEmitter<CreateMenuEvent> = new EventEmitter<CreateMenuEvent>();
 
-  onClick(desc: CreateMenuItemDesc) {
-    this.click.emit(desc);
+  /**
+   * 
+   * @param mimeType 
+   * @param extension 
+   */
+  onMenuClick(mimeType: string, extension: string = '') {
+
+    this.create.emit(new CreateMenuEvent(mimeType, extension, this.parent));
   }
 }

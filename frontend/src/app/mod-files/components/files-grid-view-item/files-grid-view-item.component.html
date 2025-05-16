@@ -24,6 +24,7 @@
      <app-files-item-context-menu #contextMenu
                                   [inode]="inode"
                                   (open)="onOpen()"
+                                  (create)="onCreate($event)"
                                   (rename)="onRename()"
                                   (delete)="onDelete()"
                                   (cut)="onCut()"

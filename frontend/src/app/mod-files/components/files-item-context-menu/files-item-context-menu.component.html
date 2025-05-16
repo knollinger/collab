@@ -13,19 +13,9 @@
 
     <!-- Das SubMenu mit den Create-Optionen -->
     <mat-divider *ngIf="inode.isDirectory()"></mat-divider>
-    <button mat-menu-item
-            *ngIf="inode.isDirectory()"
-            [disabled]="!isWriteAllowed"
-            [matMenuTriggerFor]="createMenu">
-        <mat-icon class="material-symbols-outlined">add</mat-icon>
-        Neu
-    </button>
-
-    <mat-menu #createMenu>
-        <app-files-create-menu *ngFor="let group of createGroups"
-                               [group]="group"></app-files-create-menu>
-    </mat-menu>
-
+    <app-files-create-menu *ngIf="inode.isDirectory()"
+                           [parent]="inode"
+                           (create)="onCreateDocument($event)"></app-files-create-menu>
 
     <mat-divider></mat-divider>
     <button mat-menu-item

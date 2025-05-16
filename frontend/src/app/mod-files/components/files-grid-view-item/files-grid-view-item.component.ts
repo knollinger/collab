@@ -7,6 +7,7 @@ import { FilesItemContextMenuComponent } from '../files-item-context-menu/files-
 
 import { INode } from '../../models/inode';
 import { Permissions } from '../../models/permissions';
+import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 
 
 /**
@@ -34,6 +35,9 @@ export class FilesGridViewItemComponent {
 
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
+
+  @Output()
+  create: EventEmitter<CreateMenuEvent> = new EventEmitter<CreateMenuEvent>();
 
   @Output()
   rename: EventEmitter<INode> = new EventEmitter<INode>();
@@ -109,6 +113,13 @@ export class FilesGridViewItemComponent {
     if (this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode)) {
       this.open.emit(this.inode);
     }
+  }
+
+  /**
+   * 
+   */
+  onCreate(evt: CreateMenuEvent) {
+    this.create.emit(evt);
   }
 
   onRename() {
