@@ -1,4 +1,4 @@
-import { Component, DestroyRef, EventEmitter, inject, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { INode } from '../../models/inode';
@@ -53,7 +53,7 @@ export class FilesPreviewComponent implements OnInit {
         this.inodeSvc.getINode(params.get('uuid') || '')
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(inode => {
-            
+
             this.inode = inode;
             this.titleBarSvc.subTitle = inode.name;
 
@@ -65,37 +65,7 @@ export class FilesPreviewComponent implements OnInit {
 
               })
           })
-     })
-  }
-
-  private loadINode(uuid: string): Observable<INode> {
-
-    return this.inodeSvc.getINode(uuid);
-  }
-
-  /**
-   * 
-   * @returns 
-   */
-  private loadContentTypePatterns(): Observable<Map<RegExp, string>> {
-
-
-    return this.wopiSvc.getWOPIMimeTypes()
-      .pipe(map(mimeTypes => {
-        const patternsToType = new Map<RegExp, string>();
-        patternsToType.set(/image\/.*/, 'image');
-        patternsToType.set(/video\/.*/, 'video');
-        patternsToType.set(/audio\/.*/, 'audio');
-        patternsToType.set(/text\/.*/, 'text');
-
-        mimeTypes.map(type => {
-
-          const masked = type.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-          const regex = new RegExp(masked, 'g');
-          patternsToType.set(regex, 'office');
-        })
-        return patternsToType;
-      }));
+      })
   }
 
   /**
@@ -116,12 +86,50 @@ export class FilesPreviewComponent implements OnInit {
 
   /**
    * 
+   * @returns 
+   */
+  private loadContentTypePatterns(): Observable<Map<RegExp, string>> {
+
+
+    return this.wopiSvc.getWOPIMimeTypes()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map(mimeTypes => {
+
+          const patternsToType = new Map<RegExp, string>();
+
+          mimeTypes.map(type => {
+
+            const masked = type.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const regex = new RegExp(masked, 'g');
+            patternsToType.set(regex, 'collabara');
+          })
+
+          // standard-patterns
+
+          patternsToType.set(/image\/.*/, 'image');
+          patternsToType.set(/video\/.*/, 'video');
+          patternsToType.set(/audio\/.*/, 'audio');
+          patternsToType.set(/text\/.*/, 'quill');
+          patternsToType.set(/application\/json/, 'quill');
+
+          return patternsToType;
+        }));
+  }
+
+  private getQuillPatterns(): RegExp[] {
+
+    return [
+      /text\/.*/,
+      /application\/json/
+    ];
+  }
+
+  /**
+   * 
    */
   public get srcUrl(): string {
     return this.inodeSvc.getContentUrl(this.inode.uuid);
   }
-
-  onGoBack() {
-    alert('not yet implemented');
-  }
 }
+

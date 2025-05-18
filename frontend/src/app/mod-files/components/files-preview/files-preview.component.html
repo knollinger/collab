@@ -24,7 +24,11 @@
             Your browser does not support the video tag.
         </video>
 
-        <app-file-collabra *ngSwitchCase="'office'"
+        <h2 class="no-viewer" *ngSwitchCase="'quill'">
+            QuillViewer muss noch gebaut werden
+        </h2>
+        
+        <app-file-collabra *ngSwitchCase="'collabara'"
                            [inode]="inode"></app-file-collabra>
 
         <h2 class="no-viewer"
