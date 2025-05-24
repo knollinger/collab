@@ -92,7 +92,7 @@ export class FilesViewerComponent {
         this.injectTypes(FilesViewerComponent.quillTypes, 'quill');
         this.injectSingleType(/image\/.*/g, 'image');
         this.injectSingleType(/video\/.*/g, 'video');
-        this.injectSingleType(/audio\/.*/g, 'sound');
+        this.injectSingleType(/audio\/.*/g, 'audio');
         this.possibleViewers = this.getPossibleViewers(inode);
         this.viewType = this.detectType();
 

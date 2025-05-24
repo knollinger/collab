@@ -1,3 +1,19 @@
 .outer-cnr {
     display: inline-block;
 }
+
+.item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.item>img {
+    width: 32px;
+    margin-right: 0.5rem;
+    flex: 0 0 auto;
+}
+
+.item>span {
+    flex: 1 1 auto;
+}

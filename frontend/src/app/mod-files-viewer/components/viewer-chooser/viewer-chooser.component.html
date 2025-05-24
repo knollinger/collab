@@ -4,9 +4,16 @@
     </mat-card-header>
     <mat-card-content>
         <mat-action-list>
+            
             <button mat-menu-item
                     *ngFor="let alias of aliases"
-                    (click)="onSelection(alias)">{{alias}}</button>
+                    (click)="onSelection(alias)">
+                <span class="item">
+                    <img [src]=viewerImage(alias)>
+                    <span>{{viewerDesc(alias)}}</span>
+                </span>
+            </button>
+
         </mat-action-list>
     </mat-card-content>
 </mat-card>

@@ -4,33 +4,22 @@
          class="preview">
 
         <!-- ImageViewer -->
-        <img *ngSwitchCase="'image'"
-             [src]="srcUrl | safe:'resourceUrl'">
+        <app-viewer-image *ngSwitchCase="'image'"
+                          [inode]="inode"></app-viewer-image>
 
         <!-- AudioViewer -->
-        <video *ngSwitchCase="'audio'"
-               width="100%"
-               height="100%"
-               controls>
-            <source [src]="srcUrl | safe:'resourceUrl'"
-                    [type]="inode.type">
-            Your browser does not support the video tag.
-        </video>
+        <app-viewer-audio *ngSwitchCase="'audio'"
+                          [inode]="inode"></app-viewer-audio>
 
         <!-- VideoViewer -->
-        <video *ngSwitchCase="'video'"
-               width="100%"
-               height="100%"
-               controls>
-            <source [src]="srcUrl | safe:'resourceUrl'"
-                    [type]="inode.type">
-            Your browser does not support the video tag.
-        </video>
+        <app-viewer-movie *ngSwitchCase="'video'"
+                          [inode]="inode"></app-viewer-movie>
 
         <!-- QuillViewer (Text) -->
-        <app-viewer-quill *ngSwitchCase="'quill'"></app-viewer-quill>
+        <app-viewer-quill *ngSwitchCase="'quill'"
+                          [inode]="inode"></app-viewer-quill>
 
-        <!-- Die Anzeige via LibeOffice-online/Collabara -->
+        <!-- LibeOffice-online/Collabara Viewer -->
         <app-viewer-collabara *ngSwitchCase="'collabara'"
                               [inode]="inode"></app-viewer-collabara>
 
@@ -42,6 +31,6 @@
 
         <!-- Kein Viewer gefunden -->
         <h2 class="no-viewer"
-            *ngSwitchDefault>Es existiert kein Viewer für den Dateitype {{inode.type}}</h2>
+            *ngSwitchDefault>Es existiert kein Viewer für den Dateityp {{inode.type}}</h2>
     </div>
 </div>

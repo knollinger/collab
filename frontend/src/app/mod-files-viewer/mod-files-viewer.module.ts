@@ -10,13 +10,19 @@ import { FilesViewerComponent } from './components/files-viewer/files-viewer.com
 import { ViewerCollabaraComponent } from './components/viewer-collabara/viewer-collabara.component';
 import { ModFilesViewerRoutingModule } from './mod-files-viewer-routing.module';
 import { ViewerQuillComponent } from './components/viewer-quill/viewer-quill.component';
+import { ViewerImageComponent } from './components/viewer-image/viewer-image.component';
+import { ViewerMovieComponent } from './components/viewer-movie/viewer-movie.component';
+import { ViewerAudioComponent } from './components/viewer-audio/viewer-audio.component';
 
 @NgModule({
   declarations: [
     ViewerChooserComponent,
     FilesViewerComponent,
     ViewerCollabaraComponent,
-    ViewerQuillComponent
+    ViewerQuillComponent,
+    ViewerImageComponent,
+    ViewerMovieComponent,
+    ViewerAudioComponent
   ],
   imports: [
     CommonModule,
