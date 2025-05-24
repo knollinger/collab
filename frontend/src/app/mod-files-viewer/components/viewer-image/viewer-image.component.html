@@ -1,0 +1,14 @@
+<div class="outer-cnr">
+
+    <div class="current-view">
+        <img class="current-image" [src]="sourceUrl(inode) | safe:'resourceUrl'">
+    </div>
+
+    <div class="gallery">
+        <img *ngFor="let image of allImages"
+             class="preview-img"
+             [class.selected]="isSelected(image)"
+             (click)="inode = image"
+             [src]="sourceUrl(image) | safe:'resourceUrl'">
+    </div>
+</div>
