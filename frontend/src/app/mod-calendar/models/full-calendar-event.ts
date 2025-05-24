@@ -1,5 +1,5 @@
 import { ICalendarEvent, CalendarEvent } from './calendar-event';
-import { IINode, INode } from '../../mod-files/mod-files.module';
+import { IINode, INode } from "../../mod-files-data/mod-files-data.module";
 
 export interface IFullCalendarEvent {
     event: ICalendarEvent,

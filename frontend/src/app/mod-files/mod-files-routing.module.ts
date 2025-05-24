@@ -4,7 +4,6 @@ import { NgModule } from "@angular/core";
 import { SessionRequiredGuard } from '../mod-session/session.module';
 
 import { FilesMainViewComponent } from './components/files-main-view/files-main-view.component';
-import { FilesPreviewComponent } from './components/files-preview/files-preview.component';
 
 const routes: Routes = [
   {
@@ -21,11 +20,6 @@ const routes: Routes = [
   {
     path: 'main/:leftPanel/:rightPanel',
     component: FilesMainViewComponent,
-    canActivate: [SessionRequiredGuard],
-  },
-  {
-    path: 'preview/:uuid',
-    component: FilesPreviewComponent,
     canActivate: [SessionRequiredGuard],
   },
 ]

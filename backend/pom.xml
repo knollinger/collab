@@ -12,7 +12,7 @@
 	<groupId>org.knollinger</groupId>
 	<artifactId>working-togehther-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>working-togehther-backend</name>
+	<name>working-together-backend</name>
 	<description>Backend für die Working together APP</description>
 	<url />
 	<licenses>

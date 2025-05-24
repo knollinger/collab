@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map, of } from 'rxjs';
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 import { HttpClient } from '@angular/common/http';
-import { INode } from '../models/inode';
+import { INode } from '../../mod-files-data/models/inode';
 
 /**
  * WOPI...Lustiger ServiceName. 
@@ -63,39 +63,9 @@ export class WopiService {
     const url = this.backendSvc.getRouteForName('getMimeTypes', WopiService.routes);
     return this.http.get<string[]>(url).pipe(
       map(mimeTypes => {
-        this.mimeTypeCache = mimeTypes.filter(type => this.isAllowedMimeType(type));
+        this.mimeTypeCache = mimeTypes;
         return this.mimeTypeCache;
       })
     );
-  }
-
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* Einige von Collabara unterstützten MimeTypes werden ignoriert, da dafür */
-  /* leichtgewichtigere Viewer/Editoren zur Verfügung stehen.                */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-  private forbiddenMimeTypes: RegExp[] = [
-    new RegExp("image\/.*"),
-    new RegExp("text\/.*")
-  ];
-
-  /**
-   * Einige MimeTypes sollen nicht durch Collabra geöffnet werden.
-   * Diese werden hier ausgefiltert.
-   * 
-   * Die Funktion dient als Callback für einen aufruf von filter()
-   * 
-   * @param type 
-   * @returns 
-   */
-  private isAllowedMimeType(type: string): boolean {
-
-    for (let regexp of this.forbiddenMimeTypes) {
-      if (type.match(regexp)) {
-        return false;
-      }
-    }
-    return true;
   }
 }

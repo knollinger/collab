@@ -4,7 +4,7 @@ import { Observable, map } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
 
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
-import { IINode, INode } from '../models/inode';
+import { IINode, INode } from '../../mod-files-data/models/inode';
 import { RenameINodeRequest } from '../models/rename-inode-request';
 import { MoveINodeRequest } from '../models/move-inode-request';
 

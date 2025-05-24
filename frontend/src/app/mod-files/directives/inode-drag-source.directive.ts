@@ -1,5 +1,7 @@
 import { Directive, HostBinding, HostListener, Input } from '@angular/core';
-import { INode } from '../models/inode';
+
+import { INode } from "../../mod-files-data/mod-files-data.module";
+
 import { CheckPermissionsService } from '../services/check-permissions.service';
 import { Permissions } from '../models/permissions';
 

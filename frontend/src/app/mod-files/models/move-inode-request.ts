@@ -1,4 +1,4 @@
-import { IINode, INode } from "./inode";
+import { IINode, INode } from "../../mod-files-data/models/inode";
 
 export interface IMoveINodeRequest {
 

@@ -2,7 +2,7 @@ import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } fr
 import { MatSelectChange } from "@angular/material/select";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import { INode } from "../../models/inode";
+import { INode } from "../../../mod-files-data/mod-files-data.module";
 
 import { AvatarService, Group } from "../../../mod-userdata/mod-userdata.module";
 import { GroupService } from "../../../mod-user/mod-user.module";

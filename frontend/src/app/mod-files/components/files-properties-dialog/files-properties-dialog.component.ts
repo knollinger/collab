@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
-import { INode } from '../../models/inode';
+import { INode } from "../../../mod-files-data/mod-files-data.module";
 
 /**
  * 

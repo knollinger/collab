@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { INode } from '../../models/inode';
+
+import { INode } from '../../../mod-files-data/mod-files-data.module';
+
 import { ClipboardService } from '../../services/clipboard.service';
 import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { Permissions } from '../../models/permissions';

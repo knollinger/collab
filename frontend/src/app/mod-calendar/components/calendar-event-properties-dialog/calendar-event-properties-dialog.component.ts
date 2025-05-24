@@ -1,9 +1,11 @@
 import { Component, Inject } from '@angular/core';
 
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+
+import { INode } from "../../../mod-files-data/mod-files-data.module";
+
 import { CalendarEvent } from '../../models/calendar-event';
 import { FullCalendarEvent } from '../../models/full-calendar-event';
-import { INode } from '../../../mod-files/mod-files.module';
 
 export interface IEventEditorData {
   event: FullCalendarEvent

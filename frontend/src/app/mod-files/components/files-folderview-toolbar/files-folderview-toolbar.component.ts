@@ -1,9 +1,12 @@
 import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+
+import { INode } from '../../../mod-files-data/mod-files-data.module';
+
 import { CheckPermissionsService } from '../../services/check-permissions.service';
-import { INode } from '../../models/inode';
+
 import { Permissions } from '../../models/permissions';
 import { ClipboardService } from '../../services/clipboard.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 
 /**
  * Die Toolbar für den FolderView.

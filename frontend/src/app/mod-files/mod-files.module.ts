@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModUserDataModule } from '../mod-userdata/mod-userdata.module';
+import { ModFilesDataModule } from '../mod-files-data/mod-files-data.module';
+
 import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 
@@ -18,7 +20,6 @@ import { FilesFolderViewComponent } from './components/files-folder-view/files-f
 import { FilesGridViewComponent } from './components/files-grid-view/files-grid-view.component';
 import { FilesListViewComponent } from './components/files-list-view/files-list-view.component';
 import { ShowDuplicateFilesComponent } from './components/show-duplicate-files/show-duplicate-files.component';
-import { FilesPreviewComponent } from './components/files-preview/files-preview.component';
 import { FilesItemContextMenuComponent } from './components/files-item-context-menu/files-item-context-menu.component';
 import { INodeDragSourceDirective } from './directives/inode-drag-source.directive';
 import { DropTargetDirective } from './directives/drop-target.directive';
@@ -30,10 +31,12 @@ import { FilesPermissionsComponent } from './components/files-permissions/files-
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesFolderviewToolbarComponent } from './components/files-folderview-toolbar/files-folderview-toolbar.component';
 import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
-import { FileCollabraComponent } from './components/file-collabra/file-collabra.component';
 
-import { IINode, INode } from './models/inode';
-export { IINode, INode };
+import { INodeService } from './services/inode.service';
+export { INodeService};
+
+import { WopiService } from './services/wopi.service';
+export { WopiService};
 
 @NgModule({
   declarations: [
@@ -47,7 +50,6 @@ export { IINode, INode };
     FilesGridViewComponent,
     FilesListViewComponent,
     ShowDuplicateFilesComponent,
-    FilesPreviewComponent,
     FilesItemContextMenuComponent,
     INodeDragSourceDirective,
     DropTargetDirective,
@@ -58,11 +60,11 @@ export { IINode, INode };
     FilesPermissionsComponent,
     FilesFolderviewToolbarComponent,
     FilesCreateMenuComponent,
-    FileCollabraComponent,
   ],
   imports: [
     CommonModule,
     ModCommonsModule,
+    ModFilesDataModule,
     ModUserDataModule,
     ModHashTagsModule,
     ModMaterialImportModule,

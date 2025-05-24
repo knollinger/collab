@@ -29,6 +29,11 @@ const routes: Routes = [
     loadChildren: () => import('./mod-files/mod-files.module').then(mod => mod.ModFilesModule)
   },
   {
+    path: 'viewer',
+    loadChildren: () => import('./mod-files-viewer/mod-files-viewer.module').then(mod => mod.ModFilesViewerModule)
+  },
+  
+  {
     path: 'calendar',
     loadChildren: () => import('./mod-calendar/mod-calendar.module').then(mod => mod.ModCalendarModule)
   },

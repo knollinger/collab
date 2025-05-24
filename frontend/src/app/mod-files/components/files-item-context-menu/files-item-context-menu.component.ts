@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 
-import { INode } from '../../models/inode';
+import { INode } from '../../../mod-files-data/mod-files-data.module';
+
 import { Permissions } from '../../models/permissions';
 
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';

@@ -5,7 +5,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SessionService } from '../../../mod-session/session.module';
 
-import { EINodeUUIDs, INode } from '../../models/inode';
+import { EINodeUUIDs, INode } from '../../../mod-files-data/mod-files-data.module';
+
 import { INodeService } from '../../services/inode.service';
 
 /**

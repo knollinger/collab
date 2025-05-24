@@ -1,7 +1,8 @@
 import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { INode } from '../../models/inode';
+import { INode } from '../../../mod-files-data/mod-files-data.module';
+
 import { FilesDroppedEvent, INodeDroppedEvent } from '../../directives/drop-target.directive';
 import { INodeService } from '../../services/inode.service';
 import { UploadService } from '../../services/upload.service';
@@ -352,9 +353,8 @@ export class FilesFolderViewComponent implements OnInit {
       this.openFolder.emit(inode);
     }
     else {
-      const url = `/files/preview/${inode.uuid}`;
+      const url = `/viewer/show/${inode.uuid}`;
       this.router.navigateByUrl(url);
-      // this.previewINode = inode;
     }
   }
 

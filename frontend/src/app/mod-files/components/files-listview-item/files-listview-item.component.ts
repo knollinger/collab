@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 
-import { INode } from '../../models/inode';
+import { INode } from '../../../mod-files-data/mod-files-data.module';
+
 import { ContentTypeService } from '../../services/content-type.service';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { CheckPermissionsService } from '../../services/check-permissions.service';

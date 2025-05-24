@@ -11,7 +11,7 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/materia
 
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
-import { ModFilesModule } from '../mod-files/mod-files.module';
+import { ModFilesDataModule } from '../mod-files-data/mod-files-data.module';
 import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
 
 import { CalendarMainComponent } from './components/calendar-main/calendar-main.component';
@@ -51,7 +51,7 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
     ModCommonsModule,
     ModMaterialImportModule,
     ModHashTagsModule,
-    ModFilesModule,
+    ModFilesDataModule,
     ModCalendarRoutingModule,
   ],
   exports: [

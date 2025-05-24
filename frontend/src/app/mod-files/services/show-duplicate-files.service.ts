@@ -3,8 +3,9 @@ import { MatDialog } from '@angular/material/dialog';
 
 import { Observable } from 'rxjs';
 
+import { INode } from "../../mod-files-data/mod-files-data.module";
+
 import { ShowDuplicateFilesComponent } from '../components/show-duplicate-files/show-duplicate-files.component';
-import { INode } from '../models/inode';
 
 @Injectable({
   providedIn: 'root'

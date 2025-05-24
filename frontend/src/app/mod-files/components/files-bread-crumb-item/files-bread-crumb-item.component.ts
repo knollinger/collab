@@ -1,7 +1,8 @@
 import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { INode } from '../../models/inode';
+import { INode } from '../../../mod-files-data/mod-files-data.module';
+
 import { INodeService } from '../../services/inode.service';
 
 /**

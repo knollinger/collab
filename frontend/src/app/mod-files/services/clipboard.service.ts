@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { INode } from '../models/inode';
+import { INode } from "../../mod-files-data/mod-files-data.module";
 
 @Injectable({
   providedIn: 'root'

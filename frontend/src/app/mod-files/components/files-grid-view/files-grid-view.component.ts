@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
-import { INode } from '../../models/inode';
+import { INode } from '../../../mod-files-data/mod-files-data.module';
+
 import { INodeDroppedEvent, FilesDroppedEvent } from '../../directives/drop-target.directive';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 

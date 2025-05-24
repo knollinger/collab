@@ -1,4 +1,5 @@
-import { IINode, INode } from './inode';
+import { IINode, INode } from "../../mod-files-data/mod-files-data.module";
+
 
 export interface IUploadFilesResponse {
     newINodes?: IINode[],
