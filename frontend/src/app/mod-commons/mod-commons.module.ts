@@ -41,6 +41,7 @@ import { FormsModule } from '@angular/forms';
 import { AutoFocusDirective } from './directives/auto-focus.directive';
 import { HintComponent } from './components/hint/hint.component';
 import { NumberSpinnerComponent } from './components/number-spinner/number-spinner.component';
+import { TimePickerPanelComponent } from './components/time-picker/time-picker.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +56,7 @@ import { NumberSpinnerComponent } from './components/number-spinner/number-spinn
     AutoFocusDirective,
     HintComponent,
     NumberSpinnerComponent,
+    TimePickerPanelComponent,
   ],
   imports: [
     CommonModule,
@@ -69,6 +71,7 @@ import { NumberSpinnerComponent } from './components/number-spinner/number-spinn
     SpinnerComponent,
     HintComponent,
     NumberSpinnerComponent,
+    TimePickerPanelComponent,
     FileSizePipe,
     SafePipe,
     AutoFocusDirective,

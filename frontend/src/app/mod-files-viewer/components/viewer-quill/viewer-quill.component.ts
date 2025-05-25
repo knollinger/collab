@@ -1,14 +1,16 @@
 import { Component, DestroyRef, inject, Input, OnInit, ViewChild } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+import Quill from 'quill';
+import { Delta } from 'quill';
 
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { INodeService } from '../../../mod-files/mod-files.module';
-import { HttpClient } from '@angular/common/http';
-import Quill from 'quill';
-import { Delta } from 'quill';
-// import * as hljs from 'highlightjs';
 
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
+/**
+ * 
+ */
 @Component({
   selector: 'app-viewer-quill',
   templateUrl: './viewer-quill.component.html',
@@ -46,11 +48,13 @@ export class ViewerQuillComponent implements OnInit {
       theme: 'snow',
       modules: {
         toolbar: '#toolbar',
-        // syntax: { hljs }
+        addClasses: { // aktiviere das CCS-only Line-Numbering
+          classes: ['ql-lineNumber']
+        }
       }
     });
 
-    this.quill.on('text-change', (delta: Delta, oldContent: Delta, source: string) => {
+    this.quill.on('text-change', (newContent: Delta, oldContent: Delta, source: string) => {
 
       if (source === 'user') {
         this.textChanged = true;
@@ -102,7 +106,7 @@ export class ViewerQuillComponent implements OnInit {
 
         const delta = new Delta()
           .insert(content);
-          // .insert('\n', { 'code-block': 'javascript' });
+        // .insert('\n', { 'code-block': 'javascript' });
         this.quill?.setContents(delta);
         this.textChanged = false;
       });

@@ -28,7 +28,7 @@ export class NumberSpinnerComponent {
   horizontal: boolean = false;
 
   @Input()
-  label: string = 'Label';
+  label: string = '';
 
   @Input()
   labelBefore: boolean = false;
@@ -118,5 +118,25 @@ export class NumberSpinnerComponent {
       exp++;
     }
     return `${exp}em`;
+  }
+
+  increment() {
+
+    if (this._value < this._max) {
+      this._value++;
+    }
+    else {
+      this._value = this._min;
+    }
+  }
+
+  decrement() {
+
+    if (this._value > this._min) {
+      this._value--;
+    }
+    else {
+      this._value = this._max;
+    }
   }
 }

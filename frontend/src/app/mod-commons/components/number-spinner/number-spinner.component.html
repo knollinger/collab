@@ -1,6 +1,12 @@
-<div class="outer" [class.labelBefore]="labelBefore">
-    <div class="inner" [class.horizontal]="horizontal">
-        <mat-icon class="material-symbols-outlined">{{decrIcon}}</mat-icon>
+<div class="outer"
+     [class.labelBefore]="labelBefore">
+    <div class="inner"
+         [class.horizontal]="horizontal">
+        <label [for]="input"
+               *ngIf="labelBefore && label">
+            {{label}}</label>
+        <mat-icon class="material-symbols-outlined"
+                  (click)="increment()">{{decrIcon}}</mat-icon>
         <input type="number"
                #input
                [style.width]="fieldWidth"
@@ -8,7 +14,8 @@
                [value]="value"
                [min]="min"
                [max]="max">
-        <mat-icon class="material-symbols-outlined">{{incrIcon}}</mat-icon>
+        <mat-icon class="material-symbols-outlined"(click)="decrement()">{{incrIcon}}</mat-icon>
+        <label [for]="input"
+               *ngIf="!labelBefore && label">{{label}}</label>
     </div>
-    <label [for]="input" *ngIf="!labelBefore">{{label}}</label>
 </div>

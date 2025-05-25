@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModSessionModule } from '../mod-session/session.module';
+import { ModQuillModule } from '../mod-quill/mod-quill.module';
 
 import { ViewerChooserComponent } from './components/viewer-chooser/viewer-chooser.component';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
@@ -29,6 +30,7 @@ import { ViewerAudioComponent } from './components/viewer-audio/viewer-audio.com
     ModCommonsModule,
     ModSessionModule,
     ModMaterialImportModule,
+    ModQuillModule,
     ModFilesViewerRoutingModule
   ],
   exports: [

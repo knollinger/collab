@@ -6,20 +6,24 @@
 
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
-/* all about line numbers                                                    */
+/* all about the lineNumber-Module                                           */
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
-.ql-editor {
+.ql-lineNumber {
   counter-reset: line;
-  /* white-space: ; */
+  white-space: nowrap;
+  white-space-collapse: preserve;
 }
 
-.ql-editor p:before {
+.ql-lineNumber p:before {
   counter-increment: line;
   content: counter(line);
   display: inline-block;
   border-right: 1px solid #ddd;
-  padding: 0 0.5rem;
-  margin-right: .5rem;
-  color: #333;
+  padding: 0 0.5em;
+  margin-right: 0.5em;
+  /* color: #ccc;
+  background-color: #333; */
+  width: 3em;
+  text-align: end;
 }
