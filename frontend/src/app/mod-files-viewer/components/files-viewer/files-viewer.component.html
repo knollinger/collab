@@ -1,36 +1,33 @@
-<div class="outer-cnr">
+<div [ngSwitch]="viewType"
+     class="outer-cnr">
 
-    <div [ngSwitch]="viewType"
-         class="preview">
+    <!-- ImageViewer -->
+    <app-viewer-image *ngSwitchCase="'image'"
+                      [inode]="inode"></app-viewer-image>
 
-        <!-- ImageViewer -->
-        <app-viewer-image *ngSwitchCase="'image'"
-                          [inode]="inode"></app-viewer-image>
+    <!-- AudioViewer -->
+    <app-viewer-audio *ngSwitchCase="'audio'"
+                      [inode]="inode"></app-viewer-audio>
 
-        <!-- AudioViewer -->
-        <app-viewer-audio *ngSwitchCase="'audio'"
-                          [inode]="inode"></app-viewer-audio>
+    <!-- VideoViewer -->
+    <app-viewer-movie *ngSwitchCase="'video'"
+                      [inode]="inode"></app-viewer-movie>
 
-        <!-- VideoViewer -->
-        <app-viewer-movie *ngSwitchCase="'video'"
-                          [inode]="inode"></app-viewer-movie>
+    <!-- QuillViewer (Text) -->
+    <app-viewer-quill *ngSwitchCase="'quill'"
+                      [inode]="inode"></app-viewer-quill>
 
-        <!-- QuillViewer (Text) -->
-        <app-viewer-quill *ngSwitchCase="'quill'"
-                          [inode]="inode"></app-viewer-quill>
+    <!-- LibeOffice-online/Collabara Viewer -->
+    <app-viewer-collabara *ngSwitchCase="'collabara'"
+                          [inode]="inode"></app-viewer-collabara>
 
-        <!-- LibeOffice-online/Collabara Viewer -->
-        <app-viewer-collabara *ngSwitchCase="'collabara'"
-                              [inode]="inode"></app-viewer-collabara>
+    <!-- Es liegen mehrere mögliche Viewer vor, zeige die Auswahl an-->
+    <app-viewer-chooser *ngSwitchCase="'chooser'"
+                        class="chooser"
+                        [aliases]="possibleViewers"
+                        (change)="viewType=$event"></app-viewer-chooser>
 
-        <!-- Es liegen mehrere mögliche Viewer vor, zeige die Auswahl an-->
-        <app-viewer-chooser *ngSwitchCase="'chooser'"
-                            class="chooser"
-                            [aliases]="possibleViewers"
-                            (change)="viewType=$event"></app-viewer-chooser>
-
-        <!-- Kein Viewer gefunden -->
-        <h2 class="no-viewer"
-            *ngSwitchDefault>Es existiert kein Viewer für den Dateityp {{inode.type}}</h2>
-    </div>
+    <!-- Kein Viewer gefunden -->
+    <h2 class="no-viewer"
+        *ngSwitchDefault>Es existiert kein Viewer für den Dateityp {{inode.type}}</h2>
 </div>

@@ -5,6 +5,7 @@ import { TitlebarService } from './mod-commons/mod-commons.module';
 import { SessionService } from './mod-session/session.module';
 import { INodeSearchResultItem, ISearchResultItem } from './mod-search/models/search-result';
 import { NavigationEnd, Router } from '@angular/router';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -15,6 +16,8 @@ import { NavigationEnd, Router } from '@angular/router';
 export class AppComponent implements OnInit {
 
   public title: string = '';
+  private _showGoBack: boolean = false;
+  private _showGoHome: boolean = false;
   private _showSearch: boolean = false;
 
   /**
@@ -23,6 +26,7 @@ export class AppComponent implements OnInit {
    */
   constructor(
     private router: Router,
+    private location: Location,
     private titlebarSvc: TitlebarService,
     private sessSvc: SessionService) {
 
@@ -33,6 +37,8 @@ export class AppComponent implements OnInit {
    */
   ngOnInit(): void {
 
+    this.establishRouterGuard();
+
     this.titlebarSvc.title.subscribe(newTitle => {
 
       window.setTimeout(() => {
@@ -42,8 +48,8 @@ export class AppComponent implements OnInit {
       }, 10);
     });
 
-    this.establishRouterGuard();
   }
+
 
   /**
    * 
@@ -55,6 +61,14 @@ export class AppComponent implements OnInit {
 
   get isShowSearch(): boolean {
     return this.isLoggedOn && this._showSearch;
+  }
+
+  get isShowGoBack(): boolean {
+    return this.isLoggedOn && this._showGoBack;
+  }
+
+  get isShowGoHome(): boolean {
+    return this.isLoggedOn && this._showGoHome;
   }
 
   /** 
@@ -73,6 +87,11 @@ export class AppComponent implements OnInit {
         break;
     }
   }
+
+  onGoBack() {
+    this.location.back();
+  }
+
   private establishRouterGuard() {
 
     this.router.events.pipe(
@@ -80,6 +99,8 @@ export class AppComponent implements OnInit {
       .subscribe(event => {
         const url = (event as NavigationEnd).url;
         this._showSearch = (url !== '/search');
+        this._showGoBack = url !== '/home';
+        this._showGoHome = url !== '/home';
       });
   }
 }

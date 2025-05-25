@@ -1,0 +1,25 @@
+.ql-container {
+  box-sizing: border-box;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+}
+
+/*---------------------------------------------------------------------------*/
+/*                                                                           */
+/* all about line numbers                                                    */
+/*                                                                           */
+/*---------------------------------------------------------------------------*/
+.ql-editor {
+  counter-reset: line;
+  /* white-space: ; */
+}
+
+.ql-editor p:before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  border-right: 1px solid #ddd;
+  padding: 0 0.5rem;
+  margin-right: .5rem;
+  color: #333;
+}

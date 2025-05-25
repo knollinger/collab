@@ -1,0 +1,13 @@
+.outer-cnr {
+    position: relative;
+    height: 100%;
+    overflow: auto;
+}
+
+#toolbar {
+    height: 48px;
+}
+
+#editor {
+    height: calc(100% - 48px);
+}

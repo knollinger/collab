@@ -1,3 +1,7 @@
 npm i @daypilot/daypilot-lite-angular
 npm install @angular-material-components/datetime-picker
 npm install  @angular-material-components/moment-adapter
+
+npm i quill
+
+

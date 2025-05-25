@@ -34,6 +34,6 @@ import { ViewerAudioComponent } from './components/viewer-audio/viewer-audio.com
   exports: [
     ViewerChooserComponent,
     ModFilesViewerRoutingModule
-  ]
+  ],
 })
 export class ModFilesViewerModule { }
