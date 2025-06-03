@@ -1,9 +1,11 @@
-import { Component, DestroyRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SessionService } from '../../../mod-session/session.module';
+
+import { FilesFolderViewComponent } from '../files-folder-view/files-folder-view.component';
 
 import { EINodeUUIDs, INode } from '../../../mod-files-data/mod-files-data.module';
 
@@ -19,7 +21,7 @@ import { INodeService } from '../../services/inode.service';
   standalone: false
 })
 
-export class FilesMainViewComponent implements OnInit, OnDestroy {
+export class FilesMainViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private destroyRef = inject(DestroyRef);
 
@@ -41,6 +43,12 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
   public selectedINodes: Set<INode> = new Set<INode>();
   public previewINode: INode = INode.empty();
   public iconSize: number = 128;
+
+  @ViewChild('leftPane')
+  leftPane: ElementRef<FilesFolderViewComponent> | null = null;
+
+  @ViewChild('rightPane')
+  rightPane: ElementRef<FilesFolderViewComponent> | null = null;
 
   activeView: number = 0;
 
@@ -99,12 +107,27 @@ export class FilesMainViewComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * 
+   */
+  ngAfterViewInit() {
+  }
+
   /*-------------------------------------------------------------------------*/
   /*                                                                         */
   /* all about view splitting                                                */
   /*                                                                         */
   /*-------------------------------------------------------------------------*/
 
+  /**
+   * liefere den aktuellen FolderView
+   */
+  get currentFolderView(): FilesFolderViewComponent {
+
+    const elemRef = this.activeView === 0 ? this.leftPane : this.rightPane;
+    return elemRef!.nativeElement;
+  }
+  
   /**
    * Aktiviere/deaktiviere den SplitView
    * 

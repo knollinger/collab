@@ -40,8 +40,6 @@ import { InputBoxComponent } from './components/input-box/input-box.component';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusDirective } from './directives/auto-focus.directive';
 import { HintComponent } from './components/hint/hint.component';
-import { NumberSpinnerComponent } from './components/number-spinner/number-spinner.component';
-import { TimePickerPanelComponent } from './components/time-picker/time-picker.component';
 
 @NgModule({
   declarations: [
@@ -55,8 +53,6 @@ import { TimePickerPanelComponent } from './components/time-picker/time-picker.c
     InputBoxComponent,
     AutoFocusDirective,
     HintComponent,
-    NumberSpinnerComponent,
-    TimePickerPanelComponent,
   ],
   imports: [
     CommonModule,
@@ -70,8 +66,6 @@ import { TimePickerPanelComponent } from './components/time-picker/time-picker.c
     FooterComponent,
     SpinnerComponent,
     HintComponent,
-    NumberSpinnerComponent,
-    TimePickerPanelComponent,
     FileSizePipe,
     SafePipe,
     AutoFocusDirective,

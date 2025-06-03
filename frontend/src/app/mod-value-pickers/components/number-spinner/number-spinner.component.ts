@@ -55,7 +55,6 @@ export class NumberSpinnerComponent {
 
   @Input()
   set value(val: number) {
-    console.log(`set val to ${val}`);
     this._value = val;
     this.valueChange.emit(this._value);
   }
@@ -67,7 +66,8 @@ export class NumberSpinnerComponent {
   onInput(evt: Event) {
 
     const input = evt.target as HTMLInputElement;
-    this.value = Number.parseInt(input.value);
+    this.value = input.value ? Number.parseInt(input.value) : 0;
+    this.valueChange.emit(this.value);
   }
 
   @Output()
@@ -128,6 +128,7 @@ export class NumberSpinnerComponent {
     else {
       this._value = this._min;
     }
+    this.valueChange.emit(this.value);
   }
 
   decrement() {
@@ -138,5 +139,6 @@ export class NumberSpinnerComponent {
     else {
       this._value = this._max;
     }
+    this.valueChange.emit(this.value);
   }
 }

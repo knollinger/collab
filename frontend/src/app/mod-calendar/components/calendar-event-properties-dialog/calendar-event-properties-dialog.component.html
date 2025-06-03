@@ -1,21 +1,19 @@
 <h1 mat-dialog-title>Termin bearbeiten</h1>
 <mat-dialog-content>
 
-    <mat-accordion multi="true">
-        <mat-expansion-panel expanded="true">
-            <mat-expansion-panel-header>
-                <mat-panel-title>Termin</mat-panel-title>
-            </mat-expansion-panel-header>
-            <app-calendar-event-main-editor [event]="event"></app-calendar-event-main-editor>
-        </mat-expansion-panel>
+        <app-calendar-event-main-editor [event]="event"></app-calendar-event-main-editor>
 
+    <mat-accordion multi="true">
+
+        <!-- Ausführliche Beschreibung -->
         <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>Beschreibung</mat-panel-title>
             </mat-expansion-panel-header>
-            <app-calendar-desc-editor></app-calendar-desc-editor>
+            <app-calendar-event-desc-editor></app-calendar-event-desc-editor>
         </mat-expansion-panel>
 
+        <!-- Personen -->
         <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>Personen</mat-panel-title>
@@ -23,6 +21,7 @@
             <div>Bruno, Paul, Anne</div>
         </mat-expansion-panel>
 
+        <!-- Ort -->
         <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>Ort</mat-panel-title>
@@ -30,6 +29,7 @@
             <div>Somewhere over the Rainbow</div>
         </mat-expansion-panel>
 
+        <!-- Hashtags -->
         <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>Tags</mat-panel-title>

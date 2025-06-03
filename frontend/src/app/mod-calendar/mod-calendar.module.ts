@@ -13,13 +13,13 @@ import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 import { ModFilesDataModule } from '../mod-files-data/mod-files-data.module';
 import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
-
+import { ModValuePickersModule } from '../mod-value-pickers/mod-value-pickers.module';
 import { CalendarMainComponent } from './components/calendar-main/calendar-main.component';
 import { CalendarEventMainEditorComponent } from './components/calendar-event-main-editor/calendar-event-main-editor.component';
 import { CalendarEventPropertiesDialogComponent } from './components/calendar-event-properties-dialog/calendar-event-properties-dialog.component';
 
 import { ModCalendarRoutingModule } from './mod-calendar-routing.module';
-import { CalendarDescEditorComponent } from './components/calendar-desc-editor/calendar-desc-editor.component';
+import { CalendarDescEditorComponent } from './components/calendar-event-desc-editor/calendar-event-desc-editor.component';
 
 // If using Moment
 const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
@@ -54,6 +54,7 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
     ModMaterialImportModule,
     ModHashTagsModule,
     ModFilesDataModule,
+    ModValuePickersModule,
     ModCalendarRoutingModule,
   ],
   exports: [

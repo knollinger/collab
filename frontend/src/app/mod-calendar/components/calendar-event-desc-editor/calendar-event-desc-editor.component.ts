@@ -7,9 +7,9 @@ import { CalendarEvent } from '../../models/calendar-event';
  * 
  */
 @Component({
-  selector: 'app-calendar-desc-editor',
-  templateUrl: './calendar-desc-editor.component.html',
-  styleUrls: ['./calendar-desc-editor.component.css'],
+  selector: 'app-calendar-event-desc-editor',
+  templateUrl: './calendar-event-desc-editor.component.html',
+  styleUrls: ['./calendar-event-desc-editor.component.css'],
   standalone: false
 })
 export class CalendarDescEditorComponent implements OnInit {

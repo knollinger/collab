@@ -42,7 +42,8 @@
 
     <div class="flex-1 disp-flex full-height scrollable flex-row">
 
-        <app-folder-view #leftPane
+        <app-folder-view name="leftPane"
+                         #leftPane
                          class="flex-1 full-height"
                          [current]="leftPanelFolder"
                          [active]="isViewActive(0)"

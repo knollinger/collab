@@ -1,0 +1,19 @@
+.outer-cnr {
+    padding: 0.5em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.centered {
+    flex: 0 0 auto;
+}
+
+.actions {
+    width: 100%;
+}
+
+mat-divider {
+    width: 100%;
+    margin: 0.5em 0;
+}
