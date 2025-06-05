@@ -1,6 +1,7 @@
 <div [style.width]="iconWidth"
      [class.locked]="isLocked"
-     (contextmenu)="onContextMenu($event, contextMenu)">
+     (contextmenu)="onContextMenu($event, contextMenu)"
+     matTooltip="{{inode.name}}">
 
      <div class="image"
           [style.backgroundImage]="iconUrl1"

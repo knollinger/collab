@@ -52,10 +52,6 @@ export class FilesPropertiesDialogComponent implements OnInit {
    * 
    */
   set inode(val: INode) {
-    console.log(`inode changed`);
-    console.log(`  old: ${this._inode}`);
-    console.log(`  new: ${val}`);
-    
     this._inode = val;
     this.disableSaveBtn = false;
   }
