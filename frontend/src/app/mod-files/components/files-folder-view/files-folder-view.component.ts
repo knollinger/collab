@@ -58,15 +58,10 @@ export class FilesFolderViewComponent implements OnInit {
   iconSize: number = 128;
 
   @Output()
-  openFolder: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  activated: EventEmitter<INode> = new EventEmitter<INode>();
+  open: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Output()
   inodesGrabbed: EventEmitter<void> = new EventEmitter<void>();
-
-  private wopiPatterns: RegExp[] = new Array<RegExp>();
 
   /**
    * 
@@ -103,7 +98,7 @@ export class FilesFolderViewComponent implements OnInit {
   /**
    * 
    */
-  private refresh() {
+  public refresh() {
 
     if (!this.currentFolder.isEmpty()) {
       this.reloadEntries();
@@ -143,20 +138,12 @@ export class FilesFolderViewComponent implements OnInit {
   /**
    * 
    */
-  public onActivateView() {
-    this.activated.emit(this.currentFolder);
-  }
-
-  /**
-   * 
-   */
   public onGoHome() {
     const uuid = this.sessionSvc.currentUser.userId;
     this.inodeSvc.getINode(uuid)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(inode => {
-        this.currentFolder = inode;
-        this.refresh();
+        this.onOpen(inode);
       })
   }
 
@@ -349,20 +336,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onOpen(inode: INode) {
 
-    if (inode.isDirectory()) {
-      this.openFolder.emit(inode);
-    }
-    else {
-      const url = `/viewer/show/${inode.uuid}`;
-      this.router.navigateByUrl(url);
-    }
-  }
-
-  /**
-   * 
-   */
-  onClosePreview() {
-    this.previewINode = INode.empty();
+    this.open.emit(inode);
   }
 
   /**
@@ -454,9 +428,10 @@ export class FilesFolderViewComponent implements OnInit {
    *  
    * @param inode 
    */
-  onCut(inode: INode) {
+  onCut(inode?: INode) {
 
-    this.clipboardSvc.cut(inode);
+    const inodes = inode ? [inode] : Array.from(this.selectedINodes);
+    this.clipboardSvc.cut(inodes);
   }
 
   /**
@@ -470,9 +445,10 @@ export class FilesFolderViewComponent implements OnInit {
    *  
    * @param inode 
    */
-  onCopy(inode: INode) {
+  onCopy(inode?: INode) {
 
-    this.clipboardSvc.copy(inode);
+    const inodes = inode ? [inode] : Array.from(this.selectedINodes);
+    this.clipboardSvc.copy(inodes);
   }
 
   /**

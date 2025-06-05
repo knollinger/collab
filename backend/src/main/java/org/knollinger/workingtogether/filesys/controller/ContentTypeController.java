@@ -33,7 +33,7 @@ public class ContentTypeController
     public RedirectView getContentTypeIcon( //
         @PathVariable("mainType") String mainType, //
         @PathVariable("subType") String subType)
-    {
+    {        
         String main = URLDecoder.decode(mainType, StandardCharsets.UTF_8);
         String sub = URLDecoder.decode(subType, StandardCharsets.UTF_8);
         return new RedirectView(this.contentTypeSvc.getTypeIcon(main, sub));

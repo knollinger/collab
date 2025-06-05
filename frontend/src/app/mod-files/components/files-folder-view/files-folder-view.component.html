@@ -1,20 +1,4 @@
-<div class="full-height disp-flex flex-col small-lightgray-border"
-     (click)="onActivateView()">
-
-    <app-files-folderview-toolbar
-        class="flex-0"
-        [currentFolder]="currentFolder"
-        [selectedINodes]="selectedINodes"
-        [selectableINodes]="selectableINodes"
-        (goHome)="onGoHome()"
-        (reload)="reloadEntries()"
-        (selectAll)="onSelectAll()"
-        (deselectAll)="onDeselectAll()"
-        (paste)="onPaste()"
-        (uploadFiles)="onFileUpload($event)"
-        (cloudDownload)="onFileDownload()"
-        (delete)="onDelete()">
-    </app-files-folderview-toolbar>
+<div class="full-height disp-flex flex-col">
 
     <div
          class="breadcrumb middle-left-padding small-bottom-lightgray-border flex-0 disp-flex flex-row flex-alignitems-center">

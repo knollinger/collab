@@ -53,7 +53,8 @@ public class CreateUserServiceImpl implements ICreateUserService
         new RNameAndMimetype("Videos", "inode/directory+video"),
         new RNameAndMimetype("Bilder", "inode/directory+image"),
         new RNameAndMimetype("Notizen", "inode/directory"),
-        new RNameAndMimetype("Whiteboards", "inode/directory")
+        new RNameAndMimetype("Whiteboards", "inode/directory"),
+        new RNameAndMimetype("Papierkorb", "inode/directory+trash")
     };
 
     @Autowired
@@ -174,7 +175,7 @@ public class CreateUserServiceImpl implements ICreateUserService
             stmt.setString(5, user.getUserId().toString());
             stmt.setInt(6, 0600); // read and write for owner and group
             stmt.setLong(7, 0);
-            stmt.setString(8, "inode/directory");
+            stmt.setString(8, "inode/directory+home");
             stmt.executeUpdate();
 
 //            String[] commonDirs = {"Dokumente", "Musik", "Videos", "Bilder", "Notizen", "Whiteboards"};

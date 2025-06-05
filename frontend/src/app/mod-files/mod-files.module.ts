@@ -29,7 +29,6 @@ import { FilesIconsizeMenuComponent } from './components/files-iconsize-menu/fil
 import { FilesListviewItemComponent } from './components/files-listview-item/files-listview-item.component';
 import { FilesPermissionsComponent } from './components/files-permissions/files-permissions.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FilesFolderviewToolbarComponent } from './components/files-folderview-toolbar/files-folderview-toolbar.component';
 import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
 
 import { INodeService } from './services/inode.service';
@@ -58,7 +57,6 @@ export { WopiService};
     FilesIconsizeMenuComponent,
     FilesListviewItemComponent,
     FilesPermissionsComponent,
-    FilesFolderviewToolbarComponent,
     FilesCreateMenuComponent,
   ],
   imports: [

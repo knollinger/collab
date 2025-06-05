@@ -1,6 +1,93 @@
 <div class="outer-cnr disp-flex flex-col scrollable full-height">
 
     <app-toolbar>
+        <button mat-icon-button
+                matTooltip="Zum Home-Ordner wechseln"
+                (click)="onGoHome()">
+            <mat-icon class="material-symbols-outlined">home</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Aktualisieren"
+                (click)="onRefresh()">
+            <mat-icon class="material-symbols-outlined">refresh</mat-icon>
+        </button>
+
+        <!-- Selection/deselectopn -->
+        <app-toolbar-separator></app-toolbar-separator>
+        <button mat-icon-button
+                matTooltip="Alles auswählen"
+                (click)="onSelectAll()">
+            <mat-icon class="material-symbols-outlined">check_box</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Auswahl aufheben"
+                (click)="onDeselectAll()"
+                [disabled]="!hasSelection">
+            <mat-icon class="material-symbols-outlined">check_box_outline_blank</mat-icon>
+        </button>
+
+        <!-- Clipbord OPs-->
+        <app-toolbar-separator></app-toolbar-separator>
+        <button mat-icon-button
+                matTooltip="Ausschneiden"
+                (click)="onCut()"
+                [disabled]="!hasSelection">
+            <mat-icon class="material-symbols-outlined">content_cut</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Kopieren"
+                (click)="onCopy()"
+                [disabled]="!hasSelection">
+            <mat-icon class="material-symbols-outlined">file_copy</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Einfügen"
+                [disabled]="!nrOfPastables"
+                (click)="onPaste()">
+            <mat-icon class="material-symbols-outlined"
+                      [matBadge]="nrOfPastables"
+                      matBadgePosition="after"
+                      matBadgeColor="primary"
+                      [matBadgeHidden]="!nrOfPastables">content_paste</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Clipboard löschen"
+                (click)="onClearClipboard()"
+                [disabled]="!nrOfPastables">
+            <mat-icon class="material-symbols-outlined">content_paste_off</mat-icon>
+        </button>
+
+        <!-- Cloud Ops -->
+        <app-toolbar-separator></app-toolbar-separator>
+        <button mat-icon-button
+                matTooltip="Dateien hoch laden"
+                (click)="fileInput.click()">
+            <mat-icon class="material-symbols-outlined">cloud_upload</mat-icon>
+        </button>
+        <input #fileInput
+               type="file"
+               class="hidden"
+               multiple="true"
+               (change)="onUpload($event)">
+
+        <button mat-icon-button
+                matTooltip="Dateien runter laden"
+                (click)="onDownloadFiles()"
+                [disabled]="!hasSelection">
+            <mat-icon class="material-symbols-outlined">cloud_download</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Dateien löschen"
+                (click)="onDelete()"
+                [disabled]="!hasSelection">
+            <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        </button>
 
         <span class="flex-1"></span>
 
@@ -42,13 +129,12 @@
 
     <div class="flex-1 disp-flex full-height scrollable flex-row">
 
-        <app-folder-view name="leftPane"
-                         #leftPane
-                         class="flex-1 full-height"
+        <app-folder-view #leftPane
+                         class="panel"
+                         [class.activePane]="activePane === 0 && showSplit"
+                         (click)="activePane = 0"
                          [current]="leftPanelFolder"
-                         [active]="isViewActive(0)"
-                         (openFolder)="onOpenFolder(0, $event)"
-                         (activated)="onActivateView(0, $event)"
+                         (open)="onOpen(0, $event)"
                          [viewMode]="viewMode"
                          [iconSize]="iconSize"
                          (inodesGrabbed)="rightPane.reloadEntries()">
@@ -64,12 +150,12 @@
         aber nicht mehr angezeigt.
         -->
         <app-folder-view #rightPane
-                         class="flex-1 full-height"
+                         class="panel"
+                         [class.activePane]="activePane === 1 && showSplit"
+                         (click)="activePane = 1"
                          [class.hidden]="!showSplit"
                          [current]="rightPanelFolder"
-                         [active]="isViewActive(1)"
-                         (openFolder)="onOpenFolder(1, $event)"
-                         (activated)="onActivateView(1, $event)"
+                         (open)="onOpen(1, $event)"
                          [viewMode]="viewMode"
                          [iconSize]="iconSize"
                          (inodesGrabbed)="leftPane.reloadEntries()">

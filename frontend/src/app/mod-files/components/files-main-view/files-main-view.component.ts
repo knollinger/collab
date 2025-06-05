@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, EventEmitter, inject, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -10,6 +10,7 @@ import { FilesFolderViewComponent } from '../files-folder-view/files-folder-view
 import { EINodeUUIDs, INode } from '../../../mod-files-data/mod-files-data.module';
 
 import { INodeService } from '../../services/inode.service';
+import { ClipboardService } from '../../services/clipboard.service';
 
 /**
  * Die Haupt-Component der Files-Ansicht
@@ -21,37 +22,18 @@ import { INodeService } from '../../services/inode.service';
   standalone: false
 })
 
-export class FilesMainViewComponent implements OnInit, AfterViewInit, OnDestroy {
+export class FilesMainViewComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  @Input()
   public viewMode: string = 'grid';
-
-  @Input()
-  public showSplit: boolean = false;
-
-  @Output()
-  public viewModeChange: EventEmitter<string> = new EventEmitter<string>();
-
-  public leftPanelFolder: INode = INode.empty();
-  public rightPanelFolder: INode = INode.empty();
-
-  public currentFolder: INode = INode.root();
-  public inodes: INode[] = new Array<INode>();
-  public path: INode[] = new Array<INode>();
-  public selectedINodes: Set<INode> = new Set<INode>();
-  public previewINode: INode = INode.empty();
   public iconSize: number = 128;
 
   @ViewChild('leftPane')
-  leftPane: ElementRef<FilesFolderViewComponent> | null = null;
+  leftPane: FilesFolderViewComponent | null = null;
 
   @ViewChild('rightPane')
-  rightPane: ElementRef<FilesFolderViewComponent> | null = null;
-
-  activeView: number = 0;
-
+  rightPane: FilesFolderViewComponent | null = null;
 
   /**
    * 
@@ -62,14 +44,9 @@ export class FilesMainViewComponent implements OnInit, AfterViewInit, OnDestroy 
     private router: Router,
     private titlebarSvc: TitlebarService,
     private inodeSvc: INodeService,
+    private clipboardSvc: ClipboardService,
     private sessionSvc: SessionService) {
 
-  }
-
-  /**
-   * 
-   */
-  ngOnDestroy(): void {
   }
 
   /**
@@ -80,7 +57,7 @@ export class FilesMainViewComponent implements OnInit, AfterViewInit, OnDestroy 
     this.titlebarSvc.subTitle = 'Dateien';
 
     this.route.params
-      // .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => { // takeUntilDestroyed
 
         const leftPanelUUID = params['leftPanel'] || this.sessionSvc.currentUser.userId;
@@ -108,9 +85,85 @@ export class FilesMainViewComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   /**
+   * all about view splitting
+   */
+  private _activePaneId: number = 0;
+  public showSplit: boolean = false;
+  public leftPanelFolder: INode = INode.empty();
+  public rightPanelFolder: INode = INode.empty();
+
+  public set activePane(val: number) {
+
+    this._activePaneId = (val !== 0) ? 1 : 0;
+  }
+
+  public get activePane(): number {
+    return this._activePaneId;
+  }
+
+  /**
+   * Callback für den GoHome-Button. Der Pfad des aktiven Panels wird auf das
+   * HomeDir des aktuellen Benutzers gesetzt.
    * 
    */
-  ngAfterViewInit() {
+  onGoHome() {
+
+    this.currentPane.onGoHome();
+
+  }
+
+  onRefresh() {
+    this.currentPane.refresh();
+  }
+
+  get hasSelection(): boolean {
+    const view = this.currentPane;
+    return view && view.selectedINodes.size > 0;
+  }
+
+  onSelectAll() {
+    this.currentPane.onSelectAll();
+  }
+
+  onDeselectAll() {
+    this.currentPane.onDeselectAll();
+  }
+
+  onCut() {
+    this.currentPane.onCut();
+  }
+
+  onCopy() {
+    this.currentPane.onCopy();
+  }
+
+  onPaste() {
+    this.currentPane.onPaste();
+  }
+
+  onClearClipboard() {
+    this.clipboardSvc.clear();
+  }
+
+  get nrOfPastables(): number {
+    return this.clipboardSvc.inodes.length;
+  }
+
+  onUpload(evt: Event) {
+
+    const input = evt.target as HTMLInputElement;
+    const files = input.files;
+    if (files && files.length) {
+      this.currentPane.onFileUpload(files);
+    }
+  }
+
+  onDownloadFiles() {
+    alert('not yet implemented');
+  }
+
+  onDelete() {
+    this.currentPane.onDelete();
   }
 
   /*-------------------------------------------------------------------------*/
@@ -122,12 +175,12 @@ export class FilesMainViewComponent implements OnInit, AfterViewInit, OnDestroy 
   /**
    * liefere den aktuellen FolderView
    */
-  get currentFolderView(): FilesFolderViewComponent {
+  get currentPane(): FilesFolderViewComponent {
 
-    const elemRef = this.activeView === 0 ? this.leftPane : this.rightPane;
-    return elemRef!.nativeElement;
+    const elemRef = this.activePane === 0 ? this.leftPane : this.rightPane;
+    return elemRef!;
   }
-  
+
   /**
    * Aktiviere/deaktiviere den SplitView
    * 
@@ -142,16 +195,15 @@ export class FilesMainViewComponent implements OnInit, AfterViewInit, OnDestroy 
   onToggleSplitView() {
 
     if (this.showSplit) {
-      this.activeView = 0;
+      this.activePane = 0;
       this.showSplit = false;
       this.rightPanelFolder = INode.empty();
+      this.onOpen(0, this.leftPanelFolder);
     }
     else {
       this.showSplit = true;
-      this.rightPanelFolder = this.leftPanelFolder;
+      this.onOpen(1, this.leftPanelFolder);
     }
-    const route = `/files/${this.leftPanelFolder.uuid}/${this.rightPanelFolder.uuid}`;
-    this.router.navigateByUrl(route);
   }
 
   /**
@@ -159,7 +211,22 @@ export class FilesMainViewComponent implements OnInit, AfterViewInit, OnDestroy 
    * @param panelId 
    * @param inode 
    */
-  onOpenFolder(panelId: number, inode: INode) {
+  onOpen(panelId: number, inode: INode) {
+
+    if (inode.isDirectory()) {
+      this.openFolder(panelId, inode);
+    }
+    else {
+      this.openDocument(inode);
+    }
+  }
+
+  /**
+   * 
+   * @param panelId 
+   * @param inode 
+   */
+  private openFolder(panelId: number, inode: INode) {
 
     switch (panelId) {
       case 0:
@@ -180,51 +247,12 @@ export class FilesMainViewComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   /**
-   * In einem SplitView wurde einer der beiden Views angeklickt.
-   * Also entweder die WorkingArea, ein aktiver Button in der 
-   * Toolbar oder die Status-Zeile :-)
    * 
-   * @param viewId entweder 0 (für die linke SplitView) oder 
-   *               1 für die rechte SplitView
-   * @param activeFolder der Folder, welcher in der aktivierten 
-   *                     FolderView angezeigt wird.
+   * @param inode 
    */
-  onActivateView(viewId: number, activeFolder: INode) {
-    this.activeView = viewId;
-  }
+  private openDocument(inode: INode) {
+    const url = `/viewer/show/${inode.uuid}`;
+    this.router.navigateByUrl(url);
 
-  /**
-   * ist der angegebene SplitView aktiv?
-   */
-  public isViewActive(id: number): boolean {
-
-    return this.activeView === id;
-  }
-
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* all about pteview                                                       */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-
-  /**
-   * aktiviere die Preview
-   * 
-   * @param inode die anzuzeigende INode
-   */
-  onShowPreview(inode: INode) {
-
-    this.previewINode = inode;
-  }
-
-  /**
-   * 
-   */
-  get showPreview(): boolean {
-    return !this.previewINode.isEmpty();
-  }
-
-  onClosePreview() {
-    this.previewINode = INode.empty();
   }
 }
