@@ -8,7 +8,6 @@ import { INodeService } from '../../services/inode.service';
 import { UploadService } from '../../services/upload.service';
 import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 import { ContentTypeService } from '../../services/content-type.service';
-import { ShowDuplicateFilesService } from '../../services/show-duplicate-files.service';
 import { ClipboardService } from '../../services/clipboard.service';
 import { SessionService } from '../../../mod-session/session.module';
 import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
@@ -80,7 +79,6 @@ export class FilesFolderViewComponent implements OnInit {
     private commonsDlgSvc: CommonDialogsService,
     private clipboardSvc: ClipboardService,
     private contentTypeSvc: ContentTypeService,
-    private showDuplFilesSvc: ShowDuplicateFilesService,
     private hashTagSvc: HashTagService,
     private sessionSvc: SessionService,
     private checkPermsSvc: CheckPermissionsService,
@@ -263,19 +261,9 @@ export class FilesFolderViewComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(rsp => {
 
-        if (rsp.duplicateFiles.length) {
-
-          this.showDuplFilesSvc.show(rsp.duplicateFiles)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(action => {
-              alert(`Action: ${action}`);
-            })
-        }
-        else {
-          if (parent.uuid === this.currentFolder.uuid) {
-            this.reloadEntries();
-          }
-        }
+        if (parent.uuid === this.currentFolder.uuid) {
+          this.reloadEntries();
+        } // TODO: checkDuplicates
       })
   }
 
