@@ -19,7 +19,6 @@ import { FilesBreadCrumbItemComponent } from './components/files-bread-crumb-ite
 import { FilesFolderViewComponent } from './components/files-folder-view/files-folder-view.component';
 import { FilesGridViewComponent } from './components/files-grid-view/files-grid-view.component';
 import { FilesListViewComponent } from './components/files-list-view/files-list-view.component';
-import { ShowDuplicateFilesComponent } from './components/show-duplicate-files/show-duplicate-files.component';
 import { FilesItemContextMenuComponent } from './components/files-item-context-menu/files-item-context-menu.component';
 import { INodeDragSourceDirective } from './directives/inode-drag-source.directive';
 import { DropTargetDirective } from './directives/drop-target.directive';
@@ -30,6 +29,7 @@ import { FilesListviewItemComponent } from './components/files-listview-item/fil
 import { FilesPermissionsComponent } from './components/files-permissions/files-permissions.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
+import { FilesShowDuplicatesComponent } from './components/files-show-duplicates/files-show-duplicates.component';
 
 import { INodeService } from './services/inode.service';
 export { INodeService};
@@ -48,7 +48,6 @@ export { WopiService};
     FilesBreadCrumbItemComponent,
     FilesGridViewComponent,
     FilesListViewComponent,
-    ShowDuplicateFilesComponent,
     FilesItemContextMenuComponent,
     INodeDragSourceDirective,
     DropTargetDirective,
@@ -58,6 +57,7 @@ export { WopiService};
     FilesListviewItemComponent,
     FilesPermissionsComponent,
     FilesCreateMenuComponent,
+    FilesShowDuplicatesComponent,
   ],
   imports: [
     CommonModule,

@@ -11,6 +11,7 @@ import { EINodeUUIDs, INode } from '../../../mod-files-data/mod-files-data.modul
 
 import { INodeService } from '../../services/inode.service';
 import { ClipboardService } from '../../services/clipboard.service';
+import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 
 /**
  * Die Haupt-Component der Files-Ansicht
@@ -181,6 +182,11 @@ export class FilesMainViewComponent implements OnInit {
     return elemRef!;
   }
 
+  get currentFolder(): INode {
+
+    return this.activePane === 0 ? this.leftPanelFolder : this.rightPanelFolder;
+  }
+
   /**
    * Aktiviere/deaktiviere den SplitView
    * 
@@ -254,5 +260,10 @@ export class FilesMainViewComponent implements OnInit {
     const url = `/viewer/show/${inode.uuid}`;
     this.router.navigateByUrl(url);
 
+  }
+
+  onCreateDocument(evt: CreateMenuEvent) {
+
+    this,this.currentPane.onCreateDocument(evt);
   }
 }

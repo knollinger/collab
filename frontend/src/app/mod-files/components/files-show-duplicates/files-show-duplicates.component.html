@@ -1,0 +1,47 @@
+<form [formGroup]="form">
+
+    <div mat-dialog-title>Duplikate gefunden</div>
+
+
+    <mat-dialog-content>
+
+        <ng-container formArrayName="inodeRows">
+            <ng-container *ngFor="let row of inodeRows.controls; let i = index">
+
+                <div [formGroup]="getINodeRow(i)"
+                     class="inode-row">
+
+                    <mat-form-field class="field-uuid">
+                        <input matInput
+                               formControlName="uuid">
+                    </mat-form-field>
+
+                    <mat-form-field class="field-name">
+                        <mat-label>Name</mat-label>
+                        <input matInput
+                               formControlName="name">
+                    </mat-form-field>
+
+                    <mat-form-field class="field-action">
+                        <mat-label>Aktion</mat-label>
+                        <mat-select formControlName="action"
+                                    #action>
+                            <mat-option value="SKIP">Überspringen</mat-option>
+                            <mat-option value="RENAME">Umbenennen</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                </div>
+            </ng-container>
+        </ng-container>
+    </mat-dialog-content>
+
+    <mat-dialog-actions>
+        <button mat-flat-button
+                color="primary"
+                [mat-dialog-close]="resultActions">Ok</button>
+        <button mat-button
+                color="primary"
+                [mat-dialog-close]="null">Abbrechen</button>
+    </mat-dialog-actions>
+</form>

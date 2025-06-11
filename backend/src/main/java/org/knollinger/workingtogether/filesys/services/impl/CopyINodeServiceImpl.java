@@ -32,7 +32,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
 
     private static final String SQL_COPY = "" //
         + "insert into `inodes` ( `uuid`, `parent`, `owner`, `group`, `perms`, `name`, `size`, `type`, `data`, `hash`)" //
-        + "  select ? , ?, `owner`, `group`, `perms`, `name`, `size`, `type`, `data`, `hash`" //
+        + "  select ? , ?, `owner`, `group`, `perms`, ?, `size`, `type`, `data`, `hash`" //
         + "    from `inodes`" //
         + "      where `uuid` = ?";
 
@@ -117,7 +117,8 @@ public class CopyINodeServiceImpl implements ICopyINodeService
             stmt = conn.prepareStatement(SQL_COPY);
             stmt.setString(1, newUUID.toString());
             stmt.setString(2, target.getUuid().toString());
-            stmt.setString(3, inode.getUuid().toString());
+            stmt.setString(3, inode.getName());
+            stmt.setString(4, inode.getUuid().toString());
             if (stmt.executeUpdate() == 0)
             {
                 throw new NotFoundException(inode.getUuid());

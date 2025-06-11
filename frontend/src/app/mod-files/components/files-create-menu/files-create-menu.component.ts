@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
+import { MatMenu } from '@angular/material/menu';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 
 export class CreateMenuEvent {
@@ -21,8 +21,11 @@ export class CreateMenuEvent {
   styleUrls: ['./files-create-menu.component.css'],
   standalone: false
 })
-export class FilesCreateMenuComponent {
+export class FilesCreateMenuComponent extends MatMenu {
 
+  @Input()
+  text: string = '';
+  
   @Input()
   parent: INode = INode.empty();
 

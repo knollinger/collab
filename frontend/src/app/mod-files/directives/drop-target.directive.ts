@@ -222,7 +222,7 @@ export class DropTargetDirective {
 
       const json = dataTransfer.getData(INode.DATA_TRANSFER_TYPE);
       const inode: INode = INode.fromJSON(JSON.parse(json));
-      if (this.target.uuid !== inode.uuid && this.target.uuid !== inode.parent) {
+      if (this.target.uuid !== inode.uuid) {
 
         this.inodesDropped.emit(new INodeDroppedEvent(this.target, inode, evt));
       }

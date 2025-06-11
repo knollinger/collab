@@ -61,7 +61,7 @@ public class FileSysServiceImpl implements IFileSysService
         + "  where `parent`=? and `name`=?";
 
     private static final String SQL_MOVE_INODE = "" //
-        + "update `inodes` set `parent`=?" //
+        + "update `inodes` set `parent`=?, `name`=?" //
         + "  where `uuid`=?";
 
     @Autowired
@@ -555,7 +555,8 @@ public class FileSysServiceImpl implements IFileSysService
 
                 stmt = conn.prepareStatement(SQL_MOVE_INODE);
                 stmt.setString(1, target.getUuid().toString());
-                stmt.setString(2, iNode.getUuid().toString());
+                stmt.setString(2, iNode.getName());
+                stmt.setString(3, iNode.getUuid().toString());
                 if (stmt.executeUpdate() == 0)
                 {
                     throw new NotFoundException(iNode.getUuid());

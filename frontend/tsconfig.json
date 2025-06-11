@@ -22,7 +22,8 @@
       "es2020",
       "dom"
     ],
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "types": [ "@types/wicg-file-system-access"]
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

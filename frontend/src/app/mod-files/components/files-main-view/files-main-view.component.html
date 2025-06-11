@@ -13,6 +13,9 @@
             <mat-icon class="material-symbols-outlined">refresh</mat-icon>
         </button>
 
+        <app-files-create-menu [parent]="currentFolder"
+                               (create)="onCreateDocument($event)"></app-files-create-menu>
+
         <!-- Selection/deselectopn -->
         <app-toolbar-separator></app-toolbar-separator>
         <button mat-icon-button
@@ -69,6 +72,12 @@
                 (click)="fileInput.click()">
             <mat-icon class="material-symbols-outlined">cloud_upload</mat-icon>
         </button>
+        <input #fileInput
+               type="file"
+               class="hidden"
+               multiple="true"
+               (change)="onUpload($event)">
+
         <input #fileInput
                type="file"
                class="hidden"

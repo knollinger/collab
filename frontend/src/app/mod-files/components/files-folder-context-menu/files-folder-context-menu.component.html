@@ -29,7 +29,8 @@
     <mat-divider *ngIf="inode.isDirectory()"></mat-divider>
     <app-files-create-menu *ngIf="inode.isDirectory()"
                            [parent]="inode"
-                           (create)="onCreateDocument($event)"></app-files-create-menu>
+                           (create)="onCreateDocument($event)"
+                           text="Neu"></app-files-create-menu>
 
     <!-- Den Eingenschafften-Dialog anzeigen -->
     <mat-divider></mat-divider>

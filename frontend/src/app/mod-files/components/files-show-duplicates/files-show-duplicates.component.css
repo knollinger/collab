@@ -1,0 +1,22 @@
+.inode-row {
+    display: flex;
+    align-items: center;
+}
+
+.field-uuid {
+    display: none;
+    flex: 0;
+}
+
+.field-name, .field-action {
+    flex: 1 1 auto;
+}
+
+.field-name {
+    margin-right: 0.25rem;
+}
+
+.field-action {
+    margin-left: 0.25rem;
+}
+

@@ -19,6 +19,7 @@ import { HashTagConstants, HashTagService } from '../../../mod-hashtags/mod-hash
 import { MatDialog } from '@angular/material/dialog';
 import { FilesPropertiesDialogComponent } from '../files-properties-dialog/files-properties-dialog.component';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
+import { CheckDuplicateEntriesService } from '../../services/check-duplicate-entries.service';
 
 @Component({
   selector: 'app-folder-view',
@@ -83,6 +84,7 @@ export class FilesFolderViewComponent implements OnInit {
     private hashTagSvc: HashTagService,
     private sessionSvc: SessionService,
     private checkPermsSvc: CheckPermissionsService,
+    private checkDuplSvc: CheckDuplicateEntriesService,
     private dialog: MatDialog) {
 
   }
@@ -295,10 +297,16 @@ export class FilesFolderViewComponent implements OnInit {
    * @param event 
    */
   onCopyDroppedINodes(event: INodeDroppedEvent) {
-    this.inodeSvc.copy(event.source, event.target)
+
+    this.checkDuplSvc.handleDuplicates(event.target.uuid, [event.source])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.reloadEntries();
+      .subscribe(inodes => {
+
+        this.inodeSvc.copy(inodes, event.target)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.reloadEntries();
+          })
       })
   }
 
@@ -308,11 +316,17 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onMoveDroppedINodes(event: INodeDroppedEvent) {
 
-    this.inodeSvc.move(event.source, event.target)
+    this.checkDuplSvc.handleDuplicates(event.target.uuid, [event.source])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.inodesGrabbed.emit();
-        this.reloadEntries();
+      .subscribe(inodes => {
+
+        this.inodeSvc.move(inodes, event.target)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+
+            this.inodesGrabbed.emit();
+            this.reloadEntries();
+          });
       })
   }
 
