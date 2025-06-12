@@ -5,20 +5,11 @@
 
      <div class="image"
           [style.backgroundImage]="iconUrl1"
-          [style.height]="iconWidth"
-          (click)="onOpen()">
+          [style.height]="iconWidth">
      </div>
 
-     <div class="label"
-          (click)="onOpen()">{{inode.name}}
+     <div class="label">{{inode.name}}
      </div>
-
-     <mat-checkbox class="selector"
-                   color="primary"
-                   (change)="onSelectorChange($event)"
-                   [checked]="selected"
-                   [disabled]="isLocked">
-     </mat-checkbox>
 
      <app-files-item-context-menu #contextMenu
                                   [inode]="inode"

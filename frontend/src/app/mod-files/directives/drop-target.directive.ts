@@ -119,7 +119,6 @@ export class DropTargetDirective {
   @HostListener('drop', ['$event'])
   onDrop(evt: DragEvent) {
 
-    console.log('onDrop');
     evt.stopPropagation();
     evt.preventDefault();
     this.clearDropAreaVisualisization();

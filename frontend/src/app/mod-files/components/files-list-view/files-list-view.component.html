@@ -1,14 +1,16 @@
-<div class="outer">
+<div class="outer" (click)="onDeselectAll()">
+
     <app-files-listview-item *ngFor="let inode of inodes"
                              class="item"
+                             [class.mat-elevation-z4]="isSelected(inode)"
                              [inode]="inode"
                              [appINodeDragSource]="inode"
                              [appDropTarget]="inode"
                              [iconSize]="iconSize"
                              (inodesDropped)="onINodesDropped($event)"
                              (filesDropped)="onFilesDropped($event)"
-                             [selected]="isSelected(inode)"
-                             (selectionChange)="onItemSelectionChange(inode, $event)"
+                             (click)="onSelect(inode, $event)"
+                             (dblclick)="onOpen(inode)"
                              (open)="onOpen(inode)"
                              (create)="onCreate($event)"
                              (rename)="onRename(inode)"

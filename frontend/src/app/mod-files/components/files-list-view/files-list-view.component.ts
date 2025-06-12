@@ -26,7 +26,6 @@ export class FilesListViewComponent implements OnInit {
   @Output()
   selectionChange: EventEmitter<boolean> = new EventEmitter<boolean>(false);
 
-
   @Output()
   inodesDropped: EventEmitter<INodeDroppedEvent> = new EventEmitter<INodeDroppedEvent>();
 
@@ -81,15 +80,31 @@ export class FilesListViewComponent implements OnInit {
    * @param inode 
    * @param selected 
    */
-  onItemSelectionChange(inode: INode, selected: boolean) {
+  onSelect(inode: INode, evt: MouseEvent) {
 
-    if (selected) {
+    evt.stopPropagation();
+
+    if (!evt.ctrlKey) {
+      this.selectedINodes.clear();
       this.selectedINodes.add(inode);
     }
     else {
-      this.selectedINodes.delete(inode);
+      if(this.isSelected(inode)) {
+        this.selectedINodes.delete(inode);
+      }
+      else {
+        this.selectedINodes.add(inode);
+      }
     }
   }
+
+    /**
+   * 
+   */
+  onDeselectAll() {
+      this.selectedINodes.clear();
+  }
+
 
   /**
     * Auf eines der GridView-Items wurde ein FileDrop durchgeführt.

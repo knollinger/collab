@@ -1,15 +1,13 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { MatCheckboxChange } from '@angular/material/checkbox';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 
-import { ContentTypeService } from '../../services/content-type.service';
 import { CheckPermissionsService } from '../../services/check-permissions.service';
+import { ContentTypeService } from '../../services/content-type.service';
 import { FilesItemContextMenuComponent } from '../files-item-context-menu/files-item-context-menu.component';
 
 import { Permissions } from '../../models/permissions';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
-
 
 /**
  * 
@@ -27,12 +25,6 @@ export class FilesGridViewItemComponent {
 
   @Input()
   iconSize: number = 64;
-
-  @Input()
-  selected: boolean = false;
-
-  @Output()
-  selectionChange: EventEmitter<boolean> = new EventEmitter<boolean>(false);
 
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
@@ -97,14 +89,6 @@ export class FilesGridViewItemComponent {
     if (this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode)) {
       menu.show(evt);
     }
-  }
-
-  /**
-   * 
-   * @param evt 
-   */
-  onSelectorChange(evt: MatCheckboxChange) {
-    this.selectionChange.emit(evt.checked);
   }
 
   /**

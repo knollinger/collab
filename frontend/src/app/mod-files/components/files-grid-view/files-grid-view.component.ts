@@ -80,31 +80,6 @@ export class FilesGridViewComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* All about active inodes.                                                */
-  /*                                                                         */
-  /* Das dient nur dazu, die INode bei einem Click auf diese hervor zu heben */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-  private _activeINode: INode = INode.empty();
-
-  /**
-   * Aktiviere eine gegebene INode
-   */
-  public set activeINode(inode: INode) {
-    this._activeINode = inode;
-  }
-
-  /**
-   * ist die angegebene INode aktiv?
-   * @param inode 
-   * @returns 
-   */
-  public isActiveINode(inode: INode): boolean {
-    return this._activeINode.uuid === inode.uuid;
-  }
-
   /**
    * Auf eines der GridView-Items wurde ein FileDrop durchgeführt.
    * Das behandeln wir hier nicht sondern geben das einfach an den
@@ -124,7 +99,6 @@ export class FilesGridViewComponent implements OnInit {
    * @param files 
    */
   onINodesDropped(event: INodeDroppedEvent) {
-    console.log('onINodesDropped');
     this.inodesDropped.emit(event);
   }
 
@@ -138,16 +112,31 @@ export class FilesGridViewComponent implements OnInit {
   /**
    * 
    * @param inode 
-   * @param selected 
+   * @param evt 
    */
-  onItemSelectionChange(inode: INode, selected: boolean) {
+  onSelect(inode: INode, evt: MouseEvent) {
 
-    if (selected) {
+    evt.stopPropagation();
+
+    if (!evt.ctrlKey) {
+      this.selectedINodes.clear();
       this.selectedINodes.add(inode);
     }
     else {
-      this.selectedINodes.delete(inode);
+      if (this.isSelected(inode)) {
+        this.selectedINodes.delete(inode);
+      }
+      else {
+        this.selectedINodes.add(inode);
+      }
     }
+  }
+
+  /**
+   * 
+   */
+  onDeselectAll() {
+      this.selectedINodes.clear();
   }
 
   /**

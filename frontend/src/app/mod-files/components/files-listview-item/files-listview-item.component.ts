@@ -23,9 +23,6 @@ export class FilesListviewItemComponent implements OnInit {
   @Input()
   iconSize: number = 32;
 
-  @Input()
-  selected: boolean = false;
-
   @Output()
   selectionChange: EventEmitter<boolean> = new EventEmitter<boolean>(false);
 

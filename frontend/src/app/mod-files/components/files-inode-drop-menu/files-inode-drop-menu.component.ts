@@ -62,4 +62,13 @@ export class FileDropINodeMenuComponent {
   onMove() {
     this.move.emit(this.event!);
   }
+
+  /**
+   * Move innerhalb des eigenen Parents ist blödsinn und wird disabled
+   * @returns 
+   */
+  isMoveEnabled() {
+
+    return this.event?.source.parent !== this.event?.target.uuid
+  }
 }
