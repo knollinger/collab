@@ -12,17 +12,22 @@
                                   [appINodeDragSource]="inode"
                                   [appDropTarget]="inode"
                                   [iconSize]="iconSize"
+                                  (contextmenu)="contextMenu.show(inode, $event)"
                                   (inodesDropped)="onINodesDropped($event)"
-                                  (filesDropped)="onFilesDropped($event)"
-                                  (open)="onOpen(inode)"
-                                  (create)="onCreate($event)"
-                                  (rename)="onRename(inode)"
-                                  (cut)="onCut(inode)"
-                                  (copy)="onCopy(inode)"
-                                  (paste)="onPaste(inode)"
-                                  (delete)="onDelete(inode)"
-                                  (showProps)="onShowProps(inode)">
+                                  (filesDropped)="onFilesDropped($event)">
         </app-files-grid-view-item>
-
     </div>
+
+     <app-files-item-context-menu #contextMenu
+                                  (open)="onOpen($event)"
+                                  (create)="onCreate($event)"
+                                  (rename)="onRename($event)"
+                                  (delete)="onDelete($event)"
+                                  (cut)="onCut($event)"
+                                  (copy)="onCopy($event)"
+                                  (paste)="onPaste($event)"
+                                  (showProps)="onShowProps($event)">
+     </app-files-item-context-menu>
+
+
 </div>

@@ -8,15 +8,17 @@
     flex: 0;
 }
 
-.field-name, .field-action {
+/* .field-name, .field-action {
     flex: 1 1 auto;
 }
-
+ */
 .field-name {
     margin-right: 0.25rem;
+    flex: 1 1 auto;
 }
 
 .field-action {
     margin-left: 0.25rem;
+    flex: 0 0 auto;
 }
 

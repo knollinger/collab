@@ -39,7 +39,8 @@
     <mat-dialog-actions>
         <button mat-flat-button
                 color="primary"
-                [mat-dialog-close]="resultActions">Ok</button>
+                (click)=onSubmit()>Ok</button>
+
         <button mat-button
                 color="primary"
                 [mat-dialog-close]="null">Abbrechen</button>

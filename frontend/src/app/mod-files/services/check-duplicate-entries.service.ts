@@ -69,7 +69,6 @@ export class CheckDuplicateEntriesService {
      */
     private checkDuplicates(targetFolderId: string, inodes: INode[]): Observable<INode[]> {
 
-        console.log('checkDuplicates');
         const url = this.backendRouterSvc.getRouteForName('checkDuplicates', CheckDuplicateEntriesService.routes);
         const req = new CheckDuplicateEntriesRequest(targetFolderId, inodes);
         return this.httpClient.post<IINode[]>(url, req.toJSON()).pipe(
@@ -98,6 +97,7 @@ export class CheckDuplicateEntriesService {
 
         return dialogRef.afterClosed().pipe(map(dupItemActions => {
 
+            console.dir(dupItemActions);
             const result = new Array<INode>();
             return (result.length !== 0) ? new Array<INode>() : this.merge(inodes, dupItemActions);
         }));

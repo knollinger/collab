@@ -21,9 +21,6 @@ export class FilesItemContextMenuComponent implements OnInit {
   @ViewChild(MatMenuTrigger)
   trigger: MatMenuTrigger | undefined;
 
-  @Input()
-  inode: INode = INode.empty();
-
   @Output()
   selectionChange: EventEmitter<boolean> = new EventEmitter<boolean>(false);
 
@@ -53,6 +50,7 @@ export class FilesItemContextMenuComponent implements OnInit {
 
   triggerPosX: string = '';
   triggerPosY: string = '';
+  inode: INode = INode.empty();
 
   /**
    * 
@@ -77,7 +75,7 @@ export class FilesItemContextMenuComponent implements OnInit {
    * 
    * @param evt 
    */
-  show(evt: MouseEvent) {
+  show(inode: INode, evt: MouseEvent) {
 
     evt.stopPropagation();
     evt.preventDefault();
@@ -86,6 +84,7 @@ export class FilesItemContextMenuComponent implements OnInit {
 
       this.triggerPosX = `${evt.clientX}px`;
       this.triggerPosY = `${evt.clientY}px`;
+      this.inode = inode;
 
       this.trigger.openMenu();
     }

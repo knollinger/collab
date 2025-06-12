@@ -26,30 +26,6 @@ export class FilesGridViewItemComponent {
   @Input()
   iconSize: number = 64;
 
-  @Output()
-  open: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  create: EventEmitter<CreateMenuEvent> = new EventEmitter<CreateMenuEvent>();
-
-  @Output()
-  rename: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  delete: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  cut: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  copy: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  paste: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  showProps: EventEmitter<INode> = new EventEmitter<INode>();
-
   /**
    * 
    * @param iconSvc 
@@ -76,58 +52,5 @@ export class FilesGridViewItemComponent {
 
   get isLocked(): boolean {
     return !this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode);
-  }
-
-  /**
-   * 
-   * @param evt 
-   */
-  onContextMenu(evt: MouseEvent, menu: FilesItemContextMenuComponent) {
-    evt.stopPropagation();
-    evt.preventDefault();
-
-    if (this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode)) {
-      menu.show(evt);
-    }
-  }
-
-  /**
-   * 
-   */
-  onOpen() {
-    if (this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode)) {
-      this.open.emit(this.inode);
-    }
-  }
-
-  /**
-   * 
-   */
-  onCreate(evt: CreateMenuEvent) {
-    this.create.emit(evt);
-  }
-
-  onRename() {
-    this.rename.emit(this.inode);
-  }
-
-  onDelete() {
-    this.delete.emit(this.inode);
-  }
-
-  onCut() {
-    this.cut.emit(this.inode);
-  }
-
-  onCopy() {
-    this.copy.emit(this.inode);
-  }
-
-  onPaste() {
-    this.paste.emit(this.inode);
-  }
-
-  onShowProps() {
-    this.showProps.emit(this.inode);
   }
 }

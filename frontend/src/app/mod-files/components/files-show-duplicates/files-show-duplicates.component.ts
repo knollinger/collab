@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA } from "@angular/material/dialog";
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 
@@ -19,7 +19,7 @@ export interface IDuplicateINodesResponseItem {
   uuid: string,
   action: string,
   name: string
-}  
+}
 
 /**
  * 
@@ -40,6 +40,7 @@ export class FilesShowDuplicatesComponent {
    */
   constructor(
     private formBuilder: FormBuilder,
+    public dialogRef: MatDialogRef<FilesShowDuplicatesComponent>,
     @Inject(MAT_DIALOG_DATA)
     public data: IShowDuplicatesDialogData) {
 
@@ -81,11 +82,16 @@ export class FilesShowDuplicatesComponent {
     return this.inodeRows.at(i) as FormGroup;
   }
 
+  onSubmit() {
+    this.dialogRef.close(this.resultActions);
+  }
+
   /**
    * 
    */
-  get resultActions(): IDuplicateINodesResponseItem[] {
+  private get resultActions(): IDuplicateINodesResponseItem[] {
 
+    console.log('getResultItems')
     const result = new Array<IDuplicateINodesResponseItem>();
 
     const rows = this.inodeRows;

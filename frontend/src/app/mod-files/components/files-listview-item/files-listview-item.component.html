@@ -1,7 +1,6 @@
 <div class="disp-flex flex-row flex-alignitems-center outer"
      [class.locked]="isLocked"
-     matTooltip="{{inode.name}}"
-     (contextmenu)="onContextMenu($event, contextMenu)">
+     matTooltip="{{inode.name}}">
 
      <img class="flex-0 small-right-spacer"
           [src]="iconUrl"
@@ -11,17 +10,4 @@
           <span class="flex-0 name">{{inode.name}}</span>
           <span class="flex-0">{{inode.size | fileSize}}</span>
      </div>
-
-     <app-files-item-context-menu #contextMenu
-                                  [inode]="inode"
-                                  (open)="onOpen()"
-                                  (create)="onCreate($event)"
-                                  (rename)="onRename()"
-                                  (delete)="onDelete()"
-                                  (cut)="onCut()"
-                                  (copy)="onCopy()"
-                                  (paste)="onPaste()"
-                                  (showProps)="onShowProps()">
-     </app-files-item-context-menu>
-
 </div>
