@@ -49,6 +49,8 @@
                                  (showProps)="onShowProps($event)">
             </app-files-list-view>
 
+            <app-files-table-view *ngSwitchCase="'table'"></app-files-table-view>
+
             <h1 *ngSwitchDefault>
                 Kein Viewer für den ViewMode <b>'{{viewMode}}'</b> definiert.
             </h1>

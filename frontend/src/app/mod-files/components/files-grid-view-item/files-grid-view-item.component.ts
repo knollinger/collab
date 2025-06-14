@@ -35,14 +35,7 @@ export class FilesGridViewItemComponent {
     private checkPermsSvc: CheckPermissionsService) {
   }
 
-  /**
-   * 
-   */
-  get iconUrl(): string {
-    return this.iconSvc.getTypeIconUrl(this.inode.type);
-  }
-
-  get iconUrl1() {
+  get iconUrl() {
     return `url("${this.iconSvc.getTypeIconUrl(this.inode.type)}"`;
   }
 

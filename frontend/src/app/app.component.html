@@ -12,20 +12,6 @@
                 <mat-icon class="material-symbols-outlined">menu</mat-icon>
             </button>
 
-            <button mat-icon-button
-                    class="flex-0"
-                    *ngIf="isShowGoBack"
-                    (click)="onGoBack()">
-                <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
-            </button>
-
-            <button mat-icon-button
-                    class="flex-0"
-                    *ngIf="isShowGoHome"
-                    routerLink="/home">
-                <mat-icon class="material-symbols-outlined">home</mat-icon>
-            </button>
-            
             <!-- Titel -->
             <span class="flex-1 small-left-right-spacer">{{title}}</span>
 

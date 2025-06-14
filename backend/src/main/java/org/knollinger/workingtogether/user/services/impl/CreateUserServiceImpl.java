@@ -53,8 +53,7 @@ public class CreateUserServiceImpl implements ICreateUserService
         new RNameAndMimetype("Videos", "inode/directory+video"),
         new RNameAndMimetype("Bilder", "inode/directory+image"),
         new RNameAndMimetype("Notizen", "inode/directory"),
-        new RNameAndMimetype("Whiteboards", "inode/directory"),
-        new RNameAndMimetype("Papierkorb", "inode/directory+trash")
+        new RNameAndMimetype("Whiteboards", "inode/directory")
     };
 
     @Autowired

@@ -1,12 +1,12 @@
 <div [style.width]="iconWidth"
      [class.locked]="isLocked"
+     class="outer-cnr"
      matTooltip="{{inode.name}}">
 
      <div class="image"
-          [style.backgroundImage]="iconUrl1"
+          [style.backgroundImage]="iconUrl"
           [style.height]="iconWidth">
      </div>
 
-     <div class="label">{{inode.name}}
-     </div>
+     <div class="label">{{inode.name}}</div>
 </div>

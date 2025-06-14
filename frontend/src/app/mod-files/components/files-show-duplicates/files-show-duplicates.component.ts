@@ -2,23 +2,22 @@ import { Component, Inject } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 
-import { INode } from '../../../mod-files-data/mod-files-data.module';
-
 /**
  * 
  */
 export interface IShowDuplicatesDialogData {
-  inodes: INode[]
+  names: string[]
 }
 
 /**
  *  
  */
-export interface IDuplicateINodesResponseItem {
+export interface IDuplicateNamesResponseItem {
 
   uuid: string,
   action: string,
-  name: string
+  oldName: string,
+  newName: string,
 }
 
 /**
@@ -33,6 +32,7 @@ export interface IDuplicateINodesResponseItem {
 export class FilesShowDuplicatesComponent {
 
   form: FormGroup;
+  private names: string[];
 
   /**
    * 
@@ -44,10 +44,11 @@ export class FilesShowDuplicatesComponent {
     @Inject(MAT_DIALOG_DATA)
     public data: IShowDuplicatesDialogData) {
 
+    this.names = data.names;
     this.form = this.formBuilder.group({
-      inodes: this.formBuilder.array([])
+      names: this.formBuilder.array([])
     });
-    this.fillINodes(data.inodes);
+    this.fillINodes();
   }
 
   /**
@@ -56,30 +57,30 @@ export class FilesShowDuplicatesComponent {
    * 
    * @param inodes 
    */
-  private fillINodes(inodes: INode[]) {
+  private fillINodes() {
 
-    for (let inode of inodes) {
+    for (let name of this.names) {
 
       const group = this.formBuilder.group({
-        uuid: new FormControl(inode.uuid),
-        name: new FormControl(inode.name, [Validators.required]),
+        oldName: new FormControl(name),
+        newName: new FormControl(name, [Validators.required]),
         action: new FormControl('SKIP')
 
       });
-      this.inodeRows.push(group);
+      this.nameRows.push(group);
     }
   }
 
   /**
    * Liefere das FormArray mit den INodes
    */
-  get inodeRows(): FormArray {
-    return this.form.get('inodes') as FormArray;
+  get nameRows(): FormArray {
+    return this.form.get('names') as FormArray;
   }
 
-  getINodeRow(i: number): FormGroup {
+  getNameRow(rowNr: number): FormGroup {
 
-    return this.inodeRows.at(i) as FormGroup;
+    return this.nameRows.at(rowNr) as FormGroup;
   }
 
   onSubmit() {
@@ -89,18 +90,18 @@ export class FilesShowDuplicatesComponent {
   /**
    * 
    */
-  private get resultActions(): IDuplicateINodesResponseItem[] {
+  private get resultActions(): IDuplicateNamesResponseItem[] {
 
-    console.log('getResultItems')
-    const result = new Array<IDuplicateINodesResponseItem>();
+    const result = new Array<IDuplicateNamesResponseItem>();
 
-    const rows = this.inodeRows;
+    const rows = this.nameRows;
     for (let i = 0; i < rows.length; ++i) {
 
       const row = rows.at(i);
-      const rowVal = row.value as IDuplicateINodesResponseItem;
+      const rowVal = row.value as IDuplicateNamesResponseItem;
       result.push(rowVal);
     }
+
     return result;
   }
 }

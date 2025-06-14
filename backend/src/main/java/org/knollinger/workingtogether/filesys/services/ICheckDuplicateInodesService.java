@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.knollinger.workingtogether.filesys.exceptions.TechnicalFileSysException;
-import org.knollinger.workingtogether.filesys.models.INode;
 
 /**
  * Der {@link ICheckDuplicateInodesService} dient zum test auf potentielle Namens-Konfikte
@@ -26,5 +25,5 @@ public interface ICheckDuplicateInodesService
      * @return 
      * @throws TechnicalFileSysException 
      */
-    public List<INode> checkDuplicates(UUID targetId, List<INode> inodes) throws TechnicalFileSysException;
+    public List<String> checkDuplicates(UUID targetId, List<String> inodes) throws TechnicalFileSysException;
 }

@@ -286,7 +286,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onCopyDroppedINodes(event: INodeDroppedEvent) {
 
-    this.checkDuplSvc.handleDuplicates(event.target.uuid, [event.source])
+    this.checkDuplSvc.handleDuplicateINodes(event.target.uuid, [event.source])
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(inodes => {
 
@@ -304,7 +304,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onMoveDroppedINodes(event: INodeDroppedEvent) {
 
-    this.checkDuplSvc.handleDuplicates(event.target.uuid, [event.source])
+    this.checkDuplSvc.handleDuplicateINodes(event.target.uuid, [event.source])
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(inodes => {
 

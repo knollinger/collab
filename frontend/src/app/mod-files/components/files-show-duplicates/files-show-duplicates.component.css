@@ -1,17 +1,19 @@
-.inode-row {
+.inode-outer-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.inode-inner-row {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
 }
 
-.field-uuid {
+.field-hidden {
     display: none;
     flex: 0;
 }
 
-/* .field-name, .field-action {
-    flex: 1 1 auto;
-}
- */
 .field-name {
     margin-right: 0.25rem;
     flex: 1 1 auto;
@@ -20,5 +22,9 @@
 .field-action {
     margin-left: 0.25rem;
     flex: 0 0 auto;
+}
+
+.hidden {
+    display: none;
 }
 

@@ -25,19 +25,16 @@ public class DuplicateEntriesController
     @Autowired
     ICheckDuplicateInodesService svc;
 
-    @Autowired
-    IFileSysMapper mapper;
-
     /**
      * @param req
      * @return
      */
     @PostMapping()
-    List<INodeDTO> checkDuplicateEntries(@RequestBody CheckDuplicateEntriesRequestDTO req)
+    List<String> checkDuplicateEntries(@RequestBody CheckDuplicateEntriesRequestDTO req)
     {
         try
         {
-            return this.mapper.toDTO(this.svc.checkDuplicates(req.getTargetFolderId(), req.getInodes()));
+            return this.svc.checkDuplicates(req.getTargetFolderId(), req.getNames());
         }
         catch (TechnicalFileSysException e)
         {

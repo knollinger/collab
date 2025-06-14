@@ -1,11 +1,15 @@
-import { Injectable } from '@angular/core';
-import { Observable, map, tap, last } from 'rxjs';
+import { EventEmitter, Injectable } from '@angular/core';
+import { Observable, map, tap, last, catchError } from 'rxjs';
 
 import { BackendRoutingService, SpinnerService } from '../../mod-commons/mod-commons.module';
 import { HttpClient, HttpEvent, HttpEventType, HttpRequest, HttpResponse } from '@angular/common/http';
 
 import { IUploadFilesResponse, UploadFilesResponse } from '../models/upload-files-response';
+import { CheckDuplicateEntriesService, INamedFile } from './check-duplicate-entries.service';
 
+/**
+ * 
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -19,6 +23,7 @@ export class UploadService {
   constructor(
     private httpClient: HttpClient,
     private backendRouter: BackendRoutingService,
+    private checkDuplEntriesSvc: CheckDuplicateEntriesService,
     private spinnerSvc: SpinnerService) {
   }
 
@@ -29,11 +34,30 @@ export class UploadService {
    */
   public uploadFiles(parentId: string, files: File[]): Observable<UploadFilesResponse> {
 
+    const result = new EventEmitter<UploadFilesResponse>();
+    this.checkDuplEntriesSvc.handleDuplicateFiles(parentId, files).subscribe(namedFiles => {
+
+      this.uploadFilesInternal(parentId, namedFiles).subscribe(rsp => {
+        result.emit(rsp);
+      });
+    });
+    return result;
+  }
+
+  /**
+   * 
+   * @param parentId 
+   * @param namedFiles 
+   * @param emitter 
+   * @returns 
+   */
+  private uploadFilesInternal(parentId: string, namedFiles: INamedFile[]): Observable<UploadFilesResponse> {
+
     const url = this.backendRouter.getRouteForName('upload', UploadService.routes);
 
     const form = new FormData();
-    files.forEach(file => {
-      form.append('file', file);
+    namedFiles.forEach(namedFile => {
+      form.append('file', namedFile.file, namedFile.name);
     });
     form.append('parent', parentId);
 
@@ -42,15 +66,13 @@ export class UploadService {
     };
 
     const req = new HttpRequest('PUT', url, form, options);
-    const res = this.httpClient.request(req).pipe(
+    return this.httpClient.request(req).pipe(
       tap(event => this.handleHttpEvents(event as HttpEvent<any>)),
-      last());
-
-    return (res as Observable<HttpResponse<any>>).pipe(map(val => {
-
-      const json = val.body as IUploadFilesResponse;
-      return UploadFilesResponse.fromJSON(json);
-    }));
+      last(),
+      map(rsp => {
+        return UploadFilesResponse.fromJSON(rsp as IUploadFilesResponse);
+      })
+    );
   }
 
   /**
@@ -59,7 +81,7 @@ export class UploadService {
   * @param file
   * @returns
   */
-  private handleHttpEvents(event: HttpEvent<any>) {
+  private handleHttpEvents(event: any) {
     switch (event.type) {
       case HttpEventType.Sent:
         this.spinnerSvc.setMessage(`Beginne Upload`);

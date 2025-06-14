@@ -5,21 +5,21 @@
 
     <mat-dialog-content>
 
-        <ng-container formArrayName="inodeRows">
-            <ng-container *ngFor="let row of inodeRows.controls; let i = index">
+        <ng-container formArrayName="names">
+            <ng-container *ngFor="let row of nameRows.controls; let i = index">
 
-                <div [formGroup]="getINodeRow(i)"
+                <div [formGroup]="getNameRow(i)"
                      class="inode-row">
 
-                    <mat-form-field class="field-uuid">
+                    <mat-form-field class="field-hidden">
                         <input matInput
-                               formControlName="uuid">
+                               formControlName="oldName">
                     </mat-form-field>
 
                     <mat-form-field class="field-name">
                         <mat-label>Name</mat-label>
                         <input matInput
-                               formControlName="name">
+                               formControlName="newName">
                     </mat-form-field>
 
                     <mat-form-field class="field-action">

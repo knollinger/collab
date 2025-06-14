@@ -380,6 +380,10 @@ public class FileSysController
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
+        catch(Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
         return result.build();
     }
 

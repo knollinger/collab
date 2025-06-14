@@ -33,7 +33,7 @@ public class CheckDuplicateInodesServiceImpl implements ICheckDuplicateInodesSer
      *
      */
     @Override
-    public List<INode> checkDuplicates(UUID targetId, List<INode> sources) throws TechnicalFileSysException
+    public List<String> checkDuplicates(UUID targetId, List<String> names) throws TechnicalFileSysException
     {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -41,18 +41,18 @@ public class CheckDuplicateInodesServiceImpl implements ICheckDuplicateInodesSer
 
         try
         {
-            List<INode> result = new ArrayList<>();
+            List<String> result = new ArrayList<>();
 
             conn = this.dbSvc.openConnection();
             stmt = conn.prepareStatement(SQL_SELECT_DUPLICATES);
             stmt.setString(1, targetId.toString());
-            for (INode source : sources)
+            for (String name : names)
             {
-                stmt.setString(2, source.getName());
+                stmt.setString(2, name);
                 rs = stmt.executeQuery();
                 if (rs.next())
                 {
-                    result.add(source);
+                    result.add(name);
                 }
                 this.dbSvc.closeQuitely(rs);
             }

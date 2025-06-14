@@ -37,7 +37,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         + "      where `uuid` = ?";
 
     private static final String SQL_GET_CHILDS = "" //
-        + "select `uuid`, `type` from `inodes`" //
+        + "select `uuid`, `name`, `type` from `inodes`" //
         + "  where `parent`=?";
 
     private static final String SQL_GET_INODE = "" //
@@ -195,6 +195,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
             {
                 INode inode = INode.builder() //
                     .uuid(UUID.fromString(rs.getString("uuid"))) //
+                    .name(rs.getString("name")) //
                     .type(rs.getString("type")) //
                     .build();
                 result.add(inode);

@@ -26,6 +26,7 @@ import { FilesFolderContextMenuComponent } from './components/files-folder-conte
 import { FileDropINodeMenuComponent } from './components/files-inode-drop-menu/files-inode-drop-menu.component';
 import { FilesIconsizeMenuComponent } from './components/files-iconsize-menu/files-iconsize-menu.component';
 import { FilesListviewItemComponent } from './components/files-listview-item/files-listview-item.component';
+import { FilesTableViewComponent } from './components/files-table-view/files-table-view.component';
 import { FilesPermissionsComponent } from './components/files-permissions/files-permissions.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
@@ -58,6 +59,7 @@ export { WopiService};
     FilesPermissionsComponent,
     FilesCreateMenuComponent,
     FilesShowDuplicatesComponent,
+    FilesTableViewComponent,
   ],
   imports: [
     CommonModule,
