@@ -1,4 +1,4 @@
-:host {
+/* :host {
     height: 100%;
 }
 
@@ -9,4 +9,55 @@
     align-items: center;
     border-bottom: 1px solid #d0d0d0;
     padding: 0.5rem;
+}
+
+.component-view {
+    height: 100%;
+    overflow: auto;
+
+}
+ */
+
+.outer-cnr {
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(to bottom, rgb(30,87,153) 0%, rgb(125,185,232) 100%);
+}
+
+.toolbar {
+    flex: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 1rem;
+    color: white;
+}
+
+.toolbar-btn {
+    flex: 0;
+    margin-right: 0.5rem;
+}
+
+.toolbar-title {
+    flex: 1;
+    font-size: 22px;
+}
+
+app-session-menu {
+    flex: 0;
+}
+
+.drawer {
+    flex: 1;
+    height: 100%;
+    margin: 0 1rem 1rem 1rem;
+    border-radius: 0.5rem;
+    background-color: transparent;
+}
+
+.content-cnr {
+    height: 100%;
+    background-color: transparent;
 }

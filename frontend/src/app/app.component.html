@@ -1,106 +1,87 @@
-<div class="disp-flex flex-col full-height scrollable">
+<div class="outer-cnr">
 
-    <mat-toolbar color="primary">
+    <div class="toolbar">
+        <button mat-icon-button
+                class="toolbar-btn"
+                *ngIf="isLoggedOn"
+                (click)="navMenu.toggle()">
+            <mat-icon class="material-symbols-outlined">menu</mat-icon>
+        </button>
 
-        <mat-toolbar-row>
+        <span class="toolbar-title">{{title}}</span>
 
-            <!-- MainMenu-->
-            <button mat-icon-button
-                    class="flex-0"
-                    *ngIf="isLoggedOn"
-                    (click)="navMenu.toggle()">
-                <mat-icon class="material-symbols-outlined">menu</mat-icon>
-            </button>
+        <button mat-icon-button
+                *ngIf="isLoggedOn"
+                routerLink="/search"
+                class="toolbar-btn">
+            <mat-icon class="material-symbols-outlined">search</mat-icon>
+        </button>
 
-            <!-- Titel -->
-            <span class="flex-1 small-left-right-spacer">{{title}}</span>
-
-            <!-- Suche -->
-            <button mat-icon-button
-                    routerLink="/search"
-                    class="flex-0"
-                    *ngIf="isShowSearch">
-                <mat-icon class="material-symbols-outlined">search</mat-icon>
-            </button>
-
-            <!-- SessionMenu -->
-            <app-session-menu class="flex-0 small-right-spacer"></app-session-menu>
-
-        </mat-toolbar-row>
-
-    </mat-toolbar>
-
-    <div class="scrollable full-height">
-        <mat-drawer-container class="full-height">
-            <mat-drawer #navMenu
-                        mode="over"
-                        (click)="navMenu.close()">
-
-                <!-- Home -->
-                <button mat-menu-item
-                        routerLink="/">
-                    <mat-icon class="material-symbols-outlined">home</mat-icon>
-                    <span>Home</span>
-                </button>
-
-                <!-- Dateien -->
-                <button mat-menu-item
-                        routerLink="/files/main"
-                        matTooltip="Dateien">
-                    <mat-icon class="material-symbols-outlined">folder</mat-icon>
-                    <span>Dateien</span>
-                </button>
-
-                <!-- Kalender -->
-                <button mat-menu-item
-                        routerLink="/calendar/show"
-                        matTooltip="Kalender">
-                    <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
-                    <span>Kalender</span>
-                </button>
-
-                <!-- Mail -->
-                <button mat-menu-item
-                        routerLink="/mail"
-                        matTooltip="Mail"
-                        disabled="true">
-                    <mat-icon class="material-symbols-outlined">mail</mat-icon>
-                    <span>Mail</span>
-                </button>
-
-                <!-- Chat -->
-                <button mat-menu-item
-                        routerLink="/message"
-                        matTooltip="Chat"
-                        disabled="true">
-                    <mat-icon class="material-symbols-outlined">message</mat-icon>
-                    <span>Chat</span>
-                </button>
-
-                <!-- PinBoard -->
-                <button mat-menu-item
-                        routerLink="/pinboard"
-                        matTooltip="Pin-Wand"
-                        disabled="true">
-                    <mat-icon class="material-symbols-outlined">pinboard</mat-icon>
-                    <span>Pin-Wand</span>
-                </button>
-
-                <!-- User -->
-                <button mat-menu-item
-                        routerLink="/user"
-                        matTooltip="Benutzer-Verwaltung">
-                    <mat-icon class="material-symbols-outlined">person</mat-icon>
-                    <span>Benutzer-Verwaltung</span>
-                </button>
-            </mat-drawer>
-
-            <div class="full-height scrollable">
-                <router-outlet></router-outlet>
-            </div>
-        </mat-drawer-container>
+        <app-session-menu *ngIf="isLoggedOn"></app-session-menu>
     </div>
 
+
+    <mat-drawer-container class="drawer">
+        <mat-drawer #navMenu
+                    mode="over"
+                    (click)="navMenu.close()">
+
+            <button mat-menu-item
+                    routerLink="/">
+                <mat-icon class="material-symbols-outlined">dashboard</mat-icon>
+                <span>Dashboard</span>
+            </button>
+
+            <button mat-menu-item
+                    routerLink="/files/main"
+                    matTooltip="Dateien">
+                <mat-icon class="material-symbols-outlined">folder</mat-icon>
+                <span>Dateien</span>
+            </button>
+
+            <button mat-menu-item
+                    routerLink="/calendar/show"
+                    matTooltip="Kalender">
+                <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
+                <span>Kalender</span>
+            </button>
+
+            <button mat-menu-item
+                    routerLink="/mail"
+                    matTooltip="Mail"
+                    disabled="true">
+                <mat-icon class="material-symbols-outlined">mail</mat-icon>
+                <span>Mail</span>
+            </button>
+
+            <button mat-menu-item
+                    routerLink="/message"
+                    matTooltip="Chat"
+                    disabled="true">
+                <mat-icon class="material-symbols-outlined">message</mat-icon>
+                <span>Chat</span>
+            </button>
+
+            <button mat-menu-item
+                    routerLink="/pinboard"
+                    matTooltip="Pin-Wand"
+                    disabled="true">
+                <mat-icon class="material-symbols-outlined">pinboard</mat-icon>
+                <span>Pin-Wand</span>
+            </button>
+
+            <button mat-menu-item
+                    routerLink="/user"
+                    matTooltip="Benutzer-Verwaltung">
+                <mat-icon class="material-symbols-outlined">person</mat-icon>
+                <span>Benutzer-Verwaltung</span>
+            </button>
+        </mat-drawer>
+
+        <div class="content-cnr">
+            <router-outlet></router-outlet>
+        </div>
+    </mat-drawer-container>
 </div>
 
 <app-spinner></app-spinner>

@@ -1,14 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HomeComponent } from './home/home.component';
 import { InitComponent } from './init/init.component';
 import { LicencesComponent } from './licences/licences.component';
-import { SessionRequiredGuard } from './mod-session/session.module';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/home',
+    redirectTo: '/dashboard/show',
     pathMatch: 'full'
   },
   {
@@ -16,9 +14,8 @@ const routes: Routes = [
     component: InitComponent,
   },
   {
-    path: 'home',
-    component: HomeComponent,
-    canActivate: [SessionRequiredGuard],
+    path: 'dashboard',
+    loadChildren: () => import('./mod-dashboard/mod-dashboard.module').then(mod => mod.ModDashboardModule)
   },
   {
     path: 'licences',

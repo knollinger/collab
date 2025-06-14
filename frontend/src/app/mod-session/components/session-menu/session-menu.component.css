@@ -1,3 +1,4 @@
 .user-name {
-    font-size: x-small;
+    font-size: small;
+    white-space: nowrap;
 }

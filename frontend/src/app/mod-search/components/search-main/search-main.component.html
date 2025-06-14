@@ -1,4 +1,4 @@
-<div class="outer-cnr">
+<div class="outer-cnr mat-app-background">
 
     <div class="search-cnr">
 
@@ -36,7 +36,7 @@
         <mat-accordion multi>
 
             <!-- Gefundene Dateien -->
-            <mat-expansion-panel *ngIf="results.inodes.length">
+            <mat-expansion-panel *ngIf="results.inodes.length" expanded="true">
                 <mat-expansion-panel-header>
                     <mat-panel-title>
                         <mat-icon class="material-symbols-outlined section-icon"
@@ -50,7 +50,7 @@
             </mat-expansion-panel>
 
             <!-- Gefundene Benutzer -->
-            <mat-expansion-panel *ngIf="results.users.length">
+            <mat-expansion-panel *ngIf="results.users.length" expanded="true">
                 <mat-expansion-panel-header>
                     <mat-icon class="material-symbols-outlined section-icon"
                               color="primary">person</mat-icon>
@@ -64,7 +64,7 @@
             </mat-expansion-panel>
 
             <!-- Gefundene Gruppen -->
-            <mat-expansion-panel *ngIf="results.groups.length">
+            <mat-expansion-panel *ngIf="results.groups.length" expanded="true">
                 <mat-expansion-panel-header>
                     <mat-icon class="material-symbols-outlined section-icon"
                               color="primary">groups</mat-icon>
