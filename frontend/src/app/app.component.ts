@@ -17,6 +17,7 @@ export class AppComponent implements OnInit {
 
   public title: string = '';
   private _showSearch: boolean = false;
+  private _showDashboard: boolean = false;
 
   /**
    * 
@@ -57,6 +58,10 @@ export class AppComponent implements OnInit {
     return !this.sessSvc.currentUser.isEmpty();
   }
 
+  get isShowDashboard(): boolean {
+    return this.isLoggedOn && this._showDashboard;
+  }
+
   get isShowSearch(): boolean {
     return this.isLoggedOn && this._showSearch;
   }
@@ -88,6 +93,7 @@ export class AppComponent implements OnInit {
       .subscribe(event => {
         const url = (event as NavigationEnd).url;
         this._showSearch = (url !== '/search');
+        this._showDashboard = (url !== '/dashboard');
       });
   }
 }

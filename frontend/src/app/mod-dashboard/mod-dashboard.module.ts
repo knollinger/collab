@@ -6,12 +6,14 @@ import { ModMaterialImportModule } from '../mod-material-import/mod-material-imp
 
 import { DashboardMainComponent } from './components/dashboard-main/dashboard-main.component';
 import { ModDashboardRoutingModule } from './mod-dashboard-routing.module';
+import { DashboardButtonComponent } from './components/dashboard-button/dashboard-button.component';
 
 
 
 @NgModule({
   declarations: [
-    DashboardMainComponent
+    DashboardMainComponent,
+    DashboardButtonComponent
   ],
   imports: [
     CommonModule,

@@ -1,7 +1,11 @@
-<div class="outer-cnr mat-app-background">
+<div class="outer-cnr">
 
     <div class="workspace">
-       <p>Ich bin das Dashboard</p>
+        <app-dashboard-button *ngFor="let btn of dashButtons"
+                              [title]="btn.title"
+                              [icon]="btn.icon"
+                              [routerLink]="btn.link">
+        </app-dashboard-button>
     </div>
 
     <button mat-fab
@@ -10,4 +14,5 @@
             matTooltip="Dashboard anpassen">
         <mat-icon>settings</mat-icon>
     </button>
+
 </div>

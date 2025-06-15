@@ -19,7 +19,8 @@
                     <mat-form-field class="field-name">
                         <mat-label>Name</mat-label>
                         <input matInput
-                               formControlName="newName">
+                               formControlName="newName"
+                               (input)="action.value = 'RENAME'">
                     </mat-form-field>
 
                     <mat-form-field class="field-action">

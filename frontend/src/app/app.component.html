@@ -1,19 +1,31 @@
 <div class="outer-cnr">
 
     <div class="toolbar">
+
         <button mat-icon-button
                 class="toolbar-btn"
                 *ngIf="isLoggedOn"
-                (click)="navMenu.toggle()">
+                (click)="navMenu.toggle()"
+                matTooltip="Menü">
             <mat-icon class="material-symbols-outlined">menu</mat-icon>
         </button>
+
+        <button mat-icon-button
+                class="toolbar-btn"
+                *ngIf="isShowDashboard"
+                routerLink="/dashboard"
+                matTooltip="Dashboard">
+            <mat-icon class="material-symbols-outlined">dashboard</mat-icon>
+        </button>
+
 
         <span class="toolbar-title">{{title}}</span>
 
         <button mat-icon-button
-                *ngIf="isLoggedOn"
+                *ngIf="isShowSearch"
                 routerLink="/search"
-                class="toolbar-btn">
+                class="toolbar-btn"
+                matTooltip="Dashboard">
             <mat-icon class="material-symbols-outlined">search</mat-icon>
         </button>
 
@@ -27,21 +39,19 @@
                     (click)="navMenu.close()">
 
             <button mat-menu-item
-                    routerLink="/">
+                    routerLink="/dashboard">
                 <mat-icon class="material-symbols-outlined">dashboard</mat-icon>
                 <span>Dashboard</span>
             </button>
 
             <button mat-menu-item
-                    routerLink="/files/main"
-                    matTooltip="Dateien">
+                    routerLink="/files/main">
                 <mat-icon class="material-symbols-outlined">folder</mat-icon>
                 <span>Dateien</span>
             </button>
 
             <button mat-menu-item
-                    routerLink="/calendar/show"
-                    matTooltip="Kalender">
+                    routerLink="/calendar/show">
                 <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
                 <span>Kalender</span>
             </button>
@@ -64,7 +74,6 @@
 
             <button mat-menu-item
                     routerLink="/pinboard"
-                    matTooltip="Pin-Wand"
                     disabled="true">
                 <mat-icon class="material-symbols-outlined">pinboard</mat-icon>
                 <span>Pin-Wand</span>

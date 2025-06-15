@@ -7,7 +7,7 @@ import { DashboardMainComponent } from './components/dashboard-main/dashboard-ma
 
 const routes: Routes = [
   {
-    path: 'show',
+    path: '',
     component: DashboardMainComponent,
     canActivate: [SessionRequiredGuard],
   },

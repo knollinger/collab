@@ -37,12 +37,12 @@
 
 .toolbar-btn {
     flex: 0;
-    margin-right: 0.5rem;
 }
 
 .toolbar-title {
     flex: 1;
     font-size: 22px;
+    text-align: center;
 }
 
 app-session-menu {
