@@ -59,7 +59,7 @@ export class FilesMainViewComponent implements OnInit {
 
     this.route.params
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => { // takeUntilDestroyed
+      .subscribe(params => {
 
         const leftPanelUUID = params['leftPanel'] || this.sessionSvc.currentUser.userId;
         this.inodeSvc.getINode(leftPanelUUID)

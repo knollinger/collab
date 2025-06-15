@@ -27,7 +27,8 @@ import { GroupService } from '../../services/group.service';
 @Component({
   selector: 'app-group-edit',
   templateUrl: './group-edit.component.html',
-  styleUrls: ['./group-edit.component.css']
+  styleUrls: ['./group-edit.component.css'],
+  standalone: false
 })
 export class GroupEditComponent implements OnInit {
 

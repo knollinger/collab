@@ -5,7 +5,8 @@ import { MatSelectionListChange } from '@angular/material/list';
 @Component({
   selector: 'app-user-selector',
   templateUrl: './user-selector.component.html',
-  styleUrls: ['./user-selector.component.css']
+  styleUrls: ['./user-selector.component.css'],
+  standalone: false
 })
 export class UserSelectorComponent implements OnInit {
 

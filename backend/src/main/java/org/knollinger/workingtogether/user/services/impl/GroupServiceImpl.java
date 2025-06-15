@@ -12,8 +12,7 @@ import java.util.UUID;
 
 import org.knollinger.workingtogether.user.exceptions.TechnicalGroupException;
 import org.knollinger.workingtogether.user.models.Group;
-import org.knollinger.workingtogether.user.models.User;
-import org.knollinger.workingtogether.user.services.IListGroupService;
+import org.knollinger.workingtogether.user.services.IGroupService;
 import org.knollinger.workingtogether.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ import lombok.extern.log4j.Log4j2;
  */
 @Service
 @Log4j2
-public class ListGroupServiceImpl implements IListGroupService
+public class GroupServiceImpl implements IGroupService
 {
     private static final String SQL_GET_ALL_GROUPS = "" //
         + "select `uuid`, `name`, `isPrimary`" //
@@ -146,14 +145,14 @@ public class ListGroupServiceImpl implements IListGroupService
      *
      */
     @Override
-    public List<Group> getGroupsByUser(User user) throws TechnicalGroupException
+    public List<Group> getGroupsByUser(UUID userId) throws TechnicalGroupException
     {
         Connection conn = null;
 
         try
         {
             conn = this.dbService.openConnection();
-            Set<UUID> allGroupIds = this.getGroupIdsRecursive(user.getUserId(), conn);
+            Set<UUID> allGroupIds = this.getGroupIdsRecursive(userId, conn);
             log.info("groupIds: {}", allGroupIds);
 
             List<Group> allGroups = this.resolveAllGroupIDs(allGroupIds, conn);
@@ -162,7 +161,7 @@ public class ListGroupServiceImpl implements IListGroupService
         }
         catch (SQLException e)
         {
-            String msg = String.format(ERR_GET_USER_GROUPS, user.getUserId().toString());
+            String msg = String.format(ERR_GET_USER_GROUPS, userId.toString());
             throw new TechnicalGroupException(msg, e);
         }
         finally

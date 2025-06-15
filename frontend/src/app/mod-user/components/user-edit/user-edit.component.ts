@@ -1,120 +1,146 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 import { UserService } from '../../services/user.service';
-import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
+import { GroupService } from '../../services/group.service';
 
-import { User } from '../../../mod-userdata/models/user';
+import { User, Group, AvatarService } from '../../../mod-userdata/mod-userdata.module';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-user-edit',
   templateUrl: './user-edit.component.html',
-  styleUrls: ['./user-edit.component.css']
+  styleUrls: ['./user-edit.component.css'],
+  standalone: false
 })
 export class UserEditComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  showEditor: boolean = false;
   user: User = User.empty();
-  users: User[] = new Array<User>();
-  newAvatar: File | undefined = undefined;
-  profileForm: FormGroup;
+  allGroups: Group[] = new Array<Group>();
+  selectedGroups: Group[] = new Array<Group>();
+
+  userForm: FormGroup;
+  private newAvatar: File | null = null;
 
   /**
    * 
-   * @param formBuilder 
-   * @param userSvc 
+   * @param route 
    */
   constructor(
-    formBuilder: FormBuilder,
+    private formBuilder: FormBuilder,
+    private route: ActivatedRoute,
     private userSvc: UserService,
-    private avatarSvc: AvatarService,
-    private msgBoxSvc: CommonDialogsService) {
+    private groupSvc: GroupService,
+    private avatarSvc: AvatarService) {
 
-    this.profileForm = formBuilder.nonNullable.group(
+    this.userForm = this.formBuilder.nonNullable.group(
       {
-        userId: new FormControl<string>(''),
-        accountName: new FormControl<string>('', [Validators.required]),
-        email: new FormControl<string>('', [Validators.required, Validators.email]),
-        surname: new FormControl<string>('', [Validators.required]),
-        lastname: new FormControl<string>('', [Validators.required]),
+        userId: new FormControl(''),
+        accountName: new FormControl('', [Validators.required]),
+        email: new FormControl('', [Validators.required, Validators.email]),
+        surname: new FormControl('', [Validators.required]),
+        lastname: new FormControl('', [Validators.required])
       }
     );
-    this.profileForm.markAllAsTouched();
   }
 
   /**
    * 
    */
   ngOnInit(): void {
-    this.reload();
+
+    this.route.params
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+
+        const uuid = params['userId'];
+        if (uuid) {
+          this.userId = uuid;
+        }
+      });
+
+    this.groupSvc.listGroups()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(groups => {
+        this.allGroups = groups.filter(group => {
+          return !group.primary;
+        });
+      });
   }
 
-  public reload(currentUser?: User) {
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* all about the UserId                                                    */
+  /*                                                                         */
+  /* Die BenutzerId kann entweder via Router-Param oder als InputParam       */
+  /* werden. Dadurch ist es möglich, die Komponente in eine andere Component */
+  /* zu embedden aber auch frei stehend an das router-outlet zu binden.      */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
 
-    this.showEditor = false;
-    this.user = currentUser || User.empty();
-    this.newAvatar = undefined;
+  private _userId: string = '';
 
-    this.userSvc.listUsers()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(users => {
-        this.users = users;
-      });
+  @Input()
+  public set userId(uuid: string) {
+
+    this._userId = uuid;
+    if (uuid !== User.EMPTY_USER_ID) {
+      this.loadUser();
+    }
+  }
+
+  public get userId(): string {
+    return this._userId;
   }
 
   /**
    * 
-   * @param user 
-   * @returns 
    */
-  getAvatar(user: User): string {
-    return this.avatarSvc.getAvatarUrl(user.userId);
+  private loadUser() {
+
+    this.userSvc.getUser(this.userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
+        this.user = user;
+        this.userForm.get('userId')?.setValue(this.userId);
+        this.userForm.get('accountName')?.setValue(user.accountName);
+        this.userForm.get('email')?.setValue(user.email);
+        this.userForm.get('surname')?.setValue(user.surname);
+        this.userForm.get('lastname')?.setValue(user.lastname);
+
+        this.groupSvc.groupsByUser(this.userId)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(groups => {
+
+            this.selectedGroups = groups;
+          });
+      })
   }
 
-  onUserSelection(users: User[]) {
-
-    if (users && users.length) {
-
-      this.user = users[0];
-      this.profileForm.setValue(this.user);
-      this.newAvatar = undefined;
-      this.showEditor = true;
-    }
-  }
-
-  isUserSelected(): boolean {
-    return !this.user.isEmpty();
-  }
-
+  /**
+   * 
+   * @param avatar 
+   */
   onAvatarChange(avatar: File) {
 
     this.newAvatar = avatar;
   }
 
-  onCreateUser() {
-    this.user = User.empty();
-    this.newAvatar = undefined;
-    this.showEditor = true;
-    this.profileForm.setValue(this.user);
-  }
-
+  /**
+   * 
+   */
   onSubmit() {
 
-    console.log('save user');
-    const newUser = User.fromJSON(this.profileForm.value);
-    this.userSvc.saveUser(newUser, this.newAvatar)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(user => {
-        this.reload(newUser);
-        this.msgBoxSvc.showSnackbar('Benutzer gespeichert.');
-      })
   }
 
+  /**
+   * 
+   */
   onResetForm() {
-    this.profileForm.setValue(this.user);
+
+    this.loadUser();
   }
 }

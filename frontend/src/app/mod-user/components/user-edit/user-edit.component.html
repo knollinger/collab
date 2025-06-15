@@ -1,118 +1,83 @@
-<div class="full-height disp-flex flex-col scrollable mat-app-background">
+<form [formGroup]="userForm"
+      (ngSubmit)="onSubmit()"
+      class="full-height disp-flex flex-col  small-padding mat-app-background">
 
-    <app-toolbar class="flex-0 small-bottom-lightgray-border">
+    <div class="flex-1 grid scrollable">
 
-        <button mat-icon-button
-                matTooltip="Einen neuen Benutzer anlegen"
-                (click)="onCreateUser()">
-            <mat-icon class="material-symbols-outlined">person_add</mat-icon>
-        </button>
-
-        <button mat-icon-button
-                matTooltip="Ansicht aktualisieren"
-                (click)="reload()">
-            <mat-icon class="material-symbols-outlined">refresh</mat-icon>
-        </button>
-
-        <button mat-icon-button
-                *ngIf="isUserSelected()"
-                matTooltip="Den ausgewählten Benutzer löschen">
-            <mat-icon class="material-symbols-outlined">delete</mat-icon>
-        </button>
-
-    </app-toolbar>
-
-    <div class="flex-1 disp-flex flex-row scrollable">
-
-        <!-- Auswahl-Liste -->
-        <div class="flex-1 scrollable">
-            <app-user-selector [multiple]=false
-                               [users]="users"
-                               [selection]="user"
-                               (selectionChange)="onUserSelection($event)">
-
-            </app-user-selector>
+        <div class="hidden">
+            <mat-form-field>
+                <input matInput
+                       formControlName="userId"
+                       appAutoFocus>
+            </mat-form-field>
         </div>
 
-        <!-- editor-form -->
-        <div class="flex-2 scrollable small-padding">
-
-            <form *ngIf="showEditor"
-                  [formGroup]="profileForm"
-                  (ngSubmit)="onSubmit()"
-                  class="full-height disp-flex flex-col">
-
-                <div class="flex-1 grid scrollable">
-
-                    <div class="hidden">
-                        <mat-form-field>
-                            <input matInput
-                                   formControlName="userId"
-                                   appAutoFocus>
-                        </mat-form-field>
-                    </div>
-
-                    <div class="grid-row-0">
-                        <app-avatar-selector [user]="user"
-                                             (change)="onAvatarChange($event)"></app-avatar-selector>
-                    </div>
-
-                    <div class="grid-row-0">
-                        <mat-form-field class="grid-col-4">
-                            <mat-label>Konto Name</mat-label>
-                            <input matInput
-                                   formControlName="accountName"
-                                   appAutoFocus>
-                            <mat-error *ngIf="profileForm.get('accountName')!.hasError('required')">Bitte
-                                ausfüllen</mat-error>
-                        </mat-form-field>
-                    </div>
-
-
-                    <div class="grid-row-0">
-                        <mat-form-field class="grid-col-8">
-                            <mat-label>Email</mat-label>
-                            <input matInput
-                                   formControlName="email"
-                                   appAutoFocus>
-                            <mat-error *ngIf="profileForm.get('email')!.hasError('email')">Keine gültige
-                                Email-Adresse</mat-error>
-                            <mat-error *ngIf="profileForm.get('email')!.hasError('required')">Bitte
-                                ausfüllen</mat-error>
-                        </mat-form-field>
-                    </div>
-
-                    <div class="grid-row-0">
-                        <mat-form-field class="grid-col-4">
-                            <mat-label>Vorname</mat-label>
-                            <input matInput
-                                   formControlName="surname">
-                            <mat-error *ngIf="profileForm.get('surname')!.hasError('required')">Bitte
-                                ausfüllen</mat-error>
-                        </mat-form-field>
-
-                        <mat-form-field class="grid-col-4">
-                            <mat-label>Nachname</mat-label>
-                            <input matInput
-                                   formControlName="lastname">
-                            <mat-error *ngIf="profileForm.get('lastname')!.hasError('required')">Bitte
-                                ausfüllen</mat-error>
-                        </mat-form-field>
-                    </div>
-
-                </div>
-                <div class="flex-0">
-                    <button mat-flat-button
-                            type="submit"
-                            color="primary"
-                            class="small-right-spacer"
-                            [disabled]="!profileForm.valid">Speichern</button>
-                    <button mat-button
-                            type="button"
-                            color="primary"
-                            (click)="onResetForm()">Zurück setzen</button>
-                </div>
-            </form>
+        <div class="grid-row-0">
+            <app-avatar-selector [user]="user"
+                                 (change)="onAvatarChange($event)"></app-avatar-selector>
         </div>
+
+        <div class="grid-row-0">
+            <mat-form-field class="grid-col-4">
+                <mat-label>Konto Name</mat-label>
+                <input matInput
+                       formControlName="accountName"
+                       appAutoFocus>
+                <mat-error *ngIf="userForm.get('accountName')!.hasError('required')">Bitte
+                    ausfüllen</mat-error>
+            </mat-form-field>
+        </div>
+
+
+        <div class="grid-row-0">
+            <mat-form-field class="grid-col-8">
+                <mat-label>Email</mat-label>
+                <input matInput
+                       formControlName="email"
+                       appAutoFocus>
+                <mat-error *ngIf="userForm.get('email')!.hasError('email')">Keine gültige
+                    Email-Adresse</mat-error>
+                <mat-error *ngIf="userForm.get('email')!.hasError('required')">Bitte
+                    ausfüllen</mat-error>
+            </mat-form-field>
+        </div>
+
+        <div class="grid-row-0">
+            <mat-form-field class="grid-col-4">
+                <mat-label>Vorname</mat-label>
+                <input matInput
+                       formControlName="surname">
+                <mat-error *ngIf="userForm.get('surname')!.hasError('required')">Bitte
+                    ausfüllen</mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="grid-col-4">
+                <mat-label>Nachname</mat-label>
+                <input matInput
+                       formControlName="lastname">
+                <mat-error *ngIf="userForm.get('lastname')!.hasError('required')">Bitte
+                    ausfüllen</mat-error>
+            </mat-form-field>
+        </div>
+
+        <div class="grid-row-1">
+            <h3 class="grid-col-8">Gruppen</h3>
+            <app-group-selector class="grid-col-8 small-lightgray-border"
+                                [multiple]="true"
+                                [groups]="allGroups"
+                                [selection]="selectedGroups"></app-group-selector>
+        </div>
+
     </div>
-</div>
+    <div class="flex-0">
+        <button mat-flat-button
+                type="submit"
+                color="primary"
+                class="small-right-spacer"
+                [disabled]="!userForm.valid">Speichern</button>
+        <button mat-button
+                type="button"
+                color="primary"
+                (click)="onResetForm()">Zurück setzen</button>
+    </div>
+</form>

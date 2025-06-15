@@ -1,0 +1,43 @@
+<div class="full-height disp-flex flex-col scrollable mat-app-background">
+
+    <app-toolbar class="flex-0 small-bottom-lightgray-border">
+
+        <button mat-icon-button
+                matTooltip="Einen neuen Benutzer anlegen"
+                (click)="onCreateUser()">
+            <mat-icon class="material-symbols-outlined">person_add</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Ansicht aktualisieren"
+                (click)="reload()">
+            <mat-icon class="material-symbols-outlined">refresh</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                *ngIf="isUserSelected()"
+                matTooltip="Den ausgewählten Benutzer löschen">
+            <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        </button>
+
+    </app-toolbar>
+
+    <div class="flex-1 disp-flex flex-row scrollable">
+
+        <!-- Auswahl-Liste -->
+        <div class="flex-1 scrollable">
+            <app-user-selector [multiple]=false
+                               [users]="users"
+                               [selection]="user"
+                               (selectionChange)="onUserSelection($event)">
+
+            </app-user-selector>
+        </div>
+
+        <!-- editor-form -->
+        <div class="flex-2 scrollable small-padding">
+            <app-user-edit *ngIf="showEditor"
+                           [userId]="user.userId"></app-user-edit>
+        </div>
+    </div>
+</div>

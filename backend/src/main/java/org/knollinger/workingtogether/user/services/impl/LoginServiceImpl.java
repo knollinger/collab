@@ -15,7 +15,7 @@ import org.knollinger.workingtogether.user.exceptions.TechnicalLoginException;
 import org.knollinger.workingtogether.user.models.Group;
 import org.knollinger.workingtogether.user.models.TokenCreatorResult;
 import org.knollinger.workingtogether.user.models.User;
-import org.knollinger.workingtogether.user.services.IListGroupService;
+import org.knollinger.workingtogether.user.services.IGroupService;
 import org.knollinger.workingtogether.user.services.ILoginService;
 import org.knollinger.workingtogether.user.services.ITokenService;
 import org.knollinger.workingtogether.utils.services.IDbService;
@@ -53,7 +53,7 @@ public class LoginServiceImpl implements ILoginService
     private IDbService dbService;
 
     @Autowired()
-    private IListGroupService listGroupSvc;
+    private IGroupService listGroupSvc;
 
     @Autowired()
     private ITokenService tokenSvc;;
@@ -84,7 +84,7 @@ public class LoginServiceImpl implements ILoginService
             }
 
             User user = this.getUser(email, conn);
-            List<Group> groups = this.listGroupSvc.getGroupsByUser(user);
+            List<Group> groups = this.listGroupSvc.getGroupsByUser(user.getUserId());
 
             long ttl = keepLoggedIn ? NINETY_DAYS_IN_MILLIES : TWO_HOURS_IN_MILLIES;
             return this.tokenSvc.createToken(user, groups, ttl);
@@ -132,7 +132,7 @@ public class LoginServiceImpl implements ILoginService
             }
 
             User user = this.getUser(email, conn);
-            List<Group> groups = this.listGroupSvc.getGroupsByUser(user);
+            List<Group> groups = this.listGroupSvc.getGroupsByUser(user.getUserId());
 
             long ttl = keepLoggedIn ? NINETY_DAYS_IN_MILLIES : TWO_HOURS_IN_MILLIES;
             return this.tokenSvc.createToken(user, groups, ttl);

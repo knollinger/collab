@@ -1,5 +1,11 @@
 package org.knollinger.workingtogether.user.services;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.knollinger.workingtogether.user.exceptions.TechnicalGroupException;
+import org.knollinger.workingtogether.user.models.Group;
+
 /**
  * Gruppen sind was spezielles. Es existieren zwei Ausprägungen:
  * <ul>
@@ -28,6 +34,33 @@ package org.knollinger.workingtogether.user.services;
  */
 public interface IGroupService
 {
-    // Das Interface existiert nur, um gemeinsamme Eigenscgaften aller 
-    // Gruppen-Services zu definieren
+    /**
+     * Liefere die Liste alle Gruppen, sortiert nach Ihren Namen.
+     * 
+     * @param deepScan wenn <code>true</code>, werden rekursiv alle Member für 
+     *                 die Gruppen geliefert. In diesem Fall werden für die
+     *                 Member-Gruppen auch alle Primär-Gruppen aufgelistet.
+     *                 
+     * @return Die Liste (ggf. der Tree) aller Gruppen, niemals <code>null</code>
+     * 
+     * @throws TechnicalGroupException
+     */
+    public List<Group> getAllGroups(boolean deepScan) throws TechnicalGroupException;
+    
+    /**
+     * Liefere die Liste aller Gruppen, welcher ein User angehört. 
+     * 
+     * Dabei werden Gruppen-Zugehörigkeiten rekursiv aufgelöst, so das alle Gruppen
+     * in der Liste enthalten sind.
+     * 
+     * Ein Beispiel:
+     * 
+     * Der Benutzer gehört der Gruppe "B" an, die Gruppe ist Mitglied der Gruppe "A".
+     * In der Ergebis-Liste sind beide Gruppen ("A" und "B") enthalten.
+     * 
+     * @param user
+     * @return
+     * @throws TechnicalGroupException
+     */
+    public List<Group> getGroupsByUser(UUID userId) throws TechnicalGroupException;
 }

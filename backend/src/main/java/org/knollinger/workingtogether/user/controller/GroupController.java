@@ -1,15 +1,17 @@
 package org.knollinger.workingtogether.user.controller;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.knollinger.workingtogether.user.dtos.GroupDTO;
 import org.knollinger.workingtogether.user.exceptions.TechnicalGroupException;
 import org.knollinger.workingtogether.user.mapper.IGroupMapper;
 import org.knollinger.workingtogether.user.models.Group;
-import org.knollinger.workingtogether.user.services.IListGroupService;
+import org.knollinger.workingtogether.user.services.IGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class GroupController
 {
     @Autowired
-    private IListGroupService groupSvc;
+    private IGroupService groupSvc;
 
     @Autowired
     private IGroupMapper groupMapper;
@@ -43,4 +45,20 @@ public class GroupController
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
+    
+    @GetMapping(path = "/byUser/{userId}")
+    public List<GroupDTO> getGroupsForUser(@PathVariable("userId") UUID userId)
+    {
+        try
+        {
+            List<Group> groups = this.groupSvc.getGroupsByUser(userId);
+            return this.groupMapper.toDTO(groups);
+        }
+        catch (TechnicalGroupException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+    
+    
 }

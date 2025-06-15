@@ -13,7 +13,8 @@ interface FlatTreeNode {
 @Component({
   selector: 'app-group-tree',
   templateUrl: './group-tree.component.html',
-  styleUrls: ['./group-tree.component.css']
+  styleUrls: ['./group-tree.component.css'],
+  standalone: false
 })
 export class GroupTreeComponent {
 

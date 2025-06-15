@@ -16,22 +16,22 @@ export { UserService }
 import { GroupService } from './services/group.service';
 export { GroupService }
 
-import { UserMainViewComponent } from './components/user-main-view/user-main-view.component';
-import { UserEditComponent } from './components/user-edit/user-edit.component';
+import { UserMainEditComponent } from './components/user-main-edit/user-main-edit.component';
 import { UserSelectorComponent } from './components/user-selector/user-selector.component';
 import { GroupSelectorComponent } from './components/group-selector/group-selector.component';
 import { GroupEditComponent } from './components/group-edit/group-edit.component';
 import { GroupTreeComponent } from './components/group-tree/group-tree.component';
+import { UserEditComponent } from './components/user-edit/user-edit.component';
 
 @NgModule({
   declarations: [
     AvatarSelectorComponent,
-    UserMainViewComponent,
-    UserEditComponent,
+    UserMainEditComponent,
     UserSelectorComponent,
     GroupSelectorComponent,
     GroupEditComponent,
     GroupTreeComponent,
+    UserEditComponent,
   ],
   imports: [
     CommonModule,

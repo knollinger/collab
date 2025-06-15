@@ -5,7 +5,8 @@ import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 @Component({
   selector: 'app-avatar-selector',
   templateUrl: './avatar-selector.component.html',
-  styleUrls: ['./avatar-selector.component.css']
+  styleUrls: ['./avatar-selector.component.css'],
+  standalone: false
 })
 export class AvatarSelectorComponent implements OnInit, OnDestroy {
 
