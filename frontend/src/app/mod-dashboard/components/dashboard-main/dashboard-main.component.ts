@@ -62,7 +62,12 @@ export class DashboardMainComponent implements OnInit {
       {
         title: 'Benutzer-Verwaltung',
         icon: this.backendRouterSvc.getRouteForName("getIcon", DashboardMainComponent.routes, "user"),
-        link: '/user'
+        link: '/user/users'
+      },
+      {
+        title: 'Gruppen-Verwaltung',
+        icon: this.backendRouterSvc.getRouteForName("getIcon", DashboardMainComponent.routes, "group"),
+        link: '/user/groups'
       },
     ]
   }

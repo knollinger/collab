@@ -6,7 +6,7 @@ import { LicencesComponent } from './licences/licences.component';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard/show',
+    redirectTo: '/dashboard',
     pathMatch: 'full'
   },
   {

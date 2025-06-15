@@ -3,12 +3,18 @@ import { NgModule } from '@angular/core';
 
 import { SessionRequiredGuard } from '../mod-session/session.module';
 
-import { UserMainViewComponent } from './components/user-main-view/user-main-view.component';
+import { UserEditComponent } from './components/user-edit/user-edit.component';
+import { GroupEditComponent } from './components/group-edit/group-edit.component';
 
 const routes: Routes = [
   {
-    path: '',
-    component: UserMainViewComponent,
+    path: 'users',
+    component: UserEditComponent,
+    canActivate: [SessionRequiredGuard],
+  },
+  {
+    path: 'groups',
+    component: GroupEditComponent,
     canActivate: [SessionRequiredGuard],
   },
 ]

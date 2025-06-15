@@ -58,7 +58,6 @@
 
             <button mat-menu-item
                     routerLink="/mail"
-                    matTooltip="Mail"
                     disabled="true">
                 <mat-icon class="material-symbols-outlined">mail</mat-icon>
                 <span>Mail</span>
@@ -66,7 +65,6 @@
 
             <button mat-menu-item
                     routerLink="/message"
-                    matTooltip="Chat"
                     disabled="true">
                 <mat-icon class="material-symbols-outlined">message</mat-icon>
                 <span>Chat</span>
@@ -80,10 +78,15 @@
             </button>
 
             <button mat-menu-item
-                    routerLink="/user"
-                    matTooltip="Benutzer-Verwaltung">
+                    routerLink="/user/users">
                 <mat-icon class="material-symbols-outlined">person</mat-icon>
                 <span>Benutzer-Verwaltung</span>
+            </button>
+
+            <button mat-menu-item
+                    routerLink="/user/groups">
+                <mat-icon class="material-symbols-outlined">groups</mat-icon>
+                <span>Gruppen-Verwaltung</span>
             </button>
         </mat-drawer>
 
