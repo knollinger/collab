@@ -27,17 +27,13 @@
 
         <div class="flex-0 disp-flex flex-row">
             <h2 class="flex-1 small-right-spacer">Alle Gruppen</h2>
-            <h2 class="flex-1 small-left-spacer">Gruppen-Mitglieder</h2>
+            <h2 class="flex-1 small-left-spacer">Gruppen-Mitglieder von '{{currentGroup.name}}'</h2>
         </div>
 
         <div class="flex-1 disp-flex flex-row full-height scrollable">
 
             <div class="flex-1 scrollable list-cnr small-right-spacer">
-                <app-group-selector [groups]="nonPrimaryGroups"
-                                    [multiple]="false"
-                                    [selection]="selectedGroup"
-                                    (selectionChange)="onGroupSelection($event)">
-                </app-group-selector>
+                <app-group-tree [groups]="nonPrimaryGroups" (selection)="onGroupSelection($event)"></app-group-tree>
             </div>
 
             <div class="flex-1 scrollable list-cnr small-left-spacer">

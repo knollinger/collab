@@ -21,15 +21,17 @@ import { UserSelectorComponent } from './components/user-selector/user-selector.
 import { GroupSelectorComponent } from './components/group-selector/group-selector.component';
 import { GroupEditComponent } from './components/group-edit/group-edit.component';
 import { UserEditComponent } from './components/user-edit/user-edit.component';
+import { GroupTreeComponent } from './components/group-tree/group-tree.component';
 
 @NgModule({
   declarations: [
     AvatarSelectorComponent,
     UserMainEditComponent,
     UserSelectorComponent,
+    UserEditComponent,
     GroupSelectorComponent,
     GroupEditComponent,
-    UserEditComponent,
+    GroupTreeComponent,
   ],
   imports: [
     CommonModule,

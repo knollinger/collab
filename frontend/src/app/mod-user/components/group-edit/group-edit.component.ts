@@ -35,8 +35,7 @@ export class GroupEditComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  private currentGroup: Group = Group.empty();
-
+  currentGroup: Group = Group.empty();
   allGroups: Group[] = new Array<Group>();
   nonPrimaryGroups: Group[] = new Array<Group>();
   possibleMembers: Group[] = new Array<Group>();
@@ -72,11 +71,25 @@ export class GroupEditComponent implements OnInit {
       .subscribe(groups => {
 
         this.allGroups = groups;
-        this.nonPrimaryGroups = groups.filter(group => !group.primary);
+        this.nonPrimaryGroups = this.filterRecursively(groups);
         this.possibleMembers = new Array<Group>();
         this.currentMembers = new Array<Group>();
         this.currentGroup = Group.empty();
       })
+  }
+
+  /**
+   * 
+   * @param groups 
+   * @returns 
+   */
+  private filterRecursively(groups: Group[]): Group[] {
+
+    const newGroups = groups.map(group => group.clone());
+    for(let group of newGroups) {
+      group.members = this.filterRecursively(group.members);
+    }
+    return newGroups.filter(group => !group.primary);
   }
 
   /**
@@ -92,8 +105,9 @@ export class GroupEditComponent implements OnInit {
 
           this.groupSvc.createGroup(name, false)
             .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(name => {
+            .subscribe(newGroup => {
 
+              // TODO: in ausgewählte Gruppe verschieben?
               this.onReloadGroups();
             })
         }
@@ -103,22 +117,19 @@ export class GroupEditComponent implements OnInit {
 
   /**
    * 
-   * @param groups 
+   * @param group 
    */
-  onGroupSelection(groups: Group[]) {
+  onGroupSelection(selected: Group) {
 
-    if (groups.length) {
 
-      const selected = groups[0];
       this.possibleMembers = this.allGroups.filter(group => { return group.uuid !== selected.uuid })
-      this.currentMembers = this.getMembersOf(groups[0]);
+      this.currentMembers = this.getMembersOf(selected);
       this.currentGroup = selected;
-    }
   }
 
-  get selectedGroup(): Group[] {
+  get selectedGroup(): Group {
 
-    return this.currentGroup.isEmpty() ? [] : [this.currentGroup];
+    return this.currentGroup;
   }
 
   get isGroupSelected(): boolean {
