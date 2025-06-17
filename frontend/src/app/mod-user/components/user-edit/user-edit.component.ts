@@ -7,6 +7,7 @@ import { GroupService } from '../../services/group.service';
 
 import { User, Group, AvatarService } from '../../../mod-userdata/mod-userdata.module';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
   selector: 'app-user-edit',
@@ -19,11 +20,8 @@ export class UserEditComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   user: User = User.empty();
-  allGroups: Group[] = new Array<Group>();
-  selectedGroups: Group[] = new Array<Group>();
-
   userForm: FormGroup;
-  private newAvatar: File | null = null;
+  private newAvatar: File | undefined = undefined;
 
   /**
    * 
@@ -31,10 +29,9 @@ export class UserEditComponent implements OnInit {
    */
   constructor(
     private formBuilder: FormBuilder,
+    private titleBarSvc: TitlebarService,
     private route: ActivatedRoute,
-    private userSvc: UserService,
-    private groupSvc: GroupService,
-    private avatarSvc: AvatarService) {
+    private userSvc: UserService) {
 
     this.userForm = this.formBuilder.nonNullable.group(
       {
@@ -52,6 +49,8 @@ export class UserEditComponent implements OnInit {
    */
   ngOnInit(): void {
 
+    this.titleBarSvc.subTitle = 'Benutzer-Verwaltung';
+    
     this.route.params
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
@@ -60,14 +59,6 @@ export class UserEditComponent implements OnInit {
         if (uuid) {
           this.userId = uuid;
         }
-      });
-
-    this.groupSvc.listGroups()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(groups => {
-        this.allGroups = groups.filter(group => {
-          return !group.primary;
-        });
       });
   }
 
@@ -105,18 +96,7 @@ export class UserEditComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(user => {
         this.user = user;
-        this.userForm.get('userId')?.setValue(this.userId);
-        this.userForm.get('accountName')?.setValue(user.accountName);
-        this.userForm.get('email')?.setValue(user.email);
-        this.userForm.get('surname')?.setValue(user.surname);
-        this.userForm.get('lastname')?.setValue(user.lastname);
-
-        this.groupSvc.groupsByUser(this.userId)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(groups => {
-
-            this.selectedGroups = groups;
-          });
+        this.userForm.setValue(user.toJSON());
       })
   }
 
@@ -134,6 +114,14 @@ export class UserEditComponent implements OnInit {
    */
   onSubmit() {
 
+    const user = User.fromJSON(this.userForm.getRawValue());
+    this.userSvc.saveUser(user, this.newAvatar)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(rsp => {
+
+        this.user = User.fromJSON(rsp);
+        this.newAvatar = undefined;
+      })
   }
 
   /**

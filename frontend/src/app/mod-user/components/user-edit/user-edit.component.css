@@ -1,0 +1,32 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px;
+}
+
+.grid-container > div {
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.account {
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+
+.email {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}
+
+.vname {
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+
+.zname {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}

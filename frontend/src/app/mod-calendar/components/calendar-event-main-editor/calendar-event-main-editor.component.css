@@ -1,4 +1,24 @@
-.outer-cnr {
+.grid-container {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 10px;
+}
 
-    padding-top: 1rem;
+.full {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}
+
+.left {
+  grid-column-start: 1;
+  grid-column-end: 2;
+}
+
+.right {
+  grid-column-start: 2;
+  grid-column-end: 3;
+}
+
+.hidden {
+    display: none;
 }

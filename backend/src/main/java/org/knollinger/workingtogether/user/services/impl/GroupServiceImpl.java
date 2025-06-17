@@ -4,12 +4,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.knollinger.workingtogether.user.exceptions.DuplicateGroupException;
+import org.knollinger.workingtogether.user.exceptions.GroupNotFoundException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalGroupException;
 import org.knollinger.workingtogether.user.models.Group;
 import org.knollinger.workingtogether.user.services.IGroupService;
@@ -37,6 +40,18 @@ public class GroupServiceImpl implements IGroupService
         + "  where uuid in" // 
         + "    (select memberId from groupMembers where parentId=?)" //
         + "  order by name";
+
+    private static final String SQL_CREATE_GROUP = "" //
+        + "insert into `groups`" //
+        + "  set `uuid`=?, `name`=?, `isPrimary`=?";
+
+    private static final String SQL_DELETE_MEMBERS = "" //
+        + "delete from groupMembers" //
+        + "  where parentId=?";
+
+    private static final String SQL_INSERT_MEMBER = "" //
+        + "insert into groupMembers" //
+        + "  set parentId=?, memberId=?";
 
     private static final String ERR_GET_USER_GROUPS = "" //
         + "Die Gruppen-Zugehörigkeiten für den Benutzer mit der " //
@@ -196,7 +211,7 @@ public class GroupServiceImpl implements IGroupService
             {
                 UUID parentId = UUID.fromString(rs.getString("parentId"));
                 result.add(parentId);
-                
+
                 // PrimärGruppen beinhalten die BenutzerId als Member und diese hat den selben Wert wie
                 // die GruppenId. In diesem Fall darf nicht weiter rekursiv gescannt werden, es würde
                 // in einer Endlos-Rekursion enden!
@@ -253,6 +268,91 @@ public class GroupServiceImpl implements IGroupService
         {
             this.dbService.closeQuitely(rs);
             this.dbService.closeQuitely(stmt);
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void saveGroupMembers(Group parent, List<Group> members)
+        throws GroupNotFoundException, TechnicalGroupException
+    {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try
+        {
+            conn = this.dbService.openConnection();
+            conn.setAutoCommit(false);
+
+            stmt = conn.prepareStatement(SQL_DELETE_MEMBERS);
+            stmt.setString(1, parent.getUuid().toString());
+            stmt.executeUpdate();
+            this.dbService.closeQuitely(stmt);
+
+            stmt = conn.prepareStatement(SQL_INSERT_MEMBER);
+            stmt.setString(1, parent.getUuid().toString());
+            for (Group group : members)
+            {
+                stmt.setString(2, group.getUuid().toString());
+                stmt.executeUpdate();
+            }
+
+            conn.commit();
+        }
+        catch (SQLException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        finally
+        {
+            this.dbService.closeQuitely(rs);
+            this.dbService.closeQuitely(stmt);
+            this.dbService.closeQuitely(conn);
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public Group createGroup(String name, boolean isPrimary) throws DuplicateGroupException, TechnicalGroupException
+    {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+
+        try
+        {
+            UUID uuid = UUID.randomUUID();
+            
+            conn = this.dbService.openConnection();
+            stmt = conn.prepareStatement(SQL_CREATE_GROUP);
+            stmt.setString(1, uuid.toString());
+            stmt.setString(2, name);
+            stmt.setBoolean(3, isPrimary);
+            stmt.executeUpdate();
+            
+            return Group.builder() //
+                .uuid(uuid) //
+                .name(name) //
+                .primary(isPrimary) //
+                .build();
+        }
+        catch (SQLIntegrityConstraintViolationException e)
+        {
+            throw new DuplicateGroupException(name);
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalGroupException(name, e);
+        }
+        finally
+        {
+            this.dbService.closeQuitely(stmt);
+            this.dbService.closeQuitely(conn);
         }
     }
 }

@@ -3,6 +3,8 @@ package org.knollinger.workingtogether.user.services;
 import java.util.List;
 import java.util.UUID;
 
+import org.knollinger.workingtogether.user.exceptions.DuplicateGroupException;
+import org.knollinger.workingtogether.user.exceptions.GroupNotFoundException;
 import org.knollinger.workingtogether.user.exceptions.TechnicalGroupException;
 import org.knollinger.workingtogether.user.models.Group;
 
@@ -46,7 +48,7 @@ public interface IGroupService
      * @throws TechnicalGroupException
      */
     public List<Group> getAllGroups(boolean deepScan) throws TechnicalGroupException;
-    
+
     /**
      * Liefere die Liste aller Gruppen, welcher ein User angehört. 
      * 
@@ -63,4 +65,22 @@ public interface IGroupService
      * @throws TechnicalGroupException
      */
     public List<Group> getGroupsByUser(UUID userId) throws TechnicalGroupException;
+
+    /**
+     * @param parent
+     * @param members
+     * @throws GroupNotFoundException
+     * @throws TechnicalGroupException
+     */
+    public void saveGroupMembers(Group parent, List<Group> members)
+        throws GroupNotFoundException, TechnicalGroupException;
+
+    /**
+     * @param name
+     * @param isPrimary 
+     * @return
+     * @throws DuplicateGroupException
+     * @throws TechnicalGroupException
+     */
+    public Group createGroup(String name, boolean isPrimary) throws DuplicateGroupException, TechnicalGroupException;
 }

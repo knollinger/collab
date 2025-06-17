@@ -3,7 +3,6 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import * as moment from 'moment';
 
 import { CalendarEvent } from '../../models/calendar-event';
-import { MatRadioChange } from '@angular/material/radio';
 
 @Component({
   selector: 'app-calendar-event-main-editor',
@@ -16,8 +15,7 @@ export class CalendarEventMainEditorComponent implements OnInit {
   @Input()
   event: CalendarEvent = CalendarEvent.empty();
 
-  repeatMode: string = 'ONCE';
-  repeatModes = [
+  repeatFrequences = [
     {
       title: 'Einmalig',
       value: 'ONCE'
@@ -52,16 +50,6 @@ export class CalendarEventMainEditorComponent implements OnInit {
     { title: 'Sonntag', value: 0 },
   ];
 
-  get repeatModeName(): string {
-
-    for (let mode of this.repeatModes) {
-      if (mode.value === this.repeatMode) {
-        return mode.title;
-      }
-    };
-    return '???';
-  }
-
   eventForm: FormGroup;
 
   /**
@@ -75,9 +63,8 @@ export class CalendarEventMainEditorComponent implements OnInit {
       title: new FormControl('', [Validators.required]),
       start: new FormControl(moment().format('YYYY-MM-DDTHH:mm'), [Validators.required]),
       end: new FormControl(moment().format('YYYY-MM-DDTHH:mm'), [Validators.required]),
-      desc: new FormControl('', [Validators.required]),
       fullDay: new FormControl(false, [Validators.required]),
-      repeatMode: new FormControl('ONCE', [Validators.required])
+      repeat_freq: new FormControl('ONCE', [Validators.required])
     });
 
     this.daysOfMonth = new Array<number>(31);
@@ -94,7 +81,6 @@ export class CalendarEventMainEditorComponent implements OnInit {
     this.eventForm.get('title')?.setValue(this.event.title);
     this.eventForm.get('start')?.setValue(moment(this.event.start).format('YYYY-MM-DDTHH:mm'));
     this.eventForm.get('end')?.setValue(moment(this.event.end).format('YYYY-MM-DDTHH:mm'));
-    this.eventForm.get('desc')?.setValue(this.event.desc);
     this.eventForm.get('fullDay')?.setValue(this.event.fullDay);
   }
 
@@ -103,9 +89,5 @@ export class CalendarEventMainEditorComponent implements OnInit {
    */
   get isFullDay(): boolean {
     return this.eventForm.get('fullDay')?.value;
-  }
-
-  onModeChange(event: MatRadioChange) {
-    this.repeatMode = event.value;
   }
 }

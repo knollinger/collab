@@ -6,3 +6,13 @@ form {
     top: 50%;
     transform: translate(-50%, -50%);
 }
+
+mat-form-field,
+mat-slide-toggle {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+button {
+    margin-top: 1rem;
+}

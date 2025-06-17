@@ -2,7 +2,7 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
+import { CommonDialogsService, TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { UserService } from '../../services/user.service';
 import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 
@@ -30,6 +30,7 @@ export class UserMainEditComponent implements OnInit {
    */
   constructor(
     formBuilder: FormBuilder,
+    private titleBarSvc: TitlebarService,
     private userSvc: UserService,
     private avatarSvc: AvatarService,
     private msgBoxSvc: CommonDialogsService) {
@@ -39,6 +40,7 @@ export class UserMainEditComponent implements OnInit {
    * 
    */
   ngOnInit(): void {
+    this.titleBarSvc.subTitle = 'Benutzer-Verwaltung';
     this.reload();
   }
 

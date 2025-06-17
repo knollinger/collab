@@ -10,6 +10,9 @@ export interface IGroup {
  */
 export class Group {
 
+    private static GROUPID_USERS: string = '00000000-0000-0000-0000-000000000000';
+    private static GROUPID_ADMIN: string = '00000000-0000-0000-0000-000000000001';
+
     /**
      * 
      * @param uuid 
@@ -64,6 +67,14 @@ export class Group {
      */
     public isEmpty(): boolean {
         return !this.uuid;
+    }
+
+    /**
+     * 
+     * @returns 
+     */
+    public isAdminGroup(): boolean {
+        return this.uuid === Group.GROUPID_ADMIN;
     }
 
     public toString(): string {

@@ -107,6 +107,19 @@ export class SessionService {
   }
 
   /**
+   * Ist der aktuell angemeldete Benutzer mitglied der Admin-Gruppe?
+   */
+  public get isAdmin(): boolean {
+
+    for (let group of this.groups) {
+      if(group.isAdminGroup()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * 
    * @param token 
    * @returns 

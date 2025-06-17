@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { Group } from '../../../mod-userdata/mod-userdata.module';
 import { GroupService } from '../../services/group.service';
+import { CommonDialogsService, TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 /**
  * Die Editor-Komponente für Gruppen-Zugehörigkeiten.
@@ -34,8 +35,11 @@ export class GroupEditComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  groupTree: Group[] = new Array<Group>();
+  private currentGroup: Group = Group.empty();
+
   allGroups: Group[] = new Array<Group>();
+  nonPrimaryGroups: Group[] = new Array<Group>();
+  possibleMembers: Group[] = new Array<Group>();
   currentMembers: Group[] = new Array<Group>();
 
   /**
@@ -44,7 +48,9 @@ export class GroupEditComponent implements OnInit {
    * @param userSvc 
    */
   constructor(
-    private groupSvc: GroupService) {
+    private titleBarSvc: TitlebarService,
+    private groupSvc: GroupService,
+    private mboxSvc: CommonDialogsService) {
 
   }
 
@@ -52,24 +58,24 @@ export class GroupEditComponent implements OnInit {
    * 
    */
   ngOnInit(): void {
-    this.loadGroups();
+    this.titleBarSvc.subTitle = 'Gruppen-Verwaltung';
+    this.onReloadGroups();
   }
 
-  private loadGroups() {
+  /**
+   * 
+   */
+  onReloadGroups() {
 
-    // lese Rekursiv dem Baum aller Gruppen
     this.groupSvc.listGroups(true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(groups => {
 
         this.allGroups = groups;
-
-        const deepCopies = groups.map(group => {
-          return group.clone();
-        })
-        this.groupTree = this.filterRecursivly(deepCopies);
-
+        this.nonPrimaryGroups = groups.filter(group => !group.primary);
+        this.possibleMembers = new Array<Group>();
         this.currentMembers = new Array<Group>();
+        this.currentGroup = Group.empty();
       })
   }
 
@@ -78,30 +84,45 @@ export class GroupEditComponent implements OnInit {
    */
   onCreateGroup() {
 
-  }
+    this.mboxSvc.showInputBox('Eine neue Gruppe anlegen', 'Gruppen-Name')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(name => {
 
-  onReloadGroups() {
-    this.loadGroups();
-  }
+        if (name) {
 
-  onGroupSelection(group: Group) {
+          this.groupSvc.createGroup(name, false)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(name => {
 
-    this.currentMembers = this.getMembersOf(group);
+              this.onReloadGroups();
+            })
+        }
+      });
+
   }
 
   /**
    * 
    * @param groups 
-   * @returns 
    */
-  private filterRecursivly(groups: Group[]): Group[] {
+  onGroupSelection(groups: Group[]) {
 
-    const filtered = groups.filter(group => !group.primary);
-    filtered.forEach(group => {
+    if (groups.length) {
 
-      group.members = this.filterRecursivly(group.members);
-    })
-    return filtered;
+      const selected = groups[0];
+      this.possibleMembers = this.allGroups.filter(group => { return group.uuid !== selected.uuid })
+      this.currentMembers = this.getMembersOf(groups[0]);
+      this.currentGroup = selected;
+    }
+  }
+
+  get selectedGroup(): Group[] {
+
+    return this.currentGroup.isEmpty() ? [] : [this.currentGroup];
+  }
+
+  get isGroupSelected(): boolean {
+    return !this.currentGroup.isEmpty();
   }
 
   /**
@@ -111,15 +132,38 @@ export class GroupEditComponent implements OnInit {
    */
   private getMembersOf(group: Group): Group[] {
 
-    // console.log
     let result: Group[] = new Array<Group>();
     for (let i = 0; i < this.allGroups.length; ++i) {
       if (this.allGroups[i].uuid === group.uuid) {
         result = this.allGroups[i].members;
-        console.log(`Group ${group.uuid} found: ${result}`);
         break;
       }
     }
     return result;
+  }
+
+  onMemberChange(members: Group[]) {
+
+    this.currentMembers = members;
+  }
+
+  onDeleteGroup() {
+
+    this.mboxSvc.showQueryBox('Bist Du sicher?', `Möchtest DU wirklich die Gruppe '${this.currentGroup.name}' löschen?`)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(rsp => {
+        if (rsp) {
+          alert('deleteGroup not yet implemented');
+        }
+      });
+  }
+  onSubmit() {
+
+    this.groupSvc.saveGroupMembers(this.currentGroup, this.currentMembers)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(_ => {
+
+        this.mboxSvc.showSnackbar(`Gruppen-Mitglieder für '${this.currentGroup.name}' gespeichert.`);
+      });
   }
 }

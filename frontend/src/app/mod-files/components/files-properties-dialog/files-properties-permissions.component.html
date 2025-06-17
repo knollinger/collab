@@ -1,45 +1,37 @@
-<form class="grid">
+<form>
 
-    <div class="grid-row-0">
-        <mat-form-field class="grid-col-8">
-            <mat-label>Besitzer</mat-label>
-            <mat-select [disabled]="!hasOwnership()"
-                        [value]="inode.owner"
-                        (selectionChange)="onOwnerChange($event)">
-                <mat-option *ngFor="let group of primaryGroups"
-                            [value]="group.uuid">
-                    <div class="disp-flex flex-row flex-alignitems-center>">
-                        <img class="avatar flex-0 small-right-spacer"
-                             [src]="getAvatarUrl(group)">
-                        <span class="flex-1">{{group.name}}</span>
-                    </div>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-    </div>
+    <mat-form-field>
+        <mat-label>Besitzer</mat-label>
+        <mat-select [disabled]="!hasOwnership()"
+                    [value]="inode.owner"
+                    (selectionChange)="onOwnerChange($event)">
+            <mat-option *ngFor="let group of primaryGroups"
+                        [value]="group.uuid">
+                <div class="disp-flex flex-row flex-alignitems-center>">
+                    <img class="avatar flex-0 small-right-spacer"
+                         [src]="getAvatarUrl(group)">
+                    <span class="flex-1">{{group.name}}</span>
+                </div>
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
 
-    <div class="grid-row-0">
-        <mat-form-field class="grid-col-8">
-            <mat-label>Gruppe</mat-label>
-            <mat-select [disabled]="!hasOwnership()"
-                        [value]="inode.group"
-                        (selectionChange)="onGroupChange($event)">
+    <mat-form-field>
+        <mat-label>Gruppe</mat-label>
+        <mat-select [disabled]="!hasOwnership()"
+                    [value]="inode.group"
+                    (selectionChange)="onGroupChange($event)">
 
-                <mat-option *ngFor="let group of allGroups"
-                            [value]="group.uuid">
-                    <mat-icon class="material-symbols-outlined">group</mat-icon>
-                    <span>{{group.name}}</span>
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
-    </div>
+            <mat-option *ngFor="let group of allGroups"
+                        [value]="group.uuid">
+                <mat-icon class="material-symbols-outlined">group</mat-icon>
+                <span>{{group.name}}</span>
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
 
-    <div class="grid-row-1">
-        <div class="grid-col-8">
-            <app-files-permissions [permission]="inode.perms"
-                                   (permissionChange)="onPermissionChange($event)"
-                                   [disabled]="!hasOwnership()"></app-files-permissions>
-        </div>
-    </div>
+    <app-files-permissions [permission]="inode.perms"
+                           (permissionChange)="onPermissionChange($event)"
+                           [disabled]="!hasOwnership()"></app-files-permissions>
 
 </form>

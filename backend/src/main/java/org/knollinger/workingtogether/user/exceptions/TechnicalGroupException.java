@@ -13,9 +13,9 @@ public class TechnicalGroupException extends Exception
      * @param email
      * @param cause
      */
-    public TechnicalGroupException(String email, Throwable cause)
+    public TechnicalGroupException(String name, Throwable cause)
     {
-        super(String.format("Technischer Fehler beim Zugriff auf den Benutzer '%1$s'.", email), cause);
+        super(String.format("Technischer Fehler beim Zugriff auf die Gruppe '%1$s'.", name), cause);
     }
 
     /**
@@ -24,6 +24,6 @@ public class TechnicalGroupException extends Exception
      */
     public TechnicalGroupException(UUID uuid, Throwable cause)
     {
-        super(String.format("Technischer Fehler beim Zugriff auf den Benutzer mit der UUID '%1$s'.", uuid.toString()), cause);
+        super(String.format("Technischer Fehler beim Zugriff auf die Gruppe mit der UUID '%1$s'.", uuid.toString()), cause);
     }
 }

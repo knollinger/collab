@@ -1,146 +1,125 @@
-<form class="outer-cnr"
-      [formGroup]="eventForm">
+<form [formGroup]="eventForm"
+      class="grid-container">
+
+    <!-- Titel -->
+    <mat-form-field class="full">
+        <mat-label>Titel</mat-label>
+        <input matInput
+               appAutoFocus
+               formControlName="title">
+        <mat-error *ngIf="eventForm.get('title')!.hasError('required')">Bitte ausfüllen</mat-error>
+    </mat-form-field>
+
+    <!-- Ganz-tägiger Termin -->
+    <mat-slide-toggle #fullDayToggle
+                      class="full"
+                      color="primary"
+                      formControlName="fullDay">Ganz-tägig</mat-slide-toggle>
 
 
-    <div class="grid">
+    <!-- start wenn kein ganztägiger Termin-->
+    <mat-form-field class="left"
+                    *ngIf="!fullDayToggle.checked">
+        <mat-label>Start</mat-label>
+        <input matInput
+               [appDateTimePicker]="startDatePicker"
+               formControlName="start">
+        <app-date-time-picker-toggle matSuffix
+                                     [for]="startDatePicker"></app-date-time-picker-toggle>
+        <app-date-time-picker #startDatePicker></app-date-time-picker>
+        <mat-error *ngIf="eventForm.get('start')!.hasError('required')">Bitte ausfüllen</mat-error>
+    </mat-form-field>
 
-        <!-- Titel-Control -->
-        <div class="grid-row-0">
-            <mat-form-field class="grid-col-8">
-                <mat-label>Titel</mat-label>
-                <input matInput
-                       appAutoFocus
-                       formControlName="title">
-                <mat-error *ngIf="eventForm.get('title')!.hasError('required')">Bitte ausfüllen</mat-error>
-            </mat-form-field>
-        </div>
+    <!-- ende wenn kein ganztägiger Termin-->
+    <mat-form-field class="right"
+                    *ngIf="!fullDayToggle.checked">
+        <mat-label>Ende</mat-label>
+        <input matInput
+               [appDateTimePicker]="endDatePicker"
+               formControlName="end">
+        <app-date-time-picker-toggle matSuffix
+                                     [for]="endDatePicker"></app-date-time-picker-toggle>
+        <app-date-time-picker #endDatePicker></app-date-time-picker>
+        <mat-error *ngIf="eventForm.get('end')!.hasError('required')">Bitte ausfüllen</mat-error>
+    </mat-form-field>
 
-        <div class="grid-row-0">
-            <div class="grid-col-8">
+    <!-- start-ende range für ganztägige Termine -->
+    <mat-form-field class="full"
+                    *ngIf="fullDayToggle.checked">
+        <mat-label>Begin und Ende</mat-label>
+        <mat-date-range-input [rangePicker]="rangePicker">
+            <input matStartDate
+                   formControlName="start"
+                   placeholder="Start">
+            <input matEndDate
+                   formControlName="end"
+                   placeholder="Ende">
+        </mat-date-range-input>
+        <mat-error *ngIf="eventForm.get('start')!.hasError('required')">Bitte ausfüllen</mat-error>
+        <mat-error *ngIf="eventForm.get('end')!.hasError('required')">Bitte ausfüllen</mat-error>
+        <mat-datepicker-toggle matIconSuffix
+                               [for]="rangePicker"></mat-datepicker-toggle>
+        <mat-date-range-picker #rangePicker></mat-date-range-picker>
+    </mat-form-field>
 
-                <!-- Ganztägig? -->
-                <mat-slide-toggle color="primary"
-                                  formControlName="fullDay">Ganz-tägig</mat-slide-toggle>
-            </div>
+    <!-- wiederhol-frequenz -->
+    <mat-form-field class="left">
+        <mat-label>Wiederholen</mat-label>
+        <mat-select #repFreq
+                    formControlName="repeat_freq">
+            <mat-option *ngFor="let freq of repeatFrequences"
+                        [value]="freq.value">{{freq.title}}</mat-option>
+        </mat-select>
+    </mat-form-field>
 
-        </div>
+    <!-- Wochentags-Auswahl -->
+    <mat-form-field class="right"
+                    *ngIf="repFreq.value === 'WEEKLY'">
+        <mat-label>Jeweils am</mat-label>
+        <mat-select #weekDays
+                    [multiple]="true">
+            <mat-option *ngFor="let day of daysOfWeek"
+                        [value]="day.value">{{day.title}}</mat-option>
+        </mat-select>
+    </mat-form-field>
 
-        <!-- start und ende für nonFullDay -->
-        <div class="grid-row-0"
-             *ngIf="!isFullDay">
+    <!-- Tag des Monats-Auswahl -->
+    <mat-form-field class="right"
+                    *ngIf="repFreq.value === 'MONTHLY'">
+        <mat-label>Jeweils am</mat-label>
+        <mat-select #monthDays
+                    [multiple]="true">
+            <mat-option *ngFor="let day of daysOfMonth"
+                        [value]="day">{{day}}.</mat-option>
+        </mat-select>
+    </mat-form-field>
 
-            <mat-form-field class="grid-col-4">
-                <mat-label>Start</mat-label>
-                <input matInput
-                       [appDateTimePicker]="startDatePicker"
-                       formControlName="start">
-                <app-date-time-picker-toggle matSuffix
-                                             [for]="startDatePicker"></app-date-time-picker-toggle>
-                <app-date-time-picker #startDatePicker></app-date-time-picker>
-                <mat-error *ngIf="eventForm.get('start')!.hasError('required')">Bitte ausfüllen</mat-error>
-            </mat-form-field>
+    <!-- Anzahl von wiederholungen -->
+    <mat-form-field class="left"
+                    [class.hidden]="repFreq.value === 'ONCE'">
+        <mat-label>Wiederholungen</mat-label>
+        <mat-select #repCount>
+            <mat-option value="REPEAT_INFINITE">Kein End-Datum</mat-option>
+            <mat-option value="REPEAT_UNTIL">Endet am</mat-option>
+            <mat-option value="REPEAT_N_TIMES">Endet nach x Terminen</mat-option>
+        </mat-select>
+    </mat-form-field>
 
-            <mat-form-field class="grid-col-4">
-                <mat-label>Ende</mat-label>
-                <input matInput
-                       [appDateTimePicker]="endDatePicker"
-                       formControlName="end">
-                <app-date-time-picker-toggle matSuffix
-                                             [for]="endDatePicker"></app-date-time-picker-toggle>
-                <app-date-time-picker #endDatePicker></app-date-time-picker>
-                <mat-error *ngIf="eventForm.get('end')!.hasError('required')">Bitte ausfüllen</mat-error>
-            </mat-form-field>
-        </div>
+    <!-- wiederholungs-ende -->
+    <mat-form-field class="right"
+                    [class.hidden]="repCount.value !== 'REPEAT_UNTIL'">
+        <mat-label>Letzter Termin</mat-label>
+        <input matInput
+               [matDatepicker]="repEndPicker">
+        <mat-datepicker-toggle matIconSuffix
+                               [for]="repEndPicker"></mat-datepicker-toggle>
+        <mat-datepicker #repEndPicker></mat-datepicker> </mat-form-field>
 
-        <!-- start und ende für FullDay -->
-        <div class="grid-row-0"
-             *ngIf="isFullDay">
-
-            <mat-form-field class="grid-col-4">
-                <mat-label>Begin und Ende</mat-label>
-                <mat-date-range-input [rangePicker]="rangePicker">
-                    <input matStartDate
-                           formControlName="start"
-                           placeholder="Start">
-                    <input matEndDate
-                           formControlName="end"
-                           placeholder="Ende">
-                </mat-date-range-input>
-                <mat-error *ngIf="eventForm.get('start')!.hasError('required')">Bitte ausfüllen</mat-error>
-                <mat-error *ngIf="eventForm.get('end')!.hasError('required')">Bitte ausfüllen</mat-error>
-                <mat-datepicker-toggle matIconSuffix
-                                       [for]="rangePicker"></mat-datepicker-toggle>
-                <mat-date-range-picker #rangePicker></mat-date-range-picker>
-            </mat-form-field>
-        </div>
-
-        <!-- All about recurring events -->
-        <div class="grid-row-0">
-
-            <div class="grid-col-4">
-                <button mat-button
-                        [matMenuTriggerFor]="repeatMenu">
-                    <mat-icon class="material-symbols-outlined">history</mat-icon>
-                    <span>{{repeatModeName}}</span>
-                </button>
-                <mat-menu #repeatMenu>
-                    <mat-radio-group [value]="repeatMode"
-                                     (change)="onModeChange($event)">
-                        <button mat-menu-item
-                                *ngFor="let mode of repeatModes">
-                            <mat-radio-button color="primary"
-                                              [value]="mode.value">{{mode.title}}</mat-radio-button>
-                        </button>
-                    </mat-radio-group>
-                </mat-menu>
-            </div>
-        </div>
-
-        <div class="grid-row-0"
-             *ngIf="repeatMode === 'DAILY'">
-            Täglich
-        </div>
-
-        <div class="grid-row-0"
-             *ngIf="repeatMode === 'WEEKLY'">
-            <div class="grid-col-8">Jeweils am:</div>
-            <div class="grid-col-2"
-                 *ngFor="let day of daysOfWeek">
-                <mat-checkbox color="primary"
-                              [value]="'' + day.value">{{day.title}}</mat-checkbox>
-            </div>
-        </div>
-
-        <div class="grid-row-0"
-             *ngIf="repeatMode === 'MONTHLY'">
-            <div class="grid-col-8">Jeweils am:</div>
-            <div class="grid-col-1"
-                 *ngFor="let day of daysOfMonth">
-                <mat-checkbox color="primary">{{day}}.</mat-checkbox>
-            </div>
-        </div>
-
-        <div class="grid-row-0"
-             *ngIf="repeatMode === 'YEARLY'">
-            Jährlich
-        </div>
-
-
-        <div class="grid-row-0"
-             *ngIf="repeatMode !== 'ONCE'">
-            <div class="grid-col-4">
-                <mat-radio-group>
-                    <mat-radio-button color="primary">Unendlich wiederholen</mat-radio-button>
-                    <mat-radio-button color="primary">Wiederholen bis</mat-radio-button>
-                    <mat-radio-button color="primary">X-mal wiederholen</mat-radio-button>
-                </mat-radio-group>
-            </div>
-
-            <mat-form-field class="grid-col-4">
-                <mat-label>???</mat-label>
-                <input matInput>
-            </mat-form-field>
-        </div>
-
-    </div>
+    <!-- Anzahl von wiederholungen -->
+    <mat-form-field class="right"
+                    [class.hidden]="repCount.value !== 'REPEAT_N_TIMES'">
+        <mat-label>Anzahl Termine</mat-label>
+        <input matInput
+               type="number">
+    </mat-form-field>
 </form>

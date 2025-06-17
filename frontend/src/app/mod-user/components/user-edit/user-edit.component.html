@@ -1,74 +1,66 @@
 <form [formGroup]="userForm"
       (ngSubmit)="onSubmit()"
-      class="full-height disp-flex flex-col  small-padding mat-app-background">
+      class="full-height disp-flex flex-col small-padding mat-app-background">
 
-    <div class="flex-1 grid scrollable">
+    <div class="grid-container flex-0 scrollable">
 
         <div class="hidden">
-            <mat-form-field>
+            <mat-form-field class="hidden">
                 <input matInput
                        formControlName="userId"
                        appAutoFocus>
             </mat-form-field>
         </div>
 
-        <div class="grid-row-0">
-            <app-avatar-selector [user]="user"
-                                 (change)="onAvatarChange($event)"></app-avatar-selector>
-        </div>
+        <!-- Avatar-Selector -->
+        <app-avatar-selector [user]="user"
+                             (change)="onAvatarChange($event)"></app-avatar-selector>
 
-        <div class="grid-row-0">
-            <mat-form-field class="grid-col-4">
-                <mat-label>Konto Name</mat-label>
-                <input matInput
-                       formControlName="accountName"
-                       appAutoFocus>
-                <mat-error *ngIf="userForm.get('accountName')!.hasError('required')">Bitte
-                    ausfüllen</mat-error>
-            </mat-form-field>
-        </div>
+        <!-- AccountName -->
+        <mat-form-field class="account">
+            <mat-label>Konto Name</mat-label>
+            <input matInput
+                   formControlName="accountName"
+                   appAutoFocus>
+            <mat-error *ngIf="userForm.get('accountName')!.hasError('required')">Bitte
+                ausfüllen</mat-error>
+        </mat-form-field>
 
+        <!-- Email -->
+        <mat-form-field class="email">
+            <mat-label>Email</mat-label>
+            <input matInput
+                   formControlName="email"
+                   appAutoFocus>
+            <mat-error *ngIf="userForm.get('email')!.hasError('email')">Keine gültige
+                Email-Adresse</mat-error>
+            <mat-error *ngIf="userForm.get('email')!.hasError('required')">Bitte
+                ausfüllen</mat-error>
+        </mat-form-field>
 
-        <div class="grid-row-0">
-            <mat-form-field class="grid-col-8">
-                <mat-label>Email</mat-label>
-                <input matInput
-                       formControlName="email"
-                       appAutoFocus>
-                <mat-error *ngIf="userForm.get('email')!.hasError('email')">Keine gültige
-                    Email-Adresse</mat-error>
-                <mat-error *ngIf="userForm.get('email')!.hasError('required')">Bitte
-                    ausfüllen</mat-error>
-            </mat-form-field>
-        </div>
+        <!-- VorName -->
+        <mat-form-field class="vname">
+            <mat-label>Vorname</mat-label>
+            <input matInput
+                   formControlName="surname">
+            <mat-error *ngIf="userForm.get('surname')!.hasError('required')">Bitte
+                ausfüllen</mat-error>
+        </mat-form-field>
 
-        <div class="grid-row-0">
-            <mat-form-field class="grid-col-4">
-                <mat-label>Vorname</mat-label>
-                <input matInput
-                       formControlName="surname">
-                <mat-error *ngIf="userForm.get('surname')!.hasError('required')">Bitte
-                    ausfüllen</mat-error>
-            </mat-form-field>
-
-            <mat-form-field class="grid-col-4">
-                <mat-label>Nachname</mat-label>
-                <input matInput
-                       formControlName="lastname">
-                <mat-error *ngIf="userForm.get('lastname')!.hasError('required')">Bitte
-                    ausfüllen</mat-error>
-            </mat-form-field>
-        </div>
-
-        <div class="grid-row-1">
-            <h3 class="grid-col-8">Gruppen</h3>
-            <app-group-selector class="grid-col-8 small-lightgray-border"
-                                [multiple]="true"
-                                [groups]="allGroups"
-                                [selection]="selectedGroups"></app-group-selector>
-        </div>
-
+        <!-- NachName -->
+        <mat-form-field class="zname">
+            <mat-label>Nachname</mat-label>
+            <input matInput
+                   formControlName="lastname">
+            <mat-error *ngIf="userForm.get('lastname')!.hasError('required')">Bitte
+                ausfüllen</mat-error>
+        </mat-form-field>
     </div>
+
+    <!-- Filler -->
+    <div class="flex-1"></div>
+
+    <!-- button area -->
     <div class="flex-0">
         <button mat-flat-button
                 type="submit"

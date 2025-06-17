@@ -1,22 +1,17 @@
-<div class="grid">
-    <div class="grid-row-0">
-        <div class="grid-col-3">Typ: </div>
-        <div class="grid-col-5">{{inode.type}}</div>
-    </div>
-    <div class="grid-row-0">
-        <div class="grid-col-3">Größe: </div>
-        <div class="grid-col-5">{{inode.size | fileSize}}</div>
-    </div>
-    <div class="grid-row-0">
-        <div class="grid-col-3">Erstellungs-Datum: </div>
-        <div class="grid-col-5">{{inode.created | date: 'dd.MM.yyyy HH:mm:ss'}}</div>
-    </div>
-    <div class="grid-row-0">
-        <div class="grid-col-3">Änderungs-Datum: </div>
-        <div class="grid-col-5">{{inode.modified | date: 'dd.MM.yyyy HH:mm:ss'}}</div>
-    </div>
-    <div class="grid-row-0">
-        <div class="grid-col-3">UUID: </div>
-        <div class="grid-col-5">{{inode.uuid}}</div>
-    </div>
+<div class="grid-container">
+
+    <div class="label">Typ:</div>
+    <div class="value">{{inode.type}}</div>
+
+    <div class="label">Größe: </div>
+    <div class="value">{{inode.size | fileSize}}</div>
+
+    <div class="label">Erstellungs-Datum: </div>
+    <div class="value">{{inode.created | date: 'dd.MM.yyyy HH:mm:ss'}}</div>
+
+    <div class="label">Änderungs-Datum: </div>
+    <div class="value">{{inode.modified | date: 'dd.MM.yyyy HH:mm:ss'}}</div>
+
+    <div class="label">UUID: </div>
+    <div class="value">{{inode.uuid}}</div>
 </div>

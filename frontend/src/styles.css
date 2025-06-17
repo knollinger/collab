@@ -3,7 +3,6 @@
 @import "assets/styles/paddings.css";
 @import "assets/styles/spacers.css";
 @import "assets/styles/borders.css";
-@import "assets/styles/grid.css";
 @import "assets/styles/material-overrides.css";
 @import '~quill/dist/quill.snow.css';
 @import "assets/styles/quill-overrides.css";

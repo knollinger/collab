@@ -15,7 +15,9 @@
         </button>
 
         <button mat-icon-button
-                matTooltip="Die ausgewählten Gruppen löschen">
+                matTooltip="Die ausgewählten Gruppen löschen"
+                (click)="onDeleteGroup()"
+                [disabled]="!isGroupSelected">
             <mat-icon class="material-symbols-outlined">delete</mat-icon>
         </button>
 
@@ -23,33 +25,27 @@
 
     <div class="flex-1 disp-flex flex-col full-height scrollable middle-padding">
 
-        <app-hint class="flex-0 middle-bottom-spacer">
-            <p>
-                Auf der linken Seite wird Dir die Struktur aller Gruppen als Baum
-                dargestellt. Jede Gruppe kann in mehreren anderen Gruppen enthalten 
-                sein, das ganze ist recht komplex.
-            </p>
-            <p>
-                Wenn Du einen Knoten auswählst, kannst Du auf der rechren Seite weitere
-                Gruppen hinzufügen oder bestehende Zuordnungen entfernen.
-            </p>
-        </app-hint>
+        <div class="flex-0 disp-flex flex-row">
+            <h2 class="flex-1 small-right-spacer">Alle Gruppen</h2>
+            <h2 class="flex-1 small-left-spacer">Gruppen-Mitglieder</h2>
+        </div>
 
         <div class="flex-1 disp-flex flex-row full-height scrollable">
 
-            <!-- Die Baum-Struktur aller Gruppen -->
-            <div class="flex-1 scrollable small-right-spacer list-cnr mat-elevation-z2">
-                <!-- Hier muss der GroupTree hin! -->
-                <!-- <app-group-selector [groups]="groupTree"
-                                    (selectionChange)="onGroupSelection($event)"></app-group-selector> -->
-                <app-group-tree [groups]="groupTree" (selection)="onGroupSelection($event)"></app-group-tree>
+            <div class="flex-1 scrollable list-cnr small-right-spacer">
+                <app-group-selector [groups]="nonPrimaryGroups"
+                                    [multiple]="false"
+                                    [selection]="selectedGroup"
+                                    (selectionChange)="onGroupSelection($event)">
+                </app-group-selector>
             </div>
 
-            <!-- Die Liste aller Gruppen -->
-            <div class="flex-1 scrollable small-left-spacer list-cnr mat-elevation-z2">
-                <app-group-selector [groups]="allGroups"
+            <div class="flex-1 scrollable list-cnr small-left-spacer">
+                <app-group-selector [groups]="possibleMembers"
                                     [multiple]="true"
-                                    [selection]="currentMembers"></app-group-selector>
+                                    [selection]="currentMembers"
+                                    (selectionChange)="onMemberChange($event)">
+                </app-group-selector>
             </div>
         </div>
     </div>
@@ -58,7 +54,9 @@
         <button mat-flat-button
                 type="submit"
                 color="primary"
-                class="small-right-spacer">Speichern</button>
+                class="small-right-spacer"
+                (click)="onSubmit()"
+                [disabled]="!isGroupSelected">Speichern</button>
         <button mat-button
                 type="button"
                 color="primary">Zurück setzen</button>
