@@ -9,8 +9,8 @@
 		<version>3.4.1</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>org.knollinger</groupId>
-	<artifactId>working-togehther-backend</artifactId>
+	<groupId>org.knollinger.colab</groupId>
+	<artifactId>org.knollinger.colab.main</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>working-together-backend</name>
 	<description>Backend für die Working together APP</description>

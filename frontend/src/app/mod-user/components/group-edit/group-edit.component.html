@@ -33,7 +33,7 @@
         <div class="flex-1 disp-flex flex-row full-height scrollable">
 
             <div class="flex-1 scrollable list-cnr small-right-spacer">
-                <app-group-tree [groups]="nonPrimaryGroups" (selection)="onGroupSelection($event)"></app-group-tree>
+                <app-group-tree [groups]="rootGroup" (selection)="onGroupSelection($event)"></app-group-tree>
             </div>
 
             <div class="flex-1 scrollable list-cnr small-left-spacer">

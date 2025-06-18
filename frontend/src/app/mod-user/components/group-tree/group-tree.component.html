@@ -14,9 +14,9 @@
              [class.selected]="isSelected(node)"
              (click)="onNodeSelect(node)">
             <img [src]="getAvatarUrl(node)"
-                 *ngIf="isPrimary(node)">
+                 *ngIf="node.primary">
             <mat-icon class="material-symbols-outlined"
-                      *ngIf="!isPrimary(node)">group</mat-icon>
+                      *ngIf="!node.primary">group</mat-icon>
             <span>{{node.name}}</span>
         </div>
 
@@ -36,9 +36,9 @@
              [class.selected]="isSelected(node)"
              (click)="onNodeSelect(node)">
             <img [src]="getAvatarUrl(node)"
-                 *ngIf="isPrimary(node)">
+                 *ngIf="node.primary">
             <mat-icon class="material-symbols-outlined"
-                      *ngIf="!isPrimary(node)">group</mat-icon>
+                      *ngIf="!node.primary">group</mat-icon>
             <span>{{node.name}}</span>
         </div>
     </mat-tree-node>

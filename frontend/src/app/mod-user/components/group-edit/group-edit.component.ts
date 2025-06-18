@@ -37,6 +37,7 @@ export class GroupEditComponent implements OnInit {
 
   currentGroup: Group = Group.empty();
   allGroups: Group[] = new Array<Group>();
+  rootGroup: Group = Group.empty();
   nonPrimaryGroups: Group[] = new Array<Group>();
   possibleMembers: Group[] = new Array<Group>();
   currentMembers: Group[] = new Array<Group>();
@@ -72,6 +73,7 @@ export class GroupEditComponent implements OnInit {
 
         this.allGroups = groups;
         this.nonPrimaryGroups = this.filterRecursively(groups);
+        this.rootGroup = new Group(``, 'alle Gruppen', false, this.nonPrimaryGroups);
         this.possibleMembers = new Array<Group>();
         this.currentMembers = new Array<Group>();
         this.currentGroup = Group.empty();

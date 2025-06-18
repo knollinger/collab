@@ -44,14 +44,18 @@ export class GroupTreeComponent {
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
+  /**
+   * 
+   */
   @Input()
-  set groups(groups: Group[]) {
-    this.dataSource.data = groups;
+  set groups(group: Group | Group[]) {
+    this.dataSource.data = Array.isArray(group) ? group : [group];
+    this.treeControl.expandAll();
   }
 
   @Output()
   selection: EventEmitter<Group> = new EventEmitter<Group>();
-  
+
   current: FlatTreeNode | undefined = undefined;
 
   /**
@@ -71,25 +75,23 @@ export class GroupTreeComponent {
     this.current = node;
   }
 
+  /**
+   * 
+   * @param node 
+   * @returns 
+   */
   public getAvatarUrl(node: FlatTreeNode): string {
-    
-    let result: string = '';
 
-    if (node.group.primary) {
-      result = this.avatarSvc.getAvatarUrl(node.group.uuid);
-    }
-    return result;
+    return node.group.primary ? this.avatarSvc.getAvatarUrl(node.group.uuid) : '';
   }
 
-  public isPrimary(node: FlatTreeNode): boolean {
-    return node.group.primary;
-  }
-
+  /**
+   * 
+   * @param node 
+   * @returns 
+   */
   public isSelected(node: FlatTreeNode): boolean {
 
-    if(this.current) {
-      return node == this.current;
-    }
-    return false;
+    return (this.current) ? node == this.current : false;
   }
 }
