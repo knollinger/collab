@@ -26,14 +26,43 @@
     <div class="flex-1 disp-flex flex-col full-height scrollable middle-padding">
 
         <div class="flex-0 disp-flex flex-row">
-            <h2 class="flex-1 small-right-spacer">Alle Gruppen</h2>
-            <h2 class="flex-1 small-left-spacer">Gruppen-Mitglieder von '{{currentGroup.name}}'</h2>
+            <div class="flex-1 disp-flex flex-row flex-alignitems-baseline small-right-spacer">
+                <h2 class="flex-1 small-right-spacer">Alle Gruppen</h2>
+                <button mat-icon-button
+                        class="flex-0"
+                        matTooltip="alle Gruppen ausklappen"
+                        (click)="groupTree.expandAll()">
+                    <mat-icon class="material-symbols-outlined">add</mat-icon>
+                </button>
+                <button mat-icon-button
+                        class="flex-0"
+                        matTooltip="alle Gruppen zusammenklappen"
+                        (click)="groupTree.collapseAll()">
+                    <mat-icon class="material-symbols-outlined">remove</mat-icon>
+                </button>
+            </div>
+            <div class="flex-1 disp-flex flex-row flex-alignitems-baseline small-left-spacer">
+                <h2 class="flex-1 small-right-spacer">Gruppen-Mitglieder von '{{currentGroup.name}}'</h2>
+                <button mat-icon-button
+                        class="flex-0"
+                        matTooltip="alles auswählen">
+                    <mat-icon class="material-symbols-outlined">check_box</mat-icon>
+                </button>
+                <button mat-icon-button
+                        class="flex-0"
+                        matTooltip="Auswahl entfernen">
+                    <mat-icon class="material-symbols-outlined">check_box_outline_blank</mat-icon>
+                </button>
+            </div>
+
         </div>
 
         <div class="flex-1 disp-flex flex-row full-height scrollable">
 
             <div class="flex-1 scrollable list-cnr small-right-spacer">
-                <app-group-tree [groups]="rootGroup" (selection)="onGroupSelection($event)"></app-group-tree>
+                <app-group-tree #groupTree
+                                [groups]="nonPrimaryGroups"
+                                (selection)="onGroupSelection($event)"></app-group-tree>
             </div>
 
             <div class="flex-1 scrollable list-cnr small-left-spacer">

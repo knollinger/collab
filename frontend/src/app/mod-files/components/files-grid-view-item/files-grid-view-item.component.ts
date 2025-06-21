@@ -4,10 +4,8 @@ import { INode } from '../../../mod-files-data/mod-files-data.module';
 
 import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { ContentTypeService } from '../../services/content-type.service';
-import { FilesItemContextMenuComponent } from '../files-item-context-menu/files-item-context-menu.component';
 
 import { Permissions } from '../../models/permissions';
-import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 
 /**
  * 
@@ -25,6 +23,9 @@ export class FilesGridViewItemComponent {
 
   @Input()
   iconSize: number = 64;
+
+  @Output()
+  select: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   /**
    * 
@@ -45,5 +46,10 @@ export class FilesGridViewItemComponent {
 
   get isLocked(): boolean {
     return !this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode);
+  }
+
+  onSelect(evt: MouseEvent, inode: INode) {
+    evt.stopPropagation();
+    this.select.emit(evt.ctrlKey);
   }
 }

@@ -94,4 +94,12 @@ export class GroupTreeComponent {
 
     return (this.current) ? node == this.current : false;
   }
+
+  expandAll() {
+    this.treeControl.expandAll();
+  }
+
+  collapseAll() {
+    this.treeControl.collapseAll();
+  }
 }

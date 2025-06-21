@@ -1,12 +1,16 @@
-<div [style.width]="iconWidth"
+<div class="outer-cnr"
      [class.locked]="isLocked"
-     class="outer-cnr"
      matTooltip="{{inode.name}}">
 
      <div class="image"
           [style.backgroundImage]="iconUrl"
-          [style.height]="iconWidth">
+          [style.height]="iconWidth"
+          [style.width]="iconWidth">
      </div>
 
-     <div class="label">{{inode.name}}</div>
+     <div class="label" [style.width]="iconWidth">{{inode.name}}</div>
+
+     <div class="selector" (click)="onSelect($event, inode)">
+          <mat-icon>add</mat-icon>
+     </div>
 </div>

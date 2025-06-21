@@ -10,4 +10,9 @@
           <span class="flex-0 name">{{inode.name}}</span>
           <span class="flex-0">{{inode.size | fileSize}}</span>
      </div>
+
+     <div class="selector" (click)="onSelect($event, inode)">
+          <mat-icon>add</mat-icon>
+     </div>
+
 </div>

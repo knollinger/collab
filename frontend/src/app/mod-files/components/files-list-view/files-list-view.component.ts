@@ -80,11 +80,9 @@ export class FilesListViewComponent implements OnInit {
    * @param inode 
    * @param selected 
    */
-  onSelect(inode: INode, evt: MouseEvent) {
+  onSelect(inode: INode, isMultiSelect: boolean) {
 
-    evt.stopPropagation();
-
-    if (!evt.ctrlKey) {
+    if (!isMultiSelect) {
       this.selectedINodes.clear();
       this.selectedINodes.add(inode);
     }

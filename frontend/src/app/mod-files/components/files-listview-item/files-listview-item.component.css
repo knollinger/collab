@@ -1,4 +1,5 @@
 .outer {
+    position: relative;
     background-color: white;
     padding: 0 0.5rem 0 0.5rem;
     cursor: pointer;
@@ -15,4 +16,21 @@
 
 .locked {
     filter: opacity(50%);
+}
+
+.selector {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    border-radius: 2px;
+    display: none;
+    background-color: lightgray;
+    color: white;
+}
+
+.outer:hover>.selector {
+    display: block;
 }

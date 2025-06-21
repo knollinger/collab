@@ -114,11 +114,11 @@ export class FilesGridViewComponent implements OnInit {
    * @param inode 
    * @param evt 
    */
-  onSelect(inode: INode, evt: MouseEvent) {
+  onSelect(inode: INode, isMultiSelect: boolean) {
 
-    evt.stopPropagation();
+    // evt.stopPropagation();
 
-    if (!evt.ctrlKey) {
+    if (!isMultiSelect) {
       this.selectedINodes.clear();
       this.selectedINodes.add(inode);
     }

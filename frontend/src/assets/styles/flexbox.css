@@ -113,6 +113,12 @@
 	-ms-align-items: stretch;
 	align-items: stretch;
 }
+.flex-alignitems-baseline {
+	-webkit-align-items: baseline;
+	-moz-align-items: baseline;
+	-ms-align-items: baseline;
+	align-items: baseline;
+}
 
 .flex-alignself-start {
 	-webkit-align-self: flex-start;
