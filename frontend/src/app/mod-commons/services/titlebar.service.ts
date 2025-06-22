@@ -17,7 +17,7 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class TitlebarService {
 
-  private static BASE_TITLE: string = 'Working together';
+  private static BASE_TITLE: string = 'Colab';
 
   public title: BehaviorSubject<string> = new BehaviorSubject<string>(TitlebarService.BASE_TITLE);
 

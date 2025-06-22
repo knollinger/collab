@@ -36,6 +36,7 @@ import { INodeService } from './services/inode.service';
 export { INodeService};
 
 import { WopiService } from './services/wopi.service';
+import { FilesFrameSelectorComponent } from './components/files-frame-selector/files-frame-selector.component';
 export { WopiService};
 
 @NgModule({
@@ -60,6 +61,7 @@ export { WopiService};
     FilesCreateMenuComponent,
     FilesShowDuplicatesComponent,
     FilesTableViewComponent,
+    FilesFrameSelectorComponent,
   ],
   imports: [
     CommonModule,

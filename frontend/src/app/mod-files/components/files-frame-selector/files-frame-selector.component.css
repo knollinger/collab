@@ -1,0 +1,23 @@
+.canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    cursor: crosshair;
+    color: #333;
+    text-align: center;
+    font-size: large;
+}
+
+.frame {
+    position: absolute;
+    background-color: rgba(0, 0, 128, 0.3);
+    border: 1px solid lightblue;
+    display: none;
+}
+
+.showFrame {
+    display: block;
+}

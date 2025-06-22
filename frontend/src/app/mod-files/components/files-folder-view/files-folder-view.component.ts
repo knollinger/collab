@@ -63,6 +63,8 @@ export class FilesFolderViewComponent implements OnInit {
   @Output()
   inodesGrabbed: EventEmitter<void> = new EventEmitter<void>();
 
+  showSelectionFrame: boolean = false;
+  
   /**
    * 
    * @param inodeSvc 
@@ -211,6 +213,20 @@ export class FilesFolderViewComponent implements OnInit {
    */
   public onDeselectAll() {
     this.selectedINodes = new Set<INode>();
+  }
+  
+  /**
+   * 
+   */
+  public onToggleSelectionFrame() {
+    this.showSelectionFrame = !this.showSelectionFrame;
+  }
+
+  /**
+   * 
+   */
+  public onSelectionFrameClosed() {
+    this.showSelectionFrame = false;    
   }
 
   /*-------------------------------------------------------------------------*/

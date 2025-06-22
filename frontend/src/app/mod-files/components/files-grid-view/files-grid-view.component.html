@@ -1,34 +1,38 @@
-<div class="middle-padding mat-app-background full-height"
+<div #outer
+     class="middle-padding mat-app-background full-height"
      (click)="onDeselectAll()">
 
-    <div *ngFor="let inode of inodes; let i = index"
-         class="item-cnr"
-         [class.mat-elevation-z4]="isSelected(inode)">
+     <div *ngFor="let inode of inodes; let i = index"
+          class="item-cnr"
+          [class.mat-elevation-z4]="isSelected(inode)">
 
-        <br *ngIf="mustBreak(i)">
+          <br *ngIf="mustBreak(i)">
 
-        <app-files-grid-view-item [inode]="inode"
-                                  [appINodeDragSource]="inode"
-                                  [appDropTarget]="inode"
-                                  [iconSize]="iconSize"
-                                  (contextmenu)="contextMenu.show(inode, $event)"
-                                  (inodesDropped)="onINodesDropped($event)"
-                                  (filesDropped)="onFilesDropped($event)"
-                                  (select)="onSelect(inode, $event)"
-                                  (click)="onOpen(inode)">
-        </app-files-grid-view-item>
-    </div>
+          <app-files-grid-view-item [id]="inode.uuid"
+                                    [inode]="inode"
+                                    [appINodeDragSource]="inode"
+                                    [appDropTarget]="inode"
+                                    [iconSize]="iconSize"
+                                    (contextmenu)="contextMenu.show(inode, $event)"
+                                    (inodesDropped)="onINodesDropped($event)"
+                                    (filesDropped)="onFilesDropped($event)"
+                                    (select)="onSelect(inode, $event)"
+                                    (click)="onOpen(inode)">
+          </app-files-grid-view-item>
+     </div>
 
-    <app-files-item-context-menu #contextMenu
-                                 (open)="onOpen($event)"
-                                 (create)="onCreate($event)"
-                                 (rename)="onRename($event)"
-                                 (delete)="onDelete($event)"
-                                 (cut)="onCut($event)"
-                                 (copy)="onCopy($event)"
-                                 (paste)="onPaste($event)"
-                                 (showProps)="onShowProps($event)">
-    </app-files-item-context-menu>
+     <app-files-item-context-menu #contextMenu
+                                  (open)="onOpen($event)"
+                                  (create)="onCreate($event)"
+                                  (rename)="onRename($event)"
+                                  (delete)="onDelete($event)"
+                                  (cut)="onCut($event)"
+                                  (copy)="onCopy($event)"
+                                  (paste)="onPaste($event)"
+                                  (showProps)="onShowProps($event)">
+     </app-files-item-context-menu>
 
-
+     <app-files-frame-selector *ngIf="showSelectionFrame"
+                               (selRectChange)="onSelRectChange(outer, $event)"
+                               (close)="onSelRectClose()"></app-files-frame-selector>
 </div>

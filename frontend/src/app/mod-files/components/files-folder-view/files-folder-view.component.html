@@ -21,6 +21,8 @@
                                  [inodes]="inodes"
                                  [iconSize]="iconSize"
                                  [selectedINodes]="selectedINodes"
+                                 [showSelectionFrame]="showSelectionFrame"
+                                 (selectionFrameClosed)="onSelectionFrameClosed()"
                                  (filesDropped)="onFilesDropped($event)"
                                  (inodesDropped)="inodeDropMenu.show($event)"
                                  (open)="onOpen($event)"

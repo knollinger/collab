@@ -117,18 +117,47 @@ export class FilesMainViewComponent implements OnInit {
     this.currentPane.refresh();
   }
 
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about selection                                                     */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
+  /**
+   * ist in einer der SubPanes wenigstens eine INode selektiert?
+   */
   get hasSelection(): boolean {
-    const view = this.currentPane;
-    return view && view.selectedINodes.size > 0;
+
+    const pane = this.currentPane; 
+    return pane && pane.selectedINodes.size > 0;
   }
 
+  /**
+   * Wähle in der aktuellen SubPane alle INodes aus
+   */
   onSelectAll() {
     this.currentPane.onSelectAll();
   }
 
+  /**
+   * hebe die Auswahl in der aktuellen SubPane auf
+   */
   onDeselectAll() {
     this.currentPane.onDeselectAll();
   }
+
+  /**
+   * schalte den SelectionFrame in der aktuelle SubPane ein/aus
+   */
+  onShowSelectionFrame() {
+    this.currentPane.onToggleSelectionFrame();
+  }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about clipbord actions                                              */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
 
   onCut() {
     this.currentPane.onCut();
@@ -150,6 +179,11 @@ export class FilesMainViewComponent implements OnInit {
     return this.clipboardSvc.inodes.length;
   }
 
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about upload/download                                               */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
   onUpload(evt: Event) {
 
     const input = evt.target as HTMLInputElement;
@@ -264,6 +298,6 @@ export class FilesMainViewComponent implements OnInit {
 
   onCreateDocument(evt: CreateMenuEvent) {
 
-    this,this.currentPane.onCreateDocument(evt);
+    this, this.currentPane.onCreateDocument(evt);
   }
 }
