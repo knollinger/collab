@@ -1,4 +1,5 @@
 import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { INode } from '../../../mod-files-data/mod-files-data.module';
 
 @Component({
   selector: 'app-files-frame-selector',
@@ -58,6 +59,41 @@ export class FilesFrameSelectorComponent {
 
       this.selRectChange.emit(new DOMRect(x, y, w, h));
     }
-
   }
+}
+
+/**
+ * 
+ * @param parent 
+ * @param rect 
+ * @param tagName 
+ * @param inodes 
+ * @returns 
+ */
+export function extractSelectedINodes(parent: HTMLElement, rect: DOMRect, tagName: string, inodes: INode[]): INode[] {
+
+  const inodesByUUID = new Map<string, INode>();
+  inodes.forEach(node => {
+    inodesByUUID.set(node.uuid, node);
+  });
+
+  const selectedINodes = new Array<INode>();
+  const items = parent.querySelectorAll(tagName);
+  items.forEach(elem => {
+
+    const item = elem as HTMLElement;
+    const itemRect = new DOMRect(item.offsetLeft, item.offsetTop, item.offsetWidth, item.offsetHeight);
+
+    if (itemRect.left >= rect.left && itemRect.left <= rect.right &&
+      itemRect.right >= rect.left && itemRect.x <= rect.right &&
+      itemRect.top >= rect.top && itemRect.top <= rect.bottom &&
+      itemRect.bottom >= rect.top && itemRect.bottom <= rect.bottom) {
+
+      const node = inodesByUUID.get(item.id);
+      if (node) {
+        selectedINodes.push(node);
+      }
+    }
+  })
+  return selectedINodes;
 }

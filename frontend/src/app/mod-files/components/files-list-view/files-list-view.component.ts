@@ -5,6 +5,7 @@ import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { ContentTypeService } from '../../services/content-type.service';
 import { FilesDroppedEvent, INodeDroppedEvent } from '../../directives/drop-target.directive';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
+import { extractSelectedINodes } from '../files-frame-selector/files-frame-selector.component';
 
 @Component({
   selector: 'app-files-list-view',
@@ -56,6 +57,12 @@ export class FilesListViewComponent implements OnInit {
   @Output()
   showProps: EventEmitter<INode> = new EventEmitter<INode>();
 
+  @Input()
+  showSelectionFrame: boolean = false;
+
+  @Output()
+  selectionFrameClosed: EventEmitter<void> = new EventEmitter<void>();
+
   /**
    * 
    * @param contentTypeSvc 
@@ -87,7 +94,7 @@ export class FilesListViewComponent implements OnInit {
       this.selectedINodes.add(inode);
     }
     else {
-      if(this.isSelected(inode)) {
+      if (this.isSelected(inode)) {
         this.selectedINodes.delete(inode);
       }
       else {
@@ -96,13 +103,32 @@ export class FilesListViewComponent implements OnInit {
     }
   }
 
-    /**
+  /**
    * 
    */
   onDeselectAll() {
-      this.selectedINodes.clear();
+    this.selectedINodes.clear();
   }
 
+
+  onSelRectClose() {
+    this.selectionFrameClosed.emit();
+  }
+
+  /**
+   * Der SelectionFrame hat sich geändert
+   * 
+   * @param parent 
+   * @param rect 
+   */
+  onSelRectChange(parent: HTMLElement, rect: DOMRect) {
+
+    this.selectedINodes.clear();
+    const selected = extractSelectedINodes(parent, rect, 'app-files-listview-item', this.inodes);
+    selected.forEach(inode => {
+      this.selectedINodes.add(inode);
+    })
+  }
 
   /**
     * Auf eines der GridView-Items wurde ein FileDrop durchgeführt.

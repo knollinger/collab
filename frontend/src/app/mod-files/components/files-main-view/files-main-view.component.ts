@@ -149,7 +149,7 @@ export class FilesMainViewComponent implements OnInit {
   /**
    * schalte den SelectionFrame in der aktuelle SubPane ein/aus
    */
-  onShowSelectionFrame() {
+  onToggleSelectionFrame() {
     this.currentPane.onToggleSelectionFrame();
   }
 
