@@ -1,7 +1,5 @@
 package org.knollinger.colab.user.services.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -27,6 +25,8 @@ import org.knollinger.colab.user.models.User;
 import org.knollinger.colab.user.services.ITokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -42,6 +42,9 @@ import io.jsonwebtoken.Jwts;
 @Service
 public class TokenServiceImpl implements ITokenService
 {
+    @Autowired
+    private ResourceLoader resourceLoader;
+    
     @Value("${jwt.keystore.type}")
     private String keystoreType;
 
@@ -176,7 +179,8 @@ public class TokenServiceImpl implements ITokenService
      */
     private PrivateKeyEntry loadKeyStore() throws TechnicalLoginException
     {
-        try (InputStream in = new FileInputStream(new File(this.keystorePath)))
+        Resource res = this.resourceLoader.getResource(this.keystorePath);    
+        try (InputStream in = res.getInputStream())
 //        try (InputStream in = new URL(this.keystorePath).openStream())
         {
             KeyStore store = KeyStore.getInstance(this.keystoreType);
