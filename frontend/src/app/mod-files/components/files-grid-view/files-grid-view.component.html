@@ -11,6 +11,7 @@
           <app-files-grid-view-item [id]="inode.uuid"
                                     [inode]="inode"
                                     [appINodeDragSource]="inode"
+                                    [appINodeDragSourceSelectedINodes]="selectedINodes"
                                     [appDropTarget]="inode"
                                     [iconSize]="iconSize"
                                     (contextmenu)="contextMenu.show(inode, $event)"

@@ -1,6 +1,6 @@
 import { Directive, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
 
-import { INode } from "../../mod-files-data/mod-files-data.module";
+import { IINode, INode } from "../../mod-files-data/mod-files-data.module";
 
 import { CheckPermissionsService } from '../services/check-permissions.service';
 import { Permissions } from '../models/permissions';
@@ -17,7 +17,7 @@ export class INodeDroppedEvent {
 
   constructor(
     public readonly target: INode,
-    public readonly source: INode,
+    public readonly sources: INode[],
     public readonly dropEvt: DragEvent) {
   }
 }
@@ -51,10 +51,7 @@ export class DropTargetDirective {
    * [appDropTarget]="targetINode"
    */
   @Input()
-  set appDropTarget(target: INode) {
-    this.target = target;
-  }
-  private target: INode = INode.empty();
+  appDropTarget: INode = INode.empty();
 
   /**
    * Wird emmitiert, wenn auf dem TargetElement 
@@ -146,8 +143,8 @@ export class DropTargetDirective {
     const dataTransfer = evt.dataTransfer;
     if (dataTransfer) {
 
-      result = this.target.isDirectory() && //
-        this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.target) && //
+      result = this.appDropTarget.isDirectory() && //
+        this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.appDropTarget) && //
         (this.isFileTransfer(evt) || this.isINodeTransfer(evt));
     }
     return result;
@@ -189,7 +186,7 @@ export class DropTargetDirective {
         }
       }
 
-      this.filesDropped.emit(new FilesDroppedEvent(this.target, files));
+      this.filesDropped.emit(new FilesDroppedEvent(this.appDropTarget, files));
       dataTransfer.items.clear();
     }
   }
@@ -219,12 +216,11 @@ export class DropTargetDirective {
     const dataTransfer = evt.dataTransfer;
     if (dataTransfer) {
 
-      const json = dataTransfer.getData(INode.DATA_TRANSFER_TYPE);
-      const inode: INode = INode.fromJSON(JSON.parse(json));
-      if (this.target.uuid !== inode.uuid) {
-
-        this.inodesDropped.emit(new INodeDroppedEvent(this.target, inode, evt));
-      }
+      const json = JSON.parse(dataTransfer.getData(INode.DATA_TRANSFER_TYPE)) as IINode[];
+      const inodes: INode[] = json.map(inode => {
+        return INode.fromJSON(inode);
+      });
+      this.inodesDropped.emit(new INodeDroppedEvent(this.appDropTarget, inodes, evt));
     }
   }
 

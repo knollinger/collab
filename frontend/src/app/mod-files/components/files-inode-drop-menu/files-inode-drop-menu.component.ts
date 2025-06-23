@@ -69,6 +69,14 @@ export class FileDropINodeMenuComponent {
    */
   isMoveEnabled() {
 
-    return this.event?.source.parent !== this.event?.target.uuid
+    if(this.event?.sources) {
+
+      for(let inode of this.event?.sources) {
+        if(inode.parent === this.event?.target.uuid) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 }
