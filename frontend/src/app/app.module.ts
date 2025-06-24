@@ -16,14 +16,12 @@ import { EnsureCookiesInterceptor } from './mod-commons/mod-commons.module';
 import { InitComponent } from './init/init.component';
 import { LicencesComponent } from './licences/licences.component';
 import { MAT_DATE_LOCALE } from '@angular/material/core';
-import { FilesPlacesComponent } from './mod-filesys/components/files-places/files-places.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     InitComponent,
     LicencesComponent,
-    FilesPlacesComponent,
   ],
   imports: [
     BrowserModule,

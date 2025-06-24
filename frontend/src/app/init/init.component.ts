@@ -56,6 +56,7 @@ export class InitComponent implements OnInit {
               this.router.navigateByUrl(url);
             }
             else {
+              this.sessSvc.startRefreshTimer();
               this.router.navigateByUrl(redirUrl);
             }
           });

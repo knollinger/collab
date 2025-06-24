@@ -147,7 +147,7 @@ export class SessionService {
    * 
    * @returns 
    */
-  private startRefreshTimer() {
+  public startRefreshTimer() {
 
     if (!this.isRefreshTimerRunning()) {
 
@@ -155,6 +155,7 @@ export class SessionService {
 
         if (this.refreshSub) {
           this.refreshSub.unsubscribe();
+          this.refreshSub = undefined;
         }
 
         this.refreshSub = this.refreshToken()
