@@ -92,7 +92,7 @@ public class UserController
      */
     @PostMapping(path = "/save")
     public UserDTO saveUser(//
-        @RequestParam("uuid") UUID uuid, //
+        @RequestParam(name="uuid", required=false) UUID uuid, //
         @RequestParam("accountName") String accountName, //
         @RequestParam("email") String email, //
         @RequestParam("surname") String surname, //
@@ -104,7 +104,7 @@ public class UserController
 
 
             User user = User.empty();
-            if (uuid.equals(User.EMPTY_USER_ID))
+            if (uuid == null)
             {
                 user = this.createUserSvc.createUser(accountName, email, surname, lastname, avatar);
             }

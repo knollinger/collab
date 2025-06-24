@@ -41,20 +41,19 @@ public class CreateUserServiceImpl implements ICreateUserService
     private static final String SQL_ADD_TO_GROUP = "" //
         + "insert into groupMembers set parentId=?, memberId=?";
 
+    private static final String SQL_ADD_TO_PLACES = "" //
+        + "insert into places set userId=?, refId=?";
+
     private static final String SQL_SAVE_AVATAR = "" //
         + "update users set avatar=?, avatarType=?" //
         + "  where uuid=?";
 
     private static final UUID[] DEFAULT_GROUPS = {EWellknownGroupIDs.GROUP_USERS.value()};
 
-    public static RNameAndMimetype COMMON_DIRS[] = {
-        new RNameAndMimetype("Dokumente", "inode/directory+documents"),
-        new RNameAndMimetype("Musik", "inode/directory+sound"),
-        new RNameAndMimetype("Videos", "inode/directory+video"),
-        new RNameAndMimetype("Bilder", "inode/directory+image"),
-        new RNameAndMimetype("Notizen", "inode/directory"),
-        new RNameAndMimetype("Whiteboards", "inode/directory")
-    };
+    public static RNameAndMimetype COMMON_DIRS[] = {new RNameAndMimetype("Dokumente", "inode/directory+documents"),
+        new RNameAndMimetype("Musik", "inode/directory+sound"), new RNameAndMimetype("Videos", "inode/directory+video"),
+        new RNameAndMimetype("Bilder", "inode/directory+image"), new RNameAndMimetype("Notizen", "inode/directory"),
+        new RNameAndMimetype("Whiteboards", "inode/directory")};
 
     @Autowired
     IDbService dbSvc;
@@ -177,8 +176,7 @@ public class CreateUserServiceImpl implements ICreateUserService
             stmt.setString(8, "inode/directory+home");
             stmt.executeUpdate();
 
-//            String[] commonDirs = {"Dokumente", "Musik", "Videos", "Bilder", "Notizen", "Whiteboards"};
-            for (RNameAndMimetype commonDir: COMMON_DIRS)
+            for (RNameAndMimetype commonDir : COMMON_DIRS)
             {
                 UUID newUUID = UUID.randomUUID();
                 stmt.setString(1, newUUID.toString());
@@ -190,6 +188,8 @@ public class CreateUserServiceImpl implements ICreateUserService
                 stmt.setLong(7, 0);
                 stmt.setString(8, commonDir.mimeType);
                 stmt.executeUpdate();
+                
+                this.addToPlaces(user, newUUID, conn);
             }
         }
         finally
@@ -198,6 +198,31 @@ public class CreateUserServiceImpl implements ICreateUserService
         }
     }
 
+    /**
+     * 
+     * @param user
+     * @param refId
+     * @param conn
+     * @throws SQLException
+     */
+    private void addToPlaces(User user, UUID refId, Connection conn) throws SQLException
+    {
+        PreparedStatement stmt = null;
+
+        try
+        {
+            stmt = conn.prepareStatement(SQL_ADD_TO_PLACES);
+            stmt.setString(1, user.getUserId().toString());
+            stmt.setString(2, refId.toString());
+            stmt.executeUpdate();
+
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+
+    }
     /**
      * 
      * @param user

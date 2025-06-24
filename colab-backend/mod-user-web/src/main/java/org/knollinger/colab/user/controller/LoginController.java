@@ -137,11 +137,12 @@ public class LoginController
     private Cookie createCookie(TokenCreatorResult token)
     {
         int maxAge = -1;
-        if(token.isPersistent()) {
-            
+        if (token.isPersistent())
+        {
             long remainingMillies = token.expires() - System.currentTimeMillis();
-            maxAge = (int)(remainingMillies / 1000);
+            maxAge = (int) (remainingMillies / 1000);
         }
+        
         Cookie cookie = new Cookie("Bearer", token.token());
         cookie.setMaxAge(maxAge);
         cookie.setHttpOnly(true);
