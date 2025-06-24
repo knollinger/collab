@@ -87,7 +87,7 @@ export class INodeDragSourceDirective {
 
       const img = document.createElement('img');
 
-      img.setAttribute('style', 'position: absolute; top: 0; left: 0; z-index: -1');
+      img.setAttribute('style', 'position: absolute; top: 0; left: 0; z-index: -1;');
       img.src = this.contentTypeSvc.getTypeIconUrl('document/multiple')
       document.body.appendChild(img);
 

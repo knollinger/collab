@@ -149,6 +149,10 @@
 
     <div class="flex-1 disp-flex full-height scrollable flex-row">
 
+        <app-files-places class="places"
+                          (open)="onOpen(0, $event)">
+        </app-files-places>
+
         <app-folder-view #leftPane
                          class="panel"
                          [class.activePane]="activePane === 0 && showSplit"

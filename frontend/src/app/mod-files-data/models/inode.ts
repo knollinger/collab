@@ -1,3 +1,5 @@
+import { Permissions } from "../../mod-files/models/permissions";
+
 /**
  * 
  */
@@ -136,9 +138,41 @@ export class INode {
      * @returns 
      */
     public static empty(): INode {
-        
+
         const now = new Date();
-        return new INode('', EINodeUUIDs.INODE_NONE, EINodeUUIDs.INODE_NONE, '', 0, now, now, '', '', 0, 0);
+        return new INode('', 
+            EINodeUUIDs.INODE_NONE, 
+            EINodeUUIDs.INODE_NONE, 
+            '', 
+            0, 
+            now, 
+            now, 
+            '', 
+            '', 
+            0, 
+            Permissions.READ | Permissions.WRITE | Permissions.DELETE);
+    }
+
+
+    /**
+     * Liefere die Reperesentation einer leeren INode
+     * 
+     * @returns 
+     */
+    public static emptyDir(): INode {
+
+        const now = new Date();
+        return new INode('', 
+            EINodeUUIDs.INODE_NONE, 
+            EINodeUUIDs.INODE_NONE, 
+            'inode/directory', 
+            0, 
+            now, 
+            now, 
+            '', 
+            '', 
+            0, 
+            Permissions.READ | Permissions.WRITE | Permissions.DELETE);
     }
 
     /**

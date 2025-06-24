@@ -22,6 +22,7 @@ public class TokenPayload
     private User user;
     private List<Group> groups;
     private long expires;
+    private boolean isPersistent;
 
     /**
      * Erzeuge eine leere Instanz der TokenPayload. Das ganze dient dazu,
@@ -32,10 +33,12 @@ public class TokenPayload
      */
     public static TokenPayload empty()
     {
-
         return TokenPayload.builder() //
             .user(User.empty()) //
-            .groups(new ArrayList<Group>()).build();
+            .groups(new ArrayList<Group>()) //
+            .expires(0) //
+            .isPersistent(false) //
+            .build();
     }
 
     /**

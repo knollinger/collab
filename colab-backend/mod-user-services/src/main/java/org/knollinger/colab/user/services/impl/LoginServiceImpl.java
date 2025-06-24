@@ -28,9 +28,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class LoginServiceImpl implements ILoginService
 {
-    private static final long TWO_HOURS_IN_MILLIES = 2L * 60L * 60L * 1000L;
-    private static final long NINETY_DAYS_IN_MILLIES = 90L * 24L * 60L * 60L * 1000L;
-    
     private static final String SQL_LOGIN = "" //
         + "select * from users" //
         + "  where email=? and pwdhash=?";
@@ -85,9 +82,7 @@ public class LoginServiceImpl implements ILoginService
 
             User user = this.getUser(email, conn);
             List<Group> groups = this.listGroupSvc.getGroupsByUser(user.getUserId());
-
-            long ttl = keepLoggedIn ? NINETY_DAYS_IN_MILLIES : TWO_HOURS_IN_MILLIES;
-            return this.tokenSvc.createToken(user, groups, ttl);
+            return this.tokenSvc.createToken(user, groups, keepLoggedIn);
         }
         catch (SQLException | NoSuchAlgorithmException | TechnicalGroupException e)
         {
@@ -134,8 +129,7 @@ public class LoginServiceImpl implements ILoginService
             User user = this.getUser(email, conn);
             List<Group> groups = this.listGroupSvc.getGroupsByUser(user.getUserId());
 
-            long ttl = keepLoggedIn ? NINETY_DAYS_IN_MILLIES : TWO_HOURS_IN_MILLIES;
-            return this.tokenSvc.createToken(user, groups, ttl);
+            return this.tokenSvc.createToken(user, groups, keepLoggedIn);
         }
         catch (SQLException | NoSuchAlgorithmException | TechnicalGroupException e)
         {

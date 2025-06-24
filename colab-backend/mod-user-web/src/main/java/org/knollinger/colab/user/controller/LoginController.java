@@ -33,8 +33,6 @@ import jakarta.servlet.http.HttpServletResponse;
 @RequestMapping(path = "/v1/session")
 public class LoginController
 {
-    private static final long TWO_HOURS_IN_MILLIES = 2 * 60 * 60 * 1000L;
-
     @Autowired
     private ILoginService loginSvc;
 
@@ -106,7 +104,7 @@ public class LoginController
         {
             try
             {
-                TokenCreatorResult result = this.tokenSvc.refreshToken(token, TWO_HOURS_IN_MILLIES);
+                TokenCreatorResult result = this.tokenSvc.refreshToken(token);
                 Cookie cookie = this.createCookie(result);
                 httpRsp.addCookie(cookie);
 
@@ -138,7 +136,12 @@ public class LoginController
      */
     private Cookie createCookie(TokenCreatorResult token)
     {
-        int maxAge = (int) ((token.expires() - System.currentTimeMillis()) / 1000);
+        int maxAge = -1;
+        if(token.isPersistent()) {
+            
+            long remainingMillies = token.expires() - System.currentTimeMillis();
+            maxAge = (int)(remainingMillies / 1000);
+        }
         Cookie cookie = new Cookie("Bearer", token.token());
         cookie.setMaxAge(maxAge);
         cookie.setHttpOnly(true);

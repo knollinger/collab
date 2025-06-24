@@ -20,12 +20,24 @@ public interface ITokenService
      * 
      * @param user
      * @param groups
-     * @param ttl die LiveTime des Tokens in Millisekunden
+     * @param ttl
      * 
      * @return
      * @throws TechnicalLoginException
      */
     public TokenCreatorResult createToken(User user, List<Group> groups, long ttl) throws TechnicalLoginException;
+
+    /**
+     * Erzeuge einen Token mit dem gegebenen Benutzer zbd der gegebenen Gruppen-Liste
+     * 
+     * @param user
+     * @param groups
+     * @param isPersistent
+     * 
+     * @return
+     * @throws TechnicalLoginException
+     */
+    public TokenCreatorResult createToken(User user, List<Group> groups, boolean isPersistent) throws TechnicalLoginException;
 
     /**
      * Validiere und parse den Token.
@@ -49,5 +61,5 @@ public interface ITokenService
      * @throws ExpiredTokenException
      * @throws TechnicalLoginException 
      */
-    public TokenCreatorResult refreshToken(String token, long ttl) throws InvalidTokenException, ExpiredTokenException, TechnicalLoginException;
+    public TokenCreatorResult refreshToken(String token) throws InvalidTokenException, ExpiredTokenException, TechnicalLoginException;
 }

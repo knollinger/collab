@@ -286,8 +286,7 @@ public class WOPIControler
                 break;
             }
         }
-        TokenCreatorResult accessToken = this.tokenUserSvc.createToken(currToken.getUser(), groups,
-            TWO_HOURS_IN_MILLIES);
+        TokenCreatorResult accessToken = this.tokenUserSvc.createToken(currToken.getUser(), groups, TWO_HOURS_IN_MILLIES);
         return accessToken.token();
     }
 

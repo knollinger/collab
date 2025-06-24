@@ -1,0 +1,19 @@
+<div class="outer-cnr">
+
+    <mat-action-list class="item-cnr" [appDropTarget]="pseudoNode" (inodesDropped)="onINodesDropped($event)">
+
+        <mat-list-item *ngFor="let place of places"
+                       (click)="onOpen(place)">
+            <div class="item"
+                 [matTooltip]="getTooltip(place)"
+                 matTooltipPosition="right">
+                <mat-icon class="material-symbols-outlined type-icon"
+                          *ngIf="place.isDirectory()">folder</mat-icon>
+                <mat-icon class="material-symbols-outlined type-icon"
+                          *ngIf="!place.isDirectory()">description</mat-icon>
+                <span class="item-label">{{place.name}}</span>
+                <mat-icon class="material-symbols-outlined trash-bin" (click)="onDelete($event, place)">delete</mat-icon>
+            </div>
+        </mat-list-item>
+    </mat-action-list>
+</div>

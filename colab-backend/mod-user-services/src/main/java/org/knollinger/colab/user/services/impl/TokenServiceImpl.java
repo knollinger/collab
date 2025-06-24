@@ -42,9 +42,12 @@ import io.jsonwebtoken.Jwts;
 @Service
 public class TokenServiceImpl implements ITokenService
 {
+    private static final long NINETY_DAYS_IN_MILLIES = 90L * 24 * 60 * 60 * 1000;
+    private static final long FIVE_MINUTES_IN_MILLIES = 5L * 60 * 1000;
+
     @Autowired
     private ResourceLoader resourceLoader;
-    
+
     @Value("${jwt.keystore.type}")
     private String keystoreType;
 
@@ -69,10 +72,27 @@ public class TokenServiceImpl implements ITokenService
     private AtomicReference<PrivateKeyEntry> keyPair = new AtomicReference<>(null);
 
     /**
-     *
-     */
+    *
+    */
+    @Override
+    public TokenCreatorResult createToken(User user, List<Group> groups, boolean isPersistent)
+        throws TechnicalLoginException
+    {
+        long ttl = isPersistent ? NINETY_DAYS_IN_MILLIES : FIVE_MINUTES_IN_MILLIES;
+        return this.createToken(user, groups, isPersistent, ttl);
+    }
+
+    /**
+    *
+    */
     @Override
     public TokenCreatorResult createToken(User user, List<Group> groups, long ttl) throws TechnicalLoginException
+    {
+        return this.createToken(user, groups, false, ttl);
+    }
+
+    private TokenCreatorResult createToken(User user, List<Group> groups, boolean isPersistent, long ttl)
+        throws TechnicalLoginException
     {
         long issued = System.currentTimeMillis();
         long expires = issued + ttl;
@@ -80,19 +100,19 @@ public class TokenServiceImpl implements ITokenService
 
         String token = Jwts.builder() //
             .id(UUID.randomUUID().toString()) //
-            .audience().add("WTG").and() //
+            .audience().add("COLAB").and() //
             .issuedAt(new Date(issued)) //
             .notBefore(new Date(issued)) //
             .expiration(new Date(expires)) // 
             .subject(user.getEmail()) //
             .issuer(((X509Certificate) pke.getCertificate()).getIssuerX500Principal().getName()) //
             .claims() //
-            .add("user", this.userMapper.toDTO(user)) //
+            .add("persistent", isPersistent).add("user", this.userMapper.toDTO(user)) //
             .add("groups", this.groupMapper.toDTO(groups)) //
             .and() //
             .signWith(pke.getPrivateKey()) //
             .compact();
-        return new TokenCreatorResult(token, expires);
+        return new TokenCreatorResult(token, expires, isPersistent);
     }
 
     /**
@@ -110,7 +130,7 @@ public class TokenServiceImpl implements ITokenService
         {
             JwtParser parser = Jwts.parser() //
                 .verifyWith(pke.getCertificate().getPublicKey()) //
-                .requireAudience("WTG") //
+                .requireAudience("COLAB") //
                 .requireIssuer(x509Cert.getIssuerX500Principal().getName()) //
                 //            .requireNotBefore(new Date(System.currentTimeMillis() - TWO_HOURS_IN_MILLIES)) //
                 .build();
@@ -132,7 +152,7 @@ public class TokenServiceImpl implements ITokenService
                 .token(token) //
                 .user(this.userMapper.fromDTO(user)) //
                 .groups(this.groupMapper.fromDTO(groups)) //
-                .expires(expires.getTime()) //
+                .isPersistent(payload.get("persistent", Boolean.class)).expires(expires.getTime()) //
                 .build();
         }
         catch (ExpiredJwtException e)
@@ -150,12 +170,12 @@ public class TokenServiceImpl implements ITokenService
      *
      */
     @Override
-    public TokenCreatorResult refreshToken(String token, long ttl)
+    public TokenCreatorResult refreshToken(String token)
         throws InvalidTokenException, ExpiredTokenException, TechnicalLoginException
     {
         TokenPayload payload = this.validateToken(token);
-        
-        return this.createToken(payload.getUser(), payload.getGroups(), ttl);
+
+        return this.createToken(payload.getUser(), payload.getGroups(), payload.isPersistent());
     }
 
     /**
@@ -179,9 +199,9 @@ public class TokenServiceImpl implements ITokenService
      */
     private PrivateKeyEntry loadKeyStore() throws TechnicalLoginException
     {
-        Resource res = this.resourceLoader.getResource(this.keystorePath);    
+        Resource res = this.resourceLoader.getResource(this.keystorePath);
         try (InputStream in = res.getInputStream())
-//        try (InputStream in = new URL(this.keystorePath).openStream())
+        //        try (InputStream in = new URL(this.keystorePath).openStream())
         {
             KeyStore store = KeyStore.getInstance(this.keystoreType);
             store.load(in, this.keystorePasswd.toCharArray());
