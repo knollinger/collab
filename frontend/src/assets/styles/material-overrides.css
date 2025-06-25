@@ -2,8 +2,8 @@
 /**
  * Tab-Bodies sollen immer den komplett verfügbaren Raum einnehmen!
  */
-.mat-tab-body-wrapper, /* angular < 16 */
-.mat-mdc-tab-body-wrapper /* angular >= 16 */
-{
-  flex-grow: 1 !important;
+
+.mat-mdc-tab-body {
+    height: 50vh !important;
+    padding-top: 1rem !important;
 }

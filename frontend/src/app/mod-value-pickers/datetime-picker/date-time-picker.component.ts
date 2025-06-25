@@ -87,6 +87,9 @@ export class DateTimePickerComponent {
       this._time.getSeconds());
 
     const val = result.toISOString().replace('Z', '');
+
+    // const val=`${this._date.getFullYear()}-${this._date.getMonth()}-${this._date.getDate()}T${this._time.getHours()}:${this._time.getMinutes()}`;
+    console.log(val);
     if (this._input) {
       this._input.value = val;
     }

@@ -1,43 +1,35 @@
 <h1 mat-dialog-title>Termin bearbeiten</h1>
 <mat-dialog-content>
 
-        <app-calendar-event-main-editor [event]="event"></app-calendar-event-main-editor>
 
-    <mat-accordion multi="true">
+    <mat-tab-group>
 
-        <!-- Ausführliche Beschreibung -->
-        <mat-expansion-panel>
-            <mat-expansion-panel-header>
-                <mat-panel-title>Beschreibung</mat-panel-title>
-            </mat-expansion-panel-header>
-            <app-calendar-event-desc-editor></app-calendar-event-desc-editor>
-        </mat-expansion-panel>
+        <!-- Core daten -->
+        <mat-tab label="Termin">
+            <app-calendar-event-main-editor [event]="event"></app-calendar-event-main-editor>
+        </mat-tab>
+        
+        <!-- Wiederholungen -->
+        <mat-tab label="Wiederholung">
+            <app-calendar-recurring-editor></app-calendar-recurring-editor>
+        </mat-tab>
 
         <!-- Personen -->
-        <mat-expansion-panel>
-            <mat-expansion-panel-header>
-                <mat-panel-title>Personen</mat-panel-title>
-            </mat-expansion-panel-header>
+        <mat-tab label="Personen">
             <div>Bruno, Paul, Anne</div>
-        </mat-expansion-panel>
+        </mat-tab>
 
         <!-- Ort -->
-        <mat-expansion-panel>
-            <mat-expansion-panel-header>
-                <mat-panel-title>Ort</mat-panel-title>
-            </mat-expansion-panel-header>
+        <mat-tab label="Ort">
             <div>Somewhere over the Rainbow</div>
-        </mat-expansion-panel>
+        </mat-tab>
 
         <!-- Hashtags -->
-        <mat-expansion-panel>
-            <mat-expansion-panel-header>
-                <mat-panel-title>Tags</mat-panel-title>
-            </mat-expansion-panel-header>
+        <mat-tab label="Tags">
             <app-hashtag-selector [(hashTags)]="hashTags"></app-hashtag-selector>
-        </mat-expansion-panel>
+        </mat-tab>
 
-    </mat-accordion>
+    </mat-tab-group>
 </mat-dialog-content>
 
 <!-- die ButtonArea -->

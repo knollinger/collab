@@ -86,7 +86,7 @@ export class GroupEditComponent implements OnInit {
   private filterRecursively(groups: Group[]): Group[] {
 
     const newGroups = groups.map(group => group.clone());
-    for(let group of newGroups) {
+    for (let group of newGroups) {
       group.members = this.filterRecursively(group.members);
     }
     return newGroups.filter(group => !group.primary);
@@ -122,9 +122,9 @@ export class GroupEditComponent implements OnInit {
   onGroupSelection(selected: Group) {
 
 
-      this.possibleMembers = this.allGroups.filter(group => { return group.uuid !== selected.uuid })
-      this.currentMembers = this.getMembersOf(selected);
-      this.currentGroup = selected;
+    this.possibleMembers = this.allGroups.filter(group => { return group.uuid !== selected.uuid })
+    this.currentMembers = this.getMembersOf(selected);
+    this.currentGroup = selected;
   }
 
   get selectedGroup(): Group {
@@ -164,7 +164,11 @@ export class GroupEditComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(rsp => {
         if (rsp) {
-          alert('deleteGroup not yet implemented');
+          this.groupSvc.deleteGroup(this.currentGroup.uuid)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(_ => {
+              this.onReloadGroups();
+            });
         }
       });
   }

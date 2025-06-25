@@ -15,41 +15,6 @@ export class CalendarEventMainEditorComponent implements OnInit {
   @Input()
   event: CalendarEvent = CalendarEvent.empty();
 
-  repeatFrequences = [
-    {
-      title: 'Einmalig',
-      value: 'ONCE'
-    },
-    {
-      title: 'Täglich',
-      value: 'DAILY'
-    },
-    {
-      title: 'Wöchentlich',
-      value: 'WEEKLY'
-    },
-    {
-      title: 'Monatlich',
-      value: 'MONTHLY'
-    },
-    {
-      title: 'Jährlich',
-      value: 'YEARLY'
-    },
-  ];
-
-
-  daysOfMonth: number[];
-  daysOfWeek = [
-    { title: 'Montag', value: 1 },
-    { title: 'Dienstag', value: 2 },
-    { title: 'Mittwoch', value: 3 },
-    { title: 'Donnerstag', value: 4 },
-    { title: 'Freitag', value: 5 },
-    { title: 'Samstag', value: 6 },
-    { title: 'Sonntag', value: 0 },
-  ];
-
   eventForm: FormGroup;
 
   /**
@@ -64,13 +29,7 @@ export class CalendarEventMainEditorComponent implements OnInit {
       start: new FormControl(moment().format('YYYY-MM-DDTHH:mm'), [Validators.required]),
       end: new FormControl(moment().format('YYYY-MM-DDTHH:mm'), [Validators.required]),
       fullDay: new FormControl(false, [Validators.required]),
-      repeat_freq: new FormControl('ONCE', [Validators.required])
     });
-
-    this.daysOfMonth = new Array<number>(31);
-    for (let i = 1; i < 32; ++i) {
-      this.daysOfMonth[i - 1] = i;
-    }
   }
 
   /**

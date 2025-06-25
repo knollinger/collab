@@ -38,8 +38,6 @@ export class DateTimePickerDirective implements AfterViewInit {
   constructor(elRef: ElementRef<HTMLInputElement>) {
 
     this.inputElem = elRef.nativeElement;
-    console.log(this.inputElem.type + ' ' + this.inputElem.value);
-    // this.type = this.inputElem.value ? 'datetime-local' : 'text';
   }
 
   /**
@@ -56,43 +54,16 @@ export class DateTimePickerDirective implements AfterViewInit {
     }
   }
 
+  @HostListener("change", ['$event']) 
+  onChange(evt: any) {
+  }
+
   @HostListener('focus')
   onFocus() {
-
-
-    if (this.inputElem.type === 'text') {
-
-      const val = this.inputElem.value;
-      if (val) {
-
-        const myDate = moment(val, 'DD.MM.YYYY, HH:mm');
-        setTimeout(() => {
-          const newVal = myDate.format('YYYY-MM-DDTHH:mm');
-          this.inputElem.value = newVal;
-        }, 10);
-      }
-    }
-    this.type = 'datetime-local';
   }
 
   @HostListener('blur')
   onBlur() {
-
-
-    const val = this.inputElem.value;
-    if (this.inputElem.type === 'datetime-local') {
-
-      console.log(val);
-      if (val) {
-
-        const myDate = moment(val, 'YYYY-MM-DDTHH:mm');
-        setTimeout(() => {
-          const newVal = myDate.format('DD.MM.YYYY, HH:mm');
-          this.inputElem.value = newVal;
-        }, 10);
-      }
-    }
-    this.type = 'text';
   }
 
   /**

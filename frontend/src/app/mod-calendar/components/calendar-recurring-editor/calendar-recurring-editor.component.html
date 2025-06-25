@@ -1,0 +1,92 @@
+<form [formGroup]="recurringForm">
+
+    <mat-checkbox #recurring
+                  class="small-bottom-spacer"
+                  color="primary">Wiederkehrender Termin</mat-checkbox>
+
+    <div [class.hidden]="!recurring.checked">
+
+        <!-- Frequenz -->
+        <div class="row">
+
+            <mat-form-field class="col-small">
+                <mat-label>Wiederholen alle</mat-label>
+                <input matInput
+                       formControlName="repeatAll"
+                       type="number"
+                       width="3">
+            </mat-form-field>
+
+            <mat-form-field class="col-fill">
+                <mat-label>Tage, Wochen, Monate, Jahre</mat-label>
+                <mat-select #repFreq
+                            formControlName="repeat_freq">
+
+                    <mat-option *ngFor="let option of repeatFrequences"
+                                [value]="option.value">{{option.title}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <!-- Wochentage -->
+        <div class="row"
+             [class.hidden]="repFreq.value !== 'WEEKLY'">
+
+            <mat-form-field class="col-fill">
+                <mat-label>Jeweils am</mat-label>
+                <mat-select multiple="true"
+                            formControlName="weekDays">
+                    <mat-option *ngFor="let day of daysOfWeek"
+                                [value]="day.value">{{day.title}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <!-- Monats-Tage -->
+        <div class="row"
+             [class.hidden]="repFreq.value !== 'MONTHLY'">
+            <mat-form-field class="col-fill">
+                <mat-label>Jeweils am</mat-label>
+                <mat-select multiple="true"
+                            formControlName="monthDays">
+                    <mat-option *ngFor="let day of daysOfMonth"
+                                [value]="day">{{day}}.</mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+
+        <div class="row">
+
+            <!-- Endet nach...  -->
+            <mat-form-field class="col-small">
+                <mat-label>Ende</mat-label>
+                <mat-select #repMode
+                            formControlName="repMode">
+                    <mat-option value="REPEAT_INFINITE">nie</mat-option>
+                    <mat-option value="REPEAT_UNTIL">am</mat-option>
+                    <mat-option value="REPEAT_N_TIMES">nach</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <!-- Endet am... -->
+            <mat-form-field class="col-fill"
+                            [class.hidden]="repMode.value !== 'REPEAT_UNTIL'">
+                <mat-label>Ende-Datum</mat-label>
+                <input matInput
+                       tyoe="date"
+                       [matDatepicker]="repEndPicker">
+                <mat-datepicker-toggle matIconSuffix
+                                       [for]="repEndPicker"></mat-datepicker-toggle>
+                <mat-datepicker #repEndPicker></mat-datepicker> </mat-form-field>
+
+            <!-- Anzahl von wiederholungen -->
+            <mat-form-field class="col-fill"
+                            [class.hidden]="repMode.value !== 'REPEAT_N_TIMES'">
+                <mat-label>Nach x Terminen</mat-label>
+                <input matInput
+                       type="number">
+            </mat-form-field>
+        </div>
+    </div>
+
+</form>

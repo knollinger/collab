@@ -1,0 +1,19 @@
+.hidden {
+    display: none !important;
+}
+
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.col-small {
+  flex: 0 0 auto;
+}
+
+.col-fill {
+  flex: 1 1 auto;
+}

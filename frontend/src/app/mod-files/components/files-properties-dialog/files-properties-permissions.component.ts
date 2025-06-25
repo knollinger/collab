@@ -21,8 +21,8 @@ export class FilesPropertiesPermissionsComponent implements OnInit {
 
     private destroyRef = inject(DestroyRef);
 
-    allGroups: Group[] = new Array<Group>();
-    primaryGroups: Group[] = new Array<Group>();
+    possibleGroups: Group[] = new Array<Group>();
+    userGroups: Group[] = new Array<Group>();
 
     @Input()
     inode: INode = INode.empty();
@@ -58,12 +58,11 @@ export class FilesPropertiesPermissionsComponent implements OnInit {
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(groups => {
 
-                this.allGroups = this.hasOwnership() ? this.sessionSvc.groups : groups;
-                this.primaryGroups = new Array<Group>();
-                groups.forEach(group => {
-                    if (group.primary) {
-                        this.primaryGroups.push(group);
-                    }
+                this.userGroups = groups.filter(group => group.primary);
+
+                const currUser = this.sessionSvc.currentUser.userId;
+                this.possibleGroups = groups.filter(group => {
+                    return !group.primary || group.uuid === currUser;
                 });
             })
     }

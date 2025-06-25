@@ -18,7 +18,8 @@ export class GroupService {
       ['listGroups', 'v1/groups/list?deepScan={1}'],
       ['groupsByUser', 'v1/groups/byUser/{1}'],
       ['getMembers', 'v1/groups/members'],
-      ['createGroup', 'v1/groups']
+      ['createGroup', 'v1/groups'],
+      ['deleteGroup', 'v1/groups/{1}']
 
     ]
   );
@@ -97,5 +98,16 @@ export class GroupService {
           return Group.fromJSON(group);
         })
       );
+  }
+
+  /**
+   * 
+   * @param groupId 
+   * @returns 
+   */
+  deleteGroup(groupId: string): Observable<void> {
+
+    const url = this.backendRouter.getRouteForName('deleteGroup', GroupService.routes, groupId);
+    return this.http.delete<void>(url);
   }
 }

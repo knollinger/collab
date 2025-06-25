@@ -5,7 +5,7 @@
         <mat-select [disabled]="!hasOwnership()"
                     [value]="inode.owner"
                     (selectionChange)="onOwnerChange($event)">
-            <mat-option *ngFor="let group of primaryGroups"
+            <mat-option *ngFor="let group of userGroups"
                         [value]="group.uuid">
                 <div class="disp-flex flex-row flex-alignitems-center>">
                     <img class="avatar flex-0 small-right-spacer"
@@ -22,7 +22,7 @@
                     [value]="inode.group"
                     (selectionChange)="onGroupChange($event)">
 
-            <mat-option *ngFor="let group of allGroups"
+            <mat-option *ngFor="let group of possibleGroups"
                         [value]="group.uuid">
                 <mat-icon class="material-symbols-outlined">group</mat-icon>
                 <span>{{group.name}}</span>
