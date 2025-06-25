@@ -11,9 +11,11 @@ import org.knollinger.colab.user.exceptions.GroupNotFoundException;
 import org.knollinger.colab.user.exceptions.TechnicalGroupException;
 import org.knollinger.colab.user.mapper.IGroupMapper;
 import org.knollinger.colab.user.models.Group;
+import org.knollinger.colab.user.services.IDeleteGroupService;
 import org.knollinger.colab.user.services.IGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +32,9 @@ public class GroupController
 {
     @Autowired
     private IGroupService groupSvc;
+
+    @Autowired
+    private IDeleteGroupService deleteGroupSvc;
 
     @Autowired
     private IGroupMapper groupMapper;
@@ -79,7 +84,8 @@ public class GroupController
     {
         try
         {
-            this.groupSvc.saveGroupMembers(this.groupMapper.fromDTO(req.getParent()), this.groupMapper.fromDTO(req.getMembers()));
+            this.groupSvc.saveGroupMembers(this.groupMapper.fromDTO(req.getParent()),
+                this.groupMapper.fromDTO(req.getMembers()));
         }
         catch (GroupNotFoundException e)
         {
@@ -109,6 +115,26 @@ public class GroupController
         catch (TechnicalGroupException e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param groupId
+     */
+    @DeleteMapping("/{groupId}")
+    public void deleteGroup(@PathVariable("groupId") UUID groupId)
+    {
+        try
+        {
+            this.deleteGroupSvc.deleteGroup(groupId);
+        }
+        catch (TechnicalGroupException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (GroupNotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 }
