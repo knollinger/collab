@@ -51,10 +51,10 @@ export class CalendarEventMainEditorComponent implements OnInit {
   ngOnInit(): void {
 
     const val = {
-      title: this.event.title,
-      start: moment(this.event.start).format('YYYY-MM-DDTHH:mm'),
-      end: moment(this.event.end).format('YYYY-MM-DDTHH:mm'),
-      fullDay: this.event.fullDay
+      title: this.event.title.value,
+      start: moment(this.event.start.value).format('YYYY-MM-DDTHH:mm'),
+      end: moment(this.event.end.value).format('YYYY-MM-DDTHH:mm'),
+      fullDay: this.event.fullDay.value
     };
     this.eventForm.setValue(val);
     // this.eventForm.get('title')?.setValue(this.event.title);
@@ -75,10 +75,10 @@ export class CalendarEventMainEditorComponent implements OnInit {
 
     if (this.eventForm.valid) {
       const val = this.eventForm.value;
-      this.event.title = val.title;
-      this.event.start = val.start; // TODO: ist localDate, UTC draus machen
-      this.event.end = val.end; // TODO: ist localDate, UTC draus machen
-      this.event.fullDay = val.fullDay;
+      this.event.setTitle(val.title);
+      this.event.setStart(val.start); // TODO: ist localDate, UTC draus machen
+      this.event.setEnd(val.end); // TODO: ist localDate, UTC draus machen
+      this.event.setFullDay(val.fullDay);
     }
     this.valid.emit(this.eventForm.valid);
   }

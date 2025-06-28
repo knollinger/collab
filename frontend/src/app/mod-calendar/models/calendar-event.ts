@@ -1,5 +1,6 @@
 import { DayPilot } from "@daypilot/daypilot-lite-angular";
 import { RRuleSet, rrulestr } from "rrule";
+import { BehaviorSubject } from "rxjs";
 
 /**
  * Die JSON-Beschreibung eines CalendarEvents
@@ -60,6 +61,15 @@ export interface ICalendarEvent {
  */
 export class CalendarEvent {
 
+    public readonly uuid: BehaviorSubject<string>;
+    public readonly owner: BehaviorSubject<string>;
+    public title: BehaviorSubject<string>;
+    public start: BehaviorSubject<Date>;
+    public end: BehaviorSubject<Date>;
+    public desc: BehaviorSubject<string>;
+    public fullDay: BehaviorSubject<boolean>;
+    public rruleset: BehaviorSubject<RRuleSet | null>;
+
     /**
      * 
      * @param uuid 
@@ -71,14 +81,23 @@ export class CalendarEvent {
      * @param fullDay 
      */
     constructor(
-        public readonly uuid: string,
-        public readonly owner: string,
-        public title: string,
-        public start: Date,
-        public end: Date,
-        public desc: string,
-        public fullDay: boolean,
-        public rruleset: RRuleSet | null) {
+        uuid: string,
+        owner: string,
+        title: string,
+        start: Date,
+        end: Date,
+        desc: string,
+        fullDay: boolean,
+        rruleset: RRuleSet | null) {
+
+        this.uuid = new BehaviorSubject<string>(uuid);
+        this.owner = new BehaviorSubject<string>(owner);
+        this.title = new BehaviorSubject<string>(title);
+        this.start = new BehaviorSubject<Date>(start);
+        this.end = new BehaviorSubject<Date>(end);
+        this.desc = new BehaviorSubject<string>(desc);
+        this.fullDay = new BehaviorSubject<boolean>(fullDay);
+        this.rruleset = new BehaviorSubject<RRuleSet | null>(rruleset);
     }
 
     /**
@@ -94,7 +113,7 @@ export class CalendarEvent {
      * @returns 
      */
     public isEmpty(): boolean {
-        return !this.uuid;
+        return !this.uuid.value;
     }
 
     /**
@@ -104,7 +123,7 @@ export class CalendarEvent {
      */
     public static fromJSON(json: ICalendarEvent): CalendarEvent {
 
-        let ruleset: RRuleSet | null  = null;
+        let ruleset: RRuleSet | null = null;
         if (json.rruleset) {
 
             const parsed = rrulestr(json.rruleset);
@@ -128,18 +147,50 @@ export class CalendarEvent {
      */
     public toJSON(): ICalendarEvent {
 
-        const start = this.start.getTime();
-        const duration = this.end.getTime() - start;
+        const start = this.start.value.getTime();
+        const duration = this.end.value.getTime() - start;
         return {
-            uuid: this.uuid,
-            owner: this.owner,
-            title: this.title,
+            uuid: this.uuid.value,
+            owner: this.owner.value,
+            title: this.title.value,
             start: start,
             duration: duration,
-            desc: this.desc,
-            fullDay: this.fullDay,
-            rruleset: this.rruleset ? this.rruleset.toString() : ''
+            desc: this.desc.value,
+            fullDay: this.fullDay.value,
+            rruleset: this.rruleset.value ? this.rruleset.value.toString() : ''
         }
+    }
+
+    setUuid(val: string) {
+        this.uuid.next(val);
+    }
+
+    setOwner(val: string) {
+        this.owner.next(val);
+    }
+
+    setTitle(val: string) {
+        this.title.next(val);
+    }
+    
+    setStart(val: Date) {
+        this.start.next(val);
+    }
+    
+    setEnd(val: Date) {
+        this.end.next(val);
+    }
+    
+    setDesc(val: string) {
+        this.desc.next(val);
+    }
+    
+    setFullDay(val: boolean) {
+        this.fullDay.next(val);
+    }
+    
+    setRruleset(val: RRuleSet | null) {
+        this.rruleset.next(val);
     }
 
     /**
@@ -161,10 +212,10 @@ export class CalendarEvent {
     public toDayPilotEvent(): DayPilot.EventData {
 
         const data: DayPilot.EventData = {
-            start: new DayPilot.Date(this.start, true),
-            end: new DayPilot.Date(this.end, true),
-            id: this.uuid,
-            text: this.title
+            start: new DayPilot.Date(this.start.value, true),
+            end: new DayPilot.Date(this.end.value, true),
+            id: this.uuid.value,
+            text: this.title.value
         }
         return data;
     }

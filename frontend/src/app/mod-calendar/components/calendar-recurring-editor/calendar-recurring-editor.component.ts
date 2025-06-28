@@ -94,11 +94,11 @@ export class CalendarRecurringEditorComponent implements OnInit {
     this.recurringForm = formBuilder.group({
       interval: new FormControl(1, Validators.required),
       repeatFreq: new FormControl('DAILY', Validators.required),
-      weekDays: new FormControl(),
-      monthDays: new FormControl(),
+      weekDays: new FormControl(''),
+      monthDays: new FormControl(''),
       repMode: new FormControl('REPEAT_N_TIMES', Validators.required),
-      repUntil: new FormControl(),
-      repCount: new FormControl(0)
+      repUntil: new FormControl(''),
+      repCount: new FormControl(1, [Validators.required, Validators.min(1)])
     });
 
     this.recurringForm.valueChanges
@@ -129,6 +129,11 @@ export class CalendarRecurringEditorComponent implements OnInit {
     this.isRecurring = this.event.rruleset !== null;
     this.formDataFromRRuleSet();
     // this.onFormChange();
+    this.event.start
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(_ => {
+        this.rruleSetFromFormData();
+      });
   }
 
   /**
@@ -230,7 +235,7 @@ export class CalendarRecurringEditorComponent implements OnInit {
   formDataFromRRuleSet() {
 
     let valid = true;
-    const ruleSet = this.event.rruleset;
+    const ruleSet = this.event.rruleset.value;
     if (!ruleSet || ruleSet.rrules().length === 0) {
       this.isRecurring = false;
     }
@@ -252,7 +257,7 @@ export class CalendarRecurringEditorComponent implements OnInit {
 
         case RRule.WEEKLY:
           val.repeatFreq = 'WEEKLY';
-          val.weekDays = ruleOpts.byweekday; //.map(day => ALL_WEEKDAYS[day]);
+          val.weekDays = ruleOpts.byweekday;
           console.log(val.weekDays);
           break;
 
@@ -306,7 +311,7 @@ export class CalendarRecurringEditorComponent implements OnInit {
 
     const formValue = this.recurringForm.value;
     let options: any = {};
-    options.dtstart = new Date(this.event.start.toUTCString());
+    options.dtstart = new Date(this.event.start.value);
 
     options.freq = CalendarRecurringEditorComponent.FREQ_TO_RRULE_FREQ.get(formValue.repeatFreq);
     options.interval = formValue.interval;
@@ -335,9 +340,10 @@ export class CalendarRecurringEditorComponent implements OnInit {
     }
 
     const rule = new RRule(options, true);
-    this.event.rruleset = new RRuleSet(true);
-    this.event.rruleset.rrule(rule);
-    this.all = this.event.rruleset.all((date: Date, nr: number) => {
+    const ruleSet = new RRuleSet(true);
+    ruleSet.rrule(rule);
+    this.event.setRruleset(ruleSet);
+    this.all = ruleSet.all((date: Date, nr: number) => {
       return (nr > 100) ? false : true;
     });
   }
@@ -348,12 +354,13 @@ export class CalendarRecurringEditorComponent implements OnInit {
    */
   addExcludeRule(date: Date) {
 
-    if (this.event.rruleset) {
-      this.event.rruleset.exdate(date);
-      this.all = this.event.rruleset.all((date: Date, nr: number) => {
+    const ruleSet = this.event.rruleset.value;
+    if (ruleSet) {
+      ruleSet.exdate(date);
+      this.event.setRruleset(ruleSet);
+      this.all = ruleSet.all((date: Date, nr: number) => {
         return (nr > 100) ? false : true;
       });
-    console.log(this.event.rruleset.toString());
     }
   }
 
