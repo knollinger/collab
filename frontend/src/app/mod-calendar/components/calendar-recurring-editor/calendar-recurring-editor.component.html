@@ -1,10 +1,13 @@
-<form [formGroup]="recurringForm">
+<form [formGroup]="recurringForm"
+      class="scrollable full-height">
 
-    <mat-checkbox #recurring
-                  class="small-bottom-spacer"
-                  color="primary">Wiederkehrender Termin</mat-checkbox>
+    <mat-slide-toggle #recurring
+                      [checked]="isRecurring"
+                      (change)="onChangeRecurring($event)"
+                      color="primary">Wiederkehrender Termin</mat-slide-toggle>
 
-    <div [class.hidden]="!recurring.checked">
+    <div [class.hidden]="!recurring.checked"
+         class="scrollable small-top-spacer">
 
         <!-- Frequenz -->
         <div class="row">
@@ -12,19 +15,23 @@
             <mat-form-field class="col-small">
                 <mat-label>Wiederholen alle</mat-label>
                 <input matInput
-                       formControlName="repeatAll"
+                       formControlName="interval"
                        type="number"
                        width="3">
+                <mat-error *ngIf="hasError('interval', 'required')">Bitte ausfüllen</mat-error>
             </mat-form-field>
 
             <mat-form-field class="col-fill">
                 <mat-label>Tage, Wochen, Monate, Jahre</mat-label>
                 <mat-select #repFreq
-                            formControlName="repeat_freq">
-
-                    <mat-option *ngFor="let option of repeatFrequences"
-                                [value]="option.value">{{option.title}}</mat-option>
+                            formControlName="repeatFreq"
+                            (valueChange)="onFrequenceChange($event)">
+                    <mat-option value="DAILY">Tage</mat-option>
+                    <mat-option value="WEEKLY">Wochen</mat-option>
+                    <mat-option value="MONTHLY">Monate</mat-option>
+                    <mat-option value="YEARLY">Jahre</mat-option>
                 </mat-select>
+                <mat-error *ngIf="hasError('repeatFreq', 'required')">Bitte ausfüllen</mat-error>
             </mat-form-field>
         </div>
 
@@ -37,8 +44,9 @@
                 <mat-select multiple="true"
                             formControlName="weekDays">
                     <mat-option *ngFor="let day of daysOfWeek"
-                                [value]="day.value">{{day.title}}</mat-option>
+                                [value]="day.value">{{day.label}}</mat-option>
                 </mat-select>
+                <mat-error *ngIf="hasError('weekDays', 'required')">Bitte ausfüllen</mat-error>
             </mat-form-field>
         </div>
 
@@ -52,6 +60,7 @@
                     <mat-option *ngFor="let day of daysOfMonth"
                                 [value]="day">{{day}}.</mat-option>
                 </mat-select>
+                <mat-error *ngIf="hasError('monthDays', 'required')">Bitte ausfüllen</mat-error>
             </mat-form-field>
         </div>
 
@@ -61,11 +70,13 @@
             <mat-form-field class="col-small">
                 <mat-label>Ende</mat-label>
                 <mat-select #repMode
-                            formControlName="repMode">
-                    <mat-option value="REPEAT_INFINITE">nie</mat-option>
-                    <mat-option value="REPEAT_UNTIL">am</mat-option>
-                    <mat-option value="REPEAT_N_TIMES">nach</mat-option>
+                            formControlName="repMode"
+                            (valueChange)="onRepeatModeChange($event)">
+                    <mat-option value="REPEAT_INFINITE">endet nie</mat-option>
+                    <mat-option value="REPEAT_UNTIL">endet am</mat-option>
+                    <mat-option value="REPEAT_N_TIMES">endet nach</mat-option>
                 </mat-select>
+                <mat-error *ngIf="hasError('repMode', 'required')">Bitte ausfüllen</mat-error>
             </mat-form-field>
 
             <!-- Endet am... -->
@@ -74,19 +85,37 @@
                 <mat-label>Ende-Datum</mat-label>
                 <input matInput
                        tyoe="date"
+                       formControlName="repUntil"
                        [matDatepicker]="repEndPicker">
                 <mat-datepicker-toggle matIconSuffix
                                        [for]="repEndPicker"></mat-datepicker-toggle>
-                <mat-datepicker #repEndPicker></mat-datepicker> </mat-form-field>
+                <mat-datepicker #repEndPicker></mat-datepicker>
+                <mat-error *ngIf="hasError('repUntil', 'required')">Bitte ausfüllen</mat-error>
+            </mat-form-field>
 
             <!-- Anzahl von wiederholungen -->
             <mat-form-field class="col-fill"
                             [class.hidden]="repMode.value !== 'REPEAT_N_TIMES'">
                 <mat-label>Nach x Terminen</mat-label>
                 <input matInput
-                       type="number">
+                       type="number"
+                       formControlName="repCount">
+                <mat-error *ngIf="hasError('repCount', 'required')">Bitte ausfüllen</mat-error>
+                <mat-error *ngIf="hasError('repCount', 'min')">Mindestens eine Wiederholung nötig</mat-error>
             </mat-form-field>
         </div>
-    </div>
 
+        <div class="scrollable">
+
+            <mat-chip-listbox>
+                <mat-chip *ngFor="let date of all">
+                    {{date | date:"dd.MM.yyyy"}}
+                    <button matChipRemove
+                            (click)="addExcludeRule(date)">
+                        <mat-icon>cancel</mat-icon>
+                    </button>
+                </mat-chip>
+            </mat-chip-listbox>
+        </div>
+    </div>
 </form>

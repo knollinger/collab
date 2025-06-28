@@ -5,13 +5,25 @@
     <mat-tab-group>
 
         <!-- Core daten -->
-        <mat-tab label="Termin">
-            <app-calendar-event-main-editor [event]="event"></app-calendar-event-main-editor>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span>Termin</span>
+                <span class="invalid-marker"
+                      *ngIf="!mainFormValid">*</span>
+            </ng-template>
+            <app-calendar-event-main-editor [event]="event"
+                                            (valid)="onMainFormValidChange($event)"></app-calendar-event-main-editor>
         </mat-tab>
-        
+
         <!-- Wiederholungen -->
-        <mat-tab label="Wiederholung">
-            <app-calendar-recurring-editor></app-calendar-recurring-editor>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span>Wiederholung</span>
+                <span class="invalid-marker"
+                      *ngIf="!recurringFormValid">*</span>
+            </ng-template>
+            <app-calendar-recurring-editor [event]="event"
+                                           (valid)="onRecurringFormValidChange($event)"></app-calendar-recurring-editor>
         </mat-tab>
 
         <!-- Personen -->
@@ -36,7 +48,8 @@
 <mat-dialog-actions>
     <button mat-flat-button
             color="primary"
-            (click)="onSave()">Speichern</button>
+            (click)="onSave()"
+            [disabled]="!isValid">Speichern</button>
     <button mat-button
             color="primary"
             [mat-dialog-close]="false">Abbrechen</button>

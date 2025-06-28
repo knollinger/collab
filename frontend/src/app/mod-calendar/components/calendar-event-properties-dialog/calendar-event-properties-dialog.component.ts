@@ -23,6 +23,9 @@ export class CalendarEventPropertiesDialogComponent {
   hashTags: Array<string> = new Array<string>();
   attachments: Array<INode> = new Array<INode>();
 
+  mainFormValid: boolean = false;
+  recurringFormValid: boolean = false;
+
   constructor(
     public dialogRef: MatDialogRef<CalendarEventPropertiesDialogComponent>,
     @Inject(MAT_DIALOG_DATA)
@@ -31,6 +34,18 @@ export class CalendarEventPropertiesDialogComponent {
       this.event = data.event.event;
       this.hashTags = data.event.hashTags;
       this.attachments = data.event.attachments;
+  }
+
+  onMainFormValidChange(val: boolean) {
+    this.mainFormValid = val;
+  }
+  
+  onRecurringFormValidChange(val: boolean) {
+    this.recurringFormValid = val;
+  }
+
+  get isValid(): boolean {
+    return this.mainFormValid && this.recurringFormValid;
   }
 
   /**
@@ -44,7 +59,7 @@ export class CalendarEventPropertiesDialogComponent {
    * 
    */
   onSave() {
-    alert('save event not yet implemented!');
+    console.dir(this.data.event);
     this.dialogRef.close();
   }
 }

@@ -30,13 +30,14 @@ public class CalendarServiceImpl implements ICalendarService
     private static final String ERR_GET_EVENT = "Der Kalender-Eintrage konnte nicht geladen werden.";
 
     private static final String SQL_GET_ALL_EVENTS = "" //
-        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `fullDay` from calendar" //
+        + "select `uuid`, `owner`, `start`, `duration`, `title`, `desc`, `fullDay`, `rruleset`"
+        + " from calendar" //
         + "  where " //
         + "    ((start between ? and ?) or (end between ? and ?)) and" //
         + "    owner=?";
 
     private static final String SQL_GET_EVENT = "" //
-        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `fullDay` from calendar" //
+        + "select `uuid`, `owner`, `start`, `duration`, `title`, `desc`, `fullDay`, `rruleset` from calendar" //
         + "  where uuid=?";
 
 
@@ -76,11 +77,12 @@ public class CalendarServiceImpl implements ICalendarService
                 CalendarEvent evt = CalendarEvent.builder() //
                     .uuid(UUID.fromString(rs.getString("uuid"))) //
                     .owner(UUID.fromString(rs.getString("owner"))) //
-                    .start(new Date(rs.getTimestamp("start").getTime())) //
-                    .end(new Date(rs.getTimestamp("end").getTime()))//
+                    .start(rs.getTimestamp("start").getTime()) //
+                    .duration(rs.getLong("duration") * 1000) // dauer wird in Sekunden gespeichert, Millies draus machen
                     .title(rs.getString("title")) //
                     .desc(rs.getString("desc")) //
                     .fullDay(rs.getBoolean("fullDay")) //
+                    .rruleset(rs.getString("rruleset")) //
                     .build();
                 result.add(evt);
             }
@@ -122,11 +124,12 @@ public class CalendarServiceImpl implements ICalendarService
             return CalendarEvent.builder() //
                 .uuid(UUID.fromString(rs.getString("uuid"))) //
                 .owner(UUID.fromString(rs.getString("owner"))) //
-                .start(new Date(rs.getTimestamp("start").getTime())) //
-                .end(new Date(rs.getTimestamp("end").getTime()))//
+                .start(rs.getTimestamp("start").getTime()) //
+                .duration(rs.getLong("duration") * 1000)// Aus der gespeicherten Sekunden Millies machen
                 .title(rs.getString("title")) //
                 .desc(rs.getString("desc")) //
                 .fullDay(rs.getBoolean("fullDay")) //
+                .rruleset(rs.getString("rruleset")) //
                 .build();
         }
         catch (SQLException e)

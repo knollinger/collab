@@ -1,6 +1,5 @@
 package org.knollinger.colab.calendar.dtos;
 
-import java.util.Date;
 import java.util.UUID;
 
 import lombok.AccessLevel;
@@ -14,8 +13,9 @@ public class CalendarEventDTO
     private UUID uuid;
     private UUID owner;
     private String title;
-    private Date start;
-    private Date end;
+    private long start;
+    private long duration;
     private String desc;
     private boolean fullDay;
+    private String rruleset;
 }

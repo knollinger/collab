@@ -21,6 +21,7 @@
                         (click)="onGoBack()">
                     <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
                 </button>
+
                 <button class="date-sel-btn"
                         mat-flat-button
                         color="primary"
@@ -28,6 +29,7 @@
                     <mat-icon class="material-symbols-outlined">today</mat-icon>
                     <span>Heute</span>
                 </button>
+
                 <button class="date-sel-btn"
                         mat-flat-button
                         color="primary"
@@ -35,7 +37,15 @@
                     <mat-icon class="material-symbols-outlined"
                               iconPositionEnd>chevron_right</mat-icon>
                 </button>
+
             </div>
+
+            <button mat-icon-button (click)="loadEvents()">
+                <mat-icon class="material-symbols-outlined">
+                    refresh
+                </mat-icon>
+            </button>
+
             <span class="title"></span>
 
             <mat-button-toggle-group class="view-mode"

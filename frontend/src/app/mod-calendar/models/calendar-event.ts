@@ -1,16 +1,63 @@
 import { DayPilot } from "@daypilot/daypilot-lite-angular";
+import { RRuleSet, rrulestr } from "rrule";
 
+/**
+ * Die JSON-Beschreibung eines CalendarEvents
+ */
 export interface ICalendarEvent {
 
+    /**
+     * die eindeutige ID des Events
+     */
     uuid: string,
+
+    /**
+     * Die Referenz auf den Benutzer
+     */
     owner: string,
+
+    /**
+     * Kurz-Beschreibung des Events
+     */
     title: string,
-    start: Date,
-    end: Date,
+
+    /**
+     * Timestamps werden prinzipell als UTC-Basierte "millies-since-epoch"
+     * übertragen.
+     */
+    start: number,
+
+    /**
+     * Die Dauer eines Events wird als Millies geliefert
+     */
+    duration: number,
+
+    /**
+     * Freitext zur ausfühlichen Beschreibung des Events. Da das ganze
+     * via einem Richtext-Editor (Quill?) bearbeitet wird, wird es wohl
+     * HTML oder MD sein.
+     */
     desc: string,
-    fullDay: boolean
+
+    /**
+     * Ganztägiges Event?
+     */
+    fullDay: boolean,
+
+    /**
+     * Gegebenenfalls existiert ein RecurrenceRuleSet
+     */
+    rruleset?: string
 }
 
+/**
+ * Im Gegansatz zum Transport-Format **ICalendarEvent** werden hier alle
+ * Timestamps aufgelöst.
+ * 
+ * Aus dem Backend werden immer Timestamps als "millies-since-epoch" geliefert,
+ * welche als UTC zu interpretieren sind. Die Factory/Transformer-Methoden dieser
+ * Klasse konvertieren entsprechen von/nach LocaleTime.
+ */
 export class CalendarEvent {
 
     /**
@@ -20,17 +67,18 @@ export class CalendarEvent {
      * @param title 
      * @param start 
      * @param end 
-     * @param desc
+     * @param desc 
+     * @param fullDay 
      */
     constructor(
         public readonly uuid: string,
         public readonly owner: string,
-        public readonly title: string,
-        public readonly start: Date,
-        public readonly end: Date,
-        public readonly desc: string,
-        public readonly fullDay: boolean = false) {
-
+        public title: string,
+        public start: Date,
+        public end: Date,
+        public desc: string,
+        public fullDay: boolean,
+        public rruleset: RRuleSet | null) {
     }
 
     /**
@@ -38,7 +86,7 @@ export class CalendarEvent {
      * @returns 
      */
     public static empty(): CalendarEvent {
-        return new CalendarEvent('', '', '', new Date(), new Date(), '');
+        return new CalendarEvent('', '', '', new Date(), new Date(), '', false, null);
     }
 
     /**
@@ -55,7 +103,23 @@ export class CalendarEvent {
      * @returns 
      */
     public static fromJSON(json: ICalendarEvent): CalendarEvent {
-        return new CalendarEvent(json.uuid, json.owner, json.title, json.start, json.end, json.desc, json.fullDay);
+
+        let ruleset: RRuleSet | null  = null;
+        if (json.rruleset) {
+
+            const parsed = rrulestr(json.rruleset);
+
+            if (parsed instanceof RRuleSet) {
+                ruleset = parsed;
+            }
+            else {
+                ruleset = new RRuleSet();
+                ruleset.rrule(parsed);
+            }
+        }
+        const start = new Date(json.start); // wird als UTC angeliefert!
+        const end = new Date(json.start + json.duration);
+        return new CalendarEvent(json.uuid, json.owner, json.title, start, end, json.desc, json.fullDay, ruleset);
     }
 
     /**
@@ -63,14 +127,18 @@ export class CalendarEvent {
      * @returns 
      */
     public toJSON(): ICalendarEvent {
+
+        const start = this.start.getTime();
+        const duration = this.end.getTime() - start;
         return {
             uuid: this.uuid,
             owner: this.owner,
             title: this.title,
-            start: this.start,
-            end: this.end,
+            start: start,
+            duration: duration,
             desc: this.desc,
-            fullDay: this.fullDay
+            fullDay: this.fullDay,
+            rruleset: this.rruleset ? this.rruleset.toString() : ''
         }
     }
 
@@ -81,7 +149,9 @@ export class CalendarEvent {
      */
     public static fromDayPilotEvent(evt: DayPilot.Event): CalendarEvent {
 
-        return new CalendarEvent(evt.id().toString(), '', evt.text(), evt.start().toDate(), evt.end().toDate(), '', false);
+        const start = evt.start().toDate();
+        const end = evt.end().toDate();
+        return new CalendarEvent(evt.id().toString(), '', evt.text(), start, end, '', false, null);
     }
 
     /**

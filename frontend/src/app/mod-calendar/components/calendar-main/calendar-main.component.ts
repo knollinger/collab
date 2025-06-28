@@ -148,16 +148,18 @@ export class CalendarMainComponent implements AfterViewInit {
     }
   }
 
-
   loadEvents(): void {
+
     const from = this.nav.control.visibleStart();
     const to = this.nav.control.visibleEnd();
-    this.calSvc.getAllEvents(from.toDate(), to.toDate()).subscribe(result => {
+    this.calSvc.getAllEvents(from.toDate(), to.toDate())
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
 
-      this.events = result.map(e => {
-        return e.toDayPilotEvent();
+        this.events = result.map(e => {
+          return e.toDayPilotEvent();
+        });
       });
-    });
   }
 
   /**
@@ -220,8 +222,7 @@ export class CalendarMainComponent implements AfterViewInit {
 
     args.control.clearSelection();
 
-    console.log(`start: ${args.start} end: ${args.end}`);
-    const calEvt = new CalendarEvent('', '', '', args.start.toDateLocal(), args.end.toDateLocal(), '', false);
+    const calEvt = new CalendarEvent('', '', '', args.start.toDateLocal(), args.end.toDateLocal(), '', false, null);
     const fullEvt = new FullCalendarEvent(calEvt, [], []);
     this.showEventEditor(fullEvt);
   }
@@ -249,8 +250,6 @@ export class CalendarMainComponent implements AfterViewInit {
    */
   private showEventEditor(fullEvt: FullCalendarEvent) {
 
-    console.log('showEvent');
-    console.dir(fullEvt);
     const dialogRef = this.dialog.open(CalendarEventPropertiesDialogComponent, {
       width: '80%',
       maxWidth: '600px',

@@ -22,7 +22,7 @@ import { NumberSpinnerComponent } from './components/number-spinner/number-spinn
     DateTimePickerComponent,
     DateTimePickerToggleComponent,
     TimeSpinnerComponent,
-    NumberSpinnerComponent
+    NumberSpinnerComponent,
   ],
   imports: [
     CommonModule,

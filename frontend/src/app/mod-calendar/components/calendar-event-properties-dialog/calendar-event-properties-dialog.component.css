@@ -12,6 +12,7 @@
     margin-top: 1rem;
 }
 
-.tab-icon {
-    margin-right: 0.5rem;
+.invalid-marker {
+    margin-left: 0.5rem;
+    color: red;
 }
