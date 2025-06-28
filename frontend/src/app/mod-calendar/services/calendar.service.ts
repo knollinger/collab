@@ -22,15 +22,6 @@ export class CalendarService {
     ]
   );
 
-  public static colors = {
-    green: "#6aa84f",
-    yellow: "#f1c232",
-    red: "#cc4125",
-    gray: "#808080",
-    blue: "#2e78d6",
-  };
-
-
   /**
    * 
    * @param http 
@@ -61,6 +52,11 @@ export class CalendarService {
     );
   }
 
+  /**
+   * 
+   * @param uuid 
+   * @returns 
+   */
   public getEvent(uuid: string): Observable<FullCalendarEvent> {
 
     const url = this.backendRouter.getRouteForName('getEvent', CalendarService.routes, uuid);
@@ -69,5 +65,13 @@ export class CalendarService {
         return FullCalendarEvent.fromJSON(event);
       })
     );
+  }
+
+  /**
+   * 
+   * @param result 
+   */
+  saveEvent(result: FullCalendarEvent) {
+    alert(JSON.stringify(result));
   }
 }

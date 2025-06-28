@@ -1,6 +1,8 @@
 import { Component, ViewChild, AfterViewInit, DestroyRef, inject } from "@angular/core";
 import { MatDialog } from "@angular/material/dialog";
 
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+
 import {
   DayPilot,
   DayPilotCalendarComponent,
@@ -11,10 +13,10 @@ import {
 import { CalendarService } from '../../services/calendar.service';
 import { TitlebarService } from "../../../mod-commons/mod-commons.module";
 
-import { CalendarEventPropertiesDialogComponent } from "../calendar-event-properties-dialog/calendar-event-properties-dialog.component";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FullCalendarEvent } from "../../models/full-calendar-event";
 import { CalendarEvent } from "../../models/calendar-event";
+import { CalendarEventEditorComponent } from "../calendar-event-editor/calendar-event-editor.component";
+
 
 @Component({
   selector: 'app-calendar-main-component',
@@ -250,7 +252,7 @@ export class CalendarMainComponent implements AfterViewInit {
    */
   private showEventEditor(fullEvt: FullCalendarEvent) {
 
-    const dialogRef = this.dialog.open(CalendarEventPropertiesDialogComponent, {
+    const dialogRef = this.dialog.open(CalendarEventEditorComponent, {
       width: '80%',
       maxWidth: '600px',
       data: {

@@ -12,12 +12,12 @@ export interface IEventEditorData {
 }
 
 @Component({
-  selector: 'app-calendar-event-properties-dialog',
-  templateUrl: './calendar-event-properties-dialog.component.html',
-  styleUrls: ['./calendar-event-properties-dialog.component.css'],
+  selector: 'app-calendar-event-editor',
+  templateUrl: './calendar-event-editor.component.html',
+  styleUrls: ['./calendar-event-editor.component.css'],
   standalone: false
 })
-export class CalendarEventPropertiesDialogComponent {
+export class CalendarEventEditorComponent {
 
   event: CalendarEvent = CalendarEvent.empty();
   hashTags: Array<string> = new Array<string>();
@@ -27,7 +27,7 @@ export class CalendarEventPropertiesDialogComponent {
   recurringFormValid: boolean = false;
 
   constructor(
-    public dialogRef: MatDialogRef<CalendarEventPropertiesDialogComponent>,
+    public dialogRef: MatDialogRef<CalendarEventEditorComponent>,
     @Inject(MAT_DIALOG_DATA)
     private data: IEventEditorData) {
 
@@ -60,6 +60,6 @@ export class CalendarEventPropertiesDialogComponent {
    */
   onSave() {
     console.dir(this.data.event);
-    this.dialogRef.close();
+    this.dialogRef.close(this.data.event);
   }
 }

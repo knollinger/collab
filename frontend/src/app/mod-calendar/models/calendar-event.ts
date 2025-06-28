@@ -58,17 +58,23 @@ export interface ICalendarEvent {
  * Aus dem Backend werden immer Timestamps als "millies-since-epoch" geliefert,
  * welche als UTC zu interpretieren sind. Die Factory/Transformer-Methoden dieser
  * Klasse konvertieren entsprechen von/nach LocaleTime.
+ * 
+ * Alle Properties dieser Klasse liegen als Subjects vor. Dadurch kann an den 
+ * einzelnen Props auch ein subscribe erfolgen. Das ist nötig, da im Event-Editor
+ * verschiedene Tabs existieren, Änderungen in einem Tab können Auswirkungen auf 
+ * einen anderen Tab haben.
+ * 
  */
 export class CalendarEvent {
 
-    public readonly uuid: BehaviorSubject<string>;
-    public readonly owner: BehaviorSubject<string>;
-    public title: BehaviorSubject<string>;
-    public start: BehaviorSubject<Date>;
-    public end: BehaviorSubject<Date>;
-    public desc: BehaviorSubject<string>;
-    public fullDay: BehaviorSubject<boolean>;
-    public rruleset: BehaviorSubject<RRuleSet | null>;
+    public readonly uuidChange: BehaviorSubject<string>;
+    public readonly ownerChange: BehaviorSubject<string>;
+    public readonly titleChange: BehaviorSubject<string>;
+    public readonly startChange: BehaviorSubject<Date>;
+    public readonly endChange: BehaviorSubject<Date>;
+    public readonly descChange: BehaviorSubject<string>;
+    public readonly fullDayChange: BehaviorSubject<boolean>;
+    public readonly rrulesetChange: BehaviorSubject<RRuleSet | null>;
 
     /**
      * 
@@ -79,6 +85,7 @@ export class CalendarEvent {
      * @param end 
      * @param desc 
      * @param fullDay 
+     * @param rruleset
      */
     constructor(
         uuid: string,
@@ -90,14 +97,14 @@ export class CalendarEvent {
         fullDay: boolean,
         rruleset: RRuleSet | null) {
 
-        this.uuid = new BehaviorSubject<string>(uuid);
-        this.owner = new BehaviorSubject<string>(owner);
-        this.title = new BehaviorSubject<string>(title);
-        this.start = new BehaviorSubject<Date>(start);
-        this.end = new BehaviorSubject<Date>(end);
-        this.desc = new BehaviorSubject<string>(desc);
-        this.fullDay = new BehaviorSubject<boolean>(fullDay);
-        this.rruleset = new BehaviorSubject<RRuleSet | null>(rruleset);
+        this.uuidChange = new BehaviorSubject<string>(uuid);
+        this.ownerChange = new BehaviorSubject<string>(owner);
+        this.titleChange = new BehaviorSubject<string>(title);
+        this.startChange = new BehaviorSubject<Date>(start);
+        this.endChange = new BehaviorSubject<Date>(end);
+        this.descChange = new BehaviorSubject<string>(desc);
+        this.fullDayChange = new BehaviorSubject<boolean>(fullDay);
+        this.rrulesetChange = new BehaviorSubject<RRuleSet | null>(rruleset);
     }
 
     /**
@@ -113,7 +120,7 @@ export class CalendarEvent {
      * @returns 
      */
     public isEmpty(): boolean {
-        return !this.uuid.value;
+        return !this.uuid;
     }
 
     /**
@@ -147,50 +154,84 @@ export class CalendarEvent {
      */
     public toJSON(): ICalendarEvent {
 
-        const start = this.start.value.getTime();
-        const duration = this.end.value.getTime() - start;
+        const start = new Date(this.start).getTime();
+        const duration = new Date(this.end).getTime() - start;
         return {
-            uuid: this.uuid.value,
-            owner: this.owner.value,
-            title: this.title.value,
+            uuid: this.uuid,
+            owner: this.owner,
+            title: this.title,
             start: start,
             duration: duration,
-            desc: this.desc.value,
-            fullDay: this.fullDay.value,
-            rruleset: this.rruleset.value ? this.rruleset.value.toString() : ''
+            desc: this.desc,
+            fullDay: this.fullDay,
+            rruleset: this.rruleSet ? this.rruleSet.toString() : ''
         }
     }
 
-    setUuid(val: string) {
-        this.uuid.next(val);
+    set uuid(val: string) {
+        this.uuidChange.next(val);
     }
 
-    setOwner(val: string) {
-        this.owner.next(val);
+    get uuid(): string {
+        return this.uuidChange.value;
     }
 
-    setTitle(val: string) {
-        this.title.next(val);
+    set owner(val: string) {
+        this.ownerChange.next(val);
     }
-    
-    setStart(val: Date) {
-        this.start.next(val);
+
+    get owner(): string {
+        return this.ownerChange.value;
     }
-    
-    setEnd(val: Date) {
-        this.end.next(val);
+
+
+    set title(val: string) {
+        this.titleChange.next(val);
     }
-    
-    setDesc(val: string) {
-        this.desc.next(val);
+
+    get title(): string {
+        return this.titleChange.value;
     }
-    
-    setFullDay(val: boolean) {
-        this.fullDay.next(val);
+
+    set start(val: Date) {
+        this.startChange.next(val);
     }
+
+    get start(): Date {
+        return this.startChange.value;
+    }
+
+    set end(val: Date) {
+        this.endChange.next(val);
+    }
+
+    get end(): Date {
+        return this.endChange.value;
+    }
+
     
-    setRruleset(val: RRuleSet | null) {
-        this.rruleset.next(val);
+    set desc(val: string) {
+        this.descChange.next(val);
+    }
+
+    get desc(): string {
+        return this.descChange.value;
+    }
+
+    set fullDay(val: boolean) {
+        this.fullDayChange.next(val);
+    }
+
+    get fullDay(): boolean {
+        return this.fullDayChange.value;
+    }
+
+    set rruleSet(val: RRuleSet | null) {
+        this.rrulesetChange.next(val);
+    }
+
+    get rruleSet(): RRuleSet | null {
+        return this.rrulesetChange.value;
     }
 
     /**
@@ -212,10 +253,10 @@ export class CalendarEvent {
     public toDayPilotEvent(): DayPilot.EventData {
 
         const data: DayPilot.EventData = {
-            start: new DayPilot.Date(this.start.value, true),
-            end: new DayPilot.Date(this.end.value, true),
-            id: this.uuid.value,
-            text: this.title.value
+            start: new DayPilot.Date(this.start, true),
+            end: new DayPilot.Date(this.end, true),
+            id: this.uuid,
+            text: this.title
         }
         return data;
     }

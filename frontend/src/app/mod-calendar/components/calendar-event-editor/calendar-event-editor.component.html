@@ -11,8 +11,9 @@
                 <span class="invalid-marker"
                       *ngIf="!mainFormValid">*</span>
             </ng-template>
-            <app-calendar-event-main-editor [event]="event"
-                                            (valid)="onMainFormValidChange($event)"></app-calendar-event-main-editor>
+            <app-calendar-event-editor-main [event]="event"
+                                            (valid)="onMainFormValidChange($event)">
+            </app-calendar-event-editor-main>
         </mat-tab>
 
         <!-- Wiederholungen -->
@@ -22,8 +23,9 @@
                 <span class="invalid-marker"
                       *ngIf="!recurringFormValid">*</span>
             </ng-template>
-            <app-calendar-recurring-editor [event]="event"
-                                           (valid)="onRecurringFormValidChange($event)"></app-calendar-recurring-editor>
+            <app-calendar-event-editor-recurring [event]="event"
+                                           (valid)="onRecurringFormValidChange($event)">
+            </app-calendar-event-editor-recurring>
         </mat-tab>
 
         <!-- Personen -->

@@ -30,12 +30,12 @@ function checkMultiSelectNotEmpty(control: AbstractControl) {
 }
 
 @Component({
-  selector: 'app-calendar-recurring-editor',
-  templateUrl: './calendar-recurring-editor.component.html',
-  styleUrls: ['./calendar-recurring-editor.component.css'],
+  selector: 'app-calendar-event-editor-recurring',
+  templateUrl: './calendar-event-editor-recurring.component.html',
+  styleUrls: ['./calendar-event-editor-recurring.component.css'],
   standalone: false
 })
-export class CalendarRecurringEditorComponent implements OnInit {
+export class CalendarEventEditorRecurringComponent implements OnInit {
 
   private static FREQ_TO_RRULE_FREQ: Map<string, Frequency> = new Map<string, Frequency>(
     [
@@ -126,10 +126,10 @@ export class CalendarRecurringEditorComponent implements OnInit {
    */
   ngOnInit() {
 
-    this.isRecurring = this.event.rruleset !== null;
+    this.isRecurring = this.event.rruleSet !== null;
     this.formDataFromRRuleSet();
     // this.onFormChange();
-    this.event.start
+    this.event.startChange
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(_ => {
         this.rruleSetFromFormData();
@@ -235,7 +235,7 @@ export class CalendarRecurringEditorComponent implements OnInit {
   formDataFromRRuleSet() {
 
     let valid = true;
-    const ruleSet = this.event.rruleset.value;
+    const ruleSet = this.event.rruleSet;
     if (!ruleSet || ruleSet.rrules().length === 0) {
       this.isRecurring = false;
     }
@@ -311,9 +311,9 @@ export class CalendarRecurringEditorComponent implements OnInit {
 
     const formValue = this.recurringForm.value;
     let options: any = {};
-    options.dtstart = new Date(this.event.start.value);
+    options.dtstart = new Date(this.event.start);
 
-    options.freq = CalendarRecurringEditorComponent.FREQ_TO_RRULE_FREQ.get(formValue.repeatFreq);
+    options.freq = CalendarEventEditorRecurringComponent.FREQ_TO_RRULE_FREQ.get(formValue.repeatFreq);
     options.interval = formValue.interval;
 
     switch (options.freq) {
@@ -342,7 +342,7 @@ export class CalendarRecurringEditorComponent implements OnInit {
     const rule = new RRule(options, true);
     const ruleSet = new RRuleSet(true);
     ruleSet.rrule(rule);
-    this.event.setRruleset(ruleSet);
+    this.event.rruleSet = ruleSet;
     this.all = ruleSet.all((date: Date, nr: number) => {
       return (nr > 100) ? false : true;
     });
@@ -354,10 +354,10 @@ export class CalendarRecurringEditorComponent implements OnInit {
    */
   addExcludeRule(date: Date) {
 
-    const ruleSet = this.event.rruleset.value;
+    const ruleSet = this.event.rruleSet;
     if (ruleSet) {
       ruleSet.exdate(date);
-      this.event.setRruleset(ruleSet);
+      this.event.rruleSet =ruleSet;
       this.all = ruleSet.all((date: Date, nr: number) => {
         return (nr > 100) ? false : true;
       });
