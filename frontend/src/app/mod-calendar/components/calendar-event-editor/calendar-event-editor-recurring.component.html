@@ -109,7 +109,7 @@
 
             <mat-chip-listbox>
                 <mat-chip *ngFor="let date of all">
-                    {{date | date:"dd.MM.yyyy"}} {{event.start | date:"hh:mm"}}
+                    {{date | date:"dd.MM.yyyy"}} {{event.start | date:"hh:mm"}}-{{event.end | date:"hh:mm"}}
                     <button matChipRemove
                             (click)="addExcludeRule(date)">
                         <mat-icon>cancel</mat-icon>

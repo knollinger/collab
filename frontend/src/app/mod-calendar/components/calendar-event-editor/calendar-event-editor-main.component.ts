@@ -1,5 +1,7 @@
 import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+
 import * as moment from 'moment';
 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -33,11 +35,14 @@ export class CalendarEventEditorMainComponent implements OnInit {
 
     this.eventForm = formBuilder.group({
       title: new FormControl('', [Validators.required]),
-      start: new FormControl(moment().format('YYYY-MM-DDTHH:mm'), [Validators.required]),
-      end: new FormControl(moment().format('YYYY-MM-DDTHH:mm'), [Validators.required]),
       fullDay: new FormControl(false),
-      private: new FormControl(false)
+      private: new FormControl(false),
+      date: new FormControl('', Validators.required),
+      startTime: new FormControl('', Validators.required),
+      endTime: new FormControl('', Validators.required),
+
     });
+    this.eventForm.markAllAsTouched();
 
     this.eventForm.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -53,10 +58,11 @@ export class CalendarEventEditorMainComponent implements OnInit {
 
     const val = {
       title: this.event.title,
-      start: moment(this.event.start).format('YYYY-MM-DDTHH:mm'),
-      end: moment(this.event.end).format('YYYY-MM-DDTHH:mm'),
       fullDay: this.event.fullDay,
-      private: false
+      private: false,
+      date: new Date(),
+      startTime: this.getTimeString(this.event.start),
+      endTime: this.getTimeString(this.event.end)
     };
     this.eventForm.setValue(val);
     this.onFormChange();
@@ -69,13 +75,80 @@ export class CalendarEventEditorMainComponent implements OnInit {
     return this.eventForm.get('fullDay')?.value;
   }
 
+  onFullDateChange(evt: MatSlideToggleChange) {
+
+    const validator = evt.checked ? null : Validators.required;
+    this.setValidatorFor('startTime', validator);
+    this.setValidatorFor('endTime', validator);
+  }
+
+  /**
+   * 
+   * @param elemName 
+   * @param fn 
+   */
+  private setValidatorFor(elemName: string, fn: ValidatorFn | ValidatorFn[] | null) {
+
+    const ctrl = this.eventForm.get(elemName);
+    if (ctrl) {
+      ctrl.setValidators(fn);
+      ctrl.updateValueAndValidity();
+      this.eventForm.updateValueAndValidity();
+      this.eventForm.markAllAsTouched();
+    }
+  }
+
   onFormChange() {
 
     const val = this.eventForm.value;
     this.event.title = val.title;
-    this.event.start = val.start; // TODO: ist localDate, UTC draus machen
-    this.event.end = val.end; // TODO: ist localDate, UTC draus machen
+
+
+    this.event.start = this.composeDatetime(val.date, val.startTime); // val.start; // TODO: ist localDate, UTC draus machen
+    this.event.end = this.composeDatetime(val.date, val.endTime);// val.end; // TODO: ist localDate, UTC draus machen
     this.event.fullDay = val.fullDay;
     this.valid.emit(this.eventForm.valid);
+  }
+
+  /**
+   * 
+   * @param date 
+   * @param timeStr 
+   * @returns 
+   */
+  private composeDatetime(date: Date | string, timeStr: string): Date {
+
+    const result = new Date(date);
+    const time = this.parseTimeString(timeStr);
+
+    result.setHours(time.getHours());
+    result.setMinutes(time.getMinutes());
+    return result;
+  }
+
+  /**
+   * 
+   * @param date 
+   * @returns 
+   */
+  private getTimeString(date: Date): string {
+    return moment(date).format('HH:mm');
+  }
+
+  private parseTimeString(time: string): Date {
+
+    let result: Date | null = null;
+
+    const parts = time.split(':');
+    if (parts.length === 2) {
+
+      const hours = Number.parseInt(parts[0]);
+      const minutes = Number.parseInt(parts[1]);
+      result = new Date(0, 0, 0, hours, minutes, 0, 0);
+    }
+    else {
+      result = new Date(0, 0, 0, 0, 0, 0, 0);
+    }
+    return result;
   }
 }

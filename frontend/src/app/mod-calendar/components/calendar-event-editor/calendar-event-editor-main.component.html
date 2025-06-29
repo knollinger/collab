@@ -19,51 +19,36 @@
        <mat-slide-toggle #fullDayToggle
                          class="full"
                          color="primary"
+                         (change)="onFullDateChange($event)"
                          formControlName="fullDay">ganztägiger Termin</mat-slide-toggle>
 
 
-       <!-- start wenn kein ganztägiger Termin-->
-       <mat-form-field class="left"
-                       *ngIf="!fullDayToggle.checked">
+       <mat-form-field [class.full]="fullDayToggle.checked"
+                       [class.left]="!fullDayToggle.checked">
+              <mat-label>Datum</mat-label>
+              <input matInput
+                     formControlName="date"
+                     [matDatepicker]="datePicker">
+              <mat-datepicker-toggle matIconSuffix
+                                     [for]="datePicker"></mat-datepicker-toggle>
+              <mat-datepicker #datePicker></mat-datepicker>
+       </mat-form-field>
+
+       <mat-form-field class="right"
+                       [class.hidden]="fullDayToggle.checked">
               <mat-label>Start</mat-label>
               <input matInput
-                     [appDateTimePicker]="startDatePicker"
-                     formControlName="start">
-              <app-date-time-picker-toggle matSuffix
-                                           [for]="startDatePicker"></app-date-time-picker-toggle>
-              <app-date-time-picker #startDatePicker></app-date-time-picker>
-              <mat-error *ngIf="eventForm.get('start')!.hasError('required')">Bitte ausfüllen</mat-error>
+                     type="time"
+                     formControlName="startTime">
        </mat-form-field>
 
-       <!-- ende wenn kein ganztägiger Termin-->
-       <mat-form-field class="right"
-                       *ngIf="!fullDayToggle.checked">
+       <mat-form-field class="right1"
+                       [class.hidden]="fullDayToggle.checked">
               <mat-label>Ende</mat-label>
               <input matInput
-                     [appDateTimePicker]="endDatePicker"
-                     formControlName="end">
-              <app-date-time-picker-toggle matSuffix
-                                           [for]="endDatePicker"></app-date-time-picker-toggle>
-              <app-date-time-picker #endDatePicker></app-date-time-picker>
-              <mat-error *ngIf="eventForm.get('end')!.hasError('required')">Bitte ausfüllen</mat-error>
+                     type="time"
+                     formControlName="endTime">
        </mat-form-field>
 
-       <!-- start-ende range für ganztägige Termine -->
-       <mat-form-field class="full"
-                       *ngIf="fullDayToggle.checked">
-              <mat-label>Begin und Ende</mat-label>
-              <mat-date-range-input [rangePicker]="rangePicker">
-                     <input matStartDate
-                            formControlName="start"
-                            placeholder="Start">
-                     <input matEndDate
-                            formControlName="end"
-                            placeholder="Ende">
-              </mat-date-range-input>
-              <mat-error *ngIf="eventForm.get('start')!.hasError('required')">Bitte ausfüllen</mat-error>
-              <mat-error *ngIf="eventForm.get('end')!.hasError('required')">Bitte ausfüllen</mat-error>
-              <mat-datepicker-toggle matIconSuffix
-                                     [for]="rangePicker"></mat-datepicker-toggle>
-              <mat-date-range-picker #rangePicker></mat-date-range-picker>
-       </mat-form-field>
+
 </form>

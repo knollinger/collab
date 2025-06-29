@@ -1,22 +1,27 @@
 .grid-container {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto auto auto auto;
   gap: 10px;
 }
 
 .full {
-  grid-column-start: 1;
-  grid-column-end: 3;
+  grid-column-start: 1 !important;
+  grid-column-end: 5 !important;
 }
 
 .left {
   grid-column-start: 1;
-  grid-column-end: 2;
+  grid-column-end: 3;
 }
 
 .right {
-  grid-column-start: 2;
-  grid-column-end: 3;
+  grid-column-start: 3;
+  grid-column-end: 4;
+}
+
+.right1 {
+  grid-column-start: 4;
+  grid-column-end: 5;
 }
 
 .hidden {
