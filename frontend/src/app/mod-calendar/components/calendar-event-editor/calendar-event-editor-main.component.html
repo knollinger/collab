@@ -10,11 +10,16 @@
               <mat-error *ngIf="eventForm.get('title')!.hasError('required')">Bitte ausfüllen</mat-error>
        </mat-form-field>
 
+       <!-- Privater Termin? -->
+       <mat-slide-toggle class="full"
+                         color="primary"
+                         formControlName="private">privater Termin</mat-slide-toggle>
+
        <!-- Ganz-tägiger Termin -->
        <mat-slide-toggle #fullDayToggle
                          class="full"
                          color="primary"
-                         formControlName="fullDay">Ganz-tägig</mat-slide-toggle>
+                         formControlName="fullDay">ganztägiger Termin</mat-slide-toggle>
 
 
        <!-- start wenn kein ganztägiger Termin-->

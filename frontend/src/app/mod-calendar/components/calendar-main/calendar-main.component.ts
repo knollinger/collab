@@ -11,7 +11,7 @@ import {
 } from "@daypilot/daypilot-lite-angular";
 
 import { CalendarService } from '../../services/calendar.service';
-import { TitlebarService } from "../../../mod-commons/mod-commons.module";
+import { CommonDialogsService, TitlebarService } from "../../../mod-commons/mod-commons.module";
 
 import { FullCalendarEvent } from "../../models/full-calendar-event";
 import { CalendarEvent } from "../../models/calendar-event";
@@ -81,6 +81,7 @@ export class CalendarMainComponent implements AfterViewInit {
   constructor(
     private dialog: MatDialog,
     private titlebarSvc: TitlebarService,
+    private commonDlgsSvc: CommonDialogsService,
     private calSvc: CalendarService) {
     this.onViewModeChange('Week');
   }
@@ -254,7 +255,7 @@ export class CalendarMainComponent implements AfterViewInit {
 
     const dialogRef = this.dialog.open(CalendarEventEditorComponent, {
       width: '80%',
-      maxWidth: '600px',
+      maxWidth: '800px',
       data: {
         event: fullEvt
       }
@@ -266,9 +267,8 @@ export class CalendarMainComponent implements AfterViewInit {
 
         if (result) {
           alert(JSON.stringify(result));
-        }
-        else {
-          alert('dialog aborted');
+
+          this.commonDlgsSvc.showSnackbar('Termin gespeichert');
         }
       });
   }

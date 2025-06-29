@@ -59,7 +59,6 @@ export class CalendarEventEditorComponent {
    * 
    */
   onSave() {
-    console.dir(this.data.event);
     this.dialogRef.close(this.data.event);
   }
 }

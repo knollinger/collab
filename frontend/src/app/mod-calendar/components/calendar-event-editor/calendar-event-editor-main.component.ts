@@ -35,7 +35,8 @@ export class CalendarEventEditorMainComponent implements OnInit {
       title: new FormControl('', [Validators.required]),
       start: new FormControl(moment().format('YYYY-MM-DDTHH:mm'), [Validators.required]),
       end: new FormControl(moment().format('YYYY-MM-DDTHH:mm'), [Validators.required]),
-      fullDay: new FormControl(false, [Validators.required]),
+      fullDay: new FormControl(false),
+      private: new FormControl(false)
     });
 
     this.eventForm.valueChanges
@@ -54,7 +55,8 @@ export class CalendarEventEditorMainComponent implements OnInit {
       title: this.event.title,
       start: moment(this.event.start).format('YYYY-MM-DDTHH:mm'),
       end: moment(this.event.end).format('YYYY-MM-DDTHH:mm'),
-      fullDay: this.event.fullDay
+      fullDay: this.event.fullDay,
+      private: false
     };
     this.eventForm.setValue(val);
     this.onFormChange();
@@ -69,13 +71,11 @@ export class CalendarEventEditorMainComponent implements OnInit {
 
   onFormChange() {
 
-    if (this.eventForm.valid) {
-      const val = this.eventForm.value;
-      this.event.title = val.title;
-      this.event.start = val.start; // TODO: ist localDate, UTC draus machen
-      this.event.end = val.end; // TODO: ist localDate, UTC draus machen
-      this.event.fullDay = val.fullDay;
-    }
+    const val = this.eventForm.value;
+    this.event.title = val.title;
+    this.event.start = val.start; // TODO: ist localDate, UTC draus machen
+    this.event.end = val.end; // TODO: ist localDate, UTC draus machen
+    this.event.fullDay = val.fullDay;
     this.valid.emit(this.eventForm.valid);
   }
 }

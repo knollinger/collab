@@ -75,6 +75,7 @@ export class CalendarEvent {
     public readonly descChange: BehaviorSubject<string>;
     public readonly fullDayChange: BehaviorSubject<boolean>;
     public readonly rrulesetChange: BehaviorSubject<RRuleSet | null>;
+    public readonly privateChange: BehaviorSubject<boolean>;
 
     /**
      * 
@@ -105,6 +106,7 @@ export class CalendarEvent {
         this.descChange = new BehaviorSubject<string>(desc);
         this.fullDayChange = new BehaviorSubject<boolean>(fullDay);
         this.rrulesetChange = new BehaviorSubject<RRuleSet | null>(rruleset);
+        this.privateChange = new BehaviorSubject<boolean>(false);
     }
 
     /**
@@ -169,7 +171,9 @@ export class CalendarEvent {
     }
 
     set uuid(val: string) {
-        this.uuidChange.next(val);
+        if (this.uuidChange.value !== val) {
+            this.uuidChange.next(val);
+        }
     }
 
     get uuid(): string {
@@ -177,7 +181,9 @@ export class CalendarEvent {
     }
 
     set owner(val: string) {
-        this.ownerChange.next(val);
+        if (this.ownerChange.value !== val) {
+            this.ownerChange.next(val);
+        }
     }
 
     get owner(): string {
@@ -186,7 +192,9 @@ export class CalendarEvent {
 
 
     set title(val: string) {
-        this.titleChange.next(val);
+        if(this.titleChange.value !== val) {
+            this.titleChange.next(val);
+        }
     }
 
     get title(): string {
@@ -194,7 +202,10 @@ export class CalendarEvent {
     }
 
     set start(val: Date) {
-        this.startChange.next(val);
+        const newDate = new Date(val);
+        if(this.startChange.value.getTime() !== newDate.getTime()) {
+            this.startChange.next(newDate);
+        }
     }
 
     get start(): Date {
@@ -202,16 +213,20 @@ export class CalendarEvent {
     }
 
     set end(val: Date) {
-        this.endChange.next(val);
+        const newDate = new Date(val);
+        if(this.endChange.value.getTime() !== newDate.getTime()) {
+            this.endChange.next(newDate);
+        }
     }
 
     get end(): Date {
         return this.endChange.value;
     }
 
-    
     set desc(val: string) {
-        this.descChange.next(val);
+        if(this.descChange.value !== val) {
+            this.descChange.next(val);
+        }
     }
 
     get desc(): string {
@@ -219,15 +234,29 @@ export class CalendarEvent {
     }
 
     set fullDay(val: boolean) {
-        this.fullDayChange.next(val);
+        if(this.fullDayChange.value !== val) {
+            this.fullDayChange.next(val);
+        }
     }
 
     get fullDay(): boolean {
         return this.fullDayChange.value;
     }
 
+    set private(val: boolean) {
+        if(this.privateChange.value !== val) {
+            this.privateChange.next(val);
+        }
+    }
+
+    get private(): boolean {
+        return this.privateChange.value;
+    }
+
     set rruleSet(val: RRuleSet | null) {
-        this.rrulesetChange.next(val);
+        if(this.rrulesetChange.value !== val) {
+            this.rrulesetChange.next(val);
+        }
     }
 
     get rruleSet(): RRuleSet | null {

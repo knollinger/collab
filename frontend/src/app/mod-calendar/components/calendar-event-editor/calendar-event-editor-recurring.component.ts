@@ -74,8 +74,35 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
   daysOfMonth: number[];
   isRecurring: boolean = false;
 
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /*  all about the CalendarEvent                                            */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
+  /**
+   * 
+   */
   @Input()
-  event: CalendarEvent = CalendarEvent.empty();
+  set event(evt: CalendarEvent) {
+
+    this._event = evt;
+    this.event.startChange
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(_ => {
+
+        this.rruleSetFromFormData();
+      });
+  }
+
+  /**
+   * 
+   */
+  get event(): CalendarEvent {
+    return this._event;
+  }
+  private _event: CalendarEvent = CalendarEvent.empty();
+
 
   @Output()
   valid: EventEmitter<boolean> = new EventEmitter<boolean>(false);
@@ -93,12 +120,12 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
 
     this.recurringForm = formBuilder.group({
       interval: new FormControl(1, Validators.required),
-      repeatFreq: new FormControl('DAILY', Validators.required),
+      repeatFreq: new FormControl('', Validators.required),
       weekDays: new FormControl(''),
       monthDays: new FormControl(''),
-      repMode: new FormControl('REPEAT_N_TIMES', Validators.required),
+      repMode: new FormControl('', Validators.required),
       repUntil: new FormControl(''),
-      repCount: new FormControl(1, [Validators.required, Validators.min(1)])
+      repCount: new FormControl(0, [Validators.required, Validators.min(1)])
     });
 
     this.recurringForm.valueChanges
@@ -128,12 +155,6 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
 
     this.isRecurring = this.event.rruleSet !== null;
     this.formDataFromRRuleSet();
-    // this.onFormChange();
-    this.event.startChange
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(_ => {
-        this.rruleSetFromFormData();
-      });
   }
 
   /**
@@ -258,7 +279,6 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
         case RRule.WEEKLY:
           val.repeatFreq = 'WEEKLY';
           val.weekDays = ruleOpts.byweekday;
-          console.log(val.weekDays);
           break;
 
         case RRule.MONTHLY:
@@ -309,43 +329,45 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
    */
   rruleSetFromFormData() {
 
-    const formValue = this.recurringForm.value;
-    let options: any = {};
-    options.dtstart = new Date(this.event.start);
+    if (this.recurringForm.valid) {
+      const formValue = this.recurringForm.value;
+      let options: any = {};
+      options.dtstart = new Date(this.event.start);
 
-    options.freq = CalendarEventEditorRecurringComponent.FREQ_TO_RRULE_FREQ.get(formValue.repeatFreq);
-    options.interval = formValue.interval;
+      options.freq = CalendarEventEditorRecurringComponent.FREQ_TO_RRULE_FREQ.get(formValue.repeatFreq);
+      options.interval = formValue.interval;
 
-    switch (options.freq) {
-      case RRule.WEEKLY:
-        options.byweekday = formValue.weekDays;
-        break;
+      switch (options.freq) {
+        case RRule.WEEKLY:
+          options.byweekday = formValue.weekDays;
+          break;
 
-      case RRule.MONTHLY:
-        options.bymonthday = formValue.monthDays;
-        break;
+        case RRule.MONTHLY:
+          options.bymonthday = formValue.monthDays;
+          break;
+      }
+
+      switch (formValue.repMode) {
+        case 'REPEAT_INFINITE':
+          break;
+
+        case 'REPEAT_UNTIL':
+          options.until = Date.parse(formValue.repUntil);
+          break;
+
+        case 'REPEAT_N_TIMES':
+          options.count = formValue.repCount;
+          break;
+      }
+
+      const rule = new RRule(options, true);
+      const ruleSet = new RRuleSet(true);
+      ruleSet.rrule(rule);
+      this.event.rruleSet = ruleSet;
+      this.all = ruleSet.all((date: Date, nr: number) => {
+        return (nr > 100) ? false : true;
+      });
     }
-
-    switch (formValue.repMode) {
-      case 'REPEAT_INFINITE':
-        break;
-
-      case 'REPEAT_UNTIL':
-        options.until = Date.parse(formValue.repUntil);
-        break;
-
-      case 'REPEAT_N_TIMES':
-        options.count = formValue.repCount;
-        break;
-    }
-
-    const rule = new RRule(options, true);
-    const ruleSet = new RRuleSet(true);
-    ruleSet.rrule(rule);
-    this.event.rruleSet = ruleSet;
-    this.all = ruleSet.all((date: Date, nr: number) => {
-      return (nr > 100) ? false : true;
-    });
   }
 
   /**
@@ -357,7 +379,7 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
     const ruleSet = this.event.rruleSet;
     if (ruleSet) {
       ruleSet.exdate(date);
-      this.event.rruleSet =ruleSet;
+      this.event.rruleSet = ruleSet;
       this.all = ruleSet.all((date: Date, nr: number) => {
         return (nr > 100) ? false : true;
       });

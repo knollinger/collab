@@ -115,5 +115,5 @@ export class CommonDialogsService {
       }
     });
     return dialogRef.afterClosed();
-  }  
+  }
 }
