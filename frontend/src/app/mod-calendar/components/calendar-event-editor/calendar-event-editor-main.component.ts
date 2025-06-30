@@ -1,4 +1,4 @@
-import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
@@ -7,6 +7,7 @@ import * as moment from 'moment';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CalendarEvent } from '../../models/calendar-event';
+import Quill, { Delta } from 'quill';
 
 @Component({
   selector: 'app-calendar-event-editor-main',
@@ -14,9 +15,11 @@ import { CalendarEvent } from '../../models/calendar-event';
   styleUrls: ['./calendar-event-editor-main.component.css'],
   standalone: false
 })
-export class CalendarEventEditorMainComponent implements OnInit {
+export class CalendarEventEditorMainComponent implements OnInit, AfterViewInit {
 
   private destroyRef = inject(DestroyRef);
+
+  private _event: CalendarEvent = CalendarEvent.empty();
 
   @Input()
   event: CalendarEvent = CalendarEvent.empty();
@@ -25,6 +28,7 @@ export class CalendarEventEditorMainComponent implements OnInit {
   valid: EventEmitter<boolean> = new EventEmitter<boolean>(false);
 
   eventForm: FormGroup;
+  private quill: Quill | null = null;
 
   /**
    * 
@@ -43,12 +47,6 @@ export class CalendarEventEditorMainComponent implements OnInit {
 
     });
     this.eventForm.markAllAsTouched();
-
-    this.eventForm.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(val => {
-        this.onFormChange();
-      })
   }
 
   /**
@@ -65,7 +63,55 @@ export class CalendarEventEditorMainComponent implements OnInit {
       endTime: this.getTimeString(this.event.end)
     };
     this.eventForm.setValue(val);
-    this.onFormChange();
+  }
+
+  /**
+   * Den Quill-Editor können wir erst initialisieren, wenn die View
+   * gerendert ist. Anderenfalls findet er seine Host-Div nicht und
+   * wirft eine unschöne Exception.
+   */
+  ngAfterViewInit() {
+
+    this.setupQuillEditor();
+
+    this.eventForm.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(val => {
+        this.onFormChange();
+      })
+    this.valid.emit(this.eventForm.valid);
+  }
+
+  /**
+   * 
+   * wir wollen Die Description als HTML setzen. Dazu brazúchen wir
+   * ein Quill.Delta, welches die HTML-Styles beinhaltet.
+   * Komischerweise gibt es keinen Delta-Konstruktor "fromHTML"
+   * 
+   * Es gibt aber den Umweg über das Quill-Clipboard. Dabei wird nichts 
+   * wirklich in das Clipboard kopiert, hier gibts halt die passende
+   * convert-Methode. Das Delta muss die Hölle sein...
+   *
+   */
+  private setupQuillEditor() {
+
+    this.quill = new Quill('#quillHost', {
+      theme: 'snow',
+      placeholder: 'ausführliche Beschreibung...',
+      modules: {
+        toolbar: '#quillToolbar'
+      }
+    });
+
+    const delta = this.quill.clipboard.convert({ html: this.event.desc })
+    this.quill.setContents(delta);
+
+    this.quill.on('text-change', (newContent: Delta, oldContent: Delta, source: string) => {
+
+      if (source === 'user') {
+        this.onFormChange();
+      }
+    })
   }
 
   /**
@@ -98,15 +144,18 @@ export class CalendarEventEditorMainComponent implements OnInit {
     }
   }
 
+  /**
+   * 
+   */
   onFormChange() {
 
     const val = this.eventForm.value;
     this.event.title = val.title;
 
-
     this.event.start = this.composeDatetime(val.date, val.startTime); // val.start; // TODO: ist localDate, UTC draus machen
     this.event.end = this.composeDatetime(val.date, val.endTime);// val.end; // TODO: ist localDate, UTC draus machen
     this.event.fullDay = val.fullDay;
+    this.event.desc = this.quill?.getSemanticHTML() || '';
     this.valid.emit(this.eventForm.valid);
   }
 

@@ -125,7 +125,7 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
       monthDays: new FormControl(''),
       repMode: new FormControl('', Validators.required),
       repUntil: new FormControl(''),
-      repCount: new FormControl(0, [Validators.required, Validators.min(1)])
+      repCount: new FormControl(2, [Validators.required, Validators.min(2)])
     });
 
     this.recurringForm.valueChanges
@@ -229,7 +229,7 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
 
       case 'REPEAT_N_TIMES':
         this.setValidatorFor('repUntil', null);
-        this.setValidatorFor('repCount', [Validators.required, Validators.min(1)]);
+        this.setValidatorFor('repCount', [Validators.required, Validators.min(2)]);
         break;
     }
   }
@@ -394,6 +394,7 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
    */
   hasError(elemName: string, errName: string): boolean {
 
+    console.log(this.recurringForm.get('repUntil')?.errors);
     let result = false;
 
     const elem = this.recurringForm.get(elemName);

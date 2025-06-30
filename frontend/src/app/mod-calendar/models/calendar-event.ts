@@ -263,6 +263,10 @@ export class CalendarEvent {
         return this.rrulesetChange.value;
     }
 
+    get isRecurring(): boolean {
+        return this.rruleSet !== null;
+    }
+
     /**
      * 
      * @param evt 

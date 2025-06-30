@@ -16,7 +16,7 @@ import { CommonDialogsService, TitlebarService } from "../../../mod-commons/mod-
 import { FullCalendarEvent } from "../../models/full-calendar-event";
 import { CalendarEvent } from "../../models/calendar-event";
 import { CalendarEventEditorComponent } from "../calendar-event-editor/calendar-event-editor.component";
-
+import { CalendarQueryDeleteMenuComponent } from '../calendar-query-delete-menu/calendar-query-delete-menu.component';
 
 @Component({
   selector: 'app-calendar-main-component',
@@ -30,6 +30,7 @@ export class CalendarMainComponent implements AfterViewInit {
   @ViewChild("week") week!: DayPilotCalendarComponent;
   @ViewChild("month") month!: DayPilotMonthComponent;
   @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
+  @ViewChild('queryDeleteMenu') queryDeleteMenu!: CalendarQueryDeleteMenuComponent;
 
   private destroyRef = inject(DestroyRef);
 
@@ -210,9 +211,11 @@ export class CalendarMainComponent implements AfterViewInit {
         html: '<mat-icon class="material-symbols-outlined" style="background-color: white;">delete</mat-icon>',
         action: "None",
         toolTip: "Löschen",
-        onClick: async (args: any) => {
-          dp.events.remove(args.source);
-        }
+        // onClick: async (args: any) => {
+        //   alert(JSON.stringify(args.source));
+        //   dp.events.remove(args.source);
+        // }
+        onClick: this.onDeleteEvent.bind(this)
       }
     ];
   }
@@ -283,4 +286,25 @@ export class CalendarMainComponent implements AfterViewInit {
     alert('not yet implemented');
   }
 
+  /**
+   * 
+   * @param evtId 
+   */
+  onDeleteEvent(event: any) {
+
+    const evtId = event.source.id();
+    this.calSvc.getEvent(evtId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(calEvt => {
+
+        if (calEvt.event.isRecurring) {
+          this.queryDeleteMenu.show(event.originalEvent, calEvt.event.uuid);
+          console.dir(event);
+        }
+        else {
+          alert('show are-you-sure-query')
+
+        }
+      });
+  }
 }

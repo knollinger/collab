@@ -20,6 +20,7 @@ import { CalendarEventEditorMainComponent } from './components/calendar-event-ed
 import { CalendarEventEditorRecurringComponent } from './components/calendar-event-editor/calendar-event-editor-recurring.component';
 
 import { ModCalendarRoutingModule } from './mod-calendar-routing.module';
+import { CalendarQueryDeleteMenuComponent } from './components/calendar-query-delete-menu/calendar-query-delete-menu.component';
 
 // If using Moment
 const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
@@ -39,7 +40,8 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
     CalendarMainComponent,
     CalendarEventEditorComponent,
     CalendarEventEditorMainComponent,
-    CalendarEventEditorRecurringComponent
+    CalendarEventEditorRecurringComponent,
+    CalendarQueryDeleteMenuComponent
   ],
   imports: [
     CommonModule,

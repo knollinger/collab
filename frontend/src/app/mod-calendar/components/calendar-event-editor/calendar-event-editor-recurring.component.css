@@ -1,19 +1,31 @@
 .hidden {
-    display: none !important;
+  display: none !important;
+}
+
+mat-slide-toggle {
+  margin: 1rem;
+}
+
+.grid-container {
+
+  display: grid;
+  grid-template-columns: calc(50% - 0.5rem) calc(50% - 0.5rem);
+  gap: 1rem;
+
+}
+
+.col-1 {
+  grid-column-start: 1;
+  grid-column-end: 2;
 }
 
 
-.row {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  gap: 10px;
+.col-2 {
+  grid-column-start: 2;
+  grid-column-end: 3;
 }
 
-.col-small {
-  flex: 0 0 auto;
-}
-
-.col-fill {
-  flex: 1 1 auto;
+.col-1-2 {
+  grid-column-start: 1;
+  grid-column-end: 3;
 }

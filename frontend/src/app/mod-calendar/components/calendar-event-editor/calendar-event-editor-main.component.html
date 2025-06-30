@@ -2,7 +2,7 @@
       class="grid-container">
 
        <!-- Titel -->
-       <mat-form-field class="full">
+       <mat-form-field class="col-1-4">
               <mat-label>Titel</mat-label>
               <input matInput
                      appAutoFocus
@@ -11,20 +11,20 @@
        </mat-form-field>
 
        <!-- Privater Termin? -->
-       <mat-slide-toggle class="full"
+       <mat-slide-toggle class="col-1-4"
                          color="primary"
                          formControlName="private">privater Termin</mat-slide-toggle>
 
        <!-- Ganz-tägiger Termin -->
        <mat-slide-toggle #fullDayToggle
-                         class="full"
+                         class="col-1-4"
                          color="primary"
                          (change)="onFullDateChange($event)"
                          formControlName="fullDay">ganztägiger Termin</mat-slide-toggle>
 
 
-       <mat-form-field [class.full]="fullDayToggle.checked"
-                       [class.left]="!fullDayToggle.checked">
+       <mat-form-field [class.col-1-4]="fullDayToggle.checked"
+                       [class.col-1-2]="!fullDayToggle.checked">
               <mat-label>Datum</mat-label>
               <input matInput
                      formControlName="date"
@@ -34,7 +34,7 @@
               <mat-datepicker #datePicker></mat-datepicker>
        </mat-form-field>
 
-       <mat-form-field class="right"
+       <mat-form-field class="col-3"
                        [class.hidden]="fullDayToggle.checked">
               <mat-label>Start</mat-label>
               <input matInput
@@ -42,7 +42,7 @@
                      formControlName="startTime">
        </mat-form-field>
 
-       <mat-form-field class="right1"
+       <mat-form-field class="col-4"
                        [class.hidden]="fullDayToggle.checked">
               <mat-label>Ende</mat-label>
               <input matInput
@@ -50,5 +50,46 @@
                      formControlName="endTime">
        </mat-form-field>
 
+       <div class="col-1-4">
+              <div id="quillToolbar">
+
+                     <span class="ql-formats">
+                            <select class="ql-header">
+                                   <option value="0">Absatz</option>
+                                   <option value="1">Überschrift 1</option>
+                                   <option value="2">Überschrift 2</option>
+                            </select>
+                     </span>
+
+                     <span class="ql-formats">
+                            <button class="ql-bold"></button>
+                            <button class="ql-italic"></button>
+                            <button class="ql-underline"></button>
+                            <button class="ql-strike"></button>
+                     </span>
+
+                     <span class="ql-formats">
+                            <select class="ql-align"></select>
+                     </span>
+
+                     <span class="ql-formats">
+                            <button class="ql-list"
+                                    value="ordered"></button>
+                            <button class="ql-list"
+                                    value="bullet"></button>
+                     </span>
+
+                     <span class="ql-formats">
+                            <select class="ql-color"></select>
+                            <select class="ql-background"></select>
+                     </span>
+
+
+              </div>
+
+              <div id="quillHost">
+
+              </div>
+       </div>
 
 </form>
