@@ -1,3 +1,8 @@
 img {
     width: 128px;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    border: 1px solid #d0d0d0;
+    border-radius: 2px;
+
 }

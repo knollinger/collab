@@ -1,11 +1,13 @@
 package org.knollinger.colab.user.services.impl;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,12 +29,26 @@ import org.springframework.web.multipart.MultipartFile;
 public class AvatarServiceImpl implements IAvatarService
 {
     private static final String SQL_GET_AVATAR = "" //
-        + "select avatar, avatarType from users" //
+        + "select surname, lastname, avatar, avatarType from users" //
         + "  where uuid=?";
-    
+
     private static final String SQL_SAVE_AVATAR = "" //
         + "update users set avatar=?, avatarType=?" //
         + "  where uuid=?";
+
+    // Der Default-Avatar ist ein SVG-Image, in welchem die Initialen des Benutzers in einem blauen Kreis angezeigt werden.
+    private static final String DEFAULT_AVATAR_SVG = "" //
+        + "<svg" // 
+        + "    xmlns=\"http://www.w3.org/2000/svg\"" //
+        + "    xmlns:xlink=\"http://www.w3.org/1999/xlink\"" // 
+        + "    xml:space=\"preserve\"" // 
+        + "    style=\"shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd\"" //
+        + "    viewBox=\"0 0 128 128\">" //
+        + "    <g>" //
+        + "        <circle style=\"fill:#9b9dff; stroke:#0000a0; stroke-width:3;\" cx=\"64\" cy=\"64\" r=\"60\" />" //
+        + "        <text x=\"64\" y=\"80\" text-anchor=\"middle\" stroke=\"white\" fill=\"white\" font-size=\"48\">${INITIALS}</text>" //
+        + "    </g>" //
+        + "</svg>";
 
     @Autowired
     private IDbService dbService;
@@ -54,18 +70,16 @@ public class AvatarServiceImpl implements IAvatarService
             stmt = conn.prepareStatement(SQL_GET_AVATAR);
             stmt.setString(1, uuid.toString());
             rs = stmt.executeQuery();
-
-            Avatar avatar;
             if (!rs.next())
             {
-                avatar = this.getDefaultAvatar();
+                throw new UserNotFoundException(uuid);
             }
-            else
-            {
-                String type = rs.getString("avatarType");
-                in = rs.getBinaryStream("avatar");
-                avatar = (in == null) ? this.getDefaultAvatar() : this.createAvatar(type, in);
-            }
+
+            String type = rs.getString("avatarType");
+            in = rs.getBinaryStream("avatar");
+            Avatar avatar = (in == null)
+                ? this.createDefaultAvatar(rs.getString("surname"), rs.getString("lastname"))
+                : this.createAvatar(type, in);
             return avatar;
         }
         catch (SQLException | IOException e)
@@ -85,6 +99,20 @@ public class AvatarServiceImpl implements IAvatarService
     }
 
     /**
+     * 
+     * @param surName
+     * @param lastName
+     * @return
+     */
+    private Avatar createDefaultAvatar(String surName, String lastName)
+    {
+        StringBuilder initials = new StringBuilder();
+        initials.append(surName.charAt(0)).append(lastName.charAt(0));
+        String svg = DEFAULT_AVATAR_SVG.replace("${INITIALS}", initials.toString().toUpperCase());
+        return new Avatar("image/svg+xml", new ByteArrayInputStream(svg.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    /**
      * @param type
      * @param in
      * @return
@@ -100,15 +128,6 @@ public class AvatarServiceImpl implements IAvatarService
             out.close();
             return new Avatar(type, new BufferedInputStream(new FileDeletingInputStream(tmpFile)));
         }
-    }
-
-    /**
-     * @return
-     */
-    private Avatar getDefaultAvatar()
-    {
-        InputStream in = this.getClass().getClassLoader().getResourceAsStream("static/default-avatar.svg");
-        return new Avatar("image/svg+xml", in);
     }
 
     /**
