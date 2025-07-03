@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SessionService } from '../../services/session.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { Location } from '@angular/common';
+import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
   selector: 'app-login',
@@ -32,7 +33,8 @@ export class LoginComponent implements OnInit {
     private route: ActivatedRoute,
     private location: Location,
     private formBuilder: FormBuilder,
-    private sessSvc: SessionService
+    private sessSvc: SessionService,
+    private titlebarSvc: TitlebarService
   ) {
 
     this.loginForm = this.formBuilder.nonNullable.group(
@@ -54,6 +56,7 @@ export class LoginComponent implements OnInit {
     this.route.queryParamMap.subscribe(params => {
       this.redirUrl = params.get('redirUrl') || '';
     });
+    this.titlebarSvc.subTitle = 'Anmelden';
   }
 
   /**

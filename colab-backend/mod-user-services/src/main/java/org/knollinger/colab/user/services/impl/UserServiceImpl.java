@@ -33,7 +33,13 @@ public class UserServiceImpl implements IUserService
         + "  where uuid=?";
 
     private static final String SQL_LIST_USER = "" //
-        + "select uuid, accountName, email, surname, lastname from users";
+        + "select uuid, accountName, email, surname, lastname from users" //
+        + "  order by surname, lastname";
+
+    private static final String SQL_SEARCH_USER = "" //
+        + "select uuid, accountName, email, surname, lastname from users" //
+        + "  where accountName like ? or email like ? or surname like ? or lastname like ?" //
+        + "  order by surname, lastname";
 
     @Autowired
     private IDbService dbService;
@@ -154,6 +160,54 @@ public class UserServiceImpl implements IUserService
         {
             throw new TechnicalUserException(
                 "Die Liste der Benutzer konnte aufgrund eines technischen Fehlers nicht geladen werden.", e);
+        }
+        finally
+        {
+            this.dbService.closeQuitely(rs);
+            this.dbService.closeQuitely(stmt);
+            this.dbService.closeQuitely(conn);
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public List<User> fullTextSearch(String search) throws TechnicalUserException
+    {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try
+        {
+            List<User> result = new ArrayList<>();
+
+            String maskedSearch = String.format("%%%1$s%%", search);
+
+            conn = this.dbService.openConnection();
+            stmt = conn.prepareStatement(SQL_SEARCH_USER);
+            stmt.setString(1, maskedSearch);
+            stmt.setString(2, maskedSearch);
+            stmt.setString(3, maskedSearch);
+            stmt.setString(4, maskedSearch);
+            rs = stmt.executeQuery();
+            while (rs.next())
+            {
+                User user = User.builder() //
+                    .userId(UUID.fromString(rs.getString("uuid"))) //
+                    .accountName(rs.getString("accountName")) //
+                    .lastname(rs.getString("lastname")) //
+                    .surname(rs.getString("surname")) //
+                    .email(rs.getString("email")) //
+                    .build();
+                result.add(user);
+            }
+            return result;
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalUserException(search, e); // scheiße, passt nicht
         }
         finally
         {

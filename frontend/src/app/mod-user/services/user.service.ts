@@ -15,6 +15,7 @@ export class UserService {
       ['listUsers', 'v1/user/list'],
       ['getUser', 'v1/user/get/{1}'],
       ['saveUser', 'v1/user/save'],
+      ['searchUsers', 'v1/user/searchusers?search={1}'],
       ['getAvatar', 'v1/user/avatar/{1}']
     ]
   );
@@ -77,6 +78,23 @@ export class UserService {
   listUsers(): Observable<User[]> {
 
     const url = this.backendRouter.getRouteForName('listUsers', UserService.routes);
+    return this.http.get<IUser[]>(url).pipe(
+      map(users => {
+        return users.map(user => {
+          return User.fromJSON(user);
+        })
+      })
+    );
+  }
+
+  /**
+   * 
+   * @param search 
+   * @returns 
+   */
+  searchUsers(search: string): Observable<User[]> {
+
+    const url = this.backendRouter.getRouteForName('searchUsers', UserService.routes, search);
     return this.http.get<IUser[]>(url).pipe(
       map(users => {
         return users.map(user => {

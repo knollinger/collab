@@ -19,29 +19,29 @@ import { FormControl } from '@angular/forms';
 })
 export class HashTagSelectorComponent implements OnInit {
 
-  @Output()
-  hashTagsChange: EventEmitter<string[]> = new EventEmitter<string[]>();
-
+  
   private destroyRef = inject(DestroyRef);
-
+  
   separatorKeysCodes: number[] = [ENTER, COMMA, SPACE];
-
+  
   allHashTags: string[] = new Array<string>();
   tags: Set<string> = new Set<string>();
   filteredHashTags: Observable<string[]>;
-
+  
   hashTagCtrl = new FormControl('');
-
+  
   @Input()
   set hashTags(tags: string[]) {
-
+    
     const unique = new Set<string>();
     tags.forEach(tag => {
       unique.add(tag);
     });
     this.tags = unique;
   }
-
+  
+  @Output()
+  hashTagsChange: EventEmitter<string[]> = new EventEmitter<string[]>();
 
   /**
    * 

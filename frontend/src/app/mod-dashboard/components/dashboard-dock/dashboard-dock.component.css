@@ -1,0 +1,41 @@
+.outer-container {
+    
+    background-color: rgba(0, 0, 0, 0.1);
+    border: 1px solid #d0d0d0;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.dock-button {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    width: 8vw;
+    max-width: 200px;;
+}
+
+.dock-button:active {
+    transform: translate(2px, 2px);
+}
+
+.dock-button:hover {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.dock-button>img {
+    width: 100%;
+}
+
+.dock-button>span {
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

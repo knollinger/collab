@@ -1,19 +1,5 @@
 <div class="outer-cnr">
 
-    <div class="workspace">
-        
-        <app-dashboard-button *ngFor="let btn of dashButtons"
-                              [title]="btn.title"
-                              [icon]="btn.icon"
-                              [routerLink]="btn.link">
-        </app-dashboard-button>
-    </div>
-
-    <button mat-fab
-            color="primary"
-            class="settings-btn"
-            matTooltip="Dashboard anpassen">
-        <mat-icon>settings</mat-icon>
-    </button>
-
+    <app-dashboard-workspace></app-dashboard-workspace>
+    <app-dashboard-dock></app-dashboard-dock>
 </div>

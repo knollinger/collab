@@ -1,0 +1,44 @@
+<mat-form-field>
+
+    <mat-label>{{label}}</mat-label>
+    <input #searchInput
+           matInput
+           [matAutocomplete]="auto"
+           (input)="onSearchInput(searchInput.value)">
+    <mat-icon class="material-symbols-outlined"
+              matSuffix>person_add</mat-icon>
+    <mat-hint>Vorname, Nachname, Email, Account-Namen...</mat-hint>
+
+    <mat-autocomplete #auto="matAutocomplete"
+                      (optionSelected)="onSearchOptionSelected($event, searchInput)">
+        <mat-option *ngFor="let user of usersFound"
+                    [value]="user">
+            <div class="search-option">
+                <img [src]="getAvatar(user.userId)"
+                     class="avatar small-right-spacer">
+                <span>{{user.surname}} {{user.lastname}}</span>
+            </div>
+        </mat-option>
+    </mat-autocomplete>
+
+</mat-form-field>
+
+<!-- all about selected users-->
+<mat-chip-listbox>
+    <mat-chip-row *ngFor="let user of selectedUsers"
+                  color="primary">
+
+        <div class="search-option">
+            <img [src]="getAvatar(user.userId)"
+                 class="avatar small-right-spacer">
+            <span>
+                {{user.surname}} {{user.lastname}}
+            </span>
+        </div>
+
+        <button matChipRemove
+                (click)="onUserRemove(user)">
+            <mat-icon>cancel</mat-icon>
+        </button>
+    </mat-chip-row>
+</mat-chip-listbox>

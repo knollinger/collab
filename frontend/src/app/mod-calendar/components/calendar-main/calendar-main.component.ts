@@ -12,11 +12,12 @@ import {
 
 import { CalendarService } from '../../services/calendar.service';
 import { CommonDialogsService, TitlebarService } from "../../../mod-commons/mod-commons.module";
+import { SessionService } from '../../../mod-session/session.module';
 
 import { FullCalendarEvent } from "../../models/full-calendar-event";
 import { CalendarEvent } from "../../models/calendar-event";
 import { CalendarEventEditorComponent } from "../calendar-event-editor/calendar-event-editor.component";
-import { CalendarQueryDeleteMenuComponent } from '../calendar-query-delete-menu/calendar-query-delete-menu.component';
+import { CalendarEventMenuComponent } from '../calendar-event-menu/calendar-event-menu.component';
 
 @Component({
   selector: 'app-calendar-main-component',
@@ -30,7 +31,7 @@ export class CalendarMainComponent implements AfterViewInit {
   @ViewChild("week") week!: DayPilotCalendarComponent;
   @ViewChild("month") month!: DayPilotMonthComponent;
   @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
-  @ViewChild('queryDeleteMenu') queryDeleteMenu!: CalendarQueryDeleteMenuComponent;
+  @ViewChild('eventMenu') eventMenu!: CalendarEventMenuComponent;
 
   private destroyRef = inject(DestroyRef);
 
@@ -83,7 +84,8 @@ export class CalendarMainComponent implements AfterViewInit {
     private dialog: MatDialog,
     private titlebarSvc: TitlebarService,
     private commonDlgsSvc: CommonDialogsService,
-    private calSvc: CalendarService) {
+    private calSvc: CalendarService,
+    private sessionSvc: SessionService) {
     this.onViewModeChange('Week');
   }
 
@@ -208,14 +210,10 @@ export class CalendarMainComponent implements AfterViewInit {
         right: 4,
         width: 32, // 24px breite + 2* padding 4px
         height: 32, // 24px höhe + 2* padding 4px
-        html: '<mat-icon class="material-symbols-outlined" style="background-color: white;">delete</mat-icon>',
+        html: '<mat-icon class="material-symbols-outlined" style="background-color: white;">more_horiz</mat-icon>',
         action: "None",
-        toolTip: "Löschen",
-        // onClick: async (args: any) => {
-        //   alert(JSON.stringify(args.source));
-        //   dp.events.remove(args.source);
-        // }
-        onClick: this.onDeleteEvent.bind(this)
+        toolTip: "Optionen",
+        onClick: this.onShowMenuEvent.bind(this)
       }
     ];
   }
@@ -229,7 +227,7 @@ export class CalendarMainComponent implements AfterViewInit {
     args.control.clearSelection();
 
     const calEvt = new CalendarEvent('', '', '', args.start.toDateLocal(), args.end.toDateLocal(), '', false, null);
-    const fullEvt = new FullCalendarEvent(calEvt, [], []);
+    const fullEvt = new FullCalendarEvent(calEvt, [this.sessionSvc.currentUser], [], [], []);
     this.showEventEditor(fullEvt);
   }
 
@@ -269,8 +267,8 @@ export class CalendarMainComponent implements AfterViewInit {
       .subscribe(result => {
 
         if (result) {
-          alert(JSON.stringify(result));
 
+          console.dir(result);
           this.commonDlgsSvc.showSnackbar('Termin gespeichert');
         }
       });
@@ -290,21 +288,14 @@ export class CalendarMainComponent implements AfterViewInit {
    * 
    * @param evtId 
    */
-  onDeleteEvent(event: any) {
+  onShowMenuEvent(event: any) {
 
     const evtId = event.source.id();
     this.calSvc.getEvent(evtId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(calEvt => {
 
-        if (calEvt.event.isRecurring) {
-          this.queryDeleteMenu.show(event.originalEvent, calEvt.event.uuid);
-          console.dir(event);
-        }
-        else {
-          alert('show are-you-sure-query')
-
-        }
+        this.eventMenu.show(event.originalEvent, calEvt.event);
       });
   }
 }

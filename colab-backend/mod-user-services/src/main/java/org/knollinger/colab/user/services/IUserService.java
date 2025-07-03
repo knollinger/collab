@@ -15,4 +15,11 @@ public interface IUserService
     public User saveUser(User fromDTO) throws UserNotFoundException, DuplicateUserException, TechnicalUserException;
 
     public List<User> listUser() throws TechnicalUserException;
+
+    /**
+     * Durchsuche alle Benutzer ob der Suchbegriff irgendwie passt^
+     * @param search
+     * @return
+     */
+    public List<User> fullTextSearch(String search) throws TechnicalUserException;
 }

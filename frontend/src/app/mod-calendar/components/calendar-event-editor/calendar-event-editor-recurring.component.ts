@@ -394,7 +394,6 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
    */
   hasError(elemName: string, errName: string): boolean {
 
-    console.log(this.recurringForm.get('repUntil')?.errors);
     let result = false;
 
     const elem = this.recurringForm.get(elemName);

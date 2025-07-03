@@ -24,13 +24,20 @@
                       *ngIf="!recurringFormValid">*</span>
             </ng-template>
             <app-calendar-event-editor-recurring [event]="event"
-                                           (valid)="onRecurringFormValidChange($event)">
+                                                 (valid)="onRecurringFormValidChange($event)">
             </app-calendar-event-editor-recurring>
         </mat-tab>
 
         <!-- Personen -->
-        <mat-tab label="Personen">
-            <div>Bruno, Paul, Anne</div>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <span>Personen</span>
+                <span class="invalid-marker"
+                      *ngIf="!personFormValid">*</span>
+            </ng-template>
+            <app-calendar-event-editor-person [(requiredUsers)]="requiredUsers"
+                                              [(optionalUsers)]="optionalUsers"
+                                              (valid)="onPersonFormValidChange($event)"></app-calendar-event-editor-person>
         </mat-tab>
 
         <!-- Ort -->
@@ -41,6 +48,11 @@
         <!-- Hashtags -->
         <mat-tab label="Tags">
             <app-hashtag-selector [(hashTags)]="hashTags"></app-hashtag-selector>
+        </mat-tab>
+
+        <!-- Files -->
+        <mat-tab label="Anhänge">
+            <app-calendar-event-editor-files></app-calendar-event-editor-files>
         </mat-tab>
 
     </mat-tab-group>

@@ -1,26 +1,19 @@
 .outer-cnr {
     position: relative;
     height: 100%;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    max-width: 800px;
-    overflow: auto;
-}
-
-.settings-btn {
-    position: absolute;
-    bottom: 0rem;
-    right: 0rem;
-}
-
-.workspace {
-    height: 100%;
+    width: 100%;
     overflow: auto;
     display: flex;
-    flex-direction: row;
-    gap: 2rem;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+app-dashboard-workspace {
+    flex: 1;
+    max-width: 800px;
+}
+
+app-dashboard-dock {
+    flex: 0;
 }

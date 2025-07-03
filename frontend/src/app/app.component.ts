@@ -18,6 +18,7 @@ export class AppComponent implements OnInit {
   public title: string = '';
   private _showSearch: boolean = false;
   private _showDashboard: boolean = false;
+  private _showMenu: boolean = false;
 
   /**
    * 
@@ -66,6 +67,10 @@ export class AppComponent implements OnInit {
     return this.isLoggedOn && this._showSearch;
   }
 
+  get isShowMenu(): boolean {
+    return this.isLoggedOn && this._showMenu;
+  }
+
   /** 
    * 
    */
@@ -94,6 +99,7 @@ export class AppComponent implements OnInit {
         const url = (event as NavigationEnd).url;
         this._showSearch = (url !== '/search');
         this._showDashboard = (url !== '/dashboard');
+        this._showMenu = (url !== '/dashboard');
       });
   }
 }

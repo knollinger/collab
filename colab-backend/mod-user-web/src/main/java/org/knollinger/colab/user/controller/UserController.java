@@ -165,4 +165,24 @@ public class UserController
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
+    
+
+    /**
+     * 
+     * @param search
+     * @return
+     */
+    @GetMapping(path = "/searchusers")
+    public List<UserDTO> searchUsers(@RequestParam("search") String search)
+    {
+        try
+        {
+            return this.userMapper.toDTO(this.userSvc.fullTextSearch(search));
+        }
+        catch (TechnicalUserException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+
 }

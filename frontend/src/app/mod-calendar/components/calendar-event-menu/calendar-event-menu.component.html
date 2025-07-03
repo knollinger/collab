@@ -1,0 +1,28 @@
+<span class="menu-trigger"
+      [matMenuTriggerFor]="queryMenu"
+      [style.left]="triggerPosX"
+      [style.top]="triggerPosY">
+</span>
+
+<mat-menu #queryMenu="matMenu">
+
+    <button mat-menu-item
+            (click)="onExport()">
+        <mat-icon class="material-symbols-outlined">event</mat-icon>
+        Als iCAL exportieren
+    </button>
+
+    <mat-divider></mat-divider>
+
+    <button mat-menu-item *ngIf="calendarEvent.isRecurring"
+            (click)="onDeleteElement()">
+        <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        Nur diesen Termin löschen
+    </button>
+
+    <button mat-menu-item
+            (click)="onDeleteSerie()">
+        <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        Löschen
+    </button>
+</mat-menu>

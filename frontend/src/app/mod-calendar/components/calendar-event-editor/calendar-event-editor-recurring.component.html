@@ -105,6 +105,9 @@
                     <mat-icon>cancel</mat-icon>
                 </button>
             </mat-chip>
+
+            <mat-chip *ngIf="repMode.value === 'REPEAT_INFINITE'"
+                      matTooltip="Unendlich viele weitere Termine...">&nbsp;...&nbsp;</mat-chip>
         </mat-chip-listbox>
     </div>
 </form>

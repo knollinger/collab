@@ -1,0 +1,8 @@
+mat-form-field, mat-chip-listbox {
+    width: 100%;
+}
+
+.search-option {
+    display: flex;
+    align-items: center;
+}

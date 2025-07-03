@@ -4,36 +4,22 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 
 import { DayPilotModule } from '@daypilot/daypilot-lite-angular';
-import { MAT_MOMENT_DATE_FORMATS, MomentDateAdapter } from '@angular/material-moment-adapter';
-import { NGX_MAT_DATE_FORMATS, NgxMatDateFormats, NgxMatDatetimePickerModule, NgxMatTimepickerModule } from '@angular-material-components/datetime-picker';
 import { NgxMatMomentModule } from '@angular-material-components/moment-adapter';
-import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 import { ModFilesDataModule } from '../mod-files-data/mod-files-data.module';
+import { ModUserModule } from '../mod-user/mod-user.module';
 import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
-import { ModValuePickersModule } from '../mod-value-pickers/mod-value-pickers.module';
 import { CalendarMainComponent } from './components/calendar-main/calendar-main.component';
 import { CalendarEventEditorComponent } from './components/calendar-event-editor/calendar-event-editor.component';
 import { CalendarEventEditorMainComponent } from './components/calendar-event-editor/calendar-event-editor-main.component';
 import { CalendarEventEditorRecurringComponent } from './components/calendar-event-editor/calendar-event-editor-recurring.component';
+import { CalendarEventEditorPersonComponent } from './components/calendar-event-editor/calendar-event-editor-person.component';
+import { CalendarEventEditorFilesComponent } from './components/calendar-event-editor//calendar-event-editor-files.component';
 
 import { ModCalendarRoutingModule } from './mod-calendar-routing.module';
-import { CalendarQueryDeleteMenuComponent } from './components/calendar-query-delete-menu/calendar-query-delete-menu.component';
-
-// If using Moment
-const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
-  parse: {
-    dateInput: "DD.MM.YYYY HH:mm"
-  },
-  display: {
-    dateInput: "DD.MM.YYYY HH:mm",
-    monthYearLabel: "MMM YYYY",
-    dateA11yLabel: "LL",
-    monthYearA11yLabel: "MMMM YYYY"
-  }
-};
+import { CalendarEventMenuComponent } from './components/calendar-event-menu/calendar-event-menu.component';
 
 @NgModule({
   declarations: [
@@ -41,7 +27,9 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
     CalendarEventEditorComponent,
     CalendarEventEditorMainComponent,
     CalendarEventEditorRecurringComponent,
-    CalendarQueryDeleteMenuComponent
+    CalendarEventEditorPersonComponent,
+    CalendarEventEditorFilesComponent,
+    CalendarEventMenuComponent,
   ],
   imports: [
     CommonModule,
@@ -49,14 +37,12 @@ const CUSTOM_DATE_FORMATS: NgxMatDateFormats = {
     ReactiveFormsModule,
     MatDialogModule,
     DayPilotModule,
-    NgxMatDatetimePickerModule,
     NgxMatMomentModule,
-    NgxMatTimepickerModule,
     ModCommonsModule,
     ModMaterialImportModule,
+    ModUserModule,
     ModHashTagsModule,
     ModFilesDataModule,
-    ModValuePickersModule,
     ModCalendarRoutingModule,
   ],
   exports: [

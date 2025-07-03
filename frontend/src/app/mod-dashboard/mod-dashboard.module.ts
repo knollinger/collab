@@ -7,14 +7,16 @@ import { ModSessionModule } from '../mod-session/session.module';
 
 import { DashboardMainComponent } from './components/dashboard-main/dashboard-main.component';
 import { ModDashboardRoutingModule } from './mod-dashboard-routing.module';
-import { DashboardButtonComponent } from './components/dashboard-button/dashboard-button.component';
+import { DashboardDockComponent } from './components/dashboard-dock/dashboard-dock.component';
+import { DashboardWorkspaceComponent } from './components/dashboard-workspace/dashboard-workspace.component';
 
 
 
 @NgModule({
   declarations: [
     DashboardMainComponent,
-    DashboardButtonComponent
+    DashboardDockComponent,
+    DashboardWorkspaceComponent
   ],
   imports: [
     CommonModule,

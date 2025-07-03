@@ -1,0 +1,8 @@
+.outer-container {
+    overflow: auto;
+    height: 100%;
+}
+
+.row {
+    margin-bottom: 1rem;
+}

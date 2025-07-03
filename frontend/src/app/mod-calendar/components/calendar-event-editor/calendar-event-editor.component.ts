@@ -6,6 +6,7 @@ import { INode } from "../../../mod-files-data/mod-files-data.module";
 
 import { CalendarEvent } from '../../models/calendar-event';
 import { FullCalendarEvent } from '../../models/full-calendar-event';
+import { User } from '../../../mod-userdata/mod-userdata.module';
 
 export interface IEventEditorData {
   event: FullCalendarEvent
@@ -20,11 +21,14 @@ export interface IEventEditorData {
 export class CalendarEventEditorComponent {
 
   event: CalendarEvent = CalendarEvent.empty();
+  requiredUsers: User[] = new Array<User>();
+  optionalUsers: User[] = new Array<User>();
   hashTags: Array<string> = new Array<string>();
   attachments: Array<INode> = new Array<INode>();
 
   mainFormValid: boolean = false;
   recurringFormValid: boolean = false;
+  personFormValid: boolean = false;
 
   constructor(
     public dialogRef: MatDialogRef<CalendarEventEditorComponent>,
@@ -32,6 +36,8 @@ export class CalendarEventEditorComponent {
     private data: IEventEditorData) {
 
       this.event = data.event.event;
+      this.requiredUsers = data.event.requiredUsers;
+      this.optionalUsers = data.event.optionalUsers;
       this.hashTags = data.event.hashTags;
       this.attachments = data.event.attachments;
   }
@@ -44,15 +50,12 @@ export class CalendarEventEditorComponent {
     this.recurringFormValid = val;
   }
 
-  get isValid(): boolean {
-    return this.mainFormValid && this.recurringFormValid;
+  onPersonFormValidChange(val: boolean) {
+    this.personFormValid = val;
   }
 
-  /**
-   * 
-   * @param tags 
-   */
-  onHashTagChanged(tags: string[]) {
+  get isValid(): boolean {
+    return this.mainFormValid && this.recurringFormValid && this.personFormValid;
   }
 
   /**

@@ -22,6 +22,7 @@ import { GroupSelectorComponent } from './components/group-selector/group-select
 import { GroupEditComponent } from './components/group-edit/group-edit.component';
 import { UserEditComponent } from './components/user-edit/user-edit.component';
 import { GroupTreeComponent } from './components/group-tree/group-tree.component';
+import { UserPickerComponent } from './components/user-picker/user-picker.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { GroupTreeComponent } from './components/group-tree/group-tree.component
     GroupSelectorComponent,
     GroupEditComponent,
     GroupTreeComponent,
+    UserPickerComponent,
   ],
   imports: [
     CommonModule,
@@ -45,6 +47,7 @@ import { GroupTreeComponent } from './components/group-tree/group-tree.component
   ],
   exports: [
     AvatarSelectorComponent,
+    UserPickerComponent,
     UserRoutingModule
   ]
 })
