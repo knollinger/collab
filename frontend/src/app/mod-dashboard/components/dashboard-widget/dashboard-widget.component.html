@@ -1,0 +1,25 @@
+<div class="outer-cnr">
+
+    <div class="content">
+        <ng-container #viewCnr>
+        </ng-container>
+    </div>
+
+    <button mat-mini-fab class="menu" [matMenuTriggerFor]="optionsMenu">
+        <mat-icon>more_vert</mat-icon>
+    </button>
+
+    <mat-menu #optionsMenu="matMenu">
+
+        <button mat-menu-item>
+            <mat-icon>settings</mat-icon>
+            Einstellungen
+        </button>
+
+        <button mat-menu-item>
+            <mat-icon>delete</mat-icon>
+            Löschen
+        </button>
+    </mat-menu>
+
+</div>

@@ -1,12 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 
-import {  TitlebarService } from '../../../mod-commons/mod-commons.module';
-
-export interface IDashButton {
-  title: string,
-  icon: string,
-  link: string
-}
+import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
   selector: 'app-dashboard-main',

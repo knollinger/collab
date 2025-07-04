@@ -1,1 +1,25 @@
-<p>dashboard-workspace works!</p>
+<div class="outer-cnr">
+
+     <mat-grid-list [cols]="gridCols"
+                    [rowHeight]="rowHeight"
+                    gutterSize="1rem">
+
+          <mat-grid-tile *ngFor="let widget of widgets"
+                         [colspan]="widget.width"
+                         [rowspan]="widget.height">
+
+               <app-dashboard-widget [widgetType]="widget.widgetType"
+                                     [id]="widget.id"
+                                     [maxWidth]="gridCols"
+                                     [width]="widget.width"
+                                     [height]="widget.height"
+                                     class="mat-elevation-z4"></app-dashboard-widget>
+          </mat-grid-tile>
+     </mat-grid-list>
+
+     <button mat-fab
+             color="primary"
+             class="add-widget-btn">
+          <mat-icon>dashboard_customize</mat-icon>
+     </button>
+</div>

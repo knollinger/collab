@@ -30,6 +30,8 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatExpansionModule } from '@angular/material/expansion'
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatSliderModule } from '@angular/material/slider';
 
 @NgModule({
   declarations: [],
@@ -64,6 +66,8 @@ import { MatExpansionModule } from '@angular/material/expansion'
     MatDatepickerModule,
     MatNativeDateModule,
     MatExpansionModule,
+    MatGridListModule,
+    MatSliderModule
   ],
   exports: [
     MatToolbarModule,
@@ -95,6 +99,8 @@ import { MatExpansionModule } from '@angular/material/expansion'
     MatDatepickerModule,
     MatNativeDateModule,
     MatExpansionModule,
+    MatGridListModule,
+    MatSliderModule
   ]
 })
 export class ModMaterialImportModule { }

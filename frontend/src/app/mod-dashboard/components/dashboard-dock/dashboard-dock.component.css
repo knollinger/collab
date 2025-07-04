@@ -1,8 +1,7 @@
 .outer-container {
     
     background-color: rgba(0, 0, 0, 0.1);
-    border: 1px solid #d0d0d0;
-    border-radius: 8px;
+    border-radius: 4px;
     display: flex;
     flex-direction: row;
     gap: 1rem;
@@ -19,7 +18,7 @@
     border: 1px solid #d0d0d0;
     border-radius: 4px;
     width: 8vw;
-    max-width: 200px;;
+    max-width: 100px;
 }
 
 .dock-button:active {

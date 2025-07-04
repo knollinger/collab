@@ -1,0 +1,11 @@
+:host {
+    display: block;
+    height: 100%;
+    overflow: auto;
+}
+
+.title {
+    font-weight: 500;
+    font-size: large;
+    margin-bottom: 0.5rem;
+}
