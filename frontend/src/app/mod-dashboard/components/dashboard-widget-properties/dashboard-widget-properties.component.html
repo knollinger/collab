@@ -1,0 +1,39 @@
+<div class="outer-container">
+    <div class="content"
+         [formGroup]="form">
+        <span class="options-col1">Breite:</span>
+        <div class="options-col2">
+
+            <mat-button-toggle-group formControlName="width">
+                <mat-button-toggle value="1">1</mat-button-toggle>
+                <mat-button-toggle value="2">2</mat-button-toggle>
+                <mat-button-toggle value="3">3</mat-button-toggle>
+                <mat-button-toggle value="4">4</mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+
+        <span class="options-col1">Höhe:</span>
+        <div class="options-col2">
+
+            <mat-button-toggle-group formControlName="height">
+                <mat-button-toggle value="1">1</mat-button-toggle>
+                <mat-button-toggle value="2">2</mat-button-toggle>
+                <mat-button-toggle value="3">3</mat-button-toggle>
+                <mat-button-toggle value="4">4</mat-button-toggle>
+            </mat-button-toggle-group>
+        </div>
+
+        <div class="options-col1-2">
+            <button mat-flat-button
+                    color="primary"
+                    (click)="onChangeDimensions()">
+                Ok
+            </button>
+            <button mat-button
+                    color="primary"
+                    (click)="onCancel()">
+                Abbrechen
+            </button>
+        </div>
+    </div>
+</div>

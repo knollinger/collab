@@ -3,7 +3,8 @@ import { DashboardService } from '../../services/dashboard.service';
 import { BackendRoutingService } from '../../../mod-commons/mod-commons.module';
 
 import { IWidgetDescriptor } from '../dashboard-widget/iwidget-descriptor';
- 
+import { ChangeDimensionsEvent } from '../dashboard-widget-properties/dashboard-widget-properties.component';
+
 import { FilesWidgetComponent } from '../widgets/files-widget/files-widget.component';
 import { CalendarWidgetComponent } from '../widgets/calendar-widget/calendar-widget.component';
 import { ClockWidgetComponent } from '../widgets/clock-widget/clock-widget.component';
@@ -17,7 +18,7 @@ import { ClockWidgetComponent } from '../widgets/clock-widget/clock-widget.compo
 export class DashboardWorkspaceComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
-  gridCols: number = 8;
+  gridCols: number = 4;
   rowHeight: string = '20%';
 
   constructor(
@@ -27,11 +28,38 @@ export class DashboardWorkspaceComponent implements OnInit {
 
   widgets: IWidgetDescriptor[] = [
     { id: 2, width: 1, height: 1, widgetType: ClockWidgetComponent },
-    { id: 3, width: 7, height: 4, widgetType: FilesWidgetComponent },
+    { id: 3, width: 3, height: 4, widgetType: FilesWidgetComponent },
     { id: 1, width: 1, height: 3, widgetType: CalendarWidgetComponent },
   ];
 
   ngOnInit() {
 
+  }
+
+  /**
+   * 
+   * @param evt 
+   */
+  onChangeWidgetDimensions(evt: ChangeDimensionsEvent) {
+
+    this.widgets.forEach(w => {
+      if(w.id === evt.id) {
+        w.height = evt.height;
+        w.width = evt.width;
+      }
+    });
+    this.widgets = Array.of(...this.widgets);
+  }
+
+  /**
+   * Lösche das Widget mit der gegebenen Id
+   * 
+   * @param id 
+   */
+  onDeleteWidget(id: number) {
+
+    this.widgets = this.widgets.filter(w => {
+      return w.id !== id;
+    })
   }
 }

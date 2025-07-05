@@ -1,25 +1,31 @@
 <div class="outer-cnr">
 
-    <div class="content">
+    <div class="content"
+         [class.hidden]="showOptions">
         <ng-container #viewCnr>
         </ng-container>
     </div>
 
-    <button mat-mini-fab class="menu" [matMenuTriggerFor]="optionsMenu">
-        <mat-icon>more_vert</mat-icon>
-    </button>
+    <app-dashboard-widget-properties [id]="id"
+                                     [width]="width"
+                                     [height]="height"
+                                     (close)="toggleOptions()"
+                                     (changeDimensions)="onChangeDimensions($event)"
+                                     *ngIf="showOptions"></app-dashboard-widget-properties>
 
-    <mat-menu #optionsMenu="matMenu">
-
-        <button mat-menu-item>
-            <mat-icon>settings</mat-icon>
-            Einstellungen
+    <div class="options-menu mat-elevation-z3"
+         *ngIf="!showOptions">
+        <mat-icon class="material-symbols-outlined"
+                  matTooltip="Widget verschieben">drag_pan</mat-icon>
+        <button mat-icon-button
+                (click)="onDeleteWidget()"
+                matTooltip="Widget löschen">
+            <mat-icon class="material-symbols-outlined">delete</mat-icon>
         </button>
-
-        <button mat-menu-item>
-            <mat-icon>delete</mat-icon>
-            Löschen
+        <button mat-icon-button
+                (click)="toggleOptions()"
+                matTooltip="Größe des Widget ändern">
+            <mat-icon class="material-symbols-outlined">aspect_ratio</mat-icon>
         </button>
-    </mat-menu>
-
+    </div>
 </div>

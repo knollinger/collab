@@ -15,6 +15,7 @@ import { FilesWidgetComponent } from './components/widgets/files-widget/files-wi
 import { ClockWidgetComponent } from './components/widgets/clock-widget/clock-widget.component';
 import { CalendarWidgetComponent } from './components/widgets/calendar-widget/calendar-widget.component';
 import { DashboardWidgetTemplateComponent } from './components/dashboard-widget-template/dashboard-widget-template.component';
+import { DashboardWidgetPropertiesComponent } from './components/dashboard-widget-properties/dashboard-widget-properties.component';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import { DashboardWidgetTemplateComponent } from './components/dashboard-widget-
     FilesWidgetComponent,
     ClockWidgetComponent,
     CalendarWidgetComponent,
-    DashboardWidgetTemplateComponent
+    DashboardWidgetTemplateComponent,
+    DashboardWidgetPropertiesComponent
   ],
   imports: [
     CommonModule,

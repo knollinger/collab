@@ -6,19 +6,11 @@
 .outer-cnr {
     position: relative;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.05);
-    color: white;
-    border-radius: 4px;
-    overflow: auto;
-}
-
-.menu {
-    display: none;
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
+    width: 100%;
     background-color: white;
     color: #333;
+    border-radius: 4px;
+    overflow: auto;
 }
 
 .content {
@@ -28,7 +20,17 @@
     overflow: hidden;
 }
 
-.outer-cnr:hover>.menu {
+.options-menu {
+    display: none;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    padding-left: 1rem;
+    border-radius: 4px;
+    background-color: inherit;
+}
+
+.outer-cnr:hover>.options-menu {
     display: inline;
 }
 

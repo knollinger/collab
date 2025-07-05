@@ -1,4 +1,8 @@
-import { Component, Input, OnInit, Type, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef } from '@angular/core';
+
+import { IWidget } from './iwidget';
+
+import { ChangeDimensionsEvent } from '../dashboard-widget-properties/dashboard-widget-properties.component';
 
 /**
  * Das DashboardWidget dient als Host für beliebige Components und stellt
@@ -14,7 +18,7 @@ import { Component, Input, OnInit, Type, ViewChild, ViewContainerRef } from '@an
 export class DashboardWidget implements OnInit {
 
   @Input()
-  widgetType: Type<Component> | null = null;
+  widgetType: Type<IWidget> | null = null;
 
   @Input()
   id: number = 0;
@@ -31,6 +35,22 @@ export class DashboardWidget implements OnInit {
   @ViewChild('viewCnr', { static: true, read: ViewContainerRef })
   viewCnr!: ViewContainerRef;
 
+  @Output()
+  delete: EventEmitter<number> = new EventEmitter<number>();
+
+  @Output()
+  changeDimensions: EventEmitter<ChangeDimensionsEvent> = new EventEmitter<ChangeDimensionsEvent>();
+
+  showOptions: boolean = false;
+
+  /**
+   * 
+   * @param dialog 
+   */
+  constructor() {
+
+  }
+
   /**
    * Der Typ der Component welche im Widget angezeigt werden soll.
    * Um diese Component dynamisch erzeugen zu können, verwendet
@@ -46,9 +66,17 @@ export class DashboardWidget implements OnInit {
     }
   }
 
-  /**
-   * 
-   */
-  onShowSettings() {
+  toggleOptions() {
+    this.showOptions = !this.showOptions;
+  }
+
+  onDeleteWidget() {
+    this.delete.next(this.id);
+  }
+
+  onChangeDimensions(evt: ChangeDimensionsEvent) {
+
+    this.changeDimensions.next(evt);
+    this.showOptions = false;
   }
 }

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { IWidget } from '../../dashboard-widget/iwidget';
 
 @Component({
   selector: 'app-calendar-widget',
@@ -6,6 +7,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./calendar-widget.component.css'],
   standalone: false
 })
-export class CalendarWidgetComponent {
+export class CalendarWidgetComponent implements IWidget  {
 
 }

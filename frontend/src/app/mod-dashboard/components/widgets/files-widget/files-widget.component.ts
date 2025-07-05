@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { IWidget } from '../../dashboard-widget/iwidget';
 
 @Component({
   selector: 'app-files-widget',
@@ -6,6 +7,6 @@ import { Component } from '@angular/core';
   styleUrls: ['./files-widget.component.css'],
   standalone: false
 })
-export class FilesWidgetComponent  {
+export class FilesWidgetComponent implements IWidget  {
 
 }
