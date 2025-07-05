@@ -38,6 +38,7 @@ export class DashboardWidgetDescriptor {
      */
     public static fromJSON(json: IDashboardWidgetDescriptor, typeRegistry: WidgetTypeRegistryService): DashboardWidgetDescriptor {
 
+        console.log('fromJSON')
         let type = typeRegistry.getTypeByName(json.widgetType);
         if(type === null) {
             type = DashboardUnknownWidgetTypeComponent;
@@ -52,7 +53,7 @@ export class DashboardWidgetDescriptor {
     public toJSON(typeRegistry: WidgetTypeRegistryService): IDashboardWidgetDescriptor {
         return {
             id: this.id,
-            widgetType: typeRegistry.getNameByType(this.widgetType) || 'unknoen type',
+            widgetType: typeRegistry.getNameByType(this.widgetType) || 'unknown type',
             width: this.width,
             height: this.height
         }

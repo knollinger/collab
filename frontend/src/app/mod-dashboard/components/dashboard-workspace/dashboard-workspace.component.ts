@@ -1,6 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardService } from '../../services/dashboard.service';
-import { BackendRoutingService } from '../../../mod-commons/mod-commons.module';
 
 import { ChangeDimensionsEvent } from '../dashboard-widget-properties/dashboard-widget-properties.component';
 
@@ -29,7 +29,6 @@ export class DashboardWorkspaceComponent implements OnInit {
    * @param typeRegistry 
    */
   constructor(
-    private backendRouter: BackendRoutingService,
     private dashboardSvc: DashboardService,
     private typeRegistry: WidgetTypeRegistryService) {
   }
@@ -39,10 +38,14 @@ export class DashboardWorkspaceComponent implements OnInit {
    */
   ngOnInit() {
 
-    // TODO: aus dem Backend laden!
-    this.widgets = JSON.parse(this.json).map((item: IDashboardWidgetDescriptor) => {
-      return DashboardWidgetDescriptor.fromJSON(item, this.typeRegistry);
-    })
+    // this.widgets = JSON.parse(this.json).map((item: IDashboardWidgetDescriptor) => {
+    //   return DashboardWidgetDescriptor.fromJSON(item, this.typeRegistry);
+    // })
+    this.dashboardSvc.loadWidgets()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(widgets => {
+        this.widgets = widgets;
+      })
   }
 
   /**
