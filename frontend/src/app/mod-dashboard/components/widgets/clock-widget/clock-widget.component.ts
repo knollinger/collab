@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { IWidget } from '../../dashboard-widget/iwidget';
 
 @Component({
   selector: 'app-clock-widget',
@@ -7,7 +6,7 @@ import { IWidget } from '../../dashboard-widget/iwidget';
   styleUrls: ['./clock-widget.component.css'],
   standalone: false
 })
-export class ClockWidgetComponent implements OnInit, OnDestroy, IWidget {
+export class ClockWidgetComponent implements OnInit, OnDestroy {
 
   private _timer: number = -1;
   date: Date = new Date();

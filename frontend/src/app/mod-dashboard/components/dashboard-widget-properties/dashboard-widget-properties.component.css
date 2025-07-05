@@ -18,6 +18,7 @@
 .options-col1 {
     grid-column-start: 1;
     grid-column-end: 2;
+    align-self: center;
 }
 
 .options-col2 {

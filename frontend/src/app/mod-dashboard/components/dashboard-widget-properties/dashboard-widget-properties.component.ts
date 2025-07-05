@@ -4,7 +4,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 export class ChangeDimensionsEvent {
 
   constructor(
-    public readonly id: number,
+    public readonly id: string,
     public readonly width: number,
     public readonly height: number) {
 
@@ -20,7 +20,7 @@ export class ChangeDimensionsEvent {
 export class DashboardWidgetPropertiesComponent implements OnInit {
 
   @Input()
-  id: number = -1;
+  id: string = '';
 
   @Input()
   width: number = 1;

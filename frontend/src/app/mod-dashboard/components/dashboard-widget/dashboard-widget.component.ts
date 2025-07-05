@@ -1,7 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef } from '@angular/core';
 
-import { IWidget } from './iwidget';
-
 import { ChangeDimensionsEvent } from '../dashboard-widget-properties/dashboard-widget-properties.component';
 
 /**
@@ -18,10 +16,10 @@ import { ChangeDimensionsEvent } from '../dashboard-widget-properties/dashboard-
 export class DashboardWidget implements OnInit {
 
   @Input()
-  widgetType: Type<IWidget> | null = null;
+  widgetType: Type<unknown> | null = null;
 
   @Input()
-  id: number = 0;
+  id: string = '';
 
   @Input()
   width: number = 1;
@@ -36,7 +34,7 @@ export class DashboardWidget implements OnInit {
   viewCnr!: ViewContainerRef;
 
   @Output()
-  delete: EventEmitter<number> = new EventEmitter<number>();
+  delete: EventEmitter<string> = new EventEmitter<string>();
 
   @Output()
   changeDimensions: EventEmitter<ChangeDimensionsEvent> = new EventEmitter<ChangeDimensionsEvent>();

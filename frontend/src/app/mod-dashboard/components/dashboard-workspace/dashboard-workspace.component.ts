@@ -1,13 +1,11 @@
-import { Component, DestroyRef, inject, OnInit, Type } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { DashboardService } from '../../services/dashboard.service';
 import { BackendRoutingService } from '../../../mod-commons/mod-commons.module';
 
-import { IWidgetDescriptor } from '../dashboard-widget/iwidget-descriptor';
 import { ChangeDimensionsEvent } from '../dashboard-widget-properties/dashboard-widget-properties.component';
 
-import { FilesWidgetComponent } from '../widgets/files-widget/files-widget.component';
-import { CalendarWidgetComponent } from '../widgets/calendar-widget/calendar-widget.component';
-import { ClockWidgetComponent } from '../widgets/clock-widget/clock-widget.component';
+import { DashboardWidgetDescriptor, IDashboardWidgetDescriptor } from '../../models/dashboard-widget-descriptor';
+import { WidgetTypeRegistryService } from '../../services/widget-type-registry.service';
 
 @Component({
   selector: 'app-dashboard-workspace',
@@ -21,19 +19,30 @@ export class DashboardWorkspaceComponent implements OnInit {
   gridCols: number = 4;
   rowHeight: string = '20%';
 
+  private json = '[{"id": "1", "widgetType":"clock","width":1,"height":1},{"id": "2", "widgetType":"files","width":3,"height":4},{"id": "3", "widgetType":"calendar","width":1,"height":3}]';
+  widgets: DashboardWidgetDescriptor[] = [];
+
+  /**
+   * 
+   * @param backendRouter 
+   * @param dashboardSvc 
+   * @param typeRegistry 
+   */
   constructor(
     private backendRouter: BackendRoutingService,
-    private dashboardSvc: DashboardService) {
+    private dashboardSvc: DashboardService,
+    private typeRegistry: WidgetTypeRegistryService) {
   }
 
-  widgets: IWidgetDescriptor[] = [
-    { id: 2, width: 1, height: 1, widgetType: ClockWidgetComponent },
-    { id: 3, width: 3, height: 4, widgetType: FilesWidgetComponent },
-    { id: 1, width: 1, height: 3, widgetType: CalendarWidgetComponent },
-  ];
-
+  /**
+   * 
+   */
   ngOnInit() {
 
+    // TODO: aus dem Backend laden!
+    this.widgets = JSON.parse(this.json).map((item: IDashboardWidgetDescriptor) => {
+      return DashboardWidgetDescriptor.fromJSON(item, this.typeRegistry);
+    })
   }
 
   /**
@@ -43,7 +52,7 @@ export class DashboardWorkspaceComponent implements OnInit {
   onChangeWidgetDimensions(evt: ChangeDimensionsEvent) {
 
     this.widgets.forEach(w => {
-      if(w.id === evt.id) {
+      if (w.id === evt.id) {
         w.height = evt.height;
         w.width = evt.width;
       }
@@ -56,7 +65,7 @@ export class DashboardWorkspaceComponent implements OnInit {
    * 
    * @param id 
    */
-  onDeleteWidget(id: number) {
+  onDeleteWidget(id: string) {
 
     this.widgets = this.widgets.filter(w => {
       return w.id !== id;
