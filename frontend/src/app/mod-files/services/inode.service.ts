@@ -29,7 +29,7 @@ export class INodeService {
       ['createDocument', 'v1/filesys/createDocument/{1}/{2}/{3}'],
       ['updateINode', 'v1/filesys/update'],
       ['getContent', 'v1/filecontent/{1}'],
-      ['sendToDashboard', 'v1/dashboard/addLink?refId={1}&refType=INODES']
+      ['sendToDashboard', 'v1/dashboard/links?refId={1}&refType=INODES']
     ]
   );
 

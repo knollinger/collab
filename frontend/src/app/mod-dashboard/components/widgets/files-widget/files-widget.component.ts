@@ -27,6 +27,10 @@ export class FilesWidgetComponent implements OnInit {
    * 
    */
   ngOnInit() {
+    this.loadINodes();
+  }
+
+  private loadINodes() {
 
     this.inodeSvc.loadINodes()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -63,6 +67,10 @@ export class FilesWidgetComponent implements OnInit {
    */
   onUnlinkINode(evt: Event, inode: INode) {
     evt.stopPropagation();
-    alert('not yet implemented');
+    this.inodeSvc.unlinkINode(inode)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(_ => {
+        this.loadINodes();
+      });
   }
 }

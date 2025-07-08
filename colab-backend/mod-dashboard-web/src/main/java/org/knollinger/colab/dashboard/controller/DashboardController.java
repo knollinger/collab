@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.knollinger.colab.dashboard.data.DashboardWidgetDesc;
 import org.knollinger.colab.dashboard.dtos.DashboardWidgetDescDTO;
+import org.knollinger.colab.dashboard.exceptions.DashboardLinkExistsException;
 import org.knollinger.colab.dashboard.exceptions.TechnicalDashboardException;
 import org.knollinger.colab.dashboard.mapper.IDashboardWidgetMapper;
 import org.knollinger.colab.dashboard.services.IDashboardINodesService;
@@ -101,12 +102,29 @@ public class DashboardController
         }
     }
 
-    @PutMapping(path = "/addLink")
+    @PutMapping(path = "/links")
     public void addLink(@RequestParam("refId") UUID refId, @RequestParam("refType") String refType)
     {
         try
         {
             this.dashboardSvc.addLink(refId, refType);
+        }
+        catch (TechnicalDashboardException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (DashboardLinkExistsException e)
+        {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
+        }
+    }
+
+    @DeleteMapping(path = "links")
+    public void deleteLink(@RequestParam("refId") UUID refId)
+    {
+        try
+        {
+            this.dashboardSvc.removeLink(refId);
         }
         catch (TechnicalDashboardException e)
         {

@@ -4,11 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.knollinger.colab.dashboard.data.DashboardWidgetDesc;
+import org.knollinger.colab.dashboard.exceptions.DashboardLinkExistsException;
 import org.knollinger.colab.dashboard.exceptions.TechnicalDashboardException;
 import org.knollinger.colab.dashboard.services.IDashboardService;
 import org.knollinger.colab.user.services.ICurrentUserService;
@@ -35,10 +37,14 @@ public class DashboardServiceImpl implements IDashboardService
     private static final String SQL_DELETE_WIDGET = "" //
         + "delete from dashboard_widgets" //
         + "  where uuid=?";
-    
+
     private static final String SQL_ADD_LINK = "" //
         + " insert into dashboard_links" //
         + "   set owner=?, refId=?, refType=?";
+    
+    private static final String SQL_DELETE_LINK = "" //
+        + "delete from dashboard_links" //
+        + "  where owner=? and refId=?";
 
     @Autowired
     private IDbService dbSvc;
@@ -175,7 +181,7 @@ public class DashboardServiceImpl implements IDashboardService
      *
      */
     @Override
-    public void addLink(UUID refId, String refType) throws TechnicalDashboardException
+    public void addLink(UUID refId, String refType) throws TechnicalDashboardException, DashboardLinkExistsException
     {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -184,9 +190,39 @@ public class DashboardServiceImpl implements IDashboardService
         {
             conn = this.dbSvc.openConnection();
             stmt = conn.prepareStatement(SQL_ADD_LINK);
-            stmt.setString(1,  this.userSvc.get().getUser().getUserId().toString());
+            stmt.setString(1, this.userSvc.get().getUser().getUserId().toString());
             stmt.setString(2, refId.toString());
             stmt.setString(3, refType);
+            stmt.executeUpdate();
+        }
+        catch (SQLIntegrityConstraintViolationException e)
+        {
+            throw new DashboardLinkExistsException();
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalDashboardException("Der Link konnte nicht gespeichert werden", e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+            this.dbSvc.closeQuitely(conn);
+        }
+
+    }
+
+    @Override
+    public void removeLink(UUID refId) throws TechnicalDashboardException
+    {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            stmt = conn.prepareStatement(SQL_DELETE_LINK);
+            stmt.setString(1, this.userSvc.get().getUser().getUserId().toString());
+            stmt.setString(2, refId.toString());
             stmt.executeUpdate();
         }
         catch (SQLException e)

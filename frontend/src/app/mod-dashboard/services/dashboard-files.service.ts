@@ -13,7 +13,7 @@ export class DashboardFilesService {
   private static routes: Map<string, string> = new Map<string, string>(
     [
       ['loadINodes', 'v1/dashboard/files'],
-      ['unlinkINode', 'v1/dashboard/files/{1}'],
+      ['unlinkINode', 'v1/dashboard/links?refId={1}'],
       ['getIcon', 'v1/contenttype/{1}/{2}']
     ]
   );
@@ -48,9 +48,9 @@ export class DashboardFilesService {
    * 
    * @returns 
    */
-  public unlinkINode(inodeId: string): Observable<void> {
+  public unlinkINode(inode: INode): Observable<void> {
 
-    const url = this.backendRouter.getRouteForName('unlinkINode', DashboardFilesService.routes, inodeId);
+    const url = this.backendRouter.getRouteForName('unlinkINode', DashboardFilesService.routes, inode.uuid);
     return this.http.delete<void>(url);
   }
 
