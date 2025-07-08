@@ -1,18 +1,19 @@
-.outer-container {
-    position: relative;
+:host {
+    width: 100%;
     height: 100%;
-    overflow: auto;
+    display: block;
+    background-color: whitesmoke;
+    color: #333;
+    position: relative;
 }
 
 .content {
-    display: inline-grid;
-    grid-template-columns: 1fr 3fr;
+    height: 100%;
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: center;   
+    align-content: center;
     gap: 0.5rem;
-    margin: 2rem 0 0 2rem;
-    padding: 0.5rem;
-    border: 1px solid #d0d0d0;
-    background-color: white;
-    color: #333;
 }
 
 .options-col1 {
@@ -31,4 +32,10 @@
     display: inline;
     grid-column-start: 1;
     grid-column-end: 3;
+}
+
+.close-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
 }

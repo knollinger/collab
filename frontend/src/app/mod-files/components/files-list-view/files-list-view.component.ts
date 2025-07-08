@@ -55,6 +55,9 @@ export class FilesListViewComponent implements OnInit {
   paste: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Output()
+  sendToDashboard: EventEmitter<INode> = new EventEmitter<INode>();
+
+  @Output()
   showProps: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Input()
@@ -222,6 +225,14 @@ export class FilesListViewComponent implements OnInit {
    */
   onPaste(inode: INode) {
     this.paste.emit(inode);
+  }
+
+  /**
+   * 
+   * @param inode 
+   */
+  onSendToDashboard(inode: INode) {
+    this.sendToDashboard.emit(inode);
   }
 
   /**

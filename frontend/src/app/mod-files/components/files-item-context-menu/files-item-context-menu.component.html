@@ -50,7 +50,16 @@
     <mat-divider></mat-divider>
     <button mat-menu-item
             [disabled]="!this.isReadAllowed"
+            (click)="onSendToDashboard()">
+        <mat-icon class="material-symbols-outlined">dashboard_customize</mat-icon>Ans Dashboard senden
+    </button>
+
+    <mat-divider></mat-divider>
+    <button mat-menu-item
+            [disabled]="!this.isReadAllowed"
             (click)="onShowProps()">
         <mat-icon class="material-symbols-outlined">settings</mat-icon>Eigenschaften
     </button>
+
+    
 </mat-menu>

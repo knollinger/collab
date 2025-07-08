@@ -1,3 +1,30 @@
 <app-dashboard-widget-template title="Dateien">
-    <p>files-widget works!</p>
+
+    <!-- <mat-chip-listbox>
+        <mat-chip *ngFor="let inode of inodes"
+                  [routerLink]="getRouterLink(inode)">
+
+            <div class="content">
+                <mat-icon class="material-symbols-outlined">{{getIcon(inode)}}</mat-icon>
+                <span>{{inode.name}}</span>
+            </div>
+
+            <button matChipRemove (click)="onUnlinkINode(inode)">
+                <mat-icon class="material-symbols-outlined">cancel</mat-icon>
+            </button>
+
+        </mat-chip>
+    </mat-chip-listbox> -->
+
+    <div class="item mat-elevation-z2"
+         *ngFor="let inode of inodes"
+         [routerLink]="getRouterLink(inode)">
+
+        <img [src]="getMimetypeIcon(inode)">
+        <span>{{inode.name}}</span>
+        <button mat-icon-button
+                (click)="onUnlinkINode($event, inode)">
+            <mat-icon class="material-symbols-outlined">close</mat-icon>
+        </button>
+    </div>
 </app-dashboard-widget-template>

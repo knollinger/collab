@@ -26,6 +26,7 @@ export class DashboardWidgetDescriptor {
     constructor(
         public readonly id: string,
         public readonly widgetType: Type<unknown>,
+        public readonly typeName: string,
         public width: number,
         public height: number) {
 
@@ -38,12 +39,11 @@ export class DashboardWidgetDescriptor {
      */
     public static fromJSON(json: IDashboardWidgetDescriptor, typeRegistry: WidgetTypeRegistryService): DashboardWidgetDescriptor {
 
-        console.log('fromJSON')
         let type = typeRegistry.getTypeByName(json.widgetType);
         if(type === null) {
             type = DashboardUnknownWidgetTypeComponent;
         }
-        return new DashboardWidgetDescriptor(json.id, type, json.width, json.height);
+        return new DashboardWidgetDescriptor(json.id, type, json.widgetType, json.width, json.height);
     }
 
     /**

@@ -13,7 +13,9 @@ export class DashboardService {
 
   private static routes: Map<string, string> = new Map<string, string>(
     [
-      ['loadWidgets', 'v1/dashboard/widgets']
+      ['loadWidgets', 'v1/dashboard/widgets'],
+      ['addWidget', 'v1/dashboard/widgets?typeName={1}'],
+      ['deleteWidget', 'v1/dashboard/widgets?widgetId={1}']
     ]
   );
 
@@ -41,5 +43,30 @@ export class DashboardService {
       .pipe(map(descs => {
         return descs.map(desc => DashboardWidgetDescriptor.fromJSON(desc, this.typeRegistry));
       }));
+  }
+
+  /**
+   * 
+   * @param typeName 
+   * @returns 
+   */
+  public addWidget(typeName: string): Observable<DashboardWidgetDescriptor> {
+
+    const url = this.backendRouter.getRouteForName('addWidget', DashboardService.routes, typeName);
+    return this.http.put<IDashboardWidgetDescriptor>(url, null)
+      .pipe(map(desc => {
+        return DashboardWidgetDescriptor.fromJSON(desc, this.typeRegistry);
+      }))
+  }
+
+  /**
+   * 
+   * @param widgetId 
+   * @returns 
+   */
+  public deleteWidget(widgetId: string): Observable<void> {
+
+    const url = this.backendRouter.getRouteForName('deleteWidget', DashboardService.routes, widgetId);
+    return this.http.delete<void>(url);
   }
 }

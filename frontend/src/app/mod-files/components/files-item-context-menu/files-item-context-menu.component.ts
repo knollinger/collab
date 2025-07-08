@@ -46,6 +46,9 @@ export class FilesItemContextMenuComponent implements OnInit {
   paste: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Output()
+  sendToDashboard: EventEmitter<INode> = new EventEmitter<INode>();
+
+  @Output()
   showProps: EventEmitter<INode> = new EventEmitter<INode>();
 
   triggerPosX: string = '';
@@ -140,6 +143,10 @@ export class FilesItemContextMenuComponent implements OnInit {
     this.paste.emit(this.inode);
   }
 
+  onSendToDashboard() {
+    this.sendToDashboard.emit(this.inode);
+  }
+  
   /**
    * 
    */

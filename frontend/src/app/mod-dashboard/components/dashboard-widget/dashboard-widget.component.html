@@ -2,8 +2,9 @@
 
     <div class="content"
          [class.hidden]="showOptions">
-        <ng-container #viewCnr>
-        </ng-container>
+        <!-- <ng-container #viewCnr> -->
+            <!-- </ng-container> -->
+            <ng-container [ngComponentOutlet]="widgetType"></ng-container>
     </div>
 
     <app-dashboard-widget-properties [id]="id"

@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 import { ModSessionModule } from '../mod-session/session.module';
+import { ModFilesDataModule } from '../mod-files-data/mod-files-data.module';
 
 import { DashboardMainComponent } from './components/dashboard-main/dashboard-main.component';
 import { ModDashboardRoutingModule } from './mod-dashboard-routing.module';
@@ -39,6 +40,7 @@ import { DashboardUnknownWidgetTypeComponent } from './components/widgets/dashbo
     ModCommonsModule,
     ModMaterialImportModule,
     ModSessionModule,
+    ModFilesDataModule,
     ModDashboardRoutingModule
   ],
   exports: [

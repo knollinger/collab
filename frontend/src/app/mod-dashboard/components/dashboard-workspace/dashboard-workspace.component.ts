@@ -4,8 +4,8 @@ import { DashboardService } from '../../services/dashboard.service';
 
 import { ChangeDimensionsEvent } from '../dashboard-widget-properties/dashboard-widget-properties.component';
 
-import { DashboardWidgetDescriptor, IDashboardWidgetDescriptor } from '../../models/dashboard-widget-descriptor';
-import { WidgetTypeRegistryService } from '../../services/widget-type-registry.service';
+import { DashboardWidgetDescriptor } from '../../models/dashboard-widget-descriptor';
+import { WidgetTypeRegistryService, IWidgetTypeAndDesc } from '../../services/widget-type-registry.service';
 
 @Component({
   selector: 'app-dashboard-workspace',
@@ -16,10 +16,9 @@ import { WidgetTypeRegistryService } from '../../services/widget-type-registry.s
 export class DashboardWorkspaceComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
+
   gridCols: number = 4;
   rowHeight: string = '20%';
-
-  private json = '[{"id": "1", "widgetType":"clock","width":1,"height":1},{"id": "2", "widgetType":"files","width":3,"height":4},{"id": "3", "widgetType":"calendar","width":1,"height":3}]';
   widgets: DashboardWidgetDescriptor[] = [];
 
   /**
@@ -30,7 +29,7 @@ export class DashboardWorkspaceComponent implements OnInit {
    */
   constructor(
     private dashboardSvc: DashboardService,
-    private typeRegistry: WidgetTypeRegistryService) {
+    private widgetRegistrySvc: WidgetTypeRegistryService) {
   }
 
   /**
@@ -38,14 +37,28 @@ export class DashboardWorkspaceComponent implements OnInit {
    */
   ngOnInit() {
 
-    // this.widgets = JSON.parse(this.json).map((item: IDashboardWidgetDescriptor) => {
-    //   return DashboardWidgetDescriptor.fromJSON(item, this.typeRegistry);
-    // })
     this.dashboardSvc.loadWidgets()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(widgets => {
         this.widgets = widgets;
       })
+  }
+
+  /**
+   * 
+   */
+  get widgetsToAdd(): IWidgetTypeAndDesc[] {
+    return this.widgetRegistrySvc.getWidgetDescs();
+  }
+
+  /**
+   * 
+   * @param widget 
+   * @returns 
+   */
+  calcGridAreaFor(widget: DashboardWidgetDescriptor): string {
+
+    return `span ${widget.height} / span ${widget.width}`;
   }
 
   /**
@@ -70,8 +83,25 @@ export class DashboardWorkspaceComponent implements OnInit {
    */
   onDeleteWidget(id: string) {
 
-    this.widgets = this.widgets.filter(w => {
-      return w.id !== id;
-    })
+    this.dashboardSvc.deleteWidget(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(_ => {
+        this.widgets = this.widgets.filter(w => {
+          return w.id !== id;
+        })
+      })
+  }
+
+  /**
+   * 
+   * @param typeName 
+   */
+  onAddWidget(typeName: string) {
+
+    this.dashboardSvc.addWidget(typeName)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(widget => {
+        this.widgets.push(widget);
+      })
   }
 }

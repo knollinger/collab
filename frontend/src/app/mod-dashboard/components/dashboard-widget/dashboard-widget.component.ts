@@ -58,10 +58,10 @@ export class DashboardWidget implements OnInit {
    */
   ngOnInit() {
 
-    if (this.widgetType) {
-      this.viewCnr.clear();
-      this.viewCnr.createComponent(this.widgetType);
-    }
+    // if (this.widgetType) {
+    //   this.viewCnr.clear();
+    //   this.viewCnr.createComponent(this.widgetType);
+    // }
   }
 
   toggleOptions() {
