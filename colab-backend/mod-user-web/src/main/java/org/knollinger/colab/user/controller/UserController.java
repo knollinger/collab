@@ -32,6 +32,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * Der USerController stellt die REST-APIs für die elementaren CRUD-Ops bzgl der Benutzer bereit.
+ * 
+ * Zusätzlich stehen noch die APIs zur Verwaltung der Avatare und zur Volltext-Suche über alle
+ * Benutzer bereit.
+ */
 @RestController
 @RequestMapping(path = "v1/users")
 public class UserController
@@ -52,6 +58,8 @@ public class UserController
     private IUserMapper userMapper;
 
     /**
+     * Liefere die Liste aller Benutzer
+     * 
      * @return
      */
     @GetMapping(path = "/all")
@@ -69,6 +77,8 @@ public class UserController
     }
 
     /**
+     * Lege einen neuen Benutzer an
+     * 
      * @param user
      * @return
      */
@@ -91,6 +101,8 @@ public class UserController
     }
 
     /**
+     * Lese einen Benutzer
+     * 
      * @param uuid
      * @return
      */
@@ -113,6 +125,8 @@ public class UserController
     }
 
     /**
+     * Aktualisiere einen Benutzer
+     * 
      * @param user
      * @return
      */
@@ -139,6 +153,8 @@ public class UserController
     }
 
     /**
+     * Lösche einen Benutzer
+     * 
      * @param uuid
      */
     @DeleteMapping(path = "/user/{userId}")
@@ -159,6 +175,8 @@ public class UserController
     }
 
     /**
+     * Liefere den Avatar eines Benutzers
+     * 
      * @param uuid
      * @return
      */
@@ -184,6 +202,8 @@ public class UserController
     }
 
     /**
+     * Aktualisiere den Avatar eines Benutzers
+     * 
      * @param uuid
      * @param avatar
      */
@@ -205,6 +225,29 @@ public class UserController
     }
 
     /**
+     * Lösche den Avatar eines Benutzers
+     * 
+     * @param uuid
+     */
+    @DeleteMapping(path = "/avatar/{uuid}")
+    public void deleteAvatar(@PathVariable("uuid") UUID uuid)
+    {
+        try
+        {
+            this.avatarSvc.deleteAvatar(uuid);
+        }
+        catch (UserNotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+        catch (TechnicalUserException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * Führe eine Volltext-Suche über alle Benutzer durch
      * @param search
      * @return
      */

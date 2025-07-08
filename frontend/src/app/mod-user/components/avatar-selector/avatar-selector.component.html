@@ -1,10 +1,19 @@
-<img [src]="url | safe:'resourceUrl'"
-     class="mat-elevation-z2"
-     (click)="fileSelector.click()"
-     matTooltip="Ein neues Bild als Avatar auswählen">
+<div class="outer-container">
+
+     <img [src]="url | safe:'resourceUrl'"
+          class="mat-elevation-z2"
+          (click)="fileSelector.click()"
+          matTooltip="Ein neues Bild als Avatar auswählen">
+          
+     <input #fileSelector
+            type="file"
+            class="hidden"
+            accept="image/*"
+            (change)="onFileSelection($event)">
      
-<input #fileSelector
-       type="file"
-       class="hidden"
-       accept="image/*"
-       (change)="onFileSelection($event)">
+     <button mat-mini-fab class="deleteBtn" color="primary">
+          <mat-icon  class="material-symbols-outlined">delete</mat-icon>
+     </button>
+
+</div>
+

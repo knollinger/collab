@@ -1,8 +1,22 @@
+.outer-container {
+    position: relative;
+    display: inline-block;
+}
+
 img {
+    position: relative;
+    top: 0;
+    left: 0;
     width: 128px;
     margin-bottom: 0.5rem;
     cursor: pointer;
     border: 1px solid #d0d0d0;
     border-radius: 2px;
 
+}
+
+.deleteBtn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
 }
