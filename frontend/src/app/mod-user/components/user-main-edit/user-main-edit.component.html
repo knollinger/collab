@@ -16,7 +16,8 @@
 
         <button mat-icon-button
                 *ngIf="isUserSelected()"
-                matTooltip="Den ausgewählten Benutzer löschen">
+                matTooltip="Den ausgewählten Benutzer löschen"
+                (click)="onDeleteUser()">
             <mat-icon class="material-symbols-outlined">delete</mat-icon>
         </button>
 

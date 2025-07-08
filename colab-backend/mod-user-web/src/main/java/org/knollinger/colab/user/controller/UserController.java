@@ -12,26 +12,28 @@ import org.knollinger.colab.user.models.Avatar;
 import org.knollinger.colab.user.models.User;
 import org.knollinger.colab.user.services.IAvatarService;
 import org.knollinger.colab.user.services.ICreateUserService;
+import org.knollinger.colab.user.services.IDeleteUserService;
 import org.knollinger.colab.user.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-/**
- * 
- */
 @RestController
-@RequestMapping(path = "/v1/user")
+@RequestMapping(path = "v1/users")
 public class UserController
 {
     @Autowired
@@ -41,22 +43,24 @@ public class UserController
     private ICreateUserService createUserSvc;
 
     @Autowired
+    private IDeleteUserService deleteUserSvc;
+
+    @Autowired
     private IAvatarService avatarSvc;
 
     @Autowired
     private IUserMapper userMapper;
 
     /**
-     * @param uuid
      * @return
      */
-    @GetMapping(path = "/list")
-    public List<UserDTO> listUsers()
+    @GetMapping(path = "/all")
+    public List<UserDTO> getAllUsers()
     {
         try
         {
-            List<User> user = this.userSvc.listUser();
-            return this.userMapper.toDTO(user);
+            List<User> result = this.userSvc.listUser();
+            return this.userMapper.toDTO(result);
         }
         catch (TechnicalUserException e)
         {
@@ -65,16 +69,38 @@ public class UserController
     }
 
     /**
-     * @param uuid
+     * @param user
      * @return
      */
-    @GetMapping(path = "/get/{uuid}")
-    public UserDTO getUser(@PathVariable("uuid") UUID uuid)
+    @PutMapping(path = "/user")
+    public UserDTO createUser(@RequestBody UserDTO user)
     {
         try
         {
-            User user = this.userSvc.getUser(uuid);
-            return this.userMapper.toDTO(user);
+            User result = this.createUserSvc.createUser(this.userMapper.fromDTO(user));
+            return this.userMapper.toDTO(result);
+        }
+        catch (TechnicalUserException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (DuplicateUserException e)
+        {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param uuid
+     * @return
+     */
+    @GetMapping(path = "/user/{userId}")
+    public UserDTO readUser(@PathVariable("userId") UUID uuid)
+    {
+        try
+        {
+            User result = this.userSvc.getUser(uuid);
+            return this.userMapper.toDTO(result);
         }
         catch (UserNotFoundException e)
         {
@@ -87,45 +113,16 @@ public class UserController
     }
 
     /**
-     * @param userDTO
+     * @param user
      * @return
      */
-    @PostMapping(path = "/save")
-    public UserDTO saveUser(//
-        @RequestParam(name="uuid", required=false) UUID uuid, //
-        @RequestParam("accountName") String accountName, //
-        @RequestParam("email") String email, //
-        @RequestParam("surname") String surname, //
-        @RequestParam("lastname") String lastname, //
-        @RequestParam(name = "avatar", required = false) MultipartFile avatar)
+    @PostMapping(path = "/user")
+    public UserDTO updateUser(@RequestBody UserDTO user)
     {
         try
         {
-
-
-            User user = User.empty();
-            if (uuid == null)
-            {
-                user = this.createUserSvc.createUser(accountName, email, surname, lastname, avatar);
-            }
-            else {
-                
-                user = User.builder() //
-                    .userId(uuid) //
-                    .accountName(accountName) //
-                    .email(email) //
-                    .surname(surname) //
-                    .lastname(lastname) //
-                    .build();
-                
-                user = this.userSvc.saveUser(user);
-                
-                if (avatar != null) // TODO: Avatar direkt übergeben
-                {
-                    this.avatarSvc.saveAvatar(user.getUserId(), avatar);
-                }
-            }
-            return this.userMapper.toDTO(user);
+            User result = this.userSvc.saveUser(this.userMapper.fromDTO(user));
+            return this.userMapper.toDTO(result);
         }
         catch (UserNotFoundException e)
         {
@@ -138,6 +135,26 @@ public class UserController
         catch (TechnicalUserException e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param uuid
+     */
+    @DeleteMapping(path = "/user/{userId}")
+    public void deleteUser(@PathVariable("userId") UUID uuid)
+    {
+        try
+        {
+            this.deleteUserSvc.deleteUser(uuid);
+        }
+        catch (TechnicalUserException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (UserNotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 
@@ -165,24 +182,44 @@ public class UserController
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
-    
 
     /**
-     * 
-     * @param search
-     * @return
+     * @param uuid
+     * @param avatar
      */
-    @GetMapping(path = "/searchusers")
-    public List<UserDTO> searchUsers(@RequestParam("search") String search)
+    @PostMapping(path = "/avatar", consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    public void updateAvatar(@RequestParam("userId") UUID uuid, @RequestParam("avatar") MultipartFile avatar)
     {
         try
         {
-            return this.userMapper.toDTO(this.userSvc.fullTextSearch(search));
+            this.avatarSvc.saveAvatar(uuid, avatar);
+        }
+        catch (UserNotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+        catch (TechnicalUserException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    /**
+     * @param search
+     * @return
+     */
+    @GetMapping(path = "/search")
+    public List<UserDTO> searchUsers(@RequestParam("search") String search)
+    {
+
+        try
+        {
+            List<User> result = this.userSvc.fullTextSearch(search);
+            return this.userMapper.toDTO(result);
         }
         catch (TechnicalUserException e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
-
 }

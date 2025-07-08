@@ -22,4 +22,5 @@ public interface IUserService
      * @return
      */
     public List<User> fullTextSearch(String search) throws TechnicalUserException;
+
 }

@@ -13,4 +13,5 @@ public interface IAvatarService
 
     public void saveAvatar(UUID uuid, MultipartFile avatar) throws UserNotFoundException, TechnicalUserException;
 
+    public void deleteAvatar(UUID uuid) throws UserNotFoundException, TechnicalUserException;
 }

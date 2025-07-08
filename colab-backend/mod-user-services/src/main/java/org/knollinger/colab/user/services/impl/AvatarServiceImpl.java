@@ -36,6 +36,10 @@ public class AvatarServiceImpl implements IAvatarService
         + "update users set avatar=?, avatarType=?" //
         + "  where uuid=?";
 
+    private static final String SQL_DELETE_AVATAR = "" //
+        + "update users set avatar=NULL, avatarType=NULL" //
+        + "  where uuid=?";
+
     // Der Default-Avatar ist ein SVG-Image, in welchem die Initialen des Benutzers in einem blauen Kreis angezeigt werden.
     private static final String DEFAULT_AVATAR_SVG = "" //
         + "<svg" // 
@@ -45,7 +49,7 @@ public class AvatarServiceImpl implements IAvatarService
         + "    style=\"shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd\"" //
         + "    viewBox=\"0 0 128 128\">" //
         + "    <g>" //
-        + "        <circle style=\"fill:#9b9dff; stroke:#0000a0; stroke-width:3;\" cx=\"64\" cy=\"64\" r=\"60\" />" //
+        + "        <circle style=\"fill:#3f51b5; stroke:#0000FF; stroke-width:3;\" cx=\"64\" cy=\"64\" r=\"60\" />" //
         + "        <text x=\"64\" y=\"80\" text-anchor=\"middle\" stroke=\"white\" fill=\"white\" font-size=\"48\">${INITIALS}</text>" //
         + "    </g>" //
         + "</svg>";
@@ -152,6 +156,37 @@ public class AvatarServiceImpl implements IAvatarService
             }
         }
         catch (SQLException | IOException e)
+        {
+            throw new TechnicalUserException(uuid, e);
+        }
+        finally
+        {
+            this.dbService.closeQuitely(stmt);
+            this.dbService.closeQuitely(conn);
+
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void deleteAvatar(UUID uuid) throws UserNotFoundException, TechnicalUserException
+    {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+
+        try
+        {
+            conn = this.dbService.openConnection();
+            stmt = conn.prepareStatement(SQL_DELETE_AVATAR);
+            stmt.setString(1, uuid.toString());
+            if (stmt.executeUpdate() == 0)
+            {
+                throw new UserNotFoundException(uuid);
+            }
+        }
+        catch (SQLException e)
         {
             throw new TechnicalUserException(uuid, e);
         }

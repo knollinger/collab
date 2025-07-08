@@ -1,10 +1,14 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, last } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map, takeUntil } from 'rxjs';
 
 import { IUser, User } from '../../mod-userdata/models/user';
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
-import { HttpClient, HttpRequest, HttpResponse } from '@angular/common/http';
 
+/**
+ * Alle CRUD-Ops rund um die Benutzer
+ * 
+ */
 @Injectable({
   providedIn: 'root'
 })
@@ -12,11 +16,12 @@ export class UserService {
 
   private static routes: Map<string, string> = new Map<string, string>(
     [
-      ['listUsers', 'v1/user/list'],
-      ['getUser', 'v1/user/get/{1}'],
-      ['saveUser', 'v1/user/save'],
-      ['searchUsers', 'v1/user/searchusers?search={1}'],
-      ['getAvatar', 'v1/user/avatar/{1}']
+      ['allUsers', 'v1/users/all'],
+      ['createUser', 'v1/users/user'],
+      ['readUser', 'v1/users/user/{1}'],
+      ['updateUser', 'v1/users/user'],
+      ['deleteUser', 'v1/users/user/{1}'],
+      ['searchUsers', 'v1/users/search?search={1}'],
     ]
   );
 
@@ -32,75 +37,93 @@ export class UserService {
 
   /**
    * 
-   * @param uuid 
+   * @returns Alle Benutzer enumerieren
    */
-  getUser(uuid: string): Observable<User> {
+  public getAllUsers(): Observable<User[]> {
 
-    const url = this.backendRouter.getRouteForName('getUser', UserService.routes, uuid);
-    return this.http.get<IUser>(url).pipe(
-      map(json => {
-        return User.fromJSON(json);
-      })
-    );
-  }
-
-  /** 
-   * 
-   */
-  saveUser(user: User, avatar?: File): Observable<User> {
-
-    const form = new FormData();
-    form.append('uuid', user.userId);
-    form.append('accountName', user.accountName);
-    form.append('surname', user.surname);
-    form.append('lastname', user.lastname);
-    form.append('email', user.email);
-    if (avatar) {
-      form.append('avatar', avatar);
-    }
-
-    const url = this.backendRouter.getRouteForName('saveUser', UserService.routes);
-    const req = new HttpRequest('POST', url, form);
-    const res = this.http.request(req).pipe(
-      last());
-
-    return (res as Observable<HttpResponse<IUser>>).pipe(map(val => {
-
-      const json = val.body as IUser;
-      return User.fromJSON(json);
-    }));
+    const url = this.backendRouter.getRouteForName('allUsers', UserService.routes);
+    return this.http.get<IUser[]>(url)
+      .pipe(map(json => {
+        return json.map(user => {
+          return User.fromJSON(user);
+        })
+      }));
   }
 
   /**
+   * 
+   * @param user Einen Benutzer erzeugen
+   * 
+   * @param avatar 
+   * @returns 
+   */
+  public createUser(user: User): Observable<User> {
+
+    const url = this.backendRouter.getRouteForName('createUser', UserService.routes);
+    return this.http.put<IUser>(url, user.toJSON())
+      .pipe(map(json => {
+
+        const user = User.fromJSON(json);
+        return user;
+      }));
+  }
+
+  /**
+   * 
+   * @param userId Einen Benutzer lesen
    * 
    * @returns 
    */
-  listUsers(): Observable<User[]> {
+  public readUser(userId: string): Observable<User> {
 
-    const url = this.backendRouter.getRouteForName('listUsers', UserService.routes);
-    return this.http.get<IUser[]>(url).pipe(
-      map(users => {
-        return users.map(user => {
-          return User.fromJSON(user);
-        })
-      })
-    );
+    const url = this.backendRouter.getRouteForName('readUser', UserService.routes, userId);
+    return this.http.get<IUser>(url)
+      .pipe(map(json => {
+        return User.fromJSON(json);
+      }));
   }
 
   /**
+   * Einen Benutzer ändern
+   * 
+   * @param user 
+   * @returns 
+   */
+  public updateUser(user: User): Observable<User> {
+
+    const url = this.backendRouter.getRouteForName('updateUser', UserService.routes);
+    return this.http.post<IUser>(url, user.toJSON())
+      .pipe(map(json => {
+        return User.fromJSON(json);
+      }));
+  }
+
+  /**
+   * 
+   * @param user Einen Benutzer löschen
+   * 
+   * @returns 
+   */
+  public delUser(user: User): Observable<void> {
+
+    const url = this.backendRouter.getRouteForName('deleteUser', UserService.routes, user.userId);
+    return this.http.delete<void>(url);
+  }
+
+  /**
+   * Nach Benutzern suchen
    * 
    * @param search 
    * @returns 
    */
-  searchUsers(search: string): Observable<User[]> {
+  public searchUsers(search: string): Observable<User[]> {
 
     const url = this.backendRouter.getRouteForName('searchUsers', UserService.routes, search);
-    return this.http.get<IUser[]>(url).pipe(
-      map(users => {
+    return this.http.get<IUser[]>(url)
+      .pipe(map(users => {
         return users.map(user => {
           return User.fromJSON(user);
         })
-      })
-    );
+      }));
   }
 }

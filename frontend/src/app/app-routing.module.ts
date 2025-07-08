@@ -35,10 +35,6 @@ const routes: Routes = [
     loadChildren: () => import('./mod-calendar/mod-calendar.module').then(mod => mod.ModCalendarModule)
   },
   {
-    path: 'pinboard',
-    loadChildren: () => import('./mod-pinboard/mod-pinboard.module').then(mod => mod.ModPinboardModule)
-  },
-  {
     path: 'user',
     loadChildren: () => import('./mod-user/mod-user.module').then(mod => mod.ModUserModule)
   },

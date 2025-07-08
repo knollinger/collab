@@ -100,6 +100,35 @@ public class CreateUserServiceImpl implements ICreateUserService
             this.dbSvc.closeQuitely(conn);
         }
     }
+    
+    public User createUser(User user) throws TechnicalUserException, DuplicateUserException {
+        
+        Connection conn = null;
+        User result = User.empty();
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            conn.setAutoCommit(false);
+
+            result = this.createAccount(user, conn);
+            this.createHomeDirectory(result, conn);
+            this.createUserGroup(result, conn);
+            this.addToDefaultGroups(result, conn);
+
+            conn.commit();
+            return user;
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            String msg = String.format("Der Benutzer-Account '%1$s' konnte nicht angelegt werden", user.getAccountName());
+            throw new TechnicalUserException(msg, e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(conn);
+        }
+    }
 
     /**
      * @param accountName
@@ -147,6 +176,49 @@ public class CreateUserServiceImpl implements ICreateUserService
         catch (NoSuchAlgorithmException | SQLException e)
         {
             throw new TechnicalUserException(email, e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    private User createAccount(User user, Connection conn)
+        throws DuplicateUserException, TechnicalUserException
+    {
+        PreparedStatement stmt = null;
+
+        try
+        {
+            UUID uuid = UUID.randomUUID();
+            byte[] salt = CryptoHelper.createSalt();
+            String pwdHash = CryptoHelper.createHash(CryptoHelper.saltPassword("Start123", salt));
+
+            stmt = conn.prepareStatement(SQL_CREATE_ACCOUNT);
+            stmt.setString(1, uuid.toString());
+            stmt.setString(2, user.getAccountName());
+            stmt.setString(3, user.getEmail());
+            stmt.setString(4, user.getSurname());
+            stmt.setString(5, user.getLastname());
+            stmt.setString(6, pwdHash);
+            stmt.setString(7, HexFormat.of().formatHex(salt));
+            stmt.executeUpdate();
+
+            return User.builder() //
+                .userId(uuid) //
+                .accountName(user.getAccountName()) //
+                .email(user.getEmail()) //
+                .surname(user.getSurname()) //
+                .lastname(user.getLastname()) //
+                .build();
+        }
+        catch (SQLIntegrityConstraintViolationException e)
+        {
+            throw new DuplicateUserException(user.getEmail()); // TOD: accountName muss auch uniqe sein
+        }
+        catch (NoSuchAlgorithmException | SQLException e)
+        {
+            throw new TechnicalUserException(user.getEmail(), e);
         }
         finally
         {

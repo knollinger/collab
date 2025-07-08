@@ -30,6 +30,7 @@ export class UserEditComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private titleBarSvc: TitlebarService,
+    private avatarSvc: AvatarService,
     private route: ActivatedRoute,
     private userSvc: UserService) {
 
@@ -50,7 +51,7 @@ export class UserEditComponent implements OnInit {
   ngOnInit(): void {
 
     this.titleBarSvc.subTitle = 'Benutzer-Verwaltung';
-    
+
     this.route.params
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
@@ -92,7 +93,7 @@ export class UserEditComponent implements OnInit {
    */
   private loadUser() {
 
-    this.userSvc.getUser(this.userId)
+    this.userSvc.readUser(this.userId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(user => {
         this.user = user;
@@ -115,12 +116,20 @@ export class UserEditComponent implements OnInit {
   onSubmit() {
 
     const user = User.fromJSON(this.userForm.getRawValue());
-    this.userSvc.saveUser(user, this.newAvatar)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    const result = (user.userId) ? this.userSvc.updateUser(user) : this.userSvc.createUser(user);
+
+    result.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(rsp => {
 
         this.user = User.fromJSON(rsp);
-        this.newAvatar = undefined;
+
+        if (this.newAvatar) {
+          this.avatarSvc.updateAvatar(this.user.userId, this.newAvatar)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(_ => {
+              this.newAvatar = undefined;
+            })
+        }
       })
   }
 

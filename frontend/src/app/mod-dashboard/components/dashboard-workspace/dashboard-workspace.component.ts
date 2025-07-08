@@ -48,7 +48,28 @@ export class DashboardWorkspaceComponent implements OnInit {
    * 
    */
   get widgetsToAdd(): IWidgetTypeAndDesc[] {
-    return this.widgetRegistrySvc.getWidgetDescs();
+
+    return this.widgetRegistrySvc.getWidgetDescs().filter(desc => {
+      return this.widgetCanBeAdded(desc)
+    });
+  }
+
+  /**
+   * 
+   * @param desc 
+   * @returns 
+   */
+  private widgetCanBeAdded(desc: IWidgetTypeAndDesc): boolean {
+
+    let found = false;
+
+    for (let widget of this.widgets) {
+      if (widget.typeName === desc.typeName) {
+        found = true;
+        break;
+      }
+    }
+    return !found;
   }
 
   /**

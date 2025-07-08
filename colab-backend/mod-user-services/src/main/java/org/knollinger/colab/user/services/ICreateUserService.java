@@ -34,4 +34,13 @@ public interface ICreateUserService
         String surName, //
         String lastName, //
         MultipartFile avatar) throws TechnicalUserException, DuplicateUserException;
+    
+    
+    /**
+     * @param user
+     * @return
+     * @throws TechnicalUserException
+     * @throws DuplicateUserException
+     */
+    public User createUser(User user) throws TechnicalUserException, DuplicateUserException;
 }

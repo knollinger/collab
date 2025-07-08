@@ -126,7 +126,7 @@ export class UserPickerComponent implements OnInit, ControlValueAccessor, Valida
    * Alle Benutzer anzeigen
    */
   private showAll() {
-    this.userSvc.listUsers()
+    this.userSvc.getAllUsers()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(user => {
         this.usersFound = user.filter(user => this.searchFilter(user));

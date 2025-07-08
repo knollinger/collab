@@ -1,9 +1,0 @@
-.add-button {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-}
-
-app-pinboard-card {
-    display: inline-block;
-}

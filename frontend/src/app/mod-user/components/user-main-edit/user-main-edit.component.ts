@@ -50,7 +50,7 @@ export class UserMainEditComponent implements OnInit {
     this.user = currentUser || User.empty();
     this.newAvatar = undefined;
 
-    this.userSvc.listUsers()
+    this.userSvc.getAllUsers()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(users => {
         this.users = users;
@@ -89,5 +89,25 @@ export class UserMainEditComponent implements OnInit {
     this.user = User.empty();
     this.newAvatar = undefined;
     this.showEditor = true;
+  }
+
+  onDeleteUser() {
+
+    const msg = `Möchtest Du wirklich den Benutzer ${this.user.accountName} löschen?<br>Es werden alle Daten, Termine... gelöscht!`;
+    this.msgBoxSvc.showQueryBox('Bist Du sicher?', msg)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(rsp => {
+
+        if(rsp) {
+
+          this.userSvc.delUser(this.user)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(_ => {
+              this.reload();
+              alert('user deleted');
+            })
+        }
+      });
+
   }
 }

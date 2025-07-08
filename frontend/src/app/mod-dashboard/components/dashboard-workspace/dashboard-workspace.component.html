@@ -1,21 +1,32 @@
 <div class="outer-cnr">
-     <div class="dashboard-widgets">
-          <app-dashboard-widget *ngFor="let widget of widgets"
-                                [widgetType]="widget.widgetType"
-                                [id]="widget.id"
-                                [maxWidth]="gridCols"
-                                [width]="widget.width"
-                                [height]="widget.height"
-                                [style.gridArea]="calcGridAreaFor(widget)"
-                                (changeDimensions)="onChangeWidgetDimensions($event)"
-                                (delete)="onDeleteWidget($event)"
-                                class="mat-elevation-z4"></app-dashboard-widget>
-     </div>
-     <button mat-fab
+
+     <mat-grid-list cols="4"
+                    rowHeight="150px"
+                    gutterSize="10">
+
+          <mat-grid-tile *ngFor="let widget of widgets"
+                         [colspan]="widget.width"
+                         [rowspan]="widget.height">
+
+               <app-dashboard-widget [widgetType]="widget.widgetType"
+                                     [id]="widget.id"
+                                     [maxWidth]="gridCols"
+                                     [width]="widget.width"
+                                     [height]="widget.height"
+                                     [style.gridArea]="calcGridAreaFor(widget)"
+                                     (changeDimensions)="onChangeWidgetDimensions($event)"
+                                     (delete)="onDeleteWidget($event)"
+                                     class="mat-elevation-z4"></app-dashboard-widget>
+          </mat-grid-tile>
+     </mat-grid-list>
+
+     <button mat-raised-button
+             *ngIf="widgetsToAdd.length !== 0"
              [matMenuTriggerFor]="widgetsMenu"
              color="primary"
              class="add-widget-btn">
           <mat-icon class="material-symbols-outlined">dashboard_customize</mat-icon>
+          Widget hinzu fügen
      </button>
 
      <mat-menu #widgetsMenu="matMenu">
