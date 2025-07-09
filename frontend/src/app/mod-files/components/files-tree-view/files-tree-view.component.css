@@ -1,0 +1,12 @@
+mat-tree-node {
+    cursor: pointer;
+}
+
+.node {
+    display: flex;
+    align-items: center;
+}
+
+.label {
+    margin-left: 0.5rem;
+}

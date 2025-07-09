@@ -8,6 +8,7 @@ import { NgxMatMomentModule } from '@angular-material-components/moment-adapter'
 
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
+import { ModFilesModule } from '../mod-files/mod-files.module';
 import { ModFilesDataModule } from '../mod-files-data/mod-files-data.module';
 import { ModUserModule } from '../mod-user/mod-user.module';
 import { ModSessionModule } from '../mod-session/session.module';
@@ -45,6 +46,7 @@ import { CalendarEventMenuComponent } from './components/calendar-event-menu/cal
     ModSessionModule,
     ModHashTagsModule,
     ModFilesDataModule,
+    ModFilesModule,
     ModCalendarRoutingModule,
   ],
   exports: [

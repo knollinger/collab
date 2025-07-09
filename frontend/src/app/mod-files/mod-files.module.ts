@@ -38,6 +38,7 @@ export { INodeService};
 import { WopiService } from './services/wopi.service';
 import { FilesFrameSelectorComponent } from './components/files-frame-selector/files-frame-selector.component';
 import { FilesPlacesComponent } from './components/files-places/files-places.component';
+import { FilesTreeViewComponent } from './components/files-tree-view/files-tree-view.component';
 export { WopiService};
 
 @NgModule({
@@ -64,6 +65,7 @@ export { WopiService};
     FilesTableViewComponent,
     FilesFrameSelectorComponent,
     FilesPlacesComponent,
+    FilesTreeViewComponent,
   ],
   imports: [
     CommonModule,
@@ -78,6 +80,7 @@ export { WopiService};
   ],
   exports: [
     FilesMainViewComponent,
+    FilesTreeViewComponent,
     ModFilesRoutingModule
 
   ]
