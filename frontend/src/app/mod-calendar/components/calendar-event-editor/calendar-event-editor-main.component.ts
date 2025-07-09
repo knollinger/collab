@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
@@ -15,27 +15,22 @@ import Quill, { Delta } from 'quill';
   styleUrls: ['./calendar-event-editor-main.component.css'],
   standalone: false
 })
-export class CalendarEventEditorMainComponent implements OnInit, AfterViewInit {
+export class CalendarEventEditorMainComponent implements AfterViewInit {
 
   private destroyRef = inject(DestroyRef);
-
   private _event: CalendarEvent = CalendarEvent.empty();
+  private quill: Quill | null = null;
 
-  @Input()
-  event: CalendarEvent = CalendarEvent.empty();
+  eventForm: FormGroup;
 
   @Output()
   valid: EventEmitter<boolean> = new EventEmitter<boolean>(false);
-
-  eventForm: FormGroup;
-  private quill: Quill | null = null;
 
   /**
    * 
    * @param formBuilder 
    */
-  constructor(
-    formBuilder: FormBuilder) {
+  constructor(formBuilder: FormBuilder) {
 
     this.eventForm = formBuilder.group({
       title: new FormControl('', [Validators.required]),
@@ -46,19 +41,36 @@ export class CalendarEventEditorMainComponent implements OnInit, AfterViewInit {
       endTime: new FormControl('', Validators.required),
 
     });
+    this.fillForm();
     this.eventForm.markAllAsTouched();
   }
 
   /**
    * 
    */
-  ngOnInit(): void {
+  @Input()
+  set event(event: CalendarEvent) {
+    this._event = event;
+    this.fillForm();
+  }
+
+  /**
+   * 
+   */
+  get event(): CalendarEvent {
+    return this._event;
+  }
+
+  /**
+   * 
+   */
+  private fillForm() {
 
     const val = {
       title: this.event.title,
       fullDay: this.event.fullDay,
       private: false,
-      date: new Date(),
+      date: this.event.start,
       startTime: this.getTimeString(this.event.start),
       endTime: this.getTimeString(this.event.end)
     };
@@ -84,7 +96,7 @@ export class CalendarEventEditorMainComponent implements OnInit, AfterViewInit {
 
   /**
    * 
-   * wir wollen Die Description als HTML setzen. Dazu brazúchen wir
+   * wir wollen die Description als HTML setzen. Dazu brazúchen wir
    * ein Quill.Delta, welches die HTML-Styles beinhaltet.
    * Komischerweise gibt es keinen Delta-Konstruktor "fromHTML"
    * 
@@ -121,6 +133,10 @@ export class CalendarEventEditorMainComponent implements OnInit, AfterViewInit {
     return this.eventForm.get('fullDay')?.value;
   }
 
+  /**
+   * 
+   * @param evt 
+   */
   onFullDateChange(evt: MatSlideToggleChange) {
 
     const validator = evt.checked ? null : Validators.required;
@@ -184,6 +200,11 @@ export class CalendarEventEditorMainComponent implements OnInit, AfterViewInit {
     return moment(date).format('HH:mm');
   }
 
+  /**
+   * 
+   * @param time 
+   * @returns 
+   */
   private parseTimeString(time: string): Date {
 
     let result: Date | null = null;

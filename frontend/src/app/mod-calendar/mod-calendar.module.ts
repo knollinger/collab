@@ -10,6 +10,7 @@ import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 import { ModFilesDataModule } from '../mod-files-data/mod-files-data.module';
 import { ModUserModule } from '../mod-user/mod-user.module';
+import { ModSessionModule } from '../mod-session/session.module';
 import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
 import { CalendarMainComponent } from './components/calendar-main/calendar-main.component';
 import { CalendarEventEditorComponent } from './components/calendar-event-editor/calendar-event-editor.component';
@@ -41,6 +42,7 @@ import { CalendarEventMenuComponent } from './components/calendar-event-menu/cal
     ModCommonsModule,
     ModMaterialImportModule,
     ModUserModule,
+    ModSessionModule,
     ModHashTagsModule,
     ModFilesDataModule,
     ModCalendarRoutingModule,

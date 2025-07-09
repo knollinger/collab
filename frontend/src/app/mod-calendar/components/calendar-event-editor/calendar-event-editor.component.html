@@ -1,8 +1,7 @@
-<h1 mat-dialog-title>Termin bearbeiten</h1>
-<mat-dialog-content>
+<div class="outer-container mat-app-background">
 
-
-    <mat-tab-group>
+    <mat-tab-group class="content"
+                   [mat-stretch-tabs]="false">
 
         <!-- Core Daten -->
         <mat-tab>
@@ -40,11 +39,6 @@
                                               (valid)="onPersonFormValidChange($event)"></app-calendar-event-editor-person>
         </mat-tab>
 
-        <!-- Ort -->
-        <mat-tab label="Ort">
-            <div>Somewhere over the Rainbow</div>
-        </mat-tab>
-
         <!-- Hashtags -->
         <mat-tab label="Tags">
             <app-hashtag-selector [(hashTags)]="hashTags"></app-hashtag-selector>
@@ -56,15 +50,14 @@
         </mat-tab>
 
     </mat-tab-group>
-</mat-dialog-content>
 
-<!-- die ButtonArea -->
-<mat-dialog-actions>
-    <button mat-flat-button
-            color="primary"
-            (click)="onSave()"
-            [disabled]="!isValid">Speichern</button>
-    <button mat-button
-            color="primary"
-            [mat-dialog-close]="false">Abbrechen</button>
-</mat-dialog-actions>
+    <div class="buttons">
+        <button mat-flat-button
+                color="primary"
+                (click)="onSave()"
+                [disabled]="!isValid">Speichern</button>
+        <button mat-button
+                (click)="onGoBack()"
+                color="primary">Zurück</button>
+    </div>
+</div>

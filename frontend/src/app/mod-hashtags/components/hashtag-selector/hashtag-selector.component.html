@@ -1,18 +1,6 @@
 <form class="full-width">
   <mat-form-field class="full-width">
     <mat-label>Hashtags</mat-label>
-    <mat-chip-grid color="primary"
-                   #chipGrid>
-      <mat-chip-row highlighted
-                    color="primary"
-                    *ngFor="let tag of tags"
-                    (removed)="onRemove(tag)">
-        #{{tag}}
-        <button matChipRemove>
-          <mat-icon class="material-symbols-outlined">cancel</mat-icon>
-        </button>
-      </mat-chip-row>
-    </mat-chip-grid>
     <input placeholder="Neuer Hashtag"
            #hashCodeInput
            [formControl]="hashTagCtrl"
@@ -28,5 +16,19 @@
         {{hashCode}}
       </mat-option>
     </mat-autocomplete>
+
+    <mat-chip-grid color="primary"
+                   #chipGrid>
+      <mat-chip-row highlighted
+                    color="primary"
+                    *ngFor="let tag of tags"
+                    (removed)="onRemove(tag)">
+        #{{tag}}
+        <button matChipRemove>
+          <mat-icon class="material-symbols-outlined">cancel</mat-icon>
+        </button>
+      </mat-chip-row>
+    </mat-chip-grid>
   </mat-form-field>
+
 </form>

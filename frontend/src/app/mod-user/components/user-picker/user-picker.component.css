@@ -6,3 +6,9 @@ mat-form-field, mat-chip-listbox {
     display: flex;
     align-items: center;
 }
+
+.search-option>span {
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

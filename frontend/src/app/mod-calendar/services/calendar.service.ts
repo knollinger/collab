@@ -5,8 +5,6 @@ import { Observable, map } from 'rxjs';
 
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 
-import { IUser, User } from '../../mod-userdata/mod-userdata.module';
-
 import { CalendarEvent, ICalendarEvent } from '../models/calendar-event';
 import { FullCalendarEvent, IFullCalendarEvent } from '../models/full-calendar-event';
 
@@ -20,9 +18,8 @@ export class CalendarService {
 
   private static routes: Map<string, string> = new Map<string, string>(
     [
-      ['getAllEvents', 'v1/calendar/all?start={1}&end={2}'],
-      ['getEvent', 'v1/calendar/get/{1}'],
-      ['searchUsers', 'v1/calendar/searchusers?search={1}']
+      ['getAllEvents', 'v1/calevents/all?start={1}&end={2}'],
+      ['getEvent', 'v1/calevents/calevent/{1}'],
     ]
   );
 
@@ -77,22 +74,5 @@ export class CalendarService {
    */
   saveEvent(result: FullCalendarEvent) {
     alert(JSON.stringify(result));
-  }
-
-  /**
-   * 
-   * @param search 
-   * @returns 
-   */
-  searchUsers(search: string): Observable<User[]> {
-
-    const url = this.backendRouter.getRouteForName('searchUsers', CalendarService.routes, search);
-    return this.http.get<IUser[]>(url).pipe(
-      map(users => {
-        return users.map(user => {
-          return User.fromJSON(user);
-        })
-      })
-    );
   }
 }

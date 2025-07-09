@@ -19,14 +19,11 @@ export class CalendarEventEditorPersonComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   personForm: FormGroup;
 
-  @Input()
-  requiredUsers: User[] = new Array<User>();
+  _requiredUsers: User[] = new Array<User>();
+  _optionalUsers: User[] = new Array<User>();
 
   @Output()
   requiredUsersChange: EventEmitter<User[]> = new EventEmitter<User[]>();
-
-  @Input()
-  optionalUsers: User[] = new Array<User>();
 
   @Output()
   optionalUsersChange: EventEmitter<User[]> = new EventEmitter<User[]>();
@@ -49,13 +46,6 @@ export class CalendarEventEditorPersonComponent implements OnInit {
    */
   ngOnInit() {
 
-    const val = {
-      required: this.requiredUsers,
-      optional: this.optionalUsers
-    };
-    this.personForm.setValue(val);
-    this.valid.next(this.personForm.valid);
-
     this.personForm.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(val => {
@@ -63,10 +53,31 @@ export class CalendarEventEditorPersonComponent implements OnInit {
       })
   }
 
+  @Input()
+  set requiredUsers(users: User[]) {
+    this._requiredUsers = users;
+    this.fillForm();
+  }
+
+  @Input()
+  set optionalUsers(users: User[]) {
+    this._optionalUsers = users;
+    this.fillForm();
+  }
+
+  private fillForm() {
+
+    const val = {
+      required: this._requiredUsers,
+      optional: this._optionalUsers
+    };
+    this.personForm.setValue(val);
+    this.valid.next(this.personForm.valid);
+  }
+
   private onFormChange() {
 
     const val = this.personForm.value;
-    console.dir(val);
     this.valid.next(this.personForm.valid);
   }
 }

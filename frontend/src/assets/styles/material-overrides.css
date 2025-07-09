@@ -1,9 +1,8 @@
-
 /**
  * Tab-Bodies sollen immer den komplett verfügbaren Raum einnehmen!
  */
-
-.mat-mdc-tab-body {
-    height: 50vh !important;
-    padding-top: 1rem !important;
+.mat-tab-body-wrapper,
+.mat-mdc-tab-body-wrapper {
+    flex-grow: 1;
+    padding-top: 1rem;
 }

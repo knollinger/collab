@@ -1,15 +1,19 @@
+.outer-container {
+    height: 100%;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem; 
+}
 
 .buttons {
-    margin-bottom: 1rem;
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
 }
 
-.tab-content {
-    display: block;
-    height: 400px;
-    /* width: 350px; */
-    margin-top: 1rem;
+.content {
+    flex: 1 1 auto;
 }
 
 .invalid-marker {

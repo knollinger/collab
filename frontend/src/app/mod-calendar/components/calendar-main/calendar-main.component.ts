@@ -14,10 +14,8 @@ import { CalendarService } from '../../services/calendar.service';
 import { CommonDialogsService, TitlebarService } from "../../../mod-commons/mod-commons.module";
 import { SessionService } from '../../../mod-session/session.module';
 
-import { FullCalendarEvent } from "../../models/full-calendar-event";
-import { CalendarEvent } from "../../models/calendar-event";
-import { CalendarEventEditorComponent } from "../calendar-event-editor/calendar-event-editor.component";
 import { CalendarEventMenuComponent } from '../calendar-event-menu/calendar-event-menu.component';
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-calendar-main-component',
@@ -85,7 +83,8 @@ export class CalendarMainComponent implements AfterViewInit {
     private titlebarSvc: TitlebarService,
     private commonDlgsSvc: CommonDialogsService,
     private calSvc: CalendarService,
-    private sessionSvc: SessionService) {
+    private sessionSvc: SessionService,
+    private router: Router) {
     this.onViewModeChange('Week');
   }
 
@@ -154,6 +153,9 @@ export class CalendarMainComponent implements AfterViewInit {
     }
   }
 
+  /**
+   * 
+   */
   loadEvents(): void {
 
     const from = this.nav.control.visibleStart();
@@ -226,9 +228,10 @@ export class CalendarMainComponent implements AfterViewInit {
 
     args.control.clearSelection();
 
-    const calEvt = new CalendarEvent('', '', '', args.start.toDateLocal(), args.end.toDateLocal(), '', false, null);
-    const fullEvt = new FullCalendarEvent(calEvt, [this.sessionSvc.currentUser], [], [], []);
-    this.showEventEditor(fullEvt);
+    const start = args.start.toDateLocal().getTime();
+    const end = args.end.toDateLocal().getTime();
+    const url = `/calendar/event?start=${start}}&end=${end}`;
+    this.router.navigateByUrl(url);
   }
 
   /**
@@ -240,38 +243,8 @@ export class CalendarMainComponent implements AfterViewInit {
 
     const cal = args.control;
 
-    this.calSvc.getEvent(args.e.id()) //
-      .pipe(takeUntilDestroyed(this.destroyRef)) //
-      .subscribe(fullEvt => {
-
-        this.showEventEditor(fullEvt);
-      });
-  }
-
-  /**
-   * 
-   * @param fullEvt 
-   */
-  private showEventEditor(fullEvt: FullCalendarEvent) {
-
-    const dialogRef = this.dialog.open(CalendarEventEditorComponent, {
-      width: '80%',
-      maxWidth: '800px',
-      data: {
-        event: fullEvt
-      }
-    });
-
-    dialogRef.afterClosed() //
-      .pipe(takeUntilDestroyed(this.destroyRef)) //
-      .subscribe(result => {
-
-        if (result) {
-
-          console.dir(result);
-          this.commonDlgsSvc.showSnackbar('Termin gespeichert');
-        }
-      });
+    const url = `/calendar/event?eventId=${args.e.id()}`;
+    this.router.navigateByUrl(url);
   }
 
   /**

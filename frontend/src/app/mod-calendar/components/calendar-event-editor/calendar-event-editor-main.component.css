@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: auto auto auto auto;
   gap: 1rem;
+  overflow: auto;
 }
 
 .col-1-4 {

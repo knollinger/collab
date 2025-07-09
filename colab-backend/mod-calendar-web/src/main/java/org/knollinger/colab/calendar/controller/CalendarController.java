@@ -14,10 +14,6 @@ import org.knollinger.colab.calendar.models.FullCalendarEvent;
 import org.knollinger.colab.calendar.services.ICalendarService;
 import org.knollinger.colab.hashtags.exceptions.TechnicalHashTagException;
 import org.knollinger.colab.hashtags.services.IHashTagService;
-import org.knollinger.colab.user.dtos.UserDTO;
-import org.knollinger.colab.user.exceptions.TechnicalUserException;
-import org.knollinger.colab.user.mapper.IUserMapper;
-import org.knollinger.colab.user.services.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -31,7 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 import io.jsonwebtoken.lang.Collections;
 
 @RestController
-@RequestMapping(path = "v1/calendar")
+@RequestMapping(path = "v1/calevents/")
 public class CalendarController
 {
     @Autowired()
@@ -40,12 +36,6 @@ public class CalendarController
     @Autowired()
     private ICalendarMapper calMapper;
 
-    @Autowired()
-    private IUserService userSvc;
-    
-    @Autowired()
-    private IUserMapper userMapper;
-    
     @Autowired()
     private IHashTagService hashTagSvc;
 
@@ -77,8 +67,8 @@ public class CalendarController
      * @param uuid
      * @return
      */
-    @GetMapping(path = "/get/{uuid}")
-    public FullCalendarEventDTO getEvents(//
+    @GetMapping(path = "/calevent/{uuid}")
+    public FullCalendarEventDTO getEvent(//
         @PathVariable("uuid") UUID uuid)
     {
         try
@@ -96,24 +86,6 @@ public class CalendarController
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
         catch (TechnicalCalendarException | TechnicalHashTagException e)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
-        }
-    }
-
-    /**
-     * 
-     * @param search
-     * @return
-     */
-    @GetMapping(path = "/searchusers")
-    public List<UserDTO> searchUsers(@RequestParam("search") String search)
-    {
-        try
-        {
-            return this.userMapper.toDTO(this.userSvc.fullTextSearch(search));
-        }
-        catch (TechnicalUserException e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }

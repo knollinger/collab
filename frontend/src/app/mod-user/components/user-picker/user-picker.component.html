@@ -3,6 +3,7 @@
     <mat-label>{{label}}</mat-label>
     <input #searchInput
            matInput
+           [matChipInputFor]="chipGrid"
            [matAutocomplete]="auto"
            (input)="onSearchInput(searchInput.value)">
     <mat-icon class="material-symbols-outlined"
@@ -21,24 +22,24 @@
         </mat-option>
     </mat-autocomplete>
 
+    <mat-chip-grid #chipGrid
+                   color="primary">
+        <mat-chip-row *ngFor="let user of selectedUsers"
+                      highlighted
+                      color="primary">
+
+            <div class="search-option">
+                <img [src]="getAvatar(user.userId)"
+                     class="avatar small-right-spacer">
+                <span>
+                    {{user.surname}} {{user.lastname}}
+                </span>
+            </div>
+
+            <button matChipRemove
+                    (click)="onUserRemove(user)">
+                <mat-icon class="material-symbols-outlined">cancel</mat-icon>
+            </button>
+        </mat-chip-row>
+    </mat-chip-grid>
 </mat-form-field>
-
-<!-- all about selected users-->
-<mat-chip-listbox>
-    <mat-chip-row *ngFor="let user of selectedUsers"
-                  color="primary">
-
-        <div class="search-option">
-            <img [src]="getAvatar(user.userId)"
-                 class="avatar small-right-spacer">
-            <span>
-                {{user.surname}} {{user.lastname}}
-            </span>
-        </div>
-
-        <button matChipRemove
-                (click)="onUserRemove(user)">
-            <mat-icon class="material-symbols-outlined">cancel</mat-icon>
-        </button>
-    </mat-chip-row>
-</mat-chip-listbox>
