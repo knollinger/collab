@@ -57,11 +57,17 @@ export class FilesFolderViewComponent implements OnInit {
   @Input()
   iconSize: number = 128;
 
+  @Input()
+  showStatusBar: boolean = true;
+
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Output()
   inodesGrabbed: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  selectionChanged: EventEmitter<Set<INode>> = new EventEmitter<Set<INode>>();
 
   showSelectionFrame: boolean = false;
 
@@ -118,7 +124,7 @@ export class FilesFolderViewComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(inodes => {
 
-        this.inodes = inodes;
+        this.inodes = inodes.filter(node => !node.isHidden());
         this.selectableINodes = this.extractSelectableNodes(inodes);
         this.selectedINodes.clear();
         this.previewINode = INode.empty();
@@ -206,6 +212,8 @@ export class FilesFolderViewComponent implements OnInit {
       inodes.add(inode);
     })
     this.selectedINodes = inodes;
+    this.selectionChanged.emit(this.selectedINodes);
+    
   }
 
   /**
@@ -213,6 +221,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   public onDeselectAll() {
     this.selectedINodes = new Set<INode>();
+    this.selectionChanged.emit(this.selectedINodes);
   }
 
   /**
@@ -227,6 +236,15 @@ export class FilesFolderViewComponent implements OnInit {
    */
   public onSelectionFrameClosed() {
     this.showSelectionFrame = false;
+  }
+
+  /**
+   * 
+   * @param selected 
+   */
+  public onSelectionChange(selected: Set<INode>) {
+    this.selectedINodes = selected;
+    this.selectionChanged.emit(selected);
   }
 
   /*-------------------------------------------------------------------------*/
@@ -505,7 +523,7 @@ export class FilesFolderViewComponent implements OnInit {
     this.inodeSvc.sendToDashboard(inode)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(_ => {
-        
+
       })
   }
 

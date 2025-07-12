@@ -37,6 +37,9 @@ export class FilesGridViewComponent implements OnInit {
   @Input()
   selectedINodes: Set<INode> = new Set<INode>();
 
+  @Output()
+  selectionChange: EventEmitter<Set<INode>> = new EventEmitter<Set<INode>>();
+
   @Input()
   iconSize: number = 64;
 
@@ -128,8 +131,6 @@ export class FilesGridViewComponent implements OnInit {
    */
   onSelect(inode: INode, isMultiSelect: boolean) {
 
-    // evt.stopPropagation();
-
     if (!isMultiSelect) {
       this.selectedINodes.clear();
       this.selectedINodes.add(inode);
@@ -142,6 +143,7 @@ export class FilesGridViewComponent implements OnInit {
         this.selectedINodes.add(inode);
       }
     }
+    this.selectionChange.emit(this.selectedINodes);
   }
 
   /**
@@ -149,6 +151,7 @@ export class FilesGridViewComponent implements OnInit {
    */
   onDeselectAll() {
     this.selectedINodes.clear();
+    this.selectionChange.emit(this.selectedINodes);
   }
 
   onSelRectClose() {
@@ -168,6 +171,7 @@ export class FilesGridViewComponent implements OnInit {
     selected.forEach(inode => {
       this.selectedINodes.add(inode);
     });
+    this.selectionChange.emit(this.selectedINodes);
   }
 
   /**

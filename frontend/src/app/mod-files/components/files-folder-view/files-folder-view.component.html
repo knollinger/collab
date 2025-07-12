@@ -1,7 +1,7 @@
 <div class="full-height disp-flex flex-col">
 
     <div
-         class="breadcrumb middle-left-padding small-bottom-lightgray-border flex-0 disp-flex flex-row flex-alignitems-center">
+         class="breadcrumb small-bottom-lightgray-border flex-0 disp-flex flex-row flex-alignitems-center">
         <app-files-bread-crumb-item *ngFor="let inode of path"
                                     [inode]="inode"
                                     (open)="onOpen($event)"></app-files-bread-crumb-item>
@@ -10,7 +10,7 @@
     <div class="flex-1 disp-flex flex-row scrollable working-area"
          (contextmenu)="contextMenu.show($event)">
 
-        <div class="flex-1 activated-place-holder scrollable"
+        <div class="flex-1 scrollable"
              [appDropTarget]="currentFolder"
              [ngSwitch]="viewMode"
              (filesDropped)="onFilesDropped($event)"
@@ -22,6 +22,7 @@
                                  [iconSize]="iconSize"
                                  [selectedINodes]="selectedINodes"
                                  [showSelectionFrame]="showSelectionFrame"
+                                 (selectionChange)="onSelectionChange($event)"
                                  (selectionFrameClosed)="onSelectionFrameClosed()"
                                  (filesDropped)="onFilesDropped($event)"
                                  (inodesDropped)="inodeDropMenu.show($event)"
@@ -41,6 +42,7 @@
                                  [iconSize]="iconSize"
                                  [selectedINodes]="selectedINodes"
                                  [showSelectionFrame]="showSelectionFrame"
+                                 (selectionChange)="onSelectionChange($event)"
                                  (selectionFrameClosed)="onSelectionFrameClosed()"
                                  (filesDropped)="onFilesDropped($event)"
                                  (inodesDropped)="inodeDropMenu.show($event)"
@@ -76,7 +78,7 @@
     </div>
 
 
-    <app-toolbar class="flex-0 small-top-lightgray-border">
+    <app-toolbar class="flex-0 small-top-lightgray-border" *ngIf="showStatusBar">
         Gesamt: {{inodes.length}} Objekte mit {{allObjectsSize | fileSize}}
         <div *ngIf="selectedINodes.size">
             <app-toolbar-separator></app-toolbar-separator>

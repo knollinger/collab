@@ -7,7 +7,6 @@
 <mat-menu #contextMenu="matMenu">
 
     <!-- Den Ordner als ZIP herunter laden -->
-    <mat-divider></mat-divider>
     <button mat-menu-item
             [disabled]="!isReadAllowed"
             (click)="onDownload()">

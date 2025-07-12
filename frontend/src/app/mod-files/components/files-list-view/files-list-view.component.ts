@@ -25,7 +25,7 @@ export class FilesListViewComponent implements OnInit {
   selectedINodes: Set<INode> = new Set<INode>();
 
   @Output()
-  selectionChange: EventEmitter<boolean> = new EventEmitter<boolean>(false);
+  selectionChange: EventEmitter<Set<INode>> = new EventEmitter<Set<INode>>();
 
   @Output()
   inodesDropped: EventEmitter<INodeDroppedEvent> = new EventEmitter<INodeDroppedEvent>();
@@ -104,6 +104,7 @@ export class FilesListViewComponent implements OnInit {
         this.selectedINodes.add(inode);
       }
     }
+    this.selectionChange.emit(this.selectedINodes);
   }
 
   /**
@@ -111,6 +112,7 @@ export class FilesListViewComponent implements OnInit {
    */
   onDeselectAll() {
     this.selectedINodes.clear();
+    this.selectionChange.emit(this.selectedINodes);
   }
 
 
@@ -131,6 +133,7 @@ export class FilesListViewComponent implements OnInit {
     selected.forEach(inode => {
       this.selectedINodes.add(inode);
     })
+    this.selectionChange.emit(this.selectedINodes);
   }
 
   /**

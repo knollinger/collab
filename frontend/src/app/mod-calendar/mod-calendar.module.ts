@@ -45,8 +45,8 @@ import { CalendarEventMenuComponent } from './components/calendar-event-menu/cal
     ModUserModule,
     ModSessionModule,
     ModHashTagsModule,
-    ModFilesDataModule,
     ModFilesModule,
+    ModFilesDataModule,
     ModCalendarRoutingModule,
   ],
   exports: [

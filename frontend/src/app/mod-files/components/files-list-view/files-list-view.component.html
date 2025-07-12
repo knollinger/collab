@@ -1,36 +1,37 @@
-<div #outer class="outer"
+<div #outer
+     class="outer full-height"
      (click)="onDeselectAll()">
 
-    <app-files-listview-item *ngFor="let inode of inodes"
-                             class="item"
-                             [class.mat-elevation-z4]="isSelected(inode)"
-                             [id]="inode.uuid"
-                             [inode]="inode"
-                             [appINodeDragSource]="inode"
-                             [appINodeDragSourceSelectedINodes]="selectedINodes"
-                             [appDropTarget]="inode"
-                             [iconSize]="iconSize"
-                             (contextmenu)="contextMenu.show(inode, $event)"
-                             (inodesDropped)="onINodesDropped($event)"
-                             (filesDropped)="onFilesDropped($event)"
-                             (select)="onSelect(inode, $event)"
-                             (click)="onOpen(inode)"></app-files-listview-item>
+     <app-files-listview-item *ngFor="let inode of inodes"
+                              class="item"
+                              [class.mat-elevation-z4]="isSelected(inode)"
+                              [id]="inode.uuid"
+                              [inode]="inode"
+                              [appINodeDragSource]="inode"
+                              [appINodeDragSourceSelectedINodes]="selectedINodes"
+                              [appDropTarget]="inode"
+                              [iconSize]="iconSize"
+                              (contextmenu)="contextMenu.show(inode, $event)"
+                              (inodesDropped)="onINodesDropped($event)"
+                              (filesDropped)="onFilesDropped($event)"
+                              (select)="onSelect(inode, $event)"
+                              (click)="onOpen(inode)"></app-files-listview-item>
 
-    <app-files-item-context-menu #contextMenu
-                                 (open)="onOpen($event)"
-                                 (create)="onCreate($event)"
-                                 (rename)="onRename($event)"
-                                 (delete)="onDelete($event)"
-                                 (cut)="onCut($event)"
-                                 (copy)="onCopy($event)"
-                                 (paste)="onPaste($event)"
-                                 (sendToDashboard)="onSendToDashboard($event)"
-                                 (showProps)="onShowProps($event)">
-    </app-files-item-context-menu>
+     <app-files-item-context-menu #contextMenu
+                                  (open)="onOpen($event)"
+                                  (create)="onCreate($event)"
+                                  (rename)="onRename($event)"
+                                  (delete)="onDelete($event)"
+                                  (cut)="onCut($event)"
+                                  (copy)="onCopy($event)"
+                                  (paste)="onPaste($event)"
+                                  (sendToDashboard)="onSendToDashboard($event)"
+                                  (showProps)="onShowProps($event)">
+     </app-files-item-context-menu>
 
 
-    <app-files-frame-selector *ngIf="showSelectionFrame"
-                              (selRectChange)="onSelRectChange(outer, $event)"
-                              (close)="onSelRectClose()"></app-files-frame-selector>
+     <app-files-frame-selector *ngIf="showSelectionFrame"
+                               (selRectChange)="onSelRectChange(outer, $event)"
+                               (close)="onSelRectClose()"></app-files-frame-selector>
 
 </div>

@@ -41,6 +41,14 @@
 
 		<dependency>
 			<groupId>org.knollinger.colab</groupId>
+			<artifactId>mod-filesys-web</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		
+
+		<dependency>
+			<groupId>org.knollinger.colab</groupId>
 			<artifactId>mod-hashtags-data</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>

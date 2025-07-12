@@ -1,1 +1,54 @@
-<app-files-tree-view></app-files-tree-view>
+<!-- <button mat-flat-button (click)="onPickFiles()">Test</button> -->
+<div class="outer-container">
+    <app-toolbar class="toolbar small-bottom-lightgray-border">
+
+        <button mat-icon-button
+                (click)="onPickINodes()">
+            <mat-icon class="material-symbols-outlined">attach_file_add</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                (click)="fileDialog.click()">
+            <mat-icon class="material-symbols-outlined">cloud_upload</mat-icon>
+            <input class="hidden"
+                   #fileDialog
+                   type="file"
+                   multiple="true"
+                   (change)="onFileUploadBtn($event)">
+        </button>
+
+        <app-toolbar-separator></app-toolbar-separator>
+        <button mat-icon-button
+                matTooltip="Alles auswählen"
+                (click)="onSelectAll()">
+            <mat-icon class="material-symbols-outlined">check_box</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                matTooltip="Auswahl aufheben"
+                (click)="onDeselectAll()"
+                [disabled]="!hasSelection">
+            <mat-icon class="material-symbols-outlined">check_box_outline_blank</mat-icon>
+        </button>
+
+        <app-toolbar-separator></app-toolbar-separator>
+        <button mat-icon-button
+                [disabled]="!hasSelection"
+                (click)="onDelete()">
+            <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        </button>
+
+    </app-toolbar>
+
+    <div class="content"
+         [appDropTarget]="attachmentsFolder"
+         (filesDropped)="onFilesDropped($event)">
+
+        <app-files-grid-view [iconSize]="128"
+                             [inodes]="inodesToRender"
+                             [selectedINodes]="selectedNodes"
+                             (selectionChange)="onSelectionChange($event)"
+                             (delete)="onDelete($event)"></app-files-grid-view>
+    </div>
+
+</div>

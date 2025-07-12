@@ -191,4 +191,14 @@ export class INode {
     public isDirectory(): boolean {
         return this.type.toLowerCase().startsWith('inode/directory');
     }
+
+    /**
+     * In bester Unix-Manier zeichnen sich HiddenFiles dadurch aus, das ihr Name
+     * mit einem '.' beginnt
+     *  
+     * @returns 
+     */
+    public isHidden(): boolean {
+        return this.name.startsWith('.');
+    }
 }

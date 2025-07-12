@@ -1,0 +1,21 @@
+.outer-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: auto;
+}
+
+.toolbar {
+    flex: 0;
+}
+
+.content {
+    flex: 1;
+    overflow: auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    height: 100%;
+    padding: 0.5rem; /* platz für das mat-elevation-zeuchs lassen */
+}

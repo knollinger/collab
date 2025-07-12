@@ -1,11 +1,9 @@
 .outer {
     position: relative;
-    background-color: white;
     padding: 0 0.5rem 0 0.5rem;
     cursor: pointer;
     width: 350px;
     overflow: hidden;
-    border: 1px solid #d0d0d0;
 }
 
 .name {

@@ -104,6 +104,7 @@ export class DropTargetDirective {
     evt.stopPropagation();
     evt.preventDefault();
 
+    console.log('dragOver');
     if (this.isDropEnabled(evt)) {
       this.showDropAreaVisualisization();
     }

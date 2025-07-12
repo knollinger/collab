@@ -1,5 +1,6 @@
 .breadcrumb {
     background-color: white;
+    padding: 0.5rem;
 }
 
 .working-area {
@@ -9,10 +10,4 @@
 
 .footer {
     background-color: white;
-}
-
-.activated-place-holder {
-    padding: 0.5rem;
-    height: 100%;
-    background-color: transparent;
 }

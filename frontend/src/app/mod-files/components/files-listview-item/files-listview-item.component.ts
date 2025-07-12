@@ -12,7 +12,7 @@ import { Permissions } from '../../models/permissions';
   styleUrls: ['./files-listview-item.component.css'],
   standalone: false
 })
-export class FilesListviewItemComponent implements OnInit {
+export class FilesListViewItemComponent implements OnInit {
 
   @Input()
   inode: INode = INode.empty();

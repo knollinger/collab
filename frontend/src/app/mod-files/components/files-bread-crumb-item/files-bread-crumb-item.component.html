@@ -1,11 +1,10 @@
-<div class="item small-right-spacer flex-0 disp-flex flex-row flex-alignitems-center clickable">
+<div class="item">
 
-    <button mat-icon-button
-            class="flex-0"
-            [matMenuTriggerFor]="childFolders">
-        <mat-icon class="material-symbols-outlined">folder</mat-icon>
-    </button>
-    <span class="flex-0 small-right-spacer "
+    <mat-icon class="flex-0 material-symbols-outlined"
+              [matMenuTriggerFor]="childFolders">folder</mat-icon>
+
+
+    <span class="flex-0"
           (click)="onOpen(inode)">{{inode.name}}</span>
     <mat-icon class="flex-0 material-symbols-outlined">chevron_right</mat-icon>
 
