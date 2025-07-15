@@ -3,3 +3,9 @@ npm install rrule
 npm i quill
 
 
+npm install --save \
+  @fullcalendar/core \
+  @fullcalendar/angular \
+  @fullcalendar/daygrid \
+  @fullcalendar/interaction
+  

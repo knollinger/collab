@@ -73,6 +73,18 @@ public class CheckPermsServiceImpl implements ICheckPermsService
     }
 
     /**
+     * 
+     * @param inode
+     * @param perms
+     * @return
+     */
+    @Override
+    public boolean hasEffectivePermissions(INode inode, int perms)
+    {
+        return (this.getEffectivePermissions(inode) & perms) == perms;
+    }
+
+    /**
      * Extrahiere die Benutzer-Permissions aus der CompoundPermissionMask
      * 
      * @param perms

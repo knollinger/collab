@@ -46,7 +46,9 @@
 
         <!-- Files -->
         <mat-tab label="Anhänge">
-            <app-calendar-event-editor-files></app-calendar-event-editor-files>
+            <app-calendar-event-editor-files [attachments]="attachments"
+                                             (filesChange)="onUploadChange($event)"
+                                             (inodesChange)="onAttachmentsChange($event)"></app-calendar-event-editor-files>
         </mat-tab>
 
     </mat-tab-group>

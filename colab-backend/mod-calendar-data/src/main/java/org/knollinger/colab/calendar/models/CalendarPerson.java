@@ -1,8 +1,6 @@
 package org.knollinger.colab.calendar.models;
 
-import java.util.List;
-
-import org.knollinger.colab.filesys.models.INode;
+import org.knollinger.colab.user.models.User;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -12,9 +10,8 @@ import lombok.Setter;
 @Builder
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.NONE)
-public class FullCalendarEvent
+public class CalendarPerson 
 {
-    private CalendarEvent event;
-    List<String> hashTags;
-    List<INode> attachments;
+    private User user;
+    private boolean required;
 }

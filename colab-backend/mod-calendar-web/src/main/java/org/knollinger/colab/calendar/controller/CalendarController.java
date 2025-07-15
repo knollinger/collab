@@ -5,26 +5,23 @@ import java.util.List;
 import java.util.UUID;
 
 import org.knollinger.colab.calendar.dtos.CalendarEventDTO;
-import org.knollinger.colab.calendar.dtos.FullCalendarEventDTO;
-import org.knollinger.colab.calendar.exc.NotFoundException;
+import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
 import org.knollinger.colab.calendar.exc.TechnicalCalendarException;
 import org.knollinger.colab.calendar.mapper.ICalendarMapper;
 import org.knollinger.colab.calendar.models.CalendarEvent;
-import org.knollinger.colab.calendar.models.FullCalendarEvent;
 import org.knollinger.colab.calendar.services.ICalendarService;
-import org.knollinger.colab.hashtags.exceptions.TechnicalHashTagException;
-import org.knollinger.colab.hashtags.services.IHashTagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import io.jsonwebtoken.lang.Collections;
 
 @RestController
 @RequestMapping(path = "v1/calevents/")
@@ -35,9 +32,6 @@ public class CalendarController
 
     @Autowired()
     private ICalendarMapper calMapper;
-
-    @Autowired()
-    private IHashTagService hashTagSvc;
 
     /**
      * Lädt alle Kalender-Einträge zwischen dem angegebenen Start-Timestamp 
@@ -68,26 +62,61 @@ public class CalendarController
      * @return
      */
     @GetMapping(path = "/calevent/{uuid}")
-    public FullCalendarEventDTO getEvent(//
+    public CalendarEventDTO getEvent(//
         @PathVariable("uuid") UUID uuid)
     {
         try
         {
-            FullCalendarEvent result = FullCalendarEvent.builder() //
-                .event(this.calSvc.getEvent(uuid)) //
-                .hashTags(this.hashTagSvc.getHashTagsByResource(uuid)) //
-                .attachments(Collections.emptyList()) //
-                .build();
-
+            CalendarEvent result = this.calSvc.getEvent(uuid);
             return this.calMapper.toDTO(result);
         }
-        catch (NotFoundException e)
+        catch (CalEventNotFoundException e)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
-        catch (TechnicalCalendarException | TechnicalHashTagException e)
+        catch (TechnicalCalendarException e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * @param evt
+     * @return
+     */
+    @PutMapping(path="/calevent")
+    public CalendarEventDTO createEvent(@RequestBody CalendarEventDTO evt) {
+        
+        try
+        {
+            CalendarEvent result = this.calSvc.createEvent(this.calMapper.fromDTO(evt));
+            return this.calMapper.toDTO(result);
+        }
+        catch (TechnicalCalendarException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * @param evt
+     * @return
+     */
+    @PostMapping(path="/calevent")
+    public CalendarEventDTO updateEvent(@RequestBody CalendarEventDTO evt) {
+        
+        try
+        {
+            CalendarEvent result = this.calSvc.updateEvent(this.calMapper.fromDTO(evt));
+            return this.calMapper.toDTO(result);
+        }
+        catch (TechnicalCalendarException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (CalEventNotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
     }
 }

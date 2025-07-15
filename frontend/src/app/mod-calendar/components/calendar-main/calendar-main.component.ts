@@ -53,8 +53,8 @@ export class CalendarMainComponent implements AfterViewInit {
     cellHeight: 32,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     onEventMove: this.onEventMove.bind(this),
-    onBeforeEventRender: this.onBeforeEventRender.bind(this),
     onEventClick: this.onEventClick.bind(this),
+    onEventRightClick: this.onEventMenu.bind(this)
   };
 
   configWeek: DayPilot.CalendarConfig = {
@@ -64,8 +64,8 @@ export class CalendarMainComponent implements AfterViewInit {
     weekStarts: 1,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     onEventMove: this.onEventMove.bind(this),
-    onBeforeEventRender: this.onBeforeEventRender.bind(this),
     onEventClick: this.onEventClick.bind(this),
+    onEventRightClick: this.onEventMenu.bind(this)
   };
 
   configMonth: DayPilot.MonthConfig = {
@@ -74,8 +74,8 @@ export class CalendarMainComponent implements AfterViewInit {
     weekStarts: 1,
     onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
     onEventMove: this.onEventMove.bind(this),
-    onBeforeEventRender: this.onBeforeEventRender.bind(this),
     onEventClick: this.onEventClick.bind(this),
+    onEventRightClick: this.onEventMenu.bind(this)
   };
 
   constructor(
@@ -200,27 +200,6 @@ export class CalendarMainComponent implements AfterViewInit {
   }
 
   /**
-   * Wird gerufen bevor ein Event gerendert wird. Hier können wir die
-   * "activeAreas" einfügen.
-   * @param args 
-   */
-  onBeforeEventRender(args: any) {
-    const dp = args.control;
-    args.data.areas = [
-      {
-        top: 4,
-        right: 4,
-        width: 32, // 24px breite + 2* padding 4px
-        height: 32, // 24px höhe + 2* padding 4px
-        html: '<mat-icon class="material-symbols-outlined" style="background-color: white;">more_horiz</mat-icon>',
-        action: "None",
-        toolTip: "Optionen",
-        onClick: this.onShowMenuEvent.bind(this)
-      }
-    ];
-  }
-
-  /**
    * 
    * @param args 
    */
@@ -247,6 +226,12 @@ export class CalendarMainComponent implements AfterViewInit {
     this.router.navigateByUrl(url);
   }
 
+  onEventMenu(args: any) {
+
+    console.dir(args);
+    // args.preventDefault();
+  }
+
   /**
    * 
    * @param args 
@@ -268,7 +253,7 @@ export class CalendarMainComponent implements AfterViewInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(calEvt => {
 
-        this.eventMenu.show(event.originalEvent, calEvt.event);
+        this.eventMenu.show(event.originalEvent, calEvt);
       });
   }
 }

@@ -61,6 +61,28 @@ public class UploadServiceImpl implements IUploadService
             conn = this.dbSvc.openConnection();
             conn.setAutoCommit(false);
             
+            List<INode> result = this.uploadFiles(parentUUID, files, conn);
+            conn.commit();
+            
+            return result;
+        }
+        catch (SQLException e)
+        {
+            String msg = String.format(ERR_UPLOAD_FAILED, parentUUID.toString());
+            throw new TechnicalFileSysException(msg, e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(conn);
+        }
+    }
+
+    @Override
+    public List<INode> uploadFiles(UUID parentUUID, List<MultipartFile> files, Connection conn)
+        throws UploadException, TechnicalFileSysException, DuplicateEntryException
+    {
+        try
+        {
             TokenPayload token = this.currUserSvc.get();
 
             List<INode> result = new ArrayList<>();
@@ -91,10 +113,6 @@ public class UploadServiceImpl implements IUploadService
             e.printStackTrace();
             String msg = String.format(ERR_UPLOAD_FAILED, parentUUID.toString());
             throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(conn);
         }
     }
 

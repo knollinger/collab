@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.knollinger.colab.calendar.exc.NotFoundException;
+import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
 import org.knollinger.colab.calendar.exc.TechnicalCalendarException;
 import org.knollinger.colab.calendar.models.CalendarEvent;
 
@@ -26,8 +26,12 @@ public interface ICalendarService
     /**
      * @param uuid
      * @return
-     * @throws NotFoundException
+     * @throws CalEventNotFoundException
      * @throws TechnicalCalendarException
      */
-    CalendarEvent getEvent(UUID uuid) throws NotFoundException, TechnicalCalendarException;
+    CalendarEvent getEvent(UUID uuid) throws CalEventNotFoundException, TechnicalCalendarException;
+
+    CalendarEvent createEvent(CalendarEvent evt)  throws TechnicalCalendarException;
+
+    CalendarEvent updateEvent(CalendarEvent fromDTO) throws CalEventNotFoundException, TechnicalCalendarException;
 }

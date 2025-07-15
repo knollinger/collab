@@ -5,7 +5,7 @@ import java.util.UUID;
 /**
  * 
  */
-public class NotFoundException extends Exception
+public class CalEventNotFoundException extends Exception
 {
     private static final long serialVersionUID = 1L;
     
@@ -16,7 +16,7 @@ public class NotFoundException extends Exception
      * @param message
      * @param cause
      */
-    public NotFoundException(UUID uuid)
+    public CalEventNotFoundException(UUID uuid)
     {
         super(String.format(ERR_NOT_FOUND, uuid.toString()));
     }

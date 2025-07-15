@@ -13,4 +13,9 @@ public class NotFoundException extends Exception
     {
         super(String.format("Es existiert kein Objekt mit der UUID '%1$s'", uuid));
     }
+
+    public NotFoundException(String name)
+    {
+        super(String.format("Es existiert kein Objekt mit dem Namen '%1$s'", name));
+    }
 }

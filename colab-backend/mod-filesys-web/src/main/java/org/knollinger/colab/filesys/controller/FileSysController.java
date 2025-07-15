@@ -99,7 +99,7 @@ public class FileSysController
     {
         try
         {
-            List<INode> childs = this.fileSysService.getAllChilds(parentId, foldersOnly);
+            List<INode> childs = this.fileSysService.getAllChilds(parentId, IPermissions.READ, foldersOnly);
             childs.sort(new INodeComparator());
             return this.fileSysMapper.toDTO(childs);
         }

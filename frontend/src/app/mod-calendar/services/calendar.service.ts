@@ -6,7 +6,7 @@ import { Observable, map } from 'rxjs';
 import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 
 import { CalendarEvent, ICalendarEvent } from '../models/calendar-event';
-import { FullCalendarEvent, IFullCalendarEvent } from '../models/full-calendar-event';
+import { IINode, INode } from '../../mod-files-data/mod-files-data.module';
 
 /**
  * 
@@ -20,6 +20,9 @@ export class CalendarService {
     [
       ['getAllEvents', 'v1/calevents/all?start={1}&end={2}'],
       ['getEvent', 'v1/calevents/calevent/{1}'],
+      ['createEvent', 'v1/calevents/calevent'],
+      ['saveEvent', 'v1/calevents/calevent'],
+      ['upload', 'v1/calattachments/attachments']
     ]
   );
 
@@ -58,21 +61,64 @@ export class CalendarService {
    * @param uuid 
    * @returns 
    */
-  public getEvent(uuid: string): Observable<FullCalendarEvent> {
+  public getEvent(uuid: string): Observable<CalendarEvent> {
 
     const url = this.backendRouter.getRouteForName('getEvent', CalendarService.routes, uuid);
-    return this.http.get<IFullCalendarEvent>(url).pipe(
+    return this.http.get<ICalendarEvent>(url).pipe(
       map(event => {
-        return FullCalendarEvent.fromJSON(event);
+        return CalendarEvent.fromJSON(event);
       })
     );
   }
 
   /**
    * 
-   * @param result 
+   * @param event 
    */
-  saveEvent(result: FullCalendarEvent) {
-    alert(JSON.stringify(result));
+  createEvent(event: CalendarEvent): Observable<CalendarEvent> {
+
+    const url = this.backendRouter.getRouteForName('createEvent', CalendarService.routes);
+    return this.http.put<ICalendarEvent>(url, event.toJSON())
+      .pipe(map(json => {
+        return CalendarEvent.fromJSON(json);
+      }))
+  }
+
+  /**
+   * 
+   * @param event 
+   */
+  saveEvent(event: CalendarEvent): Observable<CalendarEvent> {
+
+    const url = this.backendRouter.getRouteForName('saveEvent', CalendarService.routes);
+    return this.http.post<ICalendarEvent>(url, event.toJSON())
+      .pipe(map(json => {
+        return CalendarEvent.fromJSON(json);
+      }))
+  }
+
+  /**
+   * Lade lokale dateien als Attachments für das Event hoch 
+   * 
+   * @param eventId 
+   * @param files 
+   * @returns 
+   */
+  uploadFiles(eventId: string, files: File[]): Observable<INode[]> {
+
+    const url = this.backendRouter.getRouteForName('upload', CalendarService.routes);
+
+    const form = new FormData();
+    form.append('eventId', eventId);
+    files.forEach(file => {
+      form.append('file', file);
+    })
+
+    return this.http.put<INode[]>(url, form)
+      .pipe(map(inodes => {
+        return inodes.map(inode => {
+          return INode.fromJSON(inode)
+        })
+      }))
   }
 }

@@ -15,6 +15,7 @@ import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.BlobInfo;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.models.IPermissions;
+import org.knollinger.colab.filesys.services.ICheckPermsService;
 import org.knollinger.colab.filesys.services.IDownloadService;
 import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.user.exceptions.TechnicalLoginException;
@@ -90,6 +91,9 @@ public class WOPIControler
 
     @Autowired()
     private ITokenService tokenUserSvc;
+    
+    @Autowired()
+    private ICheckPermsService checkPermsService;
 
     @Autowired()
     private IWOPIBlobService wopiBlobSvc;
@@ -122,7 +126,7 @@ public class WOPIControler
                 .userId(currentUser.getUserId()) //
                 .userFriendlyName(String.format("%1$s %2$s", currentUser.getSurname(), currentUser.getLastname())) //
                 .size(inode.getSize()) //
-                .canWrite(inode.hasEffectivePermission(IPermissions.WRITE)) //
+                .canWrite(this.checkPermsService.hasEffectivePermissions(inode, IPermissions.WRITE)) //
                 .build();
         }
         catch (NotFoundException e)

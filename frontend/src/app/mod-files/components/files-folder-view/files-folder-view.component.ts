@@ -124,7 +124,7 @@ export class FilesFolderViewComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(inodes => {
 
-        this.inodes = inodes.filter(node => !node.isHidden());
+       this.inodes = inodes.filter(node => !node.isHidden());
         this.selectableINodes = this.extractSelectableNodes(inodes);
         this.selectedINodes.clear();
         this.previewINode = INode.empty();

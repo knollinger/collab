@@ -23,9 +23,6 @@ public class INode
     private Timestamp created;
     private Timestamp modified;
     private int perms;
-    
-    @Setter(AccessLevel.PUBLIC)    
-    private int effectivePerms;
 
     /**
      * 
@@ -59,14 +56,5 @@ public class INode
     public boolean isEmpty()
     {
         return this.uuid.equals(EWellknownINodeIDs.NONE.value());
-    }
-
-    /**
-     * @param perm
-     * @return
-     */
-    public boolean hasEffectivePermission(int perm)
-    {
-        return (this.effectivePerms & perm) == perm;
     }
 }

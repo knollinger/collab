@@ -17,4 +17,12 @@ public interface ICheckPermsService
      * @param target
      */
     public void checkPermission(int perms, INode target) throws AccessDeniedException;
+
+    /**
+     * 
+     * @param inode
+     * @param perms
+     * @return
+     */
+    boolean hasEffectivePermissions(INode inode, int perms);
 }

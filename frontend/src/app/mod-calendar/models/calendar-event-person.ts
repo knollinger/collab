@@ -1,10 +1,21 @@
+import { IUser, User } from "../../mod-userdata/mod-userdata.module";
+
+export interface ICalendarEventPerson {
+    user: IUser,
+    required: boolean
+} 
+
 export class CalendarEventPerson {
 
     constructor(
-        private readonly uuid: string = '',
-        private readonly firstName: string = '',
-        private readonly lastName: string = '',
-        private email: string = '') {
+        public readonly user: User,
+        public readonly required: boolean) {
 
+    }
+
+    public static fromJSON(json: ICalendarEventPerson) {
+
+        const user = User.fromJSON(json.user);
+        return new CalendarEventPerson(user, json.required);
     }
 }

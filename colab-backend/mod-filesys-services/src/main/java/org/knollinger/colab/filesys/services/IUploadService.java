@@ -1,5 +1,6 @@
 package org.knollinger.colab.filesys.services;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,4 +13,5 @@ import org.springframework.web.multipart.MultipartFile;
 public interface IUploadService
 {
     public List<INode> uploadFiles(UUID uuid, List<MultipartFile> files) throws UploadException, TechnicalFileSysException, DuplicateEntryException;
+    public List<INode> uploadFiles(UUID uuid, List<MultipartFile> files, Connection conn) throws UploadException, TechnicalFileSysException, DuplicateEntryException;
 }

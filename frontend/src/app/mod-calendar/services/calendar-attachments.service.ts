@@ -11,7 +11,7 @@ export class CalendarAttachmentsService {
 
     private static routes: Map<string, string> = new Map<string, string>(
         [
-            ['getAttachmentsFolder', 'v1/calattachments/attachmentfolder']
+            ['getAllAttachments', 'v1/calattachments/{1}']
         ]
     );
     /**
@@ -19,22 +19,26 @@ export class CalendarAttachmentsService {
      * @param http 
      * @param backendRouter 
      */
-    constructor( //
+    constructor(
         private http: HttpClient, //
         private backendRouter: BackendRoutingService) {
 
     }
 
     /**
+     * Liefere alle Attachments für ein Kalender-Event
      * 
+     * @param eventId 
      * @returns 
      */
-    public getAttachmentsFolder(): Observable<INode> {
+    public getAllAttachments(eventId: string): Observable<INode[]> {
 
-        const url = this.backendRouter.getRouteForName('getAttachmentsFolder', CalendarAttachmentsService.routes);
-        return this.http.get<IINode>(url)
-            .pipe(map(json => {
-                return INode.fromJSON(json);
-            }));
+        const url = this.backendRouter.getRouteForName('getAllAttachments', CalendarAttachmentsService.routes, eventId);
+        return this.http.get<IINode[]>(url)
+            .pipe(map(inodes => {
+                return inodes.map(inode => {
+                    return INode.fromJSON(inode);
+                })
+            }))
     }
 }

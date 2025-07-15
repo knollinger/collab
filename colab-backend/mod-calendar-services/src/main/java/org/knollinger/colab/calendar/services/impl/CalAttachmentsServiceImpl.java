@@ -4,32 +4,52 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
 import org.knollinger.colab.calendar.exc.TechnicalCalendarException;
 import org.knollinger.colab.calendar.services.ICalAttachmentsService;
 import org.knollinger.colab.filesys.models.INode;
-import org.knollinger.colab.filesys.services.ICheckPermsService;
+import org.knollinger.colab.filesys.models.IPermissions;
+import org.knollinger.colab.filesys.services.IFileSysService;
+import org.knollinger.colab.filesys.services.IUploadService;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
+ * All about FileUploads für CalendarEvents.
+ * 
+ * Im End-Effekt werden mit einem CalEvent Links auf INode-Objekte
+ * verknüft. Für "normale" INodes ist das auch kein Problem...
+ * 
+ * Um auch lokale Files in ein Event hochladen zu können, wird im
+ * HomeDir des Benutzers ein versteckter Folder ".calendar_attachments"
+ * angelegt. Unter diesem Folder wird für jedes Event ein Folder angelegt,
+ * dessen Namen der UUID des Events entspricht. In diesen Folder werden 
+ * Uploads abgelegt.
+ * 
  * 
  */
 @Service
 public class CalAttachmentsServiceImpl implements ICalAttachmentsService
 {
     private static final String FOLDER_NAME = ".calendar_attachments";
-    
-    private static final String SQL_GET_ATTACHMENTS_FOLDER = "" //
-        + "select `uuid`, `name`, `parent`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
-        + "  where `owner`=? and `name`=?";
 
-    private static final String SQL_CREATE_ATTACHMENTS_FOLDER = "" //
-        + "insert into inodes" //
-        + "  set `uuid`=?, `name`=?, `parent`=?, `owner`=?, `group`=?, `perms`=?, `type`=?, `size`=?";
+    private static final String SQL_GET_ALL_ATTACHMENTS = "" //
+        + "select `uuid`, `name`, `parent`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
+        + "  where `uuid` in (" //
+        + "    select inodeId from `calendar_attachments`" //
+        + "      where `eventId`=?" //
+        + "  )";
+
+    private static final String SQL_CREATE_ATTACHMENT_LINK = "" //
+        + "insert into `calendar_attachments`" //
+        + "  set `eventId`=?, `inodeId`=?";
 
     @Autowired
     private ICurrentUserService currUserSvc;
@@ -38,32 +58,81 @@ public class CalAttachmentsServiceImpl implements ICalAttachmentsService
     private IDbService dbSvc;
 
     @Autowired()
-    private ICheckPermsService checkPermsSvc;
+    private IUploadService uploadSvc;
+
+    @Autowired()
+    private IFileSysService fileSysSvc;
 
     /**
      *
      */
     @Override
-    public INode getAttachmentsFolder() throws TechnicalCalendarException
+    public List<INode> getAttachments(UUID eventId) throws CalEventNotFoundException, TechnicalCalendarException
+    {
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try
+        {
+            List<INode> result = new ArrayList<>();
+            conn = this.dbSvc.openConnection();
+            stmt = conn.prepareStatement(SQL_GET_ALL_ATTACHMENTS);
+            stmt.setString(1, eventId.toString());
+            rs = stmt.executeQuery();
+            while (rs.next())
+            {
+                INode inode = INode.builder() //
+                    .uuid(UUID.fromString(rs.getString("uuid"))) //
+                    .name(rs.getString("name")) //
+                    .parent(UUID.fromString(rs.getString("parent"))) //
+                    .owner(UUID.fromString(rs.getString("owner"))) //
+                    .group(UUID.fromString(rs.getString("group")))//
+                    .perms(rs.getShort("perms")) //
+                    .type(rs.getString("type")) //
+                    .size(rs.getLong("size")) //
+                    .created(rs.getTimestamp("created")) //
+                    .modified(rs.getTimestamp("modified")) //
+                    .build();
+                result.add(inode);
+            }
+            return result;
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalCalendarException("Die Anhänge für diesen Termin konnten nicht geladen werden.", e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(rs);
+            this.dbSvc.closeQuitely(stmt);
+            this.dbSvc.closeQuitely(conn);
+
+        }
+    }
+
+    @Override
+    public List<INode> uploadFiles(UUID eventId, List<MultipartFile> files)
+        throws CalEventNotFoundException, TechnicalCalendarException
     {
         Connection conn = null;
 
         try
         {
-            UUID currUser = this.currUserSvc.get().getUser().getUserId();
-
             conn = this.dbSvc.openConnection();
-            INode inode = this.getAttachmentsFolder(currUser, conn);
-            if (inode == null)
-            {
-                inode = this.createAttachmentsFolder(currUser, conn);
-            }
-            return inode;
+            conn.setAutoCommit(false);
+
+            INode attachmentFolder = this.getEventAttachmentsBaseFolder(eventId, conn);
+
+            List<INode> result = this.uploadSvc.uploadFiles(attachmentFolder.getUuid(), files);
+            this.createEventLinks(eventId, result, conn);
+
+            conn.commit();
+            return result;
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
-            e.printStackTrace();
-            throw new TechnicalCalendarException("Der Ordner für Kalender-Anhänge konnte nicht ermittelt werden.", e);
+            throw new TechnicalCalendarException("Die Datei-Anhänge konnten nicht gespeichert werden.", e);
         }
         finally
         {
@@ -72,81 +141,80 @@ public class CalAttachmentsServiceImpl implements ICalAttachmentsService
     }
 
     /**
-     * @param currUser
+     * @param eventId
+     * @param nodes
      * @param conn
-     * @return
-     * @throws SQLException 
+     * @throws SQLException
      */
-    private INode getAttachmentsFolder(UUID currUser, Connection conn) throws SQLException
+    private void createEventLinks(UUID eventId, List<INode> nodes, Connection conn) throws SQLException
     {
         PreparedStatement stmt = null;
-        ResultSet rs = null;
 
         try
         {
-            INode result = null;
+            stmt = conn.prepareStatement(SQL_CREATE_ATTACHMENT_LINK);
 
-            stmt = conn.prepareStatement(SQL_GET_ATTACHMENTS_FOLDER);
-            stmt.setString(1, currUser.toString());
-            stmt.setString(2, FOLDER_NAME);
-            rs = stmt.executeQuery();
-            if (rs.next())
+            for (INode node : nodes)
             {
-                result = INode.builder() //
-                    .uuid(UUID.fromString(rs.getString("uuid"))) //
-                    .parent(UUID.fromString(rs.getString("parent"))) //
-                    .owner(currUser) //
-                    .group(UUID.fromString(rs.getString("group")))//
-                    .perms(rs.getShort("perms")) //
-                    .name(rs.getString("name")) //
-                    .type(rs.getString("type")) //
-                    .size(rs.getLong("size")) //
-                    .created(rs.getTimestamp("created")) //
-                    .modified(rs.getTimestamp("modified")) //
-                    .build();
-                result.setEffectivePerms(this.checkPermsSvc.getEffectivePermissions(result));
+                stmt.setString(1, eventId.toString());
+                stmt.setString(2, node.getUuid().toString());
+                stmt.executeUpdate();
             }
-            return result;
         }
         finally
         {
-            this.dbSvc.closeQuitely(rs);
             this.dbSvc.closeQuitely(stmt);
         }
     }
 
     /**
-     * @param currUser
+     * Ermittle den Folder mit den Attachments für das gegebene Event. Sollte 
+     * kein solcher Folder existieren, so wird er angelegt.
+     * 
+     * Die Besonderheit dieses Folders ist es, das der Name des Folders <b>und</b> 
+     * die UUID der EventId entsprechen.
+     * 
+     * @param eventId
      * @param conn
      * @return
-     * @throws SQLException
+     * @throws TechnicalCalendarException
      */
-    private INode createAttachmentsFolder(UUID currUser, Connection conn) throws SQLException
+    private INode getEventAttachmentsBaseFolder(UUID eventId, Connection conn) throws TechnicalCalendarException {
+        
+        
+        INode base = this.getCalAttachmentsBaseFolder(conn);
+        return this.getOrCreateFolder(base.getUuid(), eventId.toString(), conn);
+    }
+    
+    private INode getCalAttachmentsBaseFolder(Connection conn) throws TechnicalCalendarException {
+        
+        UUID user = this.currUserSvc.get().getUser().getUserId();
+        return this.getOrCreateFolder(user, FOLDER_NAME, conn);
+        
+    }
+    
+    /**
+     * @param parentId
+     * @param name
+     * @return
+     * @throws TechnicalCalendarException
+     */
+    private INode getOrCreateFolder(UUID parentId, String name, Connection conn) throws TechnicalCalendarException
     {
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
         try
         {
-            UUID uuid = UUID.randomUUID();
-            
-            stmt = conn.prepareStatement(SQL_CREATE_ATTACHMENTS_FOLDER);
-            stmt.setString(1, uuid.toString());
-            stmt.setString(2, FOLDER_NAME);
-            stmt.setString(3, currUser.toString());
-            stmt.setString(4, currUser.toString());
-            stmt.setString(5, currUser.toString());
-            stmt.setInt(6, 0766);
-            stmt.setString(7, "inode/directory");
-            stmt.setInt(8, 0);
-            stmt.executeUpdate();
-            return this.getAttachmentsFolder(currUser, conn);
+            INode result = this.fileSysSvc.getChildByName(parentId, name, IPermissions.WRITE, conn);
+            if (result == null)
+            {
+                result = this.fileSysSvc.createFolder(parentId, name, conn);
+            }
+            return result;
         }
-        finally
+        catch (Exception e)
         {
-            this.dbSvc.closeQuitely(rs);
-            this.dbSvc.closeQuitely(stmt);
+            throw new TechnicalCalendarException("???", e);
         }
     }
-
+    
+    
 }

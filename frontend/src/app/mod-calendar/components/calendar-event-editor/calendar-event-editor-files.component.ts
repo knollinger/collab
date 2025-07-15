@@ -1,10 +1,11 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FilesPickerService } from '../../../mod-files/mod-files.module';
-import { CalendarAttachmentsService } from '../../services/calendar-attachments.service';
+import { CalendarService } from '../../services/calendar.service';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FilesDroppedEvent } from '../../../mod-files/directives/drop-target.directive';
 import { ContentTypeService } from '../../../mod-files/services/content-type.service';
+import { SessionService } from '../../../mod-session/session.module';
 
 /**
  * Zeigt die Attachments eines CalendarEvents an.
@@ -38,10 +39,23 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   attachmentsFolder: INode = INode.empty();
 
-  attachments: INode[] = new Array<INode>();
-  files: File[] = new Array<File>();
+  private files: File[] = new Array<File>();
+
+  @Input()
+  set attachments(inodes: INode[]) {
+    this._attachments = inodes;
+    this.createRenderNodes();
+  }
+  private _attachments: INode[] = new Array<INode>();
+
   inodesToRender: INode[] = new Array<INode>();
   selectedNodes: Set<INode> = new Set<INode>();
+
+  @Output()
+  filesChange: EventEmitter<File[]> = new EventEmitter<File[]>();
+
+  @Output()
+  inodesChange: EventEmitter<INode[]> = new EventEmitter<INode[]>();
 
   /**
    * 
@@ -49,32 +63,42 @@ export class CalendarEventEditorFilesComponent implements OnInit {
    * @param filePicker 
    */
   constructor(
-    private calAttachmentsSvc: CalendarAttachmentsService,
+    private calSvc: CalendarService,
+    private currUserSvc: SessionService,
     private mimetypeSvc: ContentTypeService,
     private filePicker: FilesPickerService) {
 
   }
 
   /**
-   * 
+   * Wir legen einen vurtuellen Folder an, welcher als Basis des
+   * files-grid-view dient. Sinn und Zweck sind eigentlich nur das
+   * die EffetivePerms Modifikationen (Drop, Delete, ...) erlauben.
    */
   ngOnInit() {
 
-    this.calAttachmentsSvc.getAttachmentsFolder()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(folder => {
-        this.attachmentsFolder = folder;
-      })
+    const user = this.currUserSvc.currentUser.userId;
+    this.attachmentsFolder = new INode('', '', '', 'inode/directory', 0, new Date(), new Date(), user, user,  0o777, 0o777);
+
   }
 
   /**
-   * Der INode-Picker soll angezeigt werden
+   * Zeige den INode-Picker an
    */
   onPickINodes() {
-    this.filePicker.showFilePicker(true);
+    this.filePicker.showFilePicker(true)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(inodes => {
+        if (inodes) {
+          this._attachments.push(...inodes);
+          this.createRenderNodes();
+          this.inodesChange.emit(this._attachments);
+        }
+      });
   }
 
   /**
+   * Lokale Files wurden via DnD hinzu gefügt
    * 
    * @param evt 
    */
@@ -82,9 +106,11 @@ export class CalendarEventEditorFilesComponent implements OnInit {
 
     this.files.push(...evt.files);
     this.createRenderNodes();
+    this.filesChange.emit(this.files);
   }
 
   /**
+   * lokale Files wurden per UploadBtn ausgewählt
    * 
    * @param evt 
    */
@@ -97,10 +123,16 @@ export class CalendarEventEditorFilesComponent implements OnInit {
         this.files.push(files[i]);
       }
       this.createRenderNodes();
+      this.filesChange.emit(this.files);
     }
   }
 
   /**
+   * Erzeuge das Array der zu rendernden INodes. Dieses Array beinhaltet alle
+   * "normalen" INodes, für hochzuladende Files werden temporäre INodes mit
+   * einer leeren UUID erzeugt.
+   * 
+   * Das Array wird nach Namen sortiert.
    * 
    * @param files 
    */
@@ -113,7 +145,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
 
     });
 
-    newNodes.push(...this.attachments);
+    newNodes.push(...this._attachments);
 
     this.inodesToRender = newNodes.sort((first, second) => {
       return first.name.localeCompare(second.name);
@@ -121,7 +153,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   }
 
   /**
-   * 
+   * Selektiere alle INodes
    */
   onSelectAll() {
 
@@ -133,7 +165,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   }
 
   /**
-   * 
+   * Lösche die Auswahl
    */
   onDeselectAll() {
 
@@ -141,6 +173,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   }
 
   /**
+   * Aus dem INode-View wurde die Auswahl geändert.
    * 
    * @param selected 
    */
@@ -149,13 +182,16 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   }
 
   /**
-   * 
+   * Liegt eine Selection vor?
    */
   get hasSelection(): boolean {
     return this.selectedNodes.size > 0;
   }
 
   /**
+   * Lösche INodes. Entweder wird delete direkt auf einer INode ausgeführt,
+   * in diesem Fall ist der Parameter `inode` gesetzt. Anderenfalls wurde der 
+   * delete via Toolbar ausgelöst, es werden alle selektierten INodes gelöscht.
    * 
    * @param inode 
    */
@@ -164,17 +200,21 @@ export class CalendarEventEditorFilesComponent implements OnInit {
     const toDelete: INode[] = inode ? [inode] : Array.of(...this.selectedNodes);
     toDelete.forEach(node => {
       if (node.uuid) {
-        this.attachments = this.attachments.filter(attachment => { return attachment.uuid !== node.uuid });
+        this._attachments = this._attachments.filter(attachment => { return attachment.uuid !== node.uuid });
+        this.inodesChange.emit(this._attachments);
       }
       else {
         this.files = this.files.filter(file => { return file.name !== node.name }); // Das ist doch scheiße! Zwei gleichnamige Files können aus unterschiedlichen Verzeichnissen stammen!
+        this.filesChange.emit(this.files);
       }
     });
     this.selectedNodes.clear();
+
     this.createRenderNodes();
   }
 
   /**
+   * Liefere das Mimetype-Icon für eine INode.
    * 
    * @param inode 
    * @returns 
