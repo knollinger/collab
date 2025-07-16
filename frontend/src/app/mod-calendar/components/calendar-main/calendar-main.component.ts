@@ -1,259 +1,206 @@
-import { Component, ViewChild, AfterViewInit, DestroyRef, inject } from "@angular/core";
-import { MatDialog } from "@angular/material/dialog";
+import { AfterViewInit, Component, DestroyRef, inject, ViewChild } from '@angular/core';
 
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { MatButtonToggleChange } from '@angular/material/button-toggle';
 
-import {
-  DayPilot,
-  DayPilotCalendarComponent,
-  DayPilotMonthComponent,
-  DayPilotNavigatorComponent
-} from "@daypilot/daypilot-lite-angular";
+import { CalendarOptions } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+
+import { FullCalendarComponent } from '@fullcalendar/angular';
+
+import allLocales from '@fullcalendar/core/locales-all';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CalendarService } from '../../services/calendar.service';
-import { CommonDialogsService, TitlebarService } from "../../../mod-commons/mod-commons.module";
-import { SessionService } from '../../../mod-session/session.module';
-
+import { Router } from '@angular/router';
 import { CalendarEventMenuComponent } from '../calendar-event-menu/calendar-event-menu.component';
-import { Router } from "@angular/router";
+import { CalendarEvent } from '../../models/calendar-event';
+import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
-  selector: 'app-calendar-main-component',
+  selector: 'app-calendar-main',
   templateUrl: './calendar-main.component.html',
-  styleUrls: ['./calendar-main.component.css'],
-  standalone: false
+  styleUrls: ['./calendar-main.component.css']
 })
 export class CalendarMainComponent implements AfterViewInit {
 
-  @ViewChild("day") day!: DayPilotCalendarComponent;
-  @ViewChild("week") week!: DayPilotCalendarComponent;
-  @ViewChild("month") month!: DayPilotMonthComponent;
-  @ViewChild("navigator") nav!: DayPilotNavigatorComponent;
-  @ViewChild('eventMenu') eventMenu!: CalendarEventMenuComponent;
+  private viewModes: Map<string, string> = new Map<string, string>(
+    [
+      ['DAY', 'timeGridDay'],
+      ['WEEK', 'timeGridWeek'],
+      ['YEAR', 'dayGridMonth'],
+    ]
+  );
+
+  calendarOptions: CalendarOptions = {
+    initialView: 'dayGridMonth',
+    locales: allLocales,
+    locale: navigator.language,
+    headerToolbar: false,
+    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+    initialDate: new Date(),
+    nowIndicator: true,
+    stickyHeaderDates: true,
+    select: info => this.onDateSelection(info),
+    eventDidMount: info => this.onMountEvent(info),
+    eventClick: info => this.onEventClick(info),
+    eventDrop: info => this.onEventDrop(info),
+    eventResize: info => this.onEventResize(info), //
+    editable: true, // Events können via DnD verschoben/resized werden
+    selectable: true, // Auswahl eines Timeranges via Maus
+    events: []
+  };
 
   private destroyRef = inject(DestroyRef);
 
-  events: DayPilot.EventData[] = [];
-  date = DayPilot.Date.today();
+  @ViewChild('calendar')
+  calendar!: FullCalendarComponent;
 
-  configNavigator: DayPilot.NavigatorConfig = {
-    locale: navigator.language, // TODO: in FF kommt hier nur ein 'de'. da wirft im Navigator einen "TypeError: r.locale() is undefined"
-    showMonths: 2,
-    cellWidth: 25,
-    cellHeight: 25,
-    onVisibleRangeChanged: args => {
-      this.loadEvents();
-    }
-  };
+  @ViewChild('eventMenu')
+  eventMenu!: CalendarEventMenuComponent;
 
-  configDay: DayPilot.CalendarConfig = {
-    durationBarVisible: true,
-    locale: navigator.language,
-    weekStarts: 1,
-    cellHeight: 32,
-    onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
-    onEventMove: this.onEventMove.bind(this),
-    onEventClick: this.onEventClick.bind(this),
-    onEventRightClick: this.onEventMenu.bind(this)
-  };
+  title: string = 'Test';
+  viewMode: string = 'MONTH';
+  events: CalendarEvent[] = new Array<CalendarEvent>();
 
-  configWeek: DayPilot.CalendarConfig = {
-    viewType: "Week",
-    durationBarVisible: true,
-    locale: navigator.language,
-    weekStarts: 1,
-    onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
-    onEventMove: this.onEventMove.bind(this),
-    onEventClick: this.onEventClick.bind(this),
-    onEventRightClick: this.onEventMenu.bind(this)
-  };
-
-  configMonth: DayPilot.MonthConfig = {
-    eventBarVisible: true,
-    locale: navigator.language,
-    weekStarts: 1,
-    onTimeRangeSelected: this.onTimeRangeSelected.bind(this),
-    onEventMove: this.onEventMove.bind(this),
-    onEventClick: this.onEventClick.bind(this),
-    onEventRightClick: this.onEventMenu.bind(this)
-  };
-
+  /**
+   * 
+   * @param router 
+   * @param calSvc 
+   */
   constructor(
-    private dialog: MatDialog,
-    private titlebarSvc: TitlebarService,
-    private commonDlgsSvc: CommonDialogsService,
-    private calSvc: CalendarService,
-    private sessionSvc: SessionService,
-    private router: Router) {
-    this.onViewModeChange('Week');
+    private router: Router,
+    private titleBarSvc: TitlebarService,
+    private calSvc: CalendarService) {
+
+  }
+
+  ngAfterViewInit(): void {
+    this.titleBarSvc.subTitle='Kalender';
+    this.loadEvents();
   }
 
   /**
    * 
    */
-  ngAfterViewInit(): void {
-    this.titlebarSvc.subTitle = 'Kalender';
-    this.loadEvents();
+  public loadEvents() {
+
+    if (this.calendar) {
+      const start = this.calendar.getApi().view.activeStart;
+      const end = this.calendar.getApi().view.activeEnd;
+
+      this.calSvc.getAllEvents(start, end)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(result => {
+
+          this.events = result;
+          this.calendarOptions.events = result.map(e => {
+            return e.toFullcalendarEvent();
+          });
+        });
+    }
   }
 
   /**
-   * Wird gerufen, wenn im Navigator eine Selection vorgenommen wurde
-   * @param date 
+   * 
+   * @param evt 
    */
-  changeDate(date: DayPilot.Date): void {
-    this.configDay.startDate = date;
-    this.configWeek.startDate = date;
-    this.configMonth.startDate = date;
+  onViewModeChange(evt: MatButtonToggleChange) {
+    this.viewMode = evt.value;
+    this.calendar.getApi().changeView(this.viewModes.get(evt.value) || 'dayGridMonth');
+    this.loadEvents();
   }
 
   /**
    * 
    */
   onGoBack() {
-
-    switch (this.configNavigator.selectMode) {
-      case 'Day':
-        this.date = this.date.addDays(-1);
-        break;
-
-      case 'Week':
-        this.date = this.date.addDays(-7);
-        break;
-
-      case 'Month':
-        this.date = this.date.addMonths(1);
-        break;
-    }
+    this.calendar.getApi().prev();
+    this.loadEvents();
   }
 
   /**
    * 
    */
   onGoToday() {
-    this.date = DayPilot.Date.today();
+    this.calendar.getApi().today();
+    this.loadEvents();
   }
 
   /**
    * 
    */
   onGoFore() {
-
-    switch (this.configNavigator.selectMode) {
-      case 'Day':
-        this.date = this.date.addDays(1);
-        break;
-
-      case 'Week':
-        this.date = this.date.addDays(7);
-        break;
-
-      case 'Month':
-        this.date = this.date.addMonths(1);
-        break;
-    }
+    this.calendar.getApi().next();
+    this.loadEvents();
   }
 
   /**
    * 
    */
-  loadEvents(): void {
-
-    const from = this.nav.control.visibleStart();
-    const to = this.nav.control.visibleEnd();
-    this.calSvc.getAllEvents(from.toDate(), to.toDate())
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
-
-        this.events = result.map(e => {
-          return e.toDayPilotEvent();
-        });
-      });
+  get date(): Date {
+    return this.calendar ? this.calendar.getApi().getDate() : new Date();
   }
 
-  /**
-   * Auswahl des ViewModes
-   * @param mode 
-   */
-  onViewModeChange(mode: 'Day' | 'Week' | 'Month') {
+  onDateSelection(info: any) {
 
-    this.configNavigator.selectMode = mode;
-    switch (mode) {
-      case 'Day':
-        this.configDay.visible = true;
-        this.configWeek.visible = false;
-        this.configMonth.visible = false;
-        break;
-
-      case 'Week':
-        this.configDay.visible = false;
-        this.configWeek.visible = true;
-        this.configMonth.visible = false;
-        break;
-
-      case 'Month':
-        this.configDay.visible = false;
-        this.configWeek.visible = false;
-        this.configMonth.visible = true;
-        break;
-
-    }
-  }
-
-  /**
-   * 
-   * @param args 
-   */
-  onTimeRangeSelected(args: any) {
-
-    args.control.clearSelection();
-
-    const start = args.start.toDateLocal().getTime();
-    const end = args.end.toDateLocal().getTime();
+    const start = info.start.getTime();
+    const end = info.end.getTime();
     const url = `/calendar/event?start=${start}}&end=${end}`;
     this.router.navigateByUrl(url);
   }
 
-  /**
-   * 
-   * @param args 
-   * @returns 
-   */
-  onEventClick(args: any) {
+  onEventClick(info: any) {
 
-    const cal = args.control;
-
-    const url = `/calendar/event?eventId=${args.e.id()}`;
+    console.dir(info);
+    const url = `/calendar/event?eventId=${info.event.id}`;
     this.router.navigateByUrl(url);
   }
 
-  onEventMenu(args: any) {
+  onEventDrop(info: any) {
+    console.log(info.event.id);
+    console.log(info.event.start);
+    console.log(info.event.end);
+  }
 
-    console.dir(args);
-    // args.preventDefault();
+  onEventResize(info: any) {
+    console.log(info.event.id);
+    console.log(info.event.start);
+    console.log(info.event.end);
+  }
+
+  /**
+   * Callback, welcher beim hinzugügen eines Events in den View
+   * gerufen wird. Wir hängen hier einfach einen EventListener
+   * zur anzeige des ContextMenus an das Element.
+   * @param info 
+   */
+  onMountEvent(info: any) {
+    const eventId = info.event.id
+    info.el.addEventListener("contextmenu", (jsEvent: MouseEvent) => {
+
+      jsEvent.preventDefault();
+      const event = this.getEventById(eventId);
+      if (event) {
+        console.dir(event);
+        this.eventMenu.show(jsEvent, event);
+      }
+    })
   }
 
   /**
    * 
-   * @param args 
+   * @param id 
+   * @returns 
    */
-  onEventMove(args: any) {
+  private getEventById(id: string): CalendarEvent | null {
 
-    // doMove(args.control, args.e.id(), args.newStart, args.newEnd);
-    alert('not yet implemented');
+    for (let event of this.events) {
+      if (event.uuid === id) {
+        return event;
+      }
+    }
+    return null;
   }
-
-  /**
-   * 
-   * @param evtId 
-   */
-  onShowMenuEvent(event: any) {
-
-    const evtId = event.source.id();
-    this.calSvc.getEvent(evtId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(calEvt => {
-
-        this.eventMenu.show(event.originalEvent, calEvt);
-      });
-  }
-}
+} 

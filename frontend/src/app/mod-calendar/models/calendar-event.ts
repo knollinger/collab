@@ -1,4 +1,3 @@
-import { DayPilot } from "@daypilot/daypilot-lite-angular";
 import { RRuleSet, rrulestr } from "rrule";
 import { BehaviorSubject } from "rxjs";
 
@@ -192,7 +191,7 @@ export class CalendarEvent {
 
 
     set title(val: string) {
-        if(this.titleChange.value !== val) {
+        if (this.titleChange.value !== val) {
             this.titleChange.next(val);
         }
     }
@@ -203,7 +202,7 @@ export class CalendarEvent {
 
     set start(val: Date) {
         const newDate = new Date(val);
-        if(this.startChange.value.getTime() !== newDate.getTime()) {
+        if (this.startChange.value.getTime() !== newDate.getTime()) {
             this.startChange.next(newDate);
         }
     }
@@ -214,7 +213,7 @@ export class CalendarEvent {
 
     set end(val: Date) {
         const newDate = new Date(val);
-        if(this.endChange.value.getTime() !== newDate.getTime()) {
+        if (this.endChange.value.getTime() !== newDate.getTime()) {
             this.endChange.next(newDate);
         }
     }
@@ -224,7 +223,7 @@ export class CalendarEvent {
     }
 
     set desc(val: string) {
-        if(this.descChange.value !== val) {
+        if (this.descChange.value !== val) {
             this.descChange.next(val);
         }
     }
@@ -234,7 +233,7 @@ export class CalendarEvent {
     }
 
     set fullDay(val: boolean) {
-        if(this.fullDayChange.value !== val) {
+        if (this.fullDayChange.value !== val) {
             this.fullDayChange.next(val);
         }
     }
@@ -244,7 +243,7 @@ export class CalendarEvent {
     }
 
     set private(val: boolean) {
-        if(this.privateChange.value !== val) {
+        if (this.privateChange.value !== val) {
             this.privateChange.next(val);
         }
     }
@@ -254,7 +253,7 @@ export class CalendarEvent {
     }
 
     set rruleSet(val: RRuleSet | null) {
-        if(this.rrulesetChange.value !== val) {
+        if (this.rrulesetChange.value !== val) {
             this.rrulesetChange.next(val);
         }
     }
@@ -267,30 +266,16 @@ export class CalendarEvent {
         return this.rruleSet !== null;
     }
 
-    /**
-     * 
-     * @param evt 
-     * @returns 
-     */
-    public static fromDayPilotEvent(evt: DayPilot.Event): CalendarEvent {
+    public toFullcalendarEvent(): any {
 
-        const start = evt.start().toDate();
-        const end = evt.end().toDate();
-        return new CalendarEvent(evt.id().toString(), '', evt.text(), start, end, '', false, null);
-    }
-
-    /**
-     * 
-     * @returns 
-     */
-    public toDayPilotEvent(): DayPilot.EventData {
-
-        const data: DayPilot.EventData = {
-            start: new DayPilot.Date(this.start, true),
-            end: new DayPilot.Date(this.end, true),
+        return {
             id: this.uuid,
-            text: this.title
-        }
-        return data;
+            allDay: this.fullDay,
+            start: this.start,
+            end: this.end,
+            title: this.title,
+            backgroundColor: 'whitesmoke',
+            textColor: '#333'
+        };
     }
 }

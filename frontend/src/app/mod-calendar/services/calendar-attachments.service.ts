@@ -14,6 +14,7 @@ export class CalendarAttachmentsService {
             ['getAllAttachments', 'v1/calattachments/{1}']
         ]
     );
+    
     /**
      * 
      * @param http 

@@ -1,45 +1,43 @@
-.container {
-    display: flex;
-    flex-direction: row;
-    padding: 1rem;
-    overflow: auto;
+
+.outer-container {
     height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
-.navigator {
-    margin-right: 1rem;
-    flex: 0 0 auto;
-    overflow: auto;
-}
-
-.content {
-    flex: 1 1 auto;
-}
-
-.buttons {
+.toolbar {
+    flex: 0;
     display: flex;
     flex-direction: row;
+    margin: 1rem;
     align-items: center;
-    margin-bottom: 1rem;
-    flex: 0;
-}
-
-.calendar {
-    flex: 1 1 auto;
 }
 
 .date-selection {
     flex: 0 0 auto;
+    display: flex;
+    align-items: center;
 }
 
 .date-sel-btn {
-    margin-right: 0.5rem;
+    /* margin-right: 0.5rem; */
 } 
 
 .title {
     flex: 1 1 auto;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: large;
+    font-weight: 500;
 }
 
 .viewm-mode {
     flex: 0 0 auto;
+}
+
+.content {
+    flex: 1;
+    overflow: auto;
+    margin: 1rem;
 }

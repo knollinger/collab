@@ -1,78 +1,50 @@
-<div class="container mat-app-background">
+<div class="outer-container mat-app-background">
+    <div class="toolbar">
+        <div class="date-selection">
 
-    <div class="navigator">
-        <daypilot-navigator [config]="configNavigator"
-                            [events]="events"
-                            [(date)]="date"
-                            (dateChange)="changeDate($event)"
-                            #navigator>
-        </daypilot-navigator>
+            <button class="date-sel-btn"
+                    (click)="onGoBack()"
+                    mat-icon-button>
+                <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
+            </button>
+
+            <button class="date-sel-btn"
+                    (click)="onGoToday()"
+                    mat-button>
+                <mat-icon class="material-symbols-outlined">today</mat-icon>
+                <span>Heute</span>
+            </button>
+
+            <button class="date-sel-btn"
+                    (click)="onGoFore()"
+                    mat-icon-button>
+                <mat-icon class="material-symbols-outlined"
+                          iconPositionEnd>chevron_right</mat-icon>
+            </button>
+
+        </div>
+
+        <button mat-icon-button>
+            <mat-icon class="material-symbols-outlined">refresh</mat-icon>
+        </button>
+
+        <span class="title" *ngIf="viewMode === 'DAY'">{{date | date:"dd.MM.YYYY"}}</span>
+        <span class="title" *ngIf="viewMode === 'WEEK'">{{date | date:"'Kalenderwoche' ww YYYY"}}</span>
+        <span class="title" *ngIf="viewMode === 'MONTH'">{{date | date:"MMM YYYY"}}</span>
+
+        <mat-button-toggle-group class="view-mode"
+                                 [value]="viewMode"
+                                 (change)="onViewModeChange($event)">
+            <mat-button-toggle value="DAY">Tag</mat-button-toggle>
+            <mat-button-toggle value="WEEK">Woche</mat-button-toggle>
+            <mat-button-toggle value="MONTH">Monat</mat-button-toggle>
+        </mat-button-toggle-group>
+
     </div>
 
     <div class="content">
-
-        <div class="buttons">
-
-            <div class="date-selection">
-
-                <button class="date-sel-btn"
-                        mat-flat-button
-                        color="primary"
-                        (click)="onGoBack()">
-                    <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
-                </button>
-
-                <button class="date-sel-btn"
-                        mat-flat-button
-                        color="primary"
-                        (click)="onGoToday()">
-                    <mat-icon class="material-symbols-outlined">today</mat-icon>
-                    <span>Heute</span>
-                </button>
-
-                <button class="date-sel-btn"
-                        mat-flat-button
-                        color="primary"
-                        (click)="onGoFore()">
-                    <mat-icon class="material-symbols-outlined"
-                              iconPositionEnd>chevron_right</mat-icon>
-                </button>
-
-            </div>
-
-            <button mat-icon-button
-                    (click)="loadEvents()">
-                <mat-icon class="material-symbols-outlined">refresh</mat-icon>
-            </button>
-
-            <span class="title"></span>
-
-            <mat-button-toggle-group class="view-mode"
-                                     [value]="this.configNavigator.selectMode"
-                                     (change)="onViewModeChange($event.value)">
-                <mat-button-toggle value="Day">Tag</mat-button-toggle>
-                <mat-button-toggle value="Week">Woche</mat-button-toggle>
-                <mat-button-toggle value="Month">Monat</mat-button-toggle>
-            </mat-button-toggle-group>
-        </div>
-
-        <daypilot-calendar class="calendar"
-                           [config]="configDay"
-                           [events]="events"
-                           #day>
-        </daypilot-calendar>
-
-        <daypilot-calendar class="calendar"
-                           [config]="configWeek"
-                           [events]="events"
-                           #week>
-        </daypilot-calendar>
-
-        <daypilot-month class="calendar"
-                        [config]="configMonth"
-                        [events]="events"
-                        #month>
-        </daypilot-month>
+        <full-calendar #calendar
+                       [options]="calendarOptions"></full-calendar>
     </div>
 
     <app-calendar-event-menu #eventMenu></app-calendar-event-menu>
