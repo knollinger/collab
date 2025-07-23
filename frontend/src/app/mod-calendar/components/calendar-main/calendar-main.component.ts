@@ -1,37 +1,30 @@
-import { AfterViewInit, Component, DestroyRef, inject, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, OnDestroy, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 
+import { RRuleSet } from 'rrule';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import allLocales from '@fullcalendar/core/locales-all';
 
 import { FullCalendarComponent } from '@fullcalendar/angular';
-
-import allLocales from '@fullcalendar/core/locales-all';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-
 import { CalendarService } from '../../services/calendar.service';
-import { Router } from '@angular/router';
 import { CalendarEventMenuComponent } from '../calendar-event-menu/calendar-event-menu.component';
 import { CalendarEvent } from '../../models/calendar-event';
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
+import { IDelta, RecurringRulsesetService } from '../../services/recurring-rulseset.service';
 
 @Component({
   selector: 'app-calendar-main',
   templateUrl: './calendar-main.component.html',
   styleUrls: ['./calendar-main.component.css']
 })
-export class CalendarMainComponent implements AfterViewInit {
-
-  private viewModes: Map<string, string> = new Map<string, string>(
-    [
-      ['DAY', 'timeGridDay'],
-      ['WEEK', 'timeGridWeek'],
-      ['YEAR', 'dayGridMonth'],
-    ]
-  );
+export class CalendarMainComponent implements AfterViewInit, OnDestroy {
 
   calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
@@ -42,14 +35,14 @@ export class CalendarMainComponent implements AfterViewInit {
     initialDate: new Date(),
     nowIndicator: true,
     stickyHeaderDates: true,
+    editable: true, // Events können via DnD verschoben/resized werden
+    selectable: true, // Auswahl eines Time-Ranges via Maus
     select: info => this.onDateSelection(info),
     eventDidMount: info => this.onMountEvent(info),
     eventClick: info => this.onEventClick(info),
     eventDrop: info => this.onEventDrop(info),
     eventResize: info => this.onEventResize(info), //
-    editable: true, // Events können via DnD verschoben/resized werden
-    selectable: true, // Auswahl eines Timeranges via Maus
-    events: []
+    events: (info, onSuccess, onError) => this.onLoadEvents(info, onSuccess, onError),
   };
 
   private destroyRef = inject(DestroyRef);
@@ -64,6 +57,8 @@ export class CalendarMainComponent implements AfterViewInit {
   viewMode: string = 'MONTH';
   events: CalendarEvent[] = new Array<CalendarEvent>();
 
+  private loadEventsSubscribtion: Subscription | null = null;
+
   /**
    * 
    * @param router 
@@ -72,102 +67,76 @@ export class CalendarMainComponent implements AfterViewInit {
   constructor(
     private router: Router,
     private titleBarSvc: TitlebarService,
-    private calSvc: CalendarService) {
+    private calSvc: CalendarService,
+    private recurringSvc: RecurringRulsesetService) {
 
-  }
-
-  ngAfterViewInit(): void {
-    this.titleBarSvc.subTitle='Kalender';
-    this.loadEvents();
   }
 
   /**
    * 
    */
-  public loadEvents() {
+  ngAfterViewInit(): void {
+    this.titleBarSvc.subTitle = 'Kalender';
+  }
 
-    if (this.calendar) {
-      const start = this.calendar.getApi().view.activeStart;
-      const end = this.calendar.getApi().view.activeEnd;
+  /**
+   * 
+   */
+  ngOnDestroy(): void {
 
-      this.calSvc.getAllEvents(start, end)
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(result => {
-
-          this.events = result;
-          this.calendarOptions.events = result.map(e => {
-            return e.toFullcalendarEvent();
-          });
-        });
+    if (this.loadEventsSubscribtion) {
+      this.loadEventsSubscribtion.unsubscribe();
     }
   }
 
   /**
+   * Eine Callback-Funktion, welche am FullCalendar als EventSource registriert
+   * wird.
    * 
-   * @param evt 
+   * Immer dann, wenn der Calendar neue Events braucht ruft er diese Funktion. 
+   * Eine (mehr oder weniger) ausführliche Doku findest Du unter 
+   * https://fullcalendar.io/docs/events-function
+   * 
+   * Die Methode wird im Lifecycle des Calendars sehr oft gerufen. Bei jedem
+   * goBack, goFore, goToday, setViewMode. Und jedes mal wird der CalendarService
+   * mit getAllEvents gerufen, jedesmal ist eine Subscription auf das gelieferte 
+   * Observable nötig.
+   * 
+   * Aus diesem Grund verwenden wir hier kein takeUntilDestroyed, wir können die 
+   * vorherige Subscription sofort wieder freigeben. Und wenn die COmponent 
+   * gelöscht wird, dann geben wir im ngOnDestroy einfach die letzte Subscription
+   * frei. 
+   * 
+   * Der RAM-Verbrauch wirds uns danken :-)
+   *  
+   * 
+   * @param info 
+   * @param onSuccess 
+   * @param onError 
    */
-  onViewModeChange(evt: MatButtonToggleChange) {
-    this.viewMode = evt.value;
-    this.calendar.getApi().changeView(this.viewModes.get(evt.value) || 'dayGridMonth');
-    this.loadEvents();
+  private onLoadEvents(info: any, onSuccess: any, onError: any) {
+
+    if (this.loadEventsSubscribtion) {
+      this.loadEventsSubscribtion.unsubscribe();
+    }
+
+    this.loadEventsSubscribtion = this.calSvc.getAllEvents(info.start, info.end)
+      .subscribe(result => {
+
+        
+        this.events = result;
+        const mapped = result.map(e => {
+          return e.toFullcalendarEvent();
+        });
+        onSuccess(mapped);
+      });
   }
 
   /**
-   * 
+   * Lade alle Events neu
    */
-  onGoBack() {
-    this.calendar.getApi().prev();
-    this.loadEvents();
-  }
-
-  /**
-   * 
-   */
-  onGoToday() {
-    this.calendar.getApi().today();
-    this.loadEvents();
-  }
-
-  /**
-   * 
-   */
-  onGoFore() {
-    this.calendar.getApi().next();
-    this.loadEvents();
-  }
-
-  /**
-   * 
-   */
-  get date(): Date {
-    return this.calendar ? this.calendar.getApi().getDate() : new Date();
-  }
-
-  onDateSelection(info: any) {
-
-    const start = info.start.getTime();
-    const end = info.end.getTime();
-    const url = `/calendar/event?start=${start}}&end=${end}`;
-    this.router.navigateByUrl(url);
-  }
-
-  onEventClick(info: any) {
-
-    console.dir(info);
-    const url = `/calendar/event?eventId=${info.event.id}`;
-    this.router.navigateByUrl(url);
-  }
-
-  onEventDrop(info: any) {
-    console.log(info.event.id);
-    console.log(info.event.start);
-    console.log(info.event.end);
-  }
-
-  onEventResize(info: any) {
-    console.log(info.event.id);
-    console.log(info.event.start);
-    console.log(info.event.end);
+  onReload() {
+    this.calendar.getApi().refetchEvents();
   }
 
   /**
@@ -177,16 +146,147 @@ export class CalendarMainComponent implements AfterViewInit {
    * @param info 
    */
   onMountEvent(info: any) {
+
     const eventId = info.event.id
     info.el.addEventListener("contextmenu", (jsEvent: MouseEvent) => {
 
       jsEvent.preventDefault();
       const event = this.getEventById(eventId);
       if (event) {
-        console.dir(event);
         this.eventMenu.show(jsEvent, event);
       }
     })
+  }
+
+  /**
+   * 
+   * @param evt 
+   */
+  onViewModeChange(evt: MatButtonToggleChange) {
+    this.calendar.getApi().changeView(evt.value);
+  }
+
+  /**
+   * 
+   */
+  onGoBack() {
+    this.calendar.getApi().prev();
+  }
+
+  /**
+   * 
+   */
+  onGoToday() {
+    this.calendar.getApi().today();
+  }
+
+  /**
+   * 
+   */
+  onGoFore() {
+    this.calendar.getApi().next();
+  }
+
+  /**
+   * 
+   */
+  get date(): Date {
+    return this.calendar ? this.calendar.getApi().getDate() : new Date();
+  }
+
+  /**
+   * Timerange-Auswahl im Kalender
+   * 
+   * @param info 
+   */
+  onDateSelection(info: any) {
+
+    const end = info.end;
+
+    // 
+    // Sonderlocke bei Ganztags-Auswahl:
+    // Das EventModel vom FullCalendar betrachtet das EndDate immer als excluding,
+    // alsdo wird der TimeRange als [start, end[ definiert. Bei TimeGrid-basierten
+    // Views ist das wurscht, bei Tages-basierten Views kommt es zu eklatanten
+    // Verschiebungen
+    //
+    if (info.allDay) {
+      end.setDate(end.getDate() - 1);
+    }
+
+    const startTS = info.start.getTime();
+    const endTS = end.getTime();
+    const url = `/calendar/event?start=${startTS}}&end=${endTS}&fullDay=${info.allDay}`;
+    this.router.navigateByUrl(url);
+  }
+
+  /**
+   * Ein Event wurde angeklickt, ab in den EventEditor!
+   * 
+   * @param info 
+   */
+  onEventClick(info: any) {
+
+    const url = `/calendar/event?eventId=${info.event.id}`;
+    this.router.navigateByUrl(url);
+  }
+
+  /**
+   * Beim Drop verschieben wir ein Event. Das bedeutet, das die Timestamps
+   * für start und end verschoben werden müssen. 
+   * 
+   * Das Info-Objekt beinhaltet ein Property "delta", dies wird dem 
+   * RecurringRulsesetService einfach zum fressen hingehalten, soll der
+   * sich drum kümmern.
+   *  
+   * @param info 
+   */
+  onEventDrop(info: any) {
+
+    const evt = this.getEventById(info.event.id);
+    if (evt) {
+
+      const delta = info.delta as IDelta;
+      const currRuleSet = evt.rruleSet as RRuleSet;
+      const newStart = this.recurringSvc.applyDateDelta(evt.start, delta);
+      const newEnd = this.recurringSvc.applyDateDelta(evt.end, delta);
+      const newRuleSet = (evt.isRecurring) ? this.recurringSvc.adjustRRuleSet(currRuleSet, delta) : evt.rruleSet;
+
+      const newEvt = new CalendarEvent(evt.uuid, evt.owner, evt.title, newStart, newEnd, evt.desc, evt.fullDay, newRuleSet);
+      this.updateEvent(newEvt);
+    }
+  }
+
+  /**
+   * Wir lassen resize nur am Ende eines Events zu, aus diesem Grund
+   * reicht es aus das endDelta-Property aus dem info-Objekt zu verarbeiten.
+   * 
+   * Wir berechnen also nur den end-Timestamp des Events neu.
+   *  
+   * @param info 
+   */
+  onEventResize(info: any) {
+
+    const evt = this.getEventById(info.event.id);
+    if (evt) {
+      const delta = info.endDelta as IDelta;
+      const newEnd = this.recurringSvc.applyDateDelta(evt.end, delta)
+      const newEvt = new CalendarEvent(evt.uuid, evt.owner, evt.title, evt.start, newEnd, evt.desc, evt.fullDay, evt.rruleSet);
+      this.updateEvent(newEvt);
+    }
+  }
+
+  /**
+   * 
+   * @param evt 
+   */
+  private updateEvent(evt: CalendarEvent) {
+
+    this.calSvc.saveEvent(evt)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(_ => {
+        // this.loadEvents();
+      })
   }
 
   /**
@@ -196,7 +296,9 @@ export class CalendarMainComponent implements AfterViewInit {
    */
   private getEventById(id: string): CalendarEvent | null {
 
+    console.dir(this.events);
     for (let event of this.events) {
+      console.log(`test '${event.uuid}' === '${id}'`);
       if (event.uuid === id) {
         return event;
       }

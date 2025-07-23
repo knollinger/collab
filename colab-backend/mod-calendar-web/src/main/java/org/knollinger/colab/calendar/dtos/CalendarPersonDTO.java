@@ -3,11 +3,15 @@ package org.knollinger.colab.calendar.dtos;
 import org.knollinger.colab.user.dtos.UserDTO;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Builder
+@Builder()
+@AllArgsConstructor()
+@NoArgsConstructor()
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.NONE)
 public class CalendarPersonDTO

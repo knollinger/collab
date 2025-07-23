@@ -22,7 +22,6 @@ export class CalendarService {
       ['getEvent', 'v1/calevents/calevent/{1}'],
       ['createEvent', 'v1/calevents/calevent'],
       ['saveEvent', 'v1/calevents/calevent'],
-      ['upload', 'v1/calattachments/attachments']
     ]
   );
 
@@ -94,31 +93,6 @@ export class CalendarService {
     return this.http.post<ICalendarEvent>(url, event.toJSON())
       .pipe(map(json => {
         return CalendarEvent.fromJSON(json);
-      }))
-  }
-
-  /**
-   * Lade lokale dateien als Attachments für das Event hoch 
-   * 
-   * @param eventId 
-   * @param files 
-   * @returns 
-   */
-  uploadFiles(eventId: string, files: File[]): Observable<INode[]> {
-
-    const url = this.backendRouter.getRouteForName('upload', CalendarService.routes);
-
-    const form = new FormData();
-    form.append('eventId', eventId);
-    files.forEach(file => {
-      form.append('file', file);
-    })
-
-    return this.http.put<INode[]>(url, form)
-      .pipe(map(inodes => {
-        return inodes.map(inode => {
-          return INode.fromJSON(inode)
-        })
       }))
   }
 }

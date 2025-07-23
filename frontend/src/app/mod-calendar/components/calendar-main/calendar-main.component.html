@@ -24,7 +24,7 @@
 
         </div>
 
-        <button mat-icon-button>
+        <button mat-icon-button  (click)="onReload()">
             <mat-icon class="material-symbols-outlined">refresh</mat-icon>
         </button>
 
@@ -35,9 +35,9 @@
         <mat-button-toggle-group class="view-mode"
                                  [value]="viewMode"
                                  (change)="onViewModeChange($event)">
-            <mat-button-toggle value="DAY">Tag</mat-button-toggle>
-            <mat-button-toggle value="WEEK">Woche</mat-button-toggle>
-            <mat-button-toggle value="MONTH">Monat</mat-button-toggle>
+            <mat-button-toggle value="timeGridDay">Tag</mat-button-toggle>
+            <mat-button-toggle value="timeGridWeek">Woche</mat-button-toggle>
+            <mat-button-toggle value="dayGridMonth">Monat</mat-button-toggle>
         </mat-button-toggle-group>
 
     </div>

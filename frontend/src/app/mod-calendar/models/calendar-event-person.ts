@@ -1,10 +1,16 @@
 import { IUser, User } from "../../mod-userdata/mod-userdata.module";
 
+/**
+ * 
+ */
 export interface ICalendarEventPerson {
     user: IUser,
     required: boolean
 } 
 
+/**
+ * 
+ */
 export class CalendarEventPerson {
 
     constructor(
@@ -13,9 +19,25 @@ export class CalendarEventPerson {
 
     }
 
+    /**
+     * 
+     * @param json 
+     * @returns 
+     */
     public static fromJSON(json: ICalendarEventPerson) {
 
         const user = User.fromJSON(json.user);
         return new CalendarEventPerson(user, json.required);
+    }
+
+    /**
+     * 
+     * @returns 
+     */
+    public toJSON(): ICalendarEventPerson {
+        return {
+            user: this.user.toJSON(),
+            required: this.required
+        }
     }
 }

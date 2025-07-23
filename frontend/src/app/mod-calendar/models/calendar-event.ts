@@ -27,10 +27,12 @@ export interface ICalendarEvent {
      */
     start: number,
 
+
     /**
-     * Die Dauer eines Events wird als Millies geliefert
+     * Timestamps werden prinzipell als UTC-Basierte "millies-since-epoch"
+     * übertragen.
      */
-    duration: number,
+    end: number,
 
     /**
      * Freitext zur ausfühlichen Beschreibung des Events. Da das ganze
@@ -145,7 +147,7 @@ export class CalendarEvent {
             }
         }
         const start = new Date(json.start); // wird als UTC angeliefert!
-        const end = new Date(json.start + json.duration);
+        const end = new Date(json.end); // dito
         return new CalendarEvent(json.uuid, json.owner, json.title, start, end, json.desc, json.fullDay, ruleset);
     }
 
@@ -155,14 +157,12 @@ export class CalendarEvent {
      */
     public toJSON(): ICalendarEvent {
 
-        const start = new Date(this.start).getTime();
-        const duration = new Date(this.end).getTime() - start;
         return {
             uuid: this.uuid,
             owner: this.owner,
             title: this.title,
-            start: start,
-            duration: duration,
+            start: new Date(this.start).getTime(),
+            end: new Date(this.end).getTime(),
             desc: this.desc,
             fullDay: this.fullDay,
             rruleset: this.rruleSet ? this.rruleSet.toString() : ''
@@ -266,10 +266,25 @@ export class CalendarEvent {
         return this.rruleSet !== null;
     }
 
+    /**
+     * Transformiere das CalendarEvent in eine Form, welche vom Fullcalendar
+     * verarbeitet werden kann.
+     * 
+     * Die groupId wird auf die UUID gesetzt. Dadurch werden alle Instanzen
+     * einer RecurringSerie beim DnD gemeinsam verschoben/resized.
+     * 
+     * Der Versuch, die groupID nur bei recurring zu setzen geht leider in die 
+     * Hose, wenn das Property existiert (und sei es undefined) so zieht es 
+     * einfach. Da gabs unschöne Effekte, das unabhängige sigle-Events zusammen
+     * verschome/resized werdem, weil sie die selbe groupId haben (halt undefined).
+     * 
+     * @returns 
+     */
     public toFullcalendarEvent(): any {
 
         return {
             id: this.uuid,
+            groupId: this.uuid, 
             allDay: this.fullDay,
             start: this.start,
             end: this.end,

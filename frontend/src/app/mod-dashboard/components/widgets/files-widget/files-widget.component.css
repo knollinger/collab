@@ -8,12 +8,12 @@
 }
 
 .item>img {
-    width: 32px;
+    width: 2rem;
     margin-right: 0.5rem;
 }
 
 .item>span {
-    width: 100px;
+    max-width: 100px;
     overflow: hidden;
     text-overflow: ellipsis;
     margin-right: 0.5rem;

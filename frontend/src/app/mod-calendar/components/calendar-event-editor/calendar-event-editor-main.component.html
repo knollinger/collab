@@ -23,23 +23,35 @@
                          formControlName="fullDay">ganztägiger Termin</mat-slide-toggle>
 
 
-       <mat-form-field [class.col-1-4]="fullDayToggle.checked"
-                       [class.col-1-2]="!fullDayToggle.checked">
+       <!-- Start-Datum -->
+       <mat-form-field [class.col-1-2]="fullDayToggle.checked"
+                       [class.col-1]="!fullDayToggle.checked">
               <mat-label>Datum</mat-label>
               <input matInput
-                     formControlName="date"
-                     [matDatepicker]="datePicker">
+                     formControlName="startDate"
+                     [matDatepicker]="startDatePicker">
               <mat-datepicker-toggle matIconSuffix
-                                     [for]="datePicker"></mat-datepicker-toggle>
-              <mat-datepicker #datePicker></mat-datepicker>
+                                     [for]="startDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #startDatePicker></mat-datepicker>
        </mat-form-field>
 
-       <mat-form-field class="col-3"
+       <mat-form-field class="col-2"
                        [class.hidden]="fullDayToggle.checked">
               <mat-label>Start</mat-label>
               <input matInput
                      type="time"
                      formControlName="startTime">
+       </mat-form-field>
+
+       <mat-form-field [class.col-3-4]="fullDayToggle.checked"
+                       [class.col-3]="!fullDayToggle.checked">
+              <mat-label>End-Datum</mat-label>
+              <input matInput
+                     formControlName="endDate"
+                     [matDatepicker]="endDatePicker">
+              <mat-datepicker-toggle matIconSuffix
+                                     [for]="endDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #endDatePicker></mat-datepicker>
        </mat-form-field>
 
        <mat-form-field class="col-4"
@@ -83,12 +95,9 @@
                             <select class="ql-color"></select>
                             <select class="ql-background"></select>
                      </span>
-
-
               </div>
 
               <div id="quillHost">
-
               </div>
        </div>
 

@@ -36,8 +36,9 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
       title: new FormControl('', [Validators.required]),
       fullDay: new FormControl(false),
       private: new FormControl(false),
-      date: new FormControl('', Validators.required),
+      startDate: new FormControl('', Validators.required),
       startTime: new FormControl('', Validators.required),
+      endDate: new FormControl('', Validators.required),
       endTime: new FormControl('', Validators.required),
 
     });
@@ -70,8 +71,9 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
       title: this.event.title,
       fullDay: this.event.fullDay,
       private: false,
-      date: this.event.start,
+      startDate: this.event.start,
       startTime: this.getTimeString(this.event.start),
+      endDate: this.event.end,
       endTime: this.getTimeString(this.event.end)
     };
     this.eventForm.setValue(val);
@@ -168,8 +170,8 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
     const val = this.eventForm.value;
     this.event.title = val.title;
 
-    this.event.start = this.composeDatetime(val.date, val.startTime); // val.start; // TODO: ist localDate, UTC draus machen
-    this.event.end = this.composeDatetime(val.date, val.endTime);// val.end; // TODO: ist localDate, UTC draus machen
+    this.event.start = this.composeDatetime(val.startDate, val.startTime);
+    this.event.end = this.composeDatetime(val.endDate, val.endTime);
     this.event.fullDay = val.fullDay;
     this.event.desc = this.quill?.getSemanticHTML() || '';
     this.valid.emit(this.eventForm.valid);
@@ -188,6 +190,7 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
 
     result.setHours(time.getHours());
     result.setMinutes(time.getMinutes());
+    result.setSeconds(0);
     return result;
   }
 

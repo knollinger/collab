@@ -1,17 +1,18 @@
-import { Component, DestroyRef, inject, Inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router } from '@angular/router';
 
 
 import { INode } from "../../../mod-files-data/mod-files-data.module";
 import { CalendarEvent } from '../../models/calendar-event';
 import { CalendarService } from '../../services/calendar.service';
 
-import { User } from '../../../mod-userdata/mod-userdata.module';
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SessionService } from '../../../mod-session/session.module';
+import { User } from '../../../mod-userdata/mod-userdata.module';
 import { CalendarAttachmentsService } from '../../services/calendar-attachments.service';
 import { CalendarPersonsService } from '../../services/calendar-persons.service';
+import { CalendarEventPerson } from '../../models/calendar-event-person';
 
 
 @Component({
@@ -70,7 +71,8 @@ export class CalendarEventEditorComponent implements OnInit {
         else {
           const start = Number.parseInt(params['start']);
           const end = Number.parseInt(params['end']);
-          this.createNewEvent(new Date(start), new Date(end));
+          const fullDay = params['fullDay'] === 'true';
+          this.createNewEvent(new Date(start), new Date(end), fullDay);
         }
       });
   }
@@ -110,10 +112,10 @@ export class CalendarEventEditorComponent implements OnInit {
    * @param start 
    * @param end 
    */
-  private createNewEvent(start: Date, end: Date) {
+  private createNewEvent(start: Date, end: Date, fullDay: boolean) {
 
     const owner = this.sessSvc.currentUser.userId;
-    this.event = new CalendarEvent('', owner, '', start, end, '', false, null);
+    this.event = new CalendarEvent('', owner, '', start, end, '', fullDay, null);
     this.requiredUsers = [this.sessSvc.currentUser];
   }
 
@@ -176,7 +178,7 @@ export class CalendarEventEditorComponent implements OnInit {
     saveRsp.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
 
-        // personen
+        this.savePersons();
 
         // hashtags
 
@@ -185,7 +187,7 @@ export class CalendarEventEditorComponent implements OnInit {
         // uploads
         if (this.uploads && this.uploads.length) {
 
-          this.calSvc.uploadFiles(event.uuid, this.uploads)
+          this.attachmentsSvc.uploadFiles(event.uuid, this.uploads)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(result => {
             })
@@ -195,6 +197,31 @@ export class CalendarEventEditorComponent implements OnInit {
       })
   }
 
+  /**
+   * 
+   */
+  private savePersons() {
+
+    const reqPersons = this.requiredUsers.map(user => {
+      return new CalendarEventPerson(user, true);
+    });
+    const optPersons = this.optionalUsers.map(user => {
+      return new CalendarEventPerson(user, false);
+    });
+
+    const allPersons: CalendarEventPerson[] = [];
+    allPersons.push(...reqPersons);
+    allPersons.push(...optPersons);
+    this.calUserSvc.savePersonsFor(this.event.uuid, allPersons)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(_ => {
+
+      });
+  }
+
+  /**
+   * 
+   */
   onGoBack() {
     this.router.navigateByUrl('/calendar/show');
   }

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
@@ -35,7 +35,7 @@ function checkMultiSelectNotEmpty(control: AbstractControl) {
   styleUrls: ['./calendar-event-editor-recurring.component.css'],
   standalone: false
 })
-export class CalendarEventEditorRecurringComponent implements OnInit {
+export class CalendarEventEditorRecurringComponent implements AfterViewInit {
 
   private static FREQ_TO_RRULE_FREQ: Map<string, Frequency> = new Map<string, Frequency>(
     [
@@ -87,12 +87,14 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
   set event(evt: CalendarEvent) {
 
     this._event = evt;
+    this.formDataFromRRuleSet();
+
     this.event.startChange
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(_ => {
-
+      .subscribe(event => {
         this.rruleSetFromFormData();
       });
+
   }
 
   /**
@@ -151,10 +153,11 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
   /**
    * 
    */
-  ngOnInit() {
+  ngAfterViewInit() {
 
     this.isRecurring = this.event.rruleSet !== null;
     this.formDataFromRRuleSet();
+    console.log(this.event);
   }
 
   /**
@@ -298,6 +301,7 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
       this.recurringForm.setValue(val);
       this.recurringForm.updateValueAndValidity();
       valid = this.recurringForm.valid;
+      this.isRecurring = true;
     }
     this.valid.emit(valid);
   }
@@ -329,7 +333,9 @@ export class CalendarEventEditorRecurringComponent implements OnInit {
    */
   rruleSetFromFormData() {
 
+
     if (this.recurringForm.valid) {
+
       const formValue = this.recurringForm.value;
       let options: any = {};
       options.dtstart = new Date(this.event.start);

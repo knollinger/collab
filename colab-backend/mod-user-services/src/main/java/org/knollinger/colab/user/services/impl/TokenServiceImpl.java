@@ -107,7 +107,8 @@ public class TokenServiceImpl implements ITokenService
             .subject(user.getEmail()) //
             .issuer(((X509Certificate) pke.getCertificate()).getIssuerX500Principal().getName()) //
             .claims() //
-            .add("persistent", isPersistent).add("user", this.userMapper.toDTO(user)) //
+            .add("persistent", isPersistent)//
+            .add("user", this.userMapper.toDTO(user)) //
             .add("groups", this.groupMapper.toDTO(groups)) //
             .and() //
             .signWith(pke.getPrivateKey()) //
@@ -139,8 +140,8 @@ public class TokenServiceImpl implements ITokenService
             Claims payload = claims.getPayload();
             Date expires = payload.getExpiration();
 
-            Object flatUser = payload.get("user");
             ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+            Object flatUser = payload.get("user");
             UserDTO user = mapper.convertValue(flatUser, UserDTO.class);
 
             Object flatGroups = payload.get("groups");

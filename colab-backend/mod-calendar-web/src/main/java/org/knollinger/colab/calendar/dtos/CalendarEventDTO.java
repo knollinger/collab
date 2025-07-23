@@ -14,7 +14,7 @@ public class CalendarEventDTO
     private UUID owner;
     private String title;
     private long start;
-    private long duration;
+    private long end;
     private String desc;
     private boolean fullDay;
     private String rruleset;

@@ -72,10 +72,12 @@ public class CalendarController
         }
         catch (CalEventNotFoundException e)
         {
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
         catch (TechnicalCalendarException e)
         {
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }

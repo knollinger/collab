@@ -11,10 +11,12 @@ export class CalendarAttachmentsService {
 
     private static routes: Map<string, string> = new Map<string, string>(
         [
-            ['getAllAttachments', 'v1/calattachments/{1}']
+            ['getAllAttachments', 'v1/calattachments/{1}'],
+            ['upload', 'v1/calattachments/attachments']
+
         ]
     );
-    
+
     /**
      * 
      * @param http 
@@ -39,6 +41,31 @@ export class CalendarAttachmentsService {
             .pipe(map(inodes => {
                 return inodes.map(inode => {
                     return INode.fromJSON(inode);
+                })
+            }))
+    }
+
+    /**
+     * Lade lokale dateien als Attachments für das Event hoch 
+     * 
+     * @param eventId 
+     * @param files 
+     * @returns 
+     */
+    uploadFiles(eventId: string, files: File[]): Observable<INode[]> {
+
+        const url = this.backendRouter.getRouteForName('upload', CalendarAttachmentsService.routes);
+
+        const form = new FormData();
+        form.append('eventId', eventId);
+        files.forEach(file => {
+            form.append('file', file);
+        })
+
+        return this.http.put<INode[]>(url, form)
+            .pipe(map(inodes => {
+                return inodes.map(inode => {
+                    return INode.fromJSON(inode)
                 })
             }))
     }

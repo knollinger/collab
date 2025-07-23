@@ -3,12 +3,16 @@ package org.knollinger.colab.user.models;
 import java.util.UUID;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
 @Builder()
+@AllArgsConstructor()
+@NoArgsConstructor()
 @ToString()
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.NONE)
@@ -37,6 +41,6 @@ public class User
      */
     public boolean isEmpty()
     {
-        return this.userId.equals(EMPTY_USER_ID);
+        return this.userId == null || this.userId.equals(EMPTY_USER_ID);
     }
 }

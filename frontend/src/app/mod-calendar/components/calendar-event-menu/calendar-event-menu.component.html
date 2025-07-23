@@ -14,15 +14,34 @@
 
     <mat-divider></mat-divider>
 
-    <button mat-menu-item *ngIf="calendarEvent.isRecurring"
+    <!-- NestedMenu für die Lösch-Ops eines recurring-Events -->
+    <button mat-menu-item
+            *ngIf="calendarEvent.isRecurring"
+            [matMenuTriggerFor]="recurring">
+        <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        Löschen
+    </button>
+
+    <!-- Lösche ein "gewöhnliches" Element -->
+    <button mat-menu-item
+            *ngIf="!calendarEvent.isRecurring"
+            (click)="onDeleteSerie()">
+        <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        Löschen
+    </button>
+</mat-menu>
+
+<!-- Delete-Menu for recurring-Events-->
+<mat-menu #recurring="matMenu">
+    <button mat-menu-item
             (click)="onDeleteElement()">
         <mat-icon class="material-symbols-outlined">delete</mat-icon>
-        Nur diesen Termin löschen
+        Nur diesen Termin
     </button>
 
     <button mat-menu-item
             (click)="onDeleteSerie()">
         <mat-icon class="material-symbols-outlined">delete</mat-icon>
-        Löschen
+        Ganze Serie
     </button>
 </mat-menu>

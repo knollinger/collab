@@ -14,7 +14,8 @@ export class CalendarPersonsService {
 
     private static routes: Map<string, string> = new Map<string, string>(
         [
-            ['getPersonsFor', 'v1/calpersons/{1}']
+            ['getPersonsFor', 'v1/calpersons/{1}'],
+            ['savePersonsFor', 'v1/calpersons/{1}']
         ]
     );
 
@@ -46,6 +47,18 @@ export class CalendarPersonsService {
                     })
                 })
             );
+    }
 
+    /**
+     * 
+     * @param evtId 
+     * @param persons 
+     * @returns 
+     */
+    public savePersonsFor(evtId: string, persons: CalendarEventPerson[]): Observable<void> {
+
+        const url = this.backendRouter.getRouteForName('savePersonsFor', CalendarPersonsService.routes, evtId);
+        const body = persons.map(person => person.toJSON())
+        return this.http.post<void>(url, body);
     }
 }

@@ -31,26 +31,32 @@
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.knollinger.colab</groupId>
 			<artifactId>mod-user-data</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.knollinger.colab</groupId>
 			<artifactId>mod-user-services</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.knollinger.colab</groupId>
 			<artifactId>mod-filesys-services</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.dmfs</groupId>
+			<artifactId>lib-recur</artifactId>
+			<version>0.17.1</version>
 		</dependency>
 		
 	</dependencies>

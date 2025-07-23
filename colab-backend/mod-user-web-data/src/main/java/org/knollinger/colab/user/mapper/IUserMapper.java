@@ -11,7 +11,7 @@ public interface IUserMapper
 {
     public User fromDTO(UserDTO dto);
     public List<User> fromDTO(List<UserDTO> dto);
-    
+ 
     public UserDTO toDTO(User user);
     public List<UserDTO> toDTO(List<User> user);
 }

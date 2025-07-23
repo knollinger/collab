@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
 import org.knollinger.colab.calendar.exc.TechnicalCalendarException;
 import org.knollinger.colab.calendar.models.CalendarPerson;
 import org.knollinger.colab.calendar.services.ICalendarPersonsService;
@@ -86,7 +87,7 @@ public class CalPersonsServiceImpl implements ICalendarPersonsService
     }
 
     @Override
-    public void savePersons(UUID eventId, List<CalendarPerson> persons) throws TechnicalCalendarException
+    public void savePersons(UUID eventId, List<CalendarPerson> persons) throws CalEventNotFoundException, TechnicalCalendarException
     {
         Connection conn = null;
         PreparedStatement stmt = null;
