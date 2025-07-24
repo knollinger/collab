@@ -21,19 +21,7 @@
 }
 
 .options-menu {
-    display: none;
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
-    padding-left: 1rem;
-    border-radius: 4px;
-    background-color: inherit;
-}
-
-.outer-cnr:hover>.options-menu {
-    display: inline;
-}
-
-.hidden {
-    display: none;
 }

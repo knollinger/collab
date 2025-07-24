@@ -2,6 +2,7 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DashboardFilesService } from '../../../services/dashboard-files.service';
 import { INode } from '../../../../mod-files-data/mod-files-data.module';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-files-widget',
@@ -19,7 +20,9 @@ export class FilesWidgetComponent implements OnInit {
    * 
    * @param inodeSvc 
    */
-  constructor(private inodeSvc: DashboardFilesService) {
+  constructor(
+    private router: Router,
+    private inodeSvc: DashboardFilesService) {
 
   }
 
@@ -48,25 +51,14 @@ export class FilesWidgetComponent implements OnInit {
     return this.inodeSvc.getMimetypeIcon(inode);
   }
 
-  /**
-   * 
-   * @param inode 
-   * @returns 
-   */
-  getRouterLink(inode: INode): string {
+  onOpen(inode: INode) {
 
-    if (inode.isDirectory()) {
-      return `/files/main/${inode.uuid}`;
-    }
-    return `/viewer/show/${inode.uuid}`;
+    const url = inode.isDirectory() ? `/files/main/${inode.uuid}` : `/viewer/show/${inode.uuid}`;
+    this.router.navigateByUrl(url);
   }
 
-  /**
-   * 
-   * @param inode 
-   */
-  onUnlinkINode(evt: Event, inode: INode) {
-    evt.stopPropagation();
+  onRemove(evt: Event, inode: INode) {
+
     this.inodeSvc.unlinkINode(inode)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(_ => {

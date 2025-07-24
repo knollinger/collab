@@ -2,9 +2,7 @@
 
     <div class="content"
          [class.hidden]="showOptions">
-        <!-- <ng-container #viewCnr> -->
-            <!-- </ng-container> -->
-            <ng-container [ngComponentOutlet]="widgetType"></ng-container>
+        <ng-container [ngComponentOutlet]="widgetType"></ng-container>
     </div>
 
     <app-dashboard-widget-properties [id]="id"
@@ -14,19 +12,24 @@
                                      (changeDimensions)="onChangeDimensions($event)"
                                      *ngIf="showOptions"></app-dashboard-widget-properties>
 
-    <div class="options-menu mat-elevation-z3"
-         *ngIf="!showOptions">
-        <mat-icon class="material-symbols-outlined"
-                  matTooltip="Widget verschieben">drag_pan</mat-icon>
-        <button mat-icon-button
-                (click)="onDeleteWidget()"
-                matTooltip="Widget löschen">
+    <button mat-icon-button
+            class="options-menu"
+            *ngIf="!showOptions"
+            [matMenuTriggerFor]="optionsMenu">
+        <mat-icon class="material-symbols-outlined">more_vert</mat-icon>
+    </button>
+
+    <mat-menu #optionsMenu="matMenu">
+
+        <button mat-menu-item (click)="onDeleteWidget()">
             <mat-icon class="material-symbols-outlined">delete</mat-icon>
+            <span>Widget löschen</span>
         </button>
-        <button mat-icon-button
-                (click)="toggleOptions()"
-                matTooltip="Größe des Widget ändern">
+        
+        <button mat-menu-item (click)="toggleOptions()">
             <mat-icon class="material-symbols-outlined">aspect_ratio</mat-icon>
+            <span>Größe anpassen</span>
         </button>
-    </div>
+    
+    </mat-menu>
 </div>

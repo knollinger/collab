@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.knollinger.colab.user.dtos.GroupDTO;
-import org.knollinger.colab.user.dtos.UserDTO;
+import org.knollinger.colab.user.claims.GroupClaim;
+import org.knollinger.colab.user.claims.UserClaim;
 import org.knollinger.colab.user.exceptions.ExpiredTokenException;
 import org.knollinger.colab.user.exceptions.InvalidTokenException;
 import org.knollinger.colab.user.exceptions.TechnicalLoginException;
@@ -141,18 +141,15 @@ public class TokenServiceImpl implements ITokenService
             Date expires = payload.getExpiration();
 
             ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-            Object flatUser = payload.get("user");
-            UserDTO user = mapper.convertValue(flatUser, UserDTO.class);
+            UserClaim userClaim = mapper.convertValue(payload.get("user"), UserClaim.class);
 
             Object flatGroups = payload.get("groups");
-            List<GroupDTO> groups = mapper.convertValue(flatGroups, new TypeReference<List<GroupDTO>>()
-            {
-            });
+            GroupClaim[] groupClaims = mapper.convertValue(flatGroups, GroupClaim[].class);
 
             result = TokenPayload.builder() //
                 .token(token) //
-                .user(this.userMapper.fromDTO(user)) //
-                .groups(this.groupMapper.fromDTO(groups)) //
+                .user(userClaim.toUser()) //
+                .groups(GroupClaim.toGroups(groupClaims)) //
                 .isPersistent(payload.get("persistent", Boolean.class)).expires(expires.getTime()) //
                 .build();
         }

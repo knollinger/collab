@@ -1,14 +1,11 @@
 <app-dashboard-widget-template title="Dateien">
 
-    <div class="item mat-elevation-z2"
-         *ngFor="let inode of inodes"
-         [routerLink]="getRouterLink(inode)">
+    <app-dashboard-widget-list-item *ngFor="let inode of inodes"
+                                    [icon]="getMimetypeIcon(inode)"
+                                    [name]="inode.name"
+                                    (open)="onOpen(inode)"
+                                    (remove)="onRemove($event, inode)">
 
-        <img [src]="getMimetypeIcon(inode)">
-        <span>{{inode.name}}</span>
-        <button mat-icon-button
-                (click)="onUnlinkINode($event, inode)">
-            <mat-icon class="material-symbols-outlined">close</mat-icon>
-        </button>
-    </div>
+    </app-dashboard-widget-list-item>
+    
 </app-dashboard-widget-template>

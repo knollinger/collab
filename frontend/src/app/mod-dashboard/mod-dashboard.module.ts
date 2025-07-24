@@ -13,11 +13,11 @@ import { DashboardDockComponent } from './components/dashboard-dock/dashboard-do
 import { DashboardWorkspaceComponent } from './components/dashboard-workspace/dashboard-workspace.component';
 import { DashboardWidget } from './components/dashboard-widget/dashboard-widget.component';
 import { FilesWidgetComponent } from './components/widgets/files-widget/files-widget.component';
-import { ClockWidgetComponent } from './components/widgets/clock-widget/clock-widget.component';
 import { CalendarWidgetComponent } from './components/widgets/calendar-widget/calendar-widget.component';
 import { DashboardWidgetTemplateComponent } from './components/dashboard-widget-template/dashboard-widget-template.component';
 import { DashboardWidgetPropertiesComponent } from './components/dashboard-widget-properties/dashboard-widget-properties.component';
 import { DashboardUnknownWidgetTypeComponent } from './components/widgets/dashboard-unknown-widget-type/dashboard-unknown-widget-type.component';
+import { WidgetListItemComponent } from './components/widgets/widget-list-item/widget-list-item.component';
 
 
 @NgModule({
@@ -27,11 +27,11 @@ import { DashboardUnknownWidgetTypeComponent } from './components/widgets/dashbo
     DashboardWorkspaceComponent,
     DashboardWidget,
     FilesWidgetComponent,
-    ClockWidgetComponent,
     CalendarWidgetComponent,
     DashboardWidgetTemplateComponent,
     DashboardWidgetPropertiesComponent,
-    DashboardUnknownWidgetTypeComponent
+    DashboardUnknownWidgetTypeComponent,
+    WidgetListItemComponent
   ],
   imports: [
     CommonModule,

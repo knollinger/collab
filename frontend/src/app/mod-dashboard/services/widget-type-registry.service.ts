@@ -2,7 +2,6 @@ import { Injectable, Type } from '@angular/core';
 
 import { FilesWidgetComponent } from '../components/widgets/files-widget/files-widget.component';
 import { CalendarWidgetComponent } from '../components/widgets/calendar-widget/calendar-widget.component';
-import { ClockWidgetComponent } from '../components/widgets/clock-widget/clock-widget.component';
 
 interface IWidgets {
   desc: string,
@@ -21,11 +20,6 @@ export interface IWidgetTypeAndDesc {
 export class WidgetTypeRegistryService {
 
   private widgets: IWidgets[] = [
-    {
-      desc: 'Uhr',
-      typeName: 'clock',
-      type: ClockWidgetComponent
-    },
     {
       desc: 'Dateien',
       typeName: 'files',
