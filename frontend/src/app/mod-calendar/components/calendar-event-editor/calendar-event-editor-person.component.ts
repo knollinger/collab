@@ -2,7 +2,6 @@ import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } fr
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
-import { CalendarEvent } from '../../models/calendar-event';
 import { User } from '../../../mod-userdata/mod-userdata.module';
 
 /**
@@ -21,12 +20,6 @@ export class CalendarEventEditorPersonComponent implements OnInit {
 
   _requiredUsers: User[] = new Array<User>();
   _optionalUsers: User[] = new Array<User>();
-
-  @Output()
-  requiredUsersChange: EventEmitter<User[]> = new EventEmitter<User[]>();
-
-  @Output()
-  optionalUsersChange: EventEmitter<User[]> = new EventEmitter<User[]>();
 
   @Output()
   valid: EventEmitter<boolean> = new EventEmitter<boolean>(false);

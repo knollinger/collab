@@ -4,7 +4,7 @@ import { BehaviorSubject } from "rxjs";
 /**
  * Die JSON-Beschreibung eines CalendarEvents
  */
-export interface ICalendarEvent {
+export interface ICalendarEventCore {
 
     /**
      * die eindeutige ID des Events
@@ -66,7 +66,7 @@ export interface ICalendarEvent {
  * einen anderen Tab haben.
  * 
  */
-export class CalendarEvent {
+export class CalendarEventCore {
 
     public readonly uuidChange: BehaviorSubject<string>;
     public readonly ownerChange: BehaviorSubject<string>;
@@ -114,8 +114,8 @@ export class CalendarEvent {
      * 
      * @returns 
      */
-    public static empty(): CalendarEvent {
-        return new CalendarEvent('', '', '', new Date(), new Date(), '', false, null);
+    public static empty(): CalendarEventCore {
+        return new CalendarEventCore('', '', '', new Date(), new Date(), '', false, null);
     }
 
     /**
@@ -131,7 +131,7 @@ export class CalendarEvent {
      * @param json 
      * @returns 
      */
-    public static fromJSON(json: ICalendarEvent): CalendarEvent {
+    public static fromJSON(json: ICalendarEventCore): CalendarEventCore {
 
         let ruleset: RRuleSet | null = null;
         if (json.rruleset) {
@@ -148,14 +148,14 @@ export class CalendarEvent {
         }
         const start = new Date(json.start); // wird als UTC angeliefert!
         const end = new Date(json.end); // dito
-        return new CalendarEvent(json.uuid, json.owner, json.title, start, end, json.desc, json.fullDay, ruleset);
+        return new CalendarEventCore(json.uuid, json.owner, json.title, start, end, json.desc, json.fullDay, ruleset);
     }
 
     /**
      * 
      * @returns 
      */
-    public toJSON(): ICalendarEvent {
+    public toJSON(): ICalendarEventCore {
 
         return {
             uuid: this.uuid,

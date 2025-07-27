@@ -12,8 +12,8 @@ export class CalendarAttachmentsService {
     private static routes: Map<string, string> = new Map<string, string>(
         [
             ['getAllAttachments', 'v1/calattachments/{1}'],
+            ['saveAllAttachments', 'v1/calattachments/{1}'],
             ['upload', 'v1/calattachments/attachments']
-
         ]
     );
 
@@ -43,6 +43,19 @@ export class CalendarAttachmentsService {
                     return INode.fromJSON(inode);
                 })
             }))
+    }
+
+    /**
+     * 
+     * @param eventId 
+     * @param inodes 
+     * @returns 
+     */
+    public saveAllAttachments(eventId: string, inodes: INode[]): Observable<void> {
+
+        const url = this.backendRouter.getRouteForName('saveAllAttachments', CalendarAttachmentsService.routes, eventId);
+        const req = inodes.map(node => node.toJSON());
+        return this.http.post<void>(url, req);
     }
 
     /**

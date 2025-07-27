@@ -13,14 +13,14 @@ export class AvatarSelectorComponent implements OnInit, OnDestroy {
   @Output()
   change: EventEmitter<File> = new EventEmitter<File>();
 
-  
+
   @Input()
   set user(user: User) {
     this._user = user;
     this.url = this.avatarSvc.getAvatarUrl(this._user.userId);
-  }  
+  }
   private _user: User = User.empty();
-  
+
   url: string = '';
 
   /**

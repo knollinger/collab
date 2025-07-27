@@ -10,7 +10,7 @@
                 <span class="invalid-marker"
                       *ngIf="!mainFormValid">*</span>
             </ng-template>
-            <app-calendar-event-editor-main [event]="event"
+            <app-calendar-event-editor-main [event]="fullEvent.core"
                                             (valid)="onMainFormValidChange($event)">
             </app-calendar-event-editor-main>
         </mat-tab>
@@ -22,7 +22,7 @@
                 <span class="invalid-marker"
                       *ngIf="!recurringFormValid">*</span>
             </ng-template>
-            <app-calendar-event-editor-recurring [event]="event"
+            <app-calendar-event-editor-recurring [event]="fullEvent.core"
                                                  (valid)="onRecurringFormValidChange($event)">
             </app-calendar-event-editor-recurring>
         </mat-tab>
@@ -34,21 +34,20 @@
                 <span class="invalid-marker"
                       *ngIf="!personFormValid">*</span>
             </ng-template>
-            <app-calendar-event-editor-person [(requiredUsers)]="requiredUsers"
-                                              [(optionalUsers)]="optionalUsers"
+            <app-calendar-event-editor-person [requiredUsers]="fullEvent.reqPersons"
+                                              [optionalUsers]="fullEvent.optPersons"
                                               (valid)="onPersonFormValidChange($event)"></app-calendar-event-editor-person>
         </mat-tab>
 
         <!-- Hashtags -->
         <mat-tab label="Tags">
-            <app-hashtag-selector [(hashTags)]="hashTags"></app-hashtag-selector>
+            <app-hashtag-selector [(hashTags)]="fullEvent.hashTags"></app-hashtag-selector>
         </mat-tab>
 
         <!-- Files -->
         <mat-tab label="Anhänge">
-            <app-calendar-event-editor-files [attachments]="attachments"
-                                             (filesChange)="onUploadChange($event)"
-                                             (inodesChange)="onAttachmentsChange($event)"></app-calendar-event-editor-files>
+            <app-calendar-event-editor-files [attachments]="fullEvent.attachments"
+                                             (filesChange)="onUploadChange($event)"></app-calendar-event-editor-files>
         </mat-tab>
 
     </mat-tab-group>

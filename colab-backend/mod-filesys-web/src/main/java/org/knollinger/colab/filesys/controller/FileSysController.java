@@ -185,7 +185,7 @@ public class FileSysController
     {
         try
         {
-            this.deleteSvc.deleteINode(uuids);
+            this.deleteSvc.deleteINodes(uuids);
         }
         catch (NotFoundException e)
         {

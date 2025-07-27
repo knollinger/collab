@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { CalendarEvent } from '../../models/calendar-event';
+import { CalendarEventCore } from '../../models/calendar-event-core';
 
 @Component({
   selector: 'app-calendar-event-menu',
@@ -15,13 +15,13 @@ export class CalendarEventMenuComponent {
 
   triggerPosX: string = '';
   triggerPosY: string = '';
-  calendarEvent: CalendarEvent = CalendarEvent.empty();
+  calendarEvent: CalendarEventCore = CalendarEventCore.empty();
 
   /**
    * 
    * @param evt 
    */
-  public show(evt: MouseEvent, calendarEvent: CalendarEvent) {
+  public show(evt: MouseEvent, calendarEvent: CalendarEventCore) {
 
     if (this.trigger) {
       this.triggerPosX = `${evt.clientX}px`;

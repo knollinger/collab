@@ -2,16 +2,24 @@ package org.knollinger.colab.calendar.mapper;
 
 import java.util.List;
 
-import org.knollinger.colab.calendar.dtos.CalendarEventDTO;
-import org.knollinger.colab.calendar.models.CalendarEvent;
+import org.knollinger.colab.calendar.dtos.CalendarEventCoreDTO;
+import org.knollinger.colab.calendar.dtos.CalendarEventFullDTO;
+import org.knollinger.colab.calendar.models.CalendarEventCore;
+import org.knollinger.colab.calendar.models.CalendarEventFull;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel="spring")
 public interface ICalendarMapper
 {
-    public CalendarEvent fromDTO(CalendarEventDTO dto);
-    public CalendarEventDTO toDTO(CalendarEvent event);
+    public CalendarEventCore coreFromDTO(CalendarEventCoreDTO dto);
+    public CalendarEventCoreDTO coreToDTO(CalendarEventCore event);
 
-    public List<CalendarEvent> fromDTO(List<CalendarEventDTO> dto);
-    public List<CalendarEventDTO> toDTO(List<CalendarEvent> event);
+    public List<CalendarEventCore> coreFromDTO(List<CalendarEventCoreDTO> dto);
+    public List<CalendarEventCoreDTO> coreToDTO(List<CalendarEventCore> event);
+
+    public CalendarEventFull fullFromDTO(CalendarEventFullDTO dto);
+    public CalendarEventFullDTO fullToDTO(CalendarEventFull event);
+
+    public List<CalendarEventFull> fullFromDTO(List<CalendarEventFullDTO> dto);
+    public List<CalendarEventFullDTO> fullToDTO(List<CalendarEventFull> event);
 }

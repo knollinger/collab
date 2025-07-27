@@ -10,7 +10,7 @@ import lombok.Setter;
 @Builder
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.NONE)
-public class CalendarEvent
+public class CalendarEventCore
 {
     private UUID uuid;
     private UUID owner;

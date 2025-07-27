@@ -2,17 +2,11 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 
-
-import { INode } from "../../../mod-files-data/mod-files-data.module";
-import { CalendarEvent } from '../../models/calendar-event';
-import { CalendarService } from '../../services/calendar.service';
-
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SessionService } from '../../../mod-session/session.module';
-import { User } from '../../../mod-userdata/mod-userdata.module';
 import { CalendarAttachmentsService } from '../../services/calendar-attachments.service';
-import { CalendarPersonsService } from '../../services/calendar-persons.service';
-import { CalendarEventPerson } from '../../models/calendar-event-person';
+import { CalendarService } from '../../services/calendar.service';
+import { CalendarEventFull } from '../../models/calendar-event-full';
 
 
 @Component({
@@ -25,11 +19,7 @@ export class CalendarEventEditorComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  event: CalendarEvent = CalendarEvent.empty();
-  requiredUsers: User[] = new Array<User>();
-  optionalUsers: User[] = new Array<User>();
-  hashTags: Array<string> = new Array<string>();
-  attachments: Array<INode> = new Array<INode>();
+  fullEvent: CalendarEventFull = CalendarEventFull.empty();
   uploads: Array<File> = new Array<File>();
 
   mainFormValid: boolean = false;
@@ -44,7 +34,6 @@ export class CalendarEventEditorComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private calSvc: CalendarService,
-    private calUserSvc: CalendarPersonsService,
     private attachmentsSvc: CalendarAttachmentsService,
     private sessSvc: SessionService,
     private titlebarSvc: TitlebarService) {
@@ -86,25 +75,11 @@ export class CalendarEventEditorComponent implements OnInit {
 
     this.calSvc.getEvent(uuid)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(result => {
+      .subscribe(fullEvent => {
 
-        this.event = result;
-
-        // Benötigte Teilnehmer
-        this.calUserSvc.getUsersFor(uuid)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(users => {
-            this.requiredUsers = users.filter(user => user.required).map(user => user.user);
-            this.optionalUsers = users.filter(user => !user.required).map(user => user.user);
-          });
-
-        // alle Attachments laden
-        this.attachmentsSvc.getAllAttachments(uuid)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(attachments => {
-            this.attachments = attachments;
-          });
-      });
+        this.fullEvent = fullEvent;
+        this.uploads = new Array<File>();
+      })
   }
 
   /**
@@ -115,8 +90,10 @@ export class CalendarEventEditorComponent implements OnInit {
   private createNewEvent(start: Date, end: Date, fullDay: boolean) {
 
     const owner = this.sessSvc.currentUser.userId;
-    this.event = new CalendarEvent('', owner, '', start, end, '', fullDay, null);
-    this.requiredUsers = [this.sessSvc.currentUser];
+    this.fullEvent = CalendarEventFull.empty();
+    this.fullEvent.core.start = start;
+    this.fullEvent.core.end = end;
+    this.fullEvent.reqPersons.push(this.sessSvc.currentUser);
   }
 
 
@@ -155,15 +132,6 @@ export class CalendarEventEditorComponent implements OnInit {
 
   /**
    * 
-   * @param inodes 
-   */
-  onAttachmentsChange(inodes: INode[]) {
-
-    this.attachments = inodes;
-  }
-
-  /**
-   * 
    */
   get isValid(): boolean {
     return this.mainFormValid && this.recurringFormValid && this.personFormValid;
@@ -174,49 +142,28 @@ export class CalendarEventEditorComponent implements OnInit {
    */
   onSave() {
 
-    const saveRsp = this.event.uuid ? this.calSvc.saveEvent(this.event) : this.calSvc.createEvent(this.event);
+    console.dir(this.fullEvent);
+    const saveRsp = this.fullEvent.core.uuid ? this.calSvc.saveEvent(this.fullEvent) : this.calSvc.createEvent(this.fullEvent);
     saveRsp.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {
 
-        this.savePersons();
-
-        // hashtags
-
-        // attachments
-
-        // uploads
-        if (this.uploads && this.uploads.length) {
-
-          this.attachmentsSvc.uploadFiles(event.uuid, this.uploads)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(result => {
-            })
-        }
-
+        this.uploadFiles(event.core.uuid);
         this.onGoBack();
       })
   }
 
   /**
    * 
+   * @param eventId 
    */
-  private savePersons() {
+  private uploadFiles(eventId: string) {
+    if (this.uploads && this.uploads.length) {
 
-    const reqPersons = this.requiredUsers.map(user => {
-      return new CalendarEventPerson(user, true);
-    });
-    const optPersons = this.optionalUsers.map(user => {
-      return new CalendarEventPerson(user, false);
-    });
-
-    const allPersons: CalendarEventPerson[] = [];
-    allPersons.push(...reqPersons);
-    allPersons.push(...optPersons);
-    this.calUserSvc.savePersonsFor(this.event.uuid, allPersons)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(_ => {
-
-      });
+      this.calSvc.uploadFiles(eventId, this.uploads)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(result => {
+        })
+    }
   }
 
   /**

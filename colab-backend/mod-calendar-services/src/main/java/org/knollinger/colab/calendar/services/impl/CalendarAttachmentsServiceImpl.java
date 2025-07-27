@@ -10,9 +10,12 @@ import java.util.UUID;
 
 import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
 import org.knollinger.colab.calendar.exc.TechnicalCalendarException;
-import org.knollinger.colab.calendar.services.ICalAttachmentsService;
+import org.knollinger.colab.calendar.services.ICalendarAttachmentsService;
+import org.knollinger.colab.filesys.exceptions.NotFoundException;
+import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.models.IPermissions;
+import org.knollinger.colab.filesys.services.IDeleteService;
 import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.filesys.services.IUploadService;
 import org.knollinger.colab.user.services.ICurrentUserService;
@@ -22,21 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * All about FileUploads für CalendarEvents.
- * 
- * Im End-Effekt werden mit einem CalEvent Links auf INode-Objekte
- * verknüft. Für "normale" INodes ist das auch kein Problem...
- * 
- * Um auch lokale Files in ein Event hochladen zu können, wird im
- * HomeDir des Benutzers ein versteckter Folder ".calendar_attachments"
- * angelegt. Unter diesem Folder wird für jedes Event ein Folder angelegt,
- * dessen Namen der UUID des Events entspricht. In diesen Folder werden 
- * Uploads abgelegt.
- * 
- * 
+ * @see ICalendarAttachmentsService
  */
 @Service
-public class CalAttachmentsServiceImpl implements ICalAttachmentsService
+public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsService
 {
     private static final String FOLDER_NAME = ".calendar_attachments";
 
@@ -51,6 +43,10 @@ public class CalAttachmentsServiceImpl implements ICalAttachmentsService
         + "insert into `calendar_attachments`" //
         + "  set `eventId`=?, `inodeId`=?";
 
+    private static final String SQL_REMOVE_ATTACHMENT_LINKS = "" //
+        + "delete from `calendar_attachments`" //
+        + "  where `eventId`=?";
+
     @Autowired
     private ICurrentUserService currUserSvc;
 
@@ -62,21 +58,23 @@ public class CalAttachmentsServiceImpl implements ICalAttachmentsService
 
     @Autowired()
     private IFileSysService fileSysSvc;
+    
+    @Autowired()
+    private IDeleteService deleteFileSysSvc;
 
     /**
      *
      */
     @Override
-    public List<INode> getAttachments(UUID eventId) throws CalEventNotFoundException, TechnicalCalendarException
+    public List<INode> getAttachments(UUID eventId, Connection conn)
+        throws CalEventNotFoundException, TechnicalCalendarException
     {
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try
         {
             List<INode> result = new ArrayList<>();
-            conn = this.dbSvc.openConnection();
             stmt = conn.prepareStatement(SQL_GET_ALL_ATTACHMENTS);
             stmt.setString(1, eventId.toString());
             rs = stmt.executeQuery();
@@ -106,11 +104,51 @@ public class CalAttachmentsServiceImpl implements ICalAttachmentsService
         {
             this.dbSvc.closeQuitely(rs);
             this.dbSvc.closeQuitely(stmt);
-            this.dbSvc.closeQuitely(conn);
-
         }
     }
 
+    /**
+     *
+     */
+    @Override
+    public void saveAttachments(UUID eventId, List<INode> attachments, Connection conn)
+        throws CalEventNotFoundException, TechnicalCalendarException
+    {
+
+        try
+        {
+            this.removeEventLinks(eventId, conn);
+            this.createEventLinks(eventId, attachments, conn);
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+            throw new TechnicalCalendarException("Die Datei-Anhänge konnten nicht gespeichert werden.", e);
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void removeAttachments(UUID eventId, Connection conn)
+        throws CalEventNotFoundException, TechnicalCalendarException
+    {
+        try
+        {
+            this.removeEventLinks(eventId, conn);
+            INode baseFldr = this.getCalAttachmentsBaseFolder(conn);
+            this.deleteFileSysSvc.deleteINode(baseFldr.getUuid(), conn);
+        }
+        catch (SQLException | TechnicalFileSysException | NotFoundException e)
+        {
+            throw new TechnicalCalendarException("Die Anhänge für den Termin konnten nicht gelöscht werden.", e);
+        }
+    }
+
+    /**
+     *
+     */
     @Override
     public List<INode> uploadFiles(UUID eventId, List<MultipartFile> files)
         throws CalEventNotFoundException, TechnicalCalendarException
@@ -132,6 +170,7 @@ public class CalAttachmentsServiceImpl implements ICalAttachmentsService
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             throw new TechnicalCalendarException("Die Datei-Anhänge konnten nicht gespeichert werden.", e);
         }
         finally
@@ -167,6 +206,22 @@ public class CalAttachmentsServiceImpl implements ICalAttachmentsService
         }
     }
 
+    private void removeEventLinks(UUID eventId, Connection conn) throws SQLException
+    {
+        PreparedStatement stmt = null;
+
+        try
+        {
+            stmt = conn.prepareStatement(SQL_REMOVE_ATTACHMENT_LINKS);
+            stmt.setString(1, eventId.toString());
+            stmt.executeUpdate();
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
     /**
      * Ermittle den Folder mit den Attachments für das gegebene Event. Sollte 
      * kein solcher Folder existieren, so wird er angelegt.
@@ -179,20 +234,22 @@ public class CalAttachmentsServiceImpl implements ICalAttachmentsService
      * @return
      * @throws TechnicalCalendarException
      */
-    private INode getEventAttachmentsBaseFolder(UUID eventId, Connection conn) throws TechnicalCalendarException {
-        
-        
+    private INode getEventAttachmentsBaseFolder(UUID eventId, Connection conn) throws TechnicalCalendarException
+    {
+
+
         INode base = this.getCalAttachmentsBaseFolder(conn);
         return this.getOrCreateFolder(base.getUuid(), eventId.toString(), conn);
     }
-    
-    private INode getCalAttachmentsBaseFolder(Connection conn) throws TechnicalCalendarException {
-        
+
+    private INode getCalAttachmentsBaseFolder(Connection conn) throws TechnicalCalendarException
+    {
+
         UUID user = this.currUserSvc.get().getUser().getUserId();
         return this.getOrCreateFolder(user, FOLDER_NAME, conn);
-        
+
     }
-    
+
     /**
      * @param parentId
      * @param name
@@ -201,10 +258,15 @@ public class CalAttachmentsServiceImpl implements ICalAttachmentsService
      */
     private INode getOrCreateFolder(UUID parentId, String name, Connection conn) throws TechnicalCalendarException
     {
+        INode result = null;
         try
         {
-            INode result = this.fileSysSvc.getChildByName(parentId, name, IPermissions.WRITE, conn);
-            if (result == null)
+            try
+            {
+                result = this.fileSysSvc.getChildByName(parentId, name, IPermissions.WRITE, conn);
+                return result;
+            }
+            catch (NotFoundException e)
             {
                 result = this.fileSysSvc.createFolder(parentId, name, conn);
             }
@@ -215,6 +277,4 @@ public class CalAttachmentsServiceImpl implements ICalAttachmentsService
             throw new TechnicalCalendarException("???", e);
         }
     }
-    
-    
 }

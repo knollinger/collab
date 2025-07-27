@@ -28,9 +28,9 @@
             <mat-icon class="material-symbols-outlined">refresh</mat-icon>
         </button>
 
-        <span class="title" *ngIf="viewMode === 'DAY'">{{date | date:"dd.MM.YYYY"}}</span>
-        <span class="title" *ngIf="viewMode === 'WEEK'">{{date | date:"'Kalenderwoche' ww YYYY"}}</span>
-        <span class="title" *ngIf="viewMode === 'MONTH'">{{date | date:"MMM YYYY"}}</span>
+        <span class="title" *ngIf="viewMode === 'timeGridDay'">{{date | date:"dd.MM.YYYY"}}</span>
+        <span class="title" *ngIf="viewMode === 'timeGridWeek'">{{date | date:"'Kalenderwoche' ww YYYY"}}</span>
+        <span class="title" *ngIf="viewMode === 'dayGridMonth'">{{date | date:"MMM YYYY"}}</span>
 
         <mat-button-toggle-group class="view-mode"
                                  [value]="viewMode"

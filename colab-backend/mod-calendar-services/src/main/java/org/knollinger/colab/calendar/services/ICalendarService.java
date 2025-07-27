@@ -6,7 +6,8 @@ import java.util.UUID;
 
 import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
 import org.knollinger.colab.calendar.exc.TechnicalCalendarException;
-import org.knollinger.colab.calendar.models.CalendarEvent;
+import org.knollinger.colab.calendar.models.CalendarEventCore;
+import org.knollinger.colab.calendar.models.CalendarEventFull;
 
 /**
  * Die Schnittstelle zu den Calendar-Services
@@ -21,7 +22,7 @@ public interface ICalendarService
      * @return niemals <code>null</code>, ggf. eine leere Liste
      * @throws TechnicalCalendarException 
      */
-    List<CalendarEvent> getAllEvents(Date start, Date end) throws TechnicalCalendarException;
+    List<CalendarEventCore> getAllEventCores(Date start, Date end) throws TechnicalCalendarException;
 
     /**
      * @param uuid
@@ -29,9 +30,48 @@ public interface ICalendarService
      * @throws CalEventNotFoundException
      * @throws TechnicalCalendarException
      */
-    CalendarEvent getEvent(UUID uuid) throws CalEventNotFoundException, TechnicalCalendarException;
+    CalendarEventFull getFullEvent(UUID uuid) throws CalEventNotFoundException, TechnicalCalendarException;
 
-    CalendarEvent createEvent(CalendarEvent evt)  throws TechnicalCalendarException;
+    /**
+     * Erzeuge ein neues Event
+     * 
+     * @param evt
+     * @return
+     * @throws TechnicalCalendarException
+     */
+    CalendarEventFull createFullEvent(CalendarEventFull evt) throws TechnicalCalendarException;
 
-    CalendarEvent updateEvent(CalendarEvent fromDTO) throws CalEventNotFoundException, TechnicalCalendarException;
+    /**
+     * Aktualisiere das CalendarEvent. Dazu gehört das CoreEvent 
+     * (incl RecurrenceRuleSet), Hashtags, Attachments und Personen.
+     * 
+     * @param fromDTO
+     * @return
+     * @throws CalEventNotFoundException
+     * @throws TechnicalCalendarException
+     */
+    CalendarEventFull updateFullEvent(CalendarEventFull fromDTO)
+        throws CalEventNotFoundException, TechnicalCalendarException;
+
+    /**
+     * In einigen Situation reicht es aus, das CoreEvent zu aktualisieren,
+     * zum Beispiel beim DnD-Move bzw Resize des Events.
+     * 
+     * @param coreFromDTO
+     * @return
+     * @throws CalEventNotFoundException
+     * @throws TechnicalCalendarException
+     */
+    CalendarEventCore updateEventCore(CalendarEventCore coreFromDTO)
+        throws CalEventNotFoundException, TechnicalCalendarException;
+
+    /**
+     * Lösche ein Event komplett. Es werden alle Attachments, HashTags, Personen
+     * und das CoreEvent gelöscht.
+     * 
+     * @param eventId
+     * @throws CalEventNotFoundException
+     * @throws TechnicalCalendarException
+     */
+    public void deleteEvent(UUID eventId) throws CalEventNotFoundException, TechnicalCalendarException;
 }

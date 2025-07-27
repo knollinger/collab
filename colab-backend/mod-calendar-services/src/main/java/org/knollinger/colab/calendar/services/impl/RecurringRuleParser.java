@@ -10,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.dmfs.rfc5545.DateTime;
 import org.dmfs.rfc5545.RecurrenceSet;
@@ -19,7 +18,7 @@ import org.dmfs.rfc5545.recur.InvalidRecurrenceRuleException;
 import org.dmfs.rfc5545.recur.RecurrenceRule;
 import org.dmfs.rfc5545.recurrenceset.OfRule;
 import org.dmfs.rfc5545.recurrenceset.Within;
-import org.knollinger.colab.calendar.models.CalendarEvent;
+import org.knollinger.colab.calendar.models.CalendarEventCore;
 
 /**
  * 
@@ -35,12 +34,12 @@ class RecurringRuleParser
      * @throws InvalidRecurrenceRuleException 
      * @throws IOException 
      */
-    public List<CalendarEvent> eventsBetween(CalendarEvent baseEvent, Date start, Date end)
+    public List<CalendarEventCore> eventsBetween(CalendarEventCore baseEvent, Date start, Date end)
         throws IOException, InvalidRecurrenceRuleException, ParseException
     {
         long duration = baseEvent.getEnd() - baseEvent.getStart();
 
-        List<CalendarEvent> result = new ArrayList<>();
+        List<CalendarEventCore> result = new ArrayList<>();
 
         RecurrenceSet recurrences = this.compileRuleset(baseEvent.getRruleset());
         RecurrenceSet between = new Within(//
@@ -50,7 +49,7 @@ class RecurringRuleParser
 
         for (DateTime dateTime : between)
         {
-            CalendarEvent instance = CalendarEvent.builder() //
+            CalendarEventCore instance = CalendarEventCore.builder() //
                 .uuid(baseEvent.getUuid()) //
                 .owner(baseEvent.getOwner()) //
                 .title(baseEvent.getTitle()) //
@@ -75,7 +74,7 @@ class RecurringRuleParser
      * @throws InvalidRecurrenceRuleException
      * @throws ParseException
      */
-    public Date lastEvent(CalendarEvent baseEvent) throws IOException, InvalidRecurrenceRuleException, ParseException
+    public Date lastEvent(CalendarEventCore baseEvent) throws IOException, InvalidRecurrenceRuleException, ParseException
     {
 
         RecurrenceSet recurrences = this.compileRuleset(baseEvent.getRruleset());

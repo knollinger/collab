@@ -1,6 +1,5 @@
 import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import { FilesPickerService } from '../../../mod-files/mod-files.module';
-import { CalendarService } from '../../services/calendar.service';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FilesDroppedEvent } from '../../../mod-files/directives/drop-target.directive';
@@ -54,16 +53,12 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   @Output()
   filesChange: EventEmitter<File[]> = new EventEmitter<File[]>();
 
-  @Output()
-  inodesChange: EventEmitter<INode[]> = new EventEmitter<INode[]>();
-
   /**
    * 
    * @param calAttachmentsSvc 
    * @param filePicker 
    */
   constructor(
-    private calSvc: CalendarService,
     private currUserSvc: SessionService,
     private mimetypeSvc: ContentTypeService,
     private filePicker: FilesPickerService) {
@@ -92,7 +87,6 @@ export class CalendarEventEditorFilesComponent implements OnInit {
         if (inodes) {
           this._attachments.push(...inodes);
           this.createRenderNodes();
-          this.inodesChange.emit(this._attachments);
         }
       });
   }
@@ -201,7 +195,6 @@ export class CalendarEventEditorFilesComponent implements OnInit {
     toDelete.forEach(node => {
       if (node.uuid) {
         this._attachments = this._attachments.filter(attachment => { return attachment.uuid !== node.uuid });
-        this.inodesChange.emit(this._attachments);
       }
       else {
         this.files = this.files.filter(file => { return file.name !== node.name }); // Das ist doch scheiße! Zwei gleichnamige Files können aus unterschiedlichen Verzeichnissen stammen!

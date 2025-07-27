@@ -42,7 +42,7 @@ public class DeleteServiceImpl implements IDeleteService
      *
      */
     @Override
-    public void deleteINode(List<UUID> uuids) throws TechnicalFileSysException, NotFoundException
+    public void deleteINode(UUID uuid) throws TechnicalFileSysException, NotFoundException
     {
 
         Connection conn = null;
@@ -50,14 +50,27 @@ public class DeleteServiceImpl implements IDeleteService
         try
         {
             conn = this.dbSvc.openConnection();
-            conn.setAutoCommit(false);
+            this.deleteINode(uuid, conn);
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalFileSysException(ERR_DELETE_INODE);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(conn);
+        }
+    }
 
-            List<UUID> toDelete = new ArrayList<>();
-            for (UUID uuid : uuids)
-            {
-                toDelete.addAll(this.collectINodes(uuid, conn));
-            }
-            
+    /**
+     *
+     */
+    @Override
+    public void deleteINode(UUID uuid, Connection conn) throws TechnicalFileSysException, NotFoundException
+    {
+        try
+        {
+            List<UUID> toDelete = this.collectINodes(uuid, conn);
             this.deleteFromPlaces(toDelete, conn);
 
             PreparedStatement stmtINode = conn.prepareStatement(SQL_DELETE_INODE);
@@ -73,9 +86,63 @@ public class DeleteServiceImpl implements IDeleteService
         {
             throw new TechnicalFileSysException(ERR_DELETE_INODE);
         }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void deleteINodes(List<UUID> uuids) throws TechnicalFileSysException, NotFoundException
+    {
+
+        Connection conn = null;
+
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            conn.setAutoCommit(false);
+
+            this.deleteINodes(uuids, conn);
+            conn.commit();
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalFileSysException(ERR_DELETE_INODE);
+        }
         finally
         {
             this.dbSvc.closeQuitely(conn);
+        }
+    }
+
+    /**
+    *
+    */
+    @Override
+    public void deleteINodes(List<UUID> uuids, Connection conn) throws TechnicalFileSysException, NotFoundException
+    {
+        try
+        {
+            List<UUID> toDelete = new ArrayList<>();
+            for (UUID uuid : uuids)
+            {
+                toDelete.addAll(this.collectINodes(uuid, conn));
+            }
+
+            this.deleteFromPlaces(toDelete, conn);
+
+            PreparedStatement stmtINode = conn.prepareStatement(SQL_DELETE_INODE);
+            for (UUID id : toDelete)
+            {
+                stmtINode.setString(1, id.toString());
+                stmtINode.executeUpdate();
+            }
+
+            conn.commit();
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalFileSysException(ERR_DELETE_INODE);
         }
     }
 

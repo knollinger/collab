@@ -1,13 +1,13 @@
 import { AfterViewInit, Component, DestroyRef, EventEmitter, inject, Input, Output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-
 import * as moment from 'moment';
 
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
-import { CalendarEvent } from '../../models/calendar-event';
 import Quill, { Delta } from 'quill';
+
+import { CalendarEventCore } from '../../models/calendar-event-core';
 
 @Component({
   selector: 'app-calendar-event-editor-main',
@@ -18,7 +18,7 @@ import Quill, { Delta } from 'quill';
 export class CalendarEventEditorMainComponent implements AfterViewInit {
 
   private destroyRef = inject(DestroyRef);
-  private _event: CalendarEvent = CalendarEvent.empty();
+  private _event: CalendarEventCore = CalendarEventCore.empty();
   private quill: Quill | null = null;
 
   eventForm: FormGroup;
@@ -50,7 +50,7 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
    * 
    */
   @Input()
-  set event(event: CalendarEvent) {
+  set event(event: CalendarEventCore) {
     this._event = event;
     this.fillForm();
   }
@@ -58,7 +58,7 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
   /**
    * 
    */
-  get event(): CalendarEvent {
+  get event(): CalendarEventCore {
     return this._event;
   }
 

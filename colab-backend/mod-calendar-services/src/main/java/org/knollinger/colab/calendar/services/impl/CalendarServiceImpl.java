@@ -15,8 +15,14 @@ import java.util.UUID;
 import org.dmfs.rfc5545.recur.InvalidRecurrenceRuleException;
 import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
 import org.knollinger.colab.calendar.exc.TechnicalCalendarException;
-import org.knollinger.colab.calendar.models.CalendarEvent;
+import org.knollinger.colab.calendar.models.CalendarEventCore;
+import org.knollinger.colab.calendar.models.CalendarEventFull;
+import org.knollinger.colab.calendar.services.ICalendarAttachmentsService;
+import org.knollinger.colab.calendar.services.ICalendarPersonsService;
 import org.knollinger.colab.calendar.services.ICalendarService;
+import org.knollinger.colab.hashtags.exceptions.TechnicalHashTagException;
+import org.knollinger.colab.hashtags.models.EHashTagType;
+import org.knollinger.colab.hashtags.services.IHashTagService;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,85 +35,63 @@ import org.springframework.stereotype.Service;
 public class CalendarServiceImpl implements ICalendarService
 {
     private static final String ERR_LOAD_ALL_EVENTS = "Die Liste aller Kalender-Einträge konnte nicht geladen werden.";
-    private static final String ERR_GET_EVENT = "Der Kalender-Eintrage konnte nicht geladen werden.";
-
-    private static final String SQL_GET_EVENT = "" //
-        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `fullDay`, `rruleset`" //
-        + " from calendar" //
-        + "  where uuid=?"; // TODO: Owner?
+    private static final String ERR_DELETE_EVENT = "Das Event konnte nicht gelöscht werden.";
 
     private static final String SQL_GET_ALL_EVENTS = "" //
         + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `fullDay`, `rruleset`" //
         + " from calendar" //
         + "  where start <= ? and last_occurence >=?";
 
-    private static final String SQL_CREATE_EVENT = "" //
-        + "insert into calendar " //
-        + "  set`uuid`=?, `owner`=?, `start`=?, `end`=?, `title`=?, `desc`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?";
+    private static final String SQL_GET_EVENT_CORE = "" //
+        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `fullDay`, `rruleset`" //
+        + " from calendar" //
+        + "  where `uuid`=?";
 
-    private static final String SQL_UPDATE_EVENT = "" //
+    private static final String SQL_CREATE_EVENT_CORE = "" //
+        + "insert into calendar " //
+        + "  set `uuid`=?, `owner`=?, `start`=?, `end`=?, `title`=?, `desc`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?";
+
+    private static final String SQL_UPDATE_EVENT_CORE = "" //
         + "update calendar " //
         + "  set `start`=?, `end`=?, `title`=?, `desc`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?" //
         + "  where `uuid`=?";
 
+    private static final String SQL_DELETE_EVENT_CORE = "" //
+        + "delete from calendar" //
+        + "  where uuid=?";
 
-    @Autowired()
+    @Autowired
     private IDbService dbSvc;
+
+    @Autowired
+    private IHashTagService hashTagSvc;
+
+    @Autowired
+    private ICalendarAttachmentsService attachmentsSvc;
+
+    @Autowired
+    private ICalendarPersonsService personSvc;
 
     @Autowired
     private ICurrentUserService currUserSvc;
 
     /**
-     * Liefere alle Events innerhalb des angegebenen Zeitraums
+     *
      */
     @Override
-    public List<CalendarEvent> getAllEvents(Date startDate, Date endDate) throws TechnicalCalendarException
+    public List<CalendarEventCore> getAllEventCores(Date startDate, Date endDate) throws TechnicalCalendarException
     {
         Connection conn = null;
-
-        try
-        {
-            List<CalendarEvent> result = new ArrayList<>();
-
-            Timestamp start = new Timestamp(startDate.getTime());
-            Timestamp end = new Timestamp(endDate.getTime());
-
-            conn = this.dbSvc.openConnection();
-            result.addAll(this.getAllEvents(start, end, conn));
-            return result;
-        }
-        catch (SQLException | IOException | InvalidRecurrenceRuleException | ParseException e)
-        {
-            e.printStackTrace();
-            throw new TechnicalCalendarException(ERR_LOAD_ALL_EVENTS, e);
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(conn);
-        }
-    }
-
-    /**
-     * Liefere alle Events, welche nicht recurring sind und in den angegebenen Zeitraum passen.
-     * 
-     * @param startDate
-     * @param endDate
-     * @param conn
-     * @return
-     * @throws SQLException
-     * @throws InvalidRecurrenceRuleException 
-     * @throws ParseException 
-     */
-    private List<CalendarEvent> getAllEvents(Timestamp start, Timestamp end, Connection conn)
-        throws SQLException, IOException, InvalidRecurrenceRuleException, ParseException
-    {
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
         try
         {
-            List<CalendarEvent> result = new ArrayList<>();
+            List<CalendarEventCore> result = new ArrayList<>();
+            Timestamp start = new Timestamp(startDate.getTime());
+            Timestamp end = new Timestamp(endDate.getTime());
 
+            conn = this.dbSvc.openConnection();
             conn = this.dbSvc.openConnection();
             stmt = conn.prepareStatement(SQL_GET_ALL_EVENTS);
             stmt.setTimestamp(1, end);
@@ -116,17 +100,7 @@ public class CalendarServiceImpl implements ICalendarService
             rs = stmt.executeQuery();
             while (rs.next())
             {
-                CalendarEvent evt = CalendarEvent.builder() //
-                    .uuid(UUID.fromString(rs.getString("uuid"))) //
-                    .owner(UUID.fromString(rs.getString("owner"))) //
-                    .start(rs.getTimestamp("start").getTime()) //
-                    .end(rs.getTimestamp("end").getTime()) // 
-                    .title(rs.getString("title")) //
-                    .desc(rs.getString("desc")) //
-                    .fullDay(rs.getBoolean("fullDay")) //
-                    .rruleset(rs.getString("rruleset")) //
-                    .build();
-
+                CalendarEventCore evt = this.eventCoreFromResultSet(rs);
                 if (evt.getRruleset() == null)
                 {
                     result.add(evt);
@@ -137,114 +111,15 @@ public class CalendarServiceImpl implements ICalendarService
                     result.addAll(parser.eventsBetween(evt, start, end));
                 }
             }
-
             return result;
         }
-        finally
+        catch (SQLException | IOException | InvalidRecurrenceRuleException | ParseException e)
         {
-            this.dbSvc.closeQuitely(rs);
-            this.dbSvc.closeQuitely(stmt);
-        }
-    }
-
-    /**
-     * liefere ein einzelnes Events
-     */
-    @Override
-    public CalendarEvent getEvent(UUID uuid) throws CalEventNotFoundException, TechnicalCalendarException
-    {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        try
-        {
-            conn = this.dbSvc.openConnection();
-            stmt = conn.prepareStatement(SQL_GET_EVENT);
-            stmt.setString(1, uuid.toString());
-            rs = stmt.executeQuery();
-            if (!rs.next())
-            {
-                throw new CalEventNotFoundException(uuid);
-            }
-
-            return CalendarEvent.builder() //
-                .uuid(UUID.fromString(rs.getString("uuid"))) //
-                .owner(UUID.fromString(rs.getString("owner"))) //
-                .start(rs.getTimestamp("start").getTime()) //
-                .end(rs.getTimestamp("end").getTime()).title(rs.getString("title")) //
-                .desc(rs.getString("desc")) //
-                .fullDay(rs.getBoolean("fullDay")) //
-                .rruleset(rs.getString("rruleset")) //
-                .build();
-        }
-        catch (SQLException e)
-        {
-            throw new TechnicalCalendarException(ERR_GET_EVENT, e);
+            throw new TechnicalCalendarException(ERR_LOAD_ALL_EVENTS, e);
         }
         finally
         {
             this.dbSvc.closeQuitely(rs);
-            this.dbSvc.closeQuitely(stmt);
-            this.dbSvc.closeQuitely(conn);
-        }
-    }
-
-    @Override
-    public CalendarEvent createEvent(CalendarEvent evt) throws TechnicalCalendarException
-    {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
-        try
-        {
-            String ruleSet = null;
-            Timestamp lastOccurence = null;
-            if (evt.isRecurring())
-            {
-                RecurringRuleParser parser = new RecurringRuleParser();
-                lastOccurence = new Timestamp(parser.lastEvent(evt).getTime());
-                ruleSet = evt.getRruleset();
-            }
-            else
-            {
-                lastOccurence = new Timestamp(evt.getEnd());
-            }
-
-            conn = this.dbSvc.openConnection();
-            stmt = conn.prepareStatement(SQL_CREATE_EVENT);
-
-            UUID uuid = UUID.randomUUID();
-            UUID owner = this.currUserSvc.get().getUser().getUserId();
-
-            stmt.setString(1, uuid.toString());
-            stmt.setString(2, owner.toString());
-            stmt.setTimestamp(3, new Timestamp(evt.getStart()));
-            stmt.setTimestamp(4, new Timestamp(evt.getEnd()));
-            stmt.setString(5, evt.getTitle());
-            stmt.setString(6, evt.getDesc());
-            stmt.setBoolean(7, evt.isFullDay());
-            stmt.setString(8, ruleSet);
-            stmt.setTimestamp(9, lastOccurence);
-
-            stmt.executeUpdate();
-
-            return CalendarEvent.builder() //
-                .uuid(uuid) //
-                .owner(owner) //
-                .title(evt.getTitle()) //
-                .desc(evt.getDesc()) //
-                .start(evt.getStart()) //
-                .end(evt.getEnd()) //
-                .fullDay(evt.isFullDay()) //
-                .rruleset(evt.getRruleset()) //
-                .build();
-        }
-        catch (Exception e)
-        {
-            throw new TechnicalCalendarException("Das Kalender-Event konnte nicht erzeugt werden.", e);
-        }
-        finally
-        {
             this.dbSvc.closeQuitely(stmt);
             this.dbSvc.closeQuitely(conn);
         }
@@ -254,11 +129,197 @@ public class CalendarServiceImpl implements ICalendarService
      *
      */
     @Override
-    public CalendarEvent updateEvent(CalendarEvent evt) throws CalEventNotFoundException, TechnicalCalendarException
+    public CalendarEventFull getFullEvent(UUID uuid) throws CalEventNotFoundException, TechnicalCalendarException
     {
         Connection conn = null;
-        PreparedStatement stmt = null;
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            CalendarEventCore core = this.loadEventCore(uuid, conn);
+            if (core == null)
+            {
+                throw new CalEventNotFoundException(uuid);
+            }
 
+            return CalendarEventFull.builder() //
+                .core(core) //
+                .reqPersons(this.personSvc.getPersons(uuid, true, conn)) //
+                .optPersons(this.personSvc.getPersons(uuid, false, conn)) //
+                .hashTags(this.hashTagSvc.getHashTagsByResource(uuid, conn)) //
+                .attachments(this.attachmentsSvc.getAttachments(uuid, conn)) //
+                .build();
+        }
+        catch (SQLException | TechnicalHashTagException e)
+        {
+            e.printStackTrace();
+            throw new TechnicalCalendarException("???", e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(conn);
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public CalendarEventFull createFullEvent(CalendarEventFull evt) throws TechnicalCalendarException
+    {
+        Connection conn = null;
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            conn.setAutoCommit(false);
+            
+            CalendarEventCore core = this.createEventCore(evt.getCore(), conn);
+            this.hashTagSvc.saveHashTags(core.getUuid(), evt.getHashTags(), EHashTagType.CALENDAR, conn);
+            this.attachmentsSvc.saveAttachments(core.getUuid(), evt.getAttachments(), conn);
+            this.personSvc.removePersons(core.getUuid(), conn);
+            this.personSvc.addPersons(core.getUuid(), evt.getReqPersons(), true, conn);
+            this.personSvc.addPersons(core.getUuid(), evt.getOptPersons(), false, conn);
+            
+            conn.commit();
+            
+            return CalendarEventFull.builder() //
+                .core(core) //
+                .reqPersons(evt.getReqPersons()) //
+                .optPersons(evt.getOptPersons()) //
+                .hashTags(evt.getHashTags()) //
+                .attachments(evt.getAttachments()) //
+                .build();
+        }
+        catch (Exception e)
+        {
+            throw new TechnicalCalendarException("Der Kalender-Termin konnte nicht erzeugt werden", e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(conn);
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public CalendarEventFull updateFullEvent(CalendarEventFull evt)
+        throws CalEventNotFoundException, TechnicalCalendarException
+    {
+        UUID eventId = evt.getCore().getUuid();
+        Connection conn = null;
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            conn.setAutoCommit(false);
+            
+            this.updateEventCore(evt.getCore(), conn);
+            this.hashTagSvc.saveHashTags(eventId, evt.getHashTags(), EHashTagType.CALENDAR, conn);
+            this.attachmentsSvc.saveAttachments(eventId, evt.getAttachments(), conn);
+            this.personSvc.removePersons(eventId, conn);
+            this.personSvc.addPersons(eventId, evt.getReqPersons(), true, conn);
+            this.personSvc.addPersons(eventId, evt.getOptPersons(), false, conn);
+            
+            conn.commit();
+        }
+        catch (SQLException | TechnicalHashTagException e)
+        {
+            throw new TechnicalCalendarException("Der Kalender-Termin konnte nicht aktualisiert werden", e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(conn);
+        }
+        return evt;
+    }
+
+    /**
+    *
+    */
+    @Override
+    public CalendarEventCore updateEventCore(CalendarEventCore evt)
+        throws CalEventNotFoundException, TechnicalCalendarException
+    {
+        Connection conn = null;
+
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            return this.updateEventCore(evt, conn);
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalCalendarException("Das Kalender-Event konnte nicht aktualisiert werden.", e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(conn);
+        }
+    }
+
+    private CalendarEventCore createEventCore(CalendarEventCore evt, Connection conn) throws TechnicalCalendarException
+    {
+        PreparedStatement stmt = null;
+        try
+        {
+            UUID uuid = UUID.randomUUID();
+            String ruleSet = null;
+            Timestamp lastOccurence = null;
+            if (evt.isRecurring())
+            {
+                RecurringRuleParser parser = new RecurringRuleParser();
+                lastOccurence = new Timestamp(parser.lastEvent(evt).getTime());
+                ruleSet = evt.getRruleset();
+            }
+            else
+            {
+                lastOccurence = new Timestamp(evt.getEnd());
+            }
+
+            stmt = conn.prepareStatement(SQL_CREATE_EVENT_CORE);
+
+            stmt.setString(1, uuid.toString());
+            stmt.setString(2, this.currUserSvc.get().getUser().getUserId().toString());
+            stmt.setTimestamp(3, new Timestamp(evt.getStart()));
+            stmt.setTimestamp(4, new Timestamp(evt.getEnd()));
+            stmt.setString(5, evt.getTitle());
+            stmt.setString(6, evt.getDesc());
+            stmt.setBoolean(7, evt.isFullDay());
+            stmt.setString(8, ruleSet);
+            stmt.setTimestamp(9, lastOccurence);
+            stmt.executeUpdate();
+            
+            return CalendarEventCore.builder() //
+                .uuid(uuid) //
+                .owner(evt.getOwner()) //
+                .start(evt.getStart()) //
+                .end(evt.getEnd()) // 
+                .title(evt.getTitle()) //
+                .desc(evt.getDesc()) //
+                .fullDay(evt.isFullDay()) //
+                .rruleset(evt.getRruleset()) //
+                .build();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            throw new TechnicalCalendarException("Das Kalender-Event konnte nicht erzeugt werden.", e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    /**
+     * @param evt
+     * @param conn
+     * @return
+     * @throws TechnicalCalendarException
+     */
+    private CalendarEventCore updateEventCore(CalendarEventCore evt, Connection conn) throws TechnicalCalendarException
+    {
+        PreparedStatement stmt = null;
         try
         {
             String ruleSet = null;
@@ -274,8 +335,7 @@ public class CalendarServiceImpl implements ICalendarService
                 lastOccurence = new Timestamp(evt.getEnd());
             }
 
-            conn = this.dbSvc.openConnection();
-            stmt = conn.prepareStatement(SQL_UPDATE_EVENT);
+            stmt = conn.prepareStatement(SQL_UPDATE_EVENT_CORE);
 
             stmt.setTimestamp(1, new Timestamp(evt.getStart()));
             stmt.setTimestamp(2, new Timestamp(evt.getEnd()));
@@ -299,7 +359,103 @@ public class CalendarServiceImpl implements ICalendarService
         finally
         {
             this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void deleteEvent(UUID eventId) throws CalEventNotFoundException, TechnicalCalendarException
+    {
+        Connection conn = null;
+
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            conn.setAutoCommit(false);
+
+            this.attachmentsSvc.removeAttachments(eventId, conn);
+            this.hashTagSvc.removeHashTagsByRefId(eventId, conn);
+            this.personSvc.removePersons(eventId, conn);
+            this.deleteEvent(eventId, conn);
+
+            conn.commit();
+        }
+        catch (SQLException | TechnicalHashTagException e)
+        {
+            throw new TechnicalCalendarException(ERR_DELETE_EVENT, e);
+        }
+        finally
+        {
             this.dbSvc.closeQuitely(conn);
         }
+    }
+
+    /**
+     * @param eventId
+     * @param conn
+     * @throws SQLException 
+     */
+    private void deleteEvent(UUID eventId, Connection conn) throws SQLException
+    {
+        PreparedStatement stmt = null;
+
+        try
+        {
+            stmt = conn.prepareStatement(SQL_DELETE_EVENT_CORE);
+            stmt.setString(1, eventId.toString());
+            stmt.executeUpdate();
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    /**
+     * @param eventId
+     * @param conn
+     * @return
+     * @throws SQLException
+     */
+    private CalendarEventCore loadEventCore(UUID eventId, Connection conn) throws SQLException
+    {
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try
+        {
+            stmt = conn.prepareStatement(SQL_GET_EVENT_CORE);
+            stmt.setString(1, eventId.toString());
+            rs = stmt.executeQuery();
+            return rs.next() ? this.eventCoreFromResultSet(rs) : null;
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(rs);
+            this.dbSvc.closeQuitely(stmt);
+        }
+    }
+
+    /**
+     * Lade einen EventCore aus einem ResultSet
+     * 
+     * @param rs
+     * @return
+     * @throws SQLException
+     */
+    private CalendarEventCore eventCoreFromResultSet(ResultSet rs) throws SQLException
+    {
+        return CalendarEventCore.builder() //
+            .uuid(UUID.fromString(rs.getString("uuid"))) //
+            .owner(UUID.fromString(rs.getString("owner"))) //
+            .start(rs.getTimestamp("start").getTime()) //
+            .end(rs.getTimestamp("end").getTime()) // 
+            .title(rs.getString("title")) //
+            .desc(rs.getString("desc")) //
+            .fullDay(rs.getBoolean("fullDay")) //
+            .rruleset(rs.getString("rruleset")) //
+            .build();
     }
 }

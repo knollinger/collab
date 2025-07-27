@@ -13,11 +13,11 @@ import interactionPlugin from '@fullcalendar/interaction';
 import allLocales from '@fullcalendar/core/locales-all';
 
 import { FullCalendarComponent } from '@fullcalendar/angular';
-import { CalendarService } from '../../services/calendar.service';
 import { CalendarEventMenuComponent } from '../calendar-event-menu/calendar-event-menu.component';
-import { CalendarEvent } from '../../models/calendar-event';
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { IDelta, RecurringRulsesetService } from '../../services/recurring-rulseset.service';
+import { CalendarService } from '../../services/calendar.service';
+import { CalendarEventCore } from '../../models/calendar-event-core';
 
 @Component({
   selector: 'app-calendar-main',
@@ -54,8 +54,8 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
   eventMenu!: CalendarEventMenuComponent;
 
   title: string = 'Test';
-  viewMode: string = 'MONTH';
-  events: CalendarEvent[] = new Array<CalendarEvent>();
+  viewMode: string = 'dayGridMonth';
+  events: CalendarEventCore[] = new Array<CalendarEventCore>();
 
   private loadEventsSubscribtion: Subscription | null = null;
 
@@ -67,7 +67,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
   constructor(
     private router: Router,
     private titleBarSvc: TitlebarService,
-    private calSvc: CalendarService,
+    private newCalSvc: CalendarService,
     private recurringSvc: RecurringRulsesetService) {
 
   }
@@ -120,7 +120,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
       this.loadEventsSubscribtion.unsubscribe();
     }
 
-    this.loadEventsSubscribtion = this.calSvc.getAllEvents(info.start, info.end)
+    this.loadEventsSubscribtion = this.newCalSvc.getAllEvents(info.start, info.end)
       .subscribe(result => {
 
         
@@ -163,6 +163,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
    * @param evt 
    */
   onViewModeChange(evt: MatButtonToggleChange) {
+    this.viewMode = evt.value;
     this.calendar.getApi().changeView(evt.value);
   }
 
@@ -211,7 +212,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
     // Verschiebungen
     //
     if (info.allDay) {
-      end.setDate(end.getDate() - 1);
+      end.setSeconds(end.getSeconds() - 1);
     }
 
     const startTS = info.start.getTime();
@@ -252,8 +253,8 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
       const newEnd = this.recurringSvc.applyDateDelta(evt.end, delta);
       const newRuleSet = (evt.isRecurring) ? this.recurringSvc.adjustRRuleSet(currRuleSet, delta) : evt.rruleSet;
 
-      const newEvt = new CalendarEvent(evt.uuid, evt.owner, evt.title, newStart, newEnd, evt.desc, evt.fullDay, newRuleSet);
-      this.updateEvent(newEvt);
+      const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, newStart, newEnd, evt.desc, evt.fullDay, newRuleSet);
+      this.updateCoreEvent(newEvt);
     }
   }
 
@@ -271,8 +272,8 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
     if (evt) {
       const delta = info.endDelta as IDelta;
       const newEnd = this.recurringSvc.applyDateDelta(evt.end, delta)
-      const newEvt = new CalendarEvent(evt.uuid, evt.owner, evt.title, evt.start, newEnd, evt.desc, evt.fullDay, evt.rruleSet);
-      this.updateEvent(newEvt);
+      const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, evt.start, newEnd, evt.desc, evt.fullDay, evt.rruleSet);
+      this.updateCoreEvent(newEvt);
     }
   }
 
@@ -280,9 +281,9 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
    * 
    * @param evt 
    */
-  private updateEvent(evt: CalendarEvent) {
+  private updateCoreEvent(evt: CalendarEventCore) {
 
-    this.calSvc.saveEvent(evt)
+    this.newCalSvc.updateEventTime(evt)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(_ => {
         // this.loadEvents();
@@ -294,7 +295,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
    * @param id 
    * @returns 
    */
-  private getEventById(id: string): CalendarEvent | null {
+  private getEventById(id: string): CalendarEventCore | null {
 
     console.dir(this.events);
     for (let event of this.events) {

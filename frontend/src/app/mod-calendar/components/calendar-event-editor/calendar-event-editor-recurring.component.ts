@@ -6,7 +6,7 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { Frequency, RRule, RRuleSet, Weekday, ALL_WEEKDAYS } from 'rrule';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { CalendarEvent } from '../../models/calendar-event';
+import { CalendarEventCore } from '../../models/calendar-event-core';
 
 /**
  * ValidatorFn welche sicher stellt das wenigstens eine der 
@@ -84,7 +84,7 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
    * 
    */
   @Input()
-  set event(evt: CalendarEvent) {
+  set event(evt: CalendarEventCore) {
 
     this._event = evt;
     this.formDataFromRRuleSet();
@@ -100,10 +100,10 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
   /**
    * 
    */
-  get event(): CalendarEvent {
+  get event(): CalendarEventCore {
     return this._event;
   }
-  private _event: CalendarEvent = CalendarEvent.empty();
+  private _event: CalendarEventCore = CalendarEventCore.empty();
 
 
   @Output()

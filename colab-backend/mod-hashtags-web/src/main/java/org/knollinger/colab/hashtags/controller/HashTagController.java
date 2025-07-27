@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.knollinger.colab.hashtags.dtos.SaveHashtagsReqDTO;
 import org.knollinger.colab.hashtags.exceptions.TechnicalHashTagException;
-import org.knollinger.colab.hashtags.mapper.IHashTagMapper;
 import org.knollinger.colab.hashtags.services.IHashTagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,9 +22,6 @@ public class HashTagController
 {
     @Autowired
     IHashTagService hashTagSvc;
-
-    @Autowired
-    IHashTagMapper hashTagMapper;
 
     /**
      * @return
@@ -69,7 +65,7 @@ public class HashTagController
     {
         try
         {
-            this.hashTagSvc.saveHashTags(this.hashTagMapper.fromDTO(req));
+            this.hashTagSvc.saveHashTags(req.getRefId(), req.getTags(), req.type);
         }
         catch (TechnicalHashTagException e)
         {

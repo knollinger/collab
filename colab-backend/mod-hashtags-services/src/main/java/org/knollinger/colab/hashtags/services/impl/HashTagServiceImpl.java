@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.knollinger.colab.hashtags.exceptions.TechnicalHashTagException;
-import org.knollinger.colab.hashtags.models.SaveHashtagsReq;
+import org.knollinger.colab.hashtags.models.EHashTagType;
 import org.knollinger.colab.hashtags.services.IHashTagService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,10 +77,35 @@ public class HashTagServiceImpl implements IHashTagService
         }
     }
 
+    /**
+     *
+     */
     @Override
     public List<String> getHashTagsByResource(UUID uuid) throws TechnicalHashTagException
     {
         Connection conn = null;
+
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            return this.getHashTagsByResource(uuid, conn);
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalHashTagException(ERR_READ_RESOURCE_HASHTAGS, e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(conn);
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public List<String> getHashTagsByResource(UUID uuid, Connection conn) throws TechnicalHashTagException
+    {
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
@@ -106,47 +131,82 @@ public class HashTagServiceImpl implements IHashTagService
         {
             this.dbSvc.closeQuitely(rs);
             this.dbSvc.closeQuitely(stmt);
-            this.dbSvc.closeQuitely(conn);
         }
     }
 
     @Override
-    public void saveHashTags(SaveHashtagsReq req) throws TechnicalHashTagException
+    public void saveHashTags(UUID refId, List<String> tags, EHashTagType type) throws TechnicalHashTagException
     {
         Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
 
         try
         {
             conn = this.dbSvc.openConnection();
             conn.setAutoCommit(false);
-            stmt = conn.prepareStatement(SQL_DELETE_HASHTAGS);
-            stmt.setString(1, req.getRefId().toString());
-            stmt.executeUpdate();
-            this.dbSvc.closeQuitely(stmt);
-            
-            stmt = conn.prepareStatement(SQL_INSERT_HASHTAG);
-            stmt.setString(1, req.getRefId().toString());
-            stmt.setString(2, req.getType().toString());
-            for (String tag : req.getTags())
-            {
-                stmt.setString(3, tag);
-                stmt.executeUpdate();
-            }
+            this.saveHashTags(refId, tags, type, conn);
             
             conn.commit();
         }
         catch (SQLException e)
         {
-            String msg = String.format(ERR_SAVE_HASHTAGS, req.getRefId().toString());
+            String msg = String.format(ERR_SAVE_HASHTAGS, refId.toString());
+            throw new TechnicalHashTagException(msg, e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(conn);
+        }
+    }
+
+    @Override
+    public void saveHashTags(UUID refId, List<String> tags, EHashTagType type, Connection conn) throws TechnicalHashTagException
+    {
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try
+        {
+            this.removeHashTagsByRefId(refId, conn);
+            
+            stmt = conn.prepareStatement(SQL_INSERT_HASHTAG);
+            stmt.setString(1, refId.toString());
+            stmt.setString(2, type.toString());
+            for (String tag : tags)
+            {
+                stmt.setString(3, tag);
+                stmt.executeUpdate();
+            }
+        }
+        catch (SQLException e)
+        {
+            String msg = String.format(ERR_SAVE_HASHTAGS, refId.toString());
             throw new TechnicalHashTagException(msg, e);
         }
         finally
         {
             this.dbSvc.closeQuitely(rs);
             this.dbSvc.closeQuitely(stmt);
-            this.dbSvc.closeQuitely(conn);
+        }
+    }
+
+    @Override
+    public void removeHashTagsByRefId(UUID refId, Connection conn) throws TechnicalHashTagException
+    {
+        PreparedStatement stmt = null;
+        try
+        {
+            stmt = conn.prepareStatement(SQL_DELETE_HASHTAGS);
+            stmt.setString(1, refId.toString());
+            stmt.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            String msg = String.format(ERR_SAVE_HASHTAGS, refId.toString());
+            throw new TechnicalHashTagException(msg, e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
         }
     }
 }

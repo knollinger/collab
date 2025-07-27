@@ -4,15 +4,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.knollinger.colab.calendar.dtos.CalendarEventDTO;
+import org.knollinger.colab.calendar.dtos.CalendarEventCoreDTO;
+import org.knollinger.colab.calendar.dtos.CalendarEventFullDTO;
 import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
 import org.knollinger.colab.calendar.exc.TechnicalCalendarException;
 import org.knollinger.colab.calendar.mapper.ICalendarMapper;
-import org.knollinger.colab.calendar.models.CalendarEvent;
+import org.knollinger.colab.calendar.models.CalendarEventCore;
+import org.knollinger.colab.calendar.models.CalendarEventFull;
+import org.knollinger.colab.calendar.services.ICalendarAttachmentsService;
 import org.knollinger.colab.calendar.services.ICalendarService;
+import org.knollinger.colab.filesys.dtos.INodeDTO;
+import org.knollinger.colab.filesys.mapper.IFileSysMapper;
+import org.knollinger.colab.filesys.models.INode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,17 +28,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping(path = "v1/calevents/")
+@RequestMapping(path = "v1/calendar")
 public class CalendarController
 {
     @Autowired()
     private ICalendarService calSvc;
 
     @Autowired()
+    private ICalendarAttachmentsService attachmentsSvc;
+
+    @Autowired()
     private ICalendarMapper calMapper;
+
+    @Autowired()
+    private IFileSysMapper fileSysMapper;
 
     /**
      * Lädt alle Kalender-Einträge zwischen dem angegebenen Start-Timestamp 
@@ -42,14 +56,14 @@ public class CalendarController
      * @return
      */
     @GetMapping(path = "/all")
-    public List<CalendarEventDTO> getAllEvents(//
+    public List<CalendarEventCoreDTO> getAllEvents(//
         @RequestParam("start") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date start, //
         @RequestParam("end") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date end)
     {
         try
         {
-            List<CalendarEvent> events = this.calSvc.getAllEvents(start, end);
-            return this.calMapper.toDTO(events);
+            List<CalendarEventCore> events = this.calSvc.getAllEventCores(start, end);
+            return this.calMapper.coreToDTO(events);
         }
         catch (TechnicalCalendarException e)
         {
@@ -62,13 +76,13 @@ public class CalendarController
      * @return
      */
     @GetMapping(path = "/calevent/{uuid}")
-    public CalendarEventDTO getEvent(//
+    public CalendarEventFullDTO getEvent(//
         @PathVariable("uuid") UUID uuid)
     {
         try
         {
-            CalendarEvent result = this.calSvc.getEvent(uuid);
-            return this.calMapper.toDTO(result);
+            CalendarEventFull result = this.calSvc.getFullEvent(uuid);
+            return this.calMapper.fullToDTO(result);
         }
         catch (CalEventNotFoundException e)
         {
@@ -81,36 +95,63 @@ public class CalendarController
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
-    
+
     /**
-     * @param evt
+     * @param dto
      * @return
      */
     @PutMapping(path="/calevent")
-    public CalendarEventDTO createEvent(@RequestBody CalendarEventDTO evt) {
+    public CalendarEventFullDTO createFullEvent(@RequestBody CalendarEventFullDTO dto) {
         
         try
         {
-            CalendarEvent result = this.calSvc.createEvent(this.calMapper.fromDTO(evt));
-            return this.calMapper.toDTO(result);
+            CalendarEventFull result = this.calSvc.createFullEvent(this.calMapper.fullFromDTO(dto));
+            return this.calMapper.fullToDTO(result);
+        }
+        catch (TechnicalCalendarException e)
+        {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param dto
+     * @return
+     */
+    @PostMapping(path = "/calevent")
+    public CalendarEventFullDTO updateFullEvent(@RequestBody CalendarEventFullDTO dto)
+    {
+        try
+        {
+            CalendarEventFull result = this.calSvc.updateFullEvent(this.calMapper.fullFromDTO(dto));
+            return this.calMapper.fullToDTO(result);
+        }
+        catch (CalEventNotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
         catch (TechnicalCalendarException e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
-    
+
     /**
+     * Im CalendarMainView können Events verschoben und resized werden. In diesem Fall reicht es aus,
+     * den EventCore zu aktualisieren, Personen, Attachments, Hashtags... ändern sich dadurch nicht.
+     * 
      * @param evt
      * @return
      */
-    @PostMapping(path="/calevent")
-    public CalendarEventDTO updateEvent(@RequestBody CalendarEventDTO evt) {
-        
+    @PostMapping(path = "/update")
+    public CalendarEventCoreDTO updateEventCore(@RequestBody CalendarEventCoreDTO evt)
+    {
+
         try
         {
-            CalendarEvent result = this.calSvc.updateEvent(this.calMapper.fromDTO(evt));
-            return this.calMapper.toDTO(result);
+            CalendarEventCore result = this.calSvc.updateEventCore(this.calMapper.coreFromDTO(evt));
+            return this.calMapper.coreToDTO(result);
         }
         catch (TechnicalCalendarException e)
         {
@@ -119,6 +160,31 @@ public class CalendarController
         catch (CalEventNotFoundException e)
         {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param eventId
+     * @param files
+     * @return
+     */
+    @PutMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public List<INodeDTO> uploadFiles(//
+        @RequestParam("eventId") UUID eventId, //
+        @RequestParam("file") List<MultipartFile> files)
+    {
+        try
+        {
+            List<INode> result = this.attachmentsSvc.uploadFiles(eventId, files);
+            return this.fileSysMapper.toDTO(result);
+        }
+        catch (CalEventNotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (TechnicalCalendarException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
 }

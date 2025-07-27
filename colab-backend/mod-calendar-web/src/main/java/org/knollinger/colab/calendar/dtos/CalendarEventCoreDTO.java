@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)
-public class CalendarEventDTO
+public class CalendarEventCoreDTO
 {
     private UUID uuid;
     private UUID owner;
