@@ -24,6 +24,7 @@ export class CalendarService {
       ['getEvent', 'v1/calendar/calevent/{1}'],
       ['createEvent', 'v1/calendar/calevent'],
       ['saveEvent', 'v1/calendar/calevent'],
+      ['deleteEvent', 'v1/calendar/calevent/{1}'],
       ['updateEventTime', 'v1/calendar/update'],
       ['upload', 'v1/calendar/upload']
     ]
@@ -100,7 +101,23 @@ export class CalendarService {
       }))
   }
 
-  updateEventTime(event: CalendarEventCore): Observable<CalendarEventCore> {
+  /**
+   * 
+   * @param evt 
+   * @returns 
+   */
+  deleteEvent(evt: CalendarEventCore): Observable<void> {
+
+    const url = this.backendRouter.getRouteForName('deleteEvent', CalendarService.routes, evt.uuid);
+    return this.http.delete<void>(url);
+  }
+
+  /**
+   * 
+   * @param event 
+   * @returns 
+   */
+  updateEventCore(event: CalendarEventCore): Observable<CalendarEventCore> {
 
     const url = this.backendRouter.getRouteForName('updateEventTime', CalendarService.routes);
     return this.http.post<ICalendarEventCore>(url, event.toJSON())

@@ -93,6 +93,7 @@ export class CalendarEventEditorComponent implements OnInit {
     this.fullEvent = CalendarEventFull.empty();
     this.fullEvent.core.start = start;
     this.fullEvent.core.end = end;
+    this.fullEvent.core.fullDay = fullDay;
     this.fullEvent.reqPersons.push(this.sessSvc.currentUser);
   }
 

@@ -10,12 +10,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.dmfs.rfc5545.DateTime;
 import org.dmfs.rfc5545.RecurrenceSet;
 import org.dmfs.rfc5545.optional.LastInstance;
 import org.dmfs.rfc5545.recur.InvalidRecurrenceRuleException;
 import org.dmfs.rfc5545.recur.RecurrenceRule;
+import org.dmfs.rfc5545.recurrenceset.Difference;
+import org.dmfs.rfc5545.recurrenceset.Merged;
+import org.dmfs.rfc5545.recurrenceset.OfList;
 import org.dmfs.rfc5545.recurrenceset.OfRule;
 import org.dmfs.rfc5545.recurrenceset.Within;
 import org.knollinger.colab.calendar.models.CalendarEventCore;
@@ -74,7 +78,8 @@ class RecurringRuleParser
      * @throws InvalidRecurrenceRuleException
      * @throws ParseException
      */
-    public Date lastEvent(CalendarEventCore baseEvent) throws IOException, InvalidRecurrenceRuleException, ParseException
+    public Date lastEvent(CalendarEventCore baseEvent)
+        throws IOException, InvalidRecurrenceRuleException, ParseException
     {
 
         RecurrenceSet recurrences = this.compileRuleset(baseEvent.getRruleset());
@@ -93,11 +98,10 @@ class RecurringRuleParser
     private RecurrenceSet compileRuleset(String ruleSet)
         throws IOException, InvalidRecurrenceRuleException, ParseException
     {
+        TimeZone timezone = TimeZone.getTimeZone("UTC");
         DateTime dtStart = new DateTime(System.currentTimeMillis());
-        String rrule = "";
-        List<String> rDates = new ArrayList<>();
-        String exRule = "";
-        List<String> exDates = new ArrayList<>();
+        List<RecurrenceSet> recurrences = new ArrayList<>();
+        List<RecurrenceSet> excludes = new ArrayList<>();
 
         BufferedReader reader = new BufferedReader(new StringReader(ruleSet));
         String rawLine = reader.readLine();
@@ -111,19 +115,19 @@ class RecurringRuleParser
                     break;
 
                 case "RRULE" :
-                    rrule = ruleLine.getValue();
+                    recurrences.add(new OfRule(new RecurrenceRule(ruleLine.getValue()), dtStart));
                     break;
 
                 case "RDATE" :
-                    rDates.add(ruleLine.getValue());
+                    recurrences.add(new OfList(timezone, ruleLine.getValue()));
                     break;
 
                 case "EXRULE" :
-                    exRule = ruleLine.getValue();
+                    excludes.add(new OfRule(new RecurrenceRule(ruleLine.getValue()), dtStart));
                     break;
 
                 case "EXDATE" :
-                    exDates.add(ruleLine.getValue());
+                    excludes.add(new OfList(timezone, ruleLine.getValue()));
                     break;
 
                 default :
@@ -132,12 +136,7 @@ class RecurringRuleParser
             rawLine = reader.readLine();
         }
 
-//        TimeZone timezone = TimeZone.getTimeZone("UTC");
-        //        RecurrenceSet occurrences = new Difference(
-        //            new Merged(new OfRule(new RecurrenceRule(rrule), dtStart), new OfList(timezone, rDates)),
-        //            new Merged(new OfRule(new RecurrenceRule(exRule), dtStart), new OfList(timezone, exDates)));
-        RecurrenceSet occurrences = new OfRule(new RecurrenceRule(rrule), dtStart);
-        return occurrences;
+        return new Difference(new Merged(recurrences), new Merged(excludes));
     }
 
     /**

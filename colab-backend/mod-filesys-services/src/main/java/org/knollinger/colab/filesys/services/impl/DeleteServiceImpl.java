@@ -79,8 +79,6 @@ public class DeleteServiceImpl implements IDeleteService
                 stmtINode.setString(1, id.toString());
                 stmtINode.executeUpdate();
             }
-
-            conn.commit();
         }
         catch (SQLException e)
         {
@@ -137,8 +135,6 @@ public class DeleteServiceImpl implements IDeleteService
                 stmtINode.setString(1, id.toString());
                 stmtINode.executeUpdate();
             }
-
-            conn.commit();
         }
         catch (SQLException e)
         {

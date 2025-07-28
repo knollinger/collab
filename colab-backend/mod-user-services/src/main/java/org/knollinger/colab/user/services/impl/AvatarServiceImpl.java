@@ -49,8 +49,8 @@ public class AvatarServiceImpl implements IAvatarService
         + "    style=\"shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd\"" //
         + "    viewBox=\"0 0 128 128\">" //
         + "    <g>" //
-        + "        <circle style=\"fill:#3f51b5; stroke:#0000FF; stroke-width:3;\" cx=\"64\" cy=\"64\" r=\"60\" />" //
-        + "        <text x=\"64\" y=\"80\" text-anchor=\"middle\" stroke=\"white\" fill=\"white\" font-size=\"48\">${INITIALS}</text>" //
+        + "        <circle style=\"fill:white; stroke:#3f51b5; stroke-width:3;\" cx=\"64\" cy=\"64\" r=\"60\" />" //
+        + "        <text x=\"64\" y=\"80\" text-anchor=\"middle\" stroke=\"#3f51b5\" fill=\"#3f51b5\" font-size=\"48\">${INITIALS}</text>" //
         + "    </g>" //
         + "</svg>";
 

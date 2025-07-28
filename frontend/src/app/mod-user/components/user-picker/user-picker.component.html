@@ -28,13 +28,9 @@
                       highlighted
                       color="primary">
 
-            <div class="search-option">
-                <img [src]="getAvatar(user.userId)"
-                     class="avatar small-right-spacer">
-                <span>
-                    {{user.surname}} {{user.lastname}}
-                </span>
-            </div>
+            <img [src]="getAvatar(user.userId)"
+                 matChipAvatar>
+            {{user.surname}} {{user.lastname}}
 
             <button matChipRemove
                     (click)="onUserRemove(user)">

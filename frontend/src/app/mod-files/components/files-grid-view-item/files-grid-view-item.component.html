@@ -8,9 +8,12 @@
           [style.width]="iconWidth">
      </div>
 
-     <div class="label" [style.width]="iconWidth">{{inode.name}}</div>
+     <div class="label"
+          [style.width]="iconWidth">{{inode.name}}</div>
 
-     <div class="selector" (click)="onSelect($event, inode)">
+     <div class="selector"
+          (click)="onSelect($event, inode)"
+          matTooltip="halte STRG um mehrere Objekte auszuwählen">
           <mat-icon class="material-symbols-outlined">add</mat-icon>
      </div>
 </div>

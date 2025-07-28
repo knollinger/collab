@@ -194,10 +194,10 @@ export class CalendarEventEditorFilesComponent implements OnInit {
     const toDelete: INode[] = inode ? [inode] : Array.of(...this.selectedNodes);
     toDelete.forEach(node => {
       if (node.uuid) {
-        this._attachments = this._attachments.filter(attachment => { return attachment.uuid !== node.uuid });
+        this._attachments = this._attachments.filter(attachment => { return attachment.uuid !== node.uuid }); // TODO: Das kommt im parent nicht an!
       }
       else {
-        this.files = this.files.filter(file => { return file.name !== node.name }); // Das ist doch scheiße! Zwei gleichnamige Files können aus unterschiedlichen Verzeichnissen stammen!
+        this.files = this.files.filter(file => { return file.name !== node.name }); // TODO: Das ist doch scheiße! Zwei gleichnamige Files können aus unterschiedlichen Verzeichnissen stammen!
         this.filesChange.emit(this.files);
       }
     });

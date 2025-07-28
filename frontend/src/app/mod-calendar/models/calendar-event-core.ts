@@ -135,16 +135,7 @@ export class CalendarEventCore {
 
         let ruleset: RRuleSet | null = null;
         if (json.rruleset) {
-
-            const parsed = rrulestr(json.rruleset);
-
-            if (parsed instanceof RRuleSet) {
-                ruleset = parsed;
-            }
-            else {
-                ruleset = new RRuleSet();
-                ruleset.rrule(parsed);
-            }
+            ruleset = rrulestr(json.rruleset, {forceset: true}) as RRuleSet;
         }
         const start = new Date(json.start); // wird als UTC angeliefert!
         const end = new Date(json.end); // dito
@@ -284,7 +275,7 @@ export class CalendarEventCore {
 
         return {
             id: this.uuid,
-            groupId: this.uuid, 
+            groupId: this.uuid,
             allDay: this.fullDay,
             start: this.start,
             end: this.end,

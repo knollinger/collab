@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -100,9 +101,10 @@ public class CalendarController
      * @param dto
      * @return
      */
-    @PutMapping(path="/calevent")
-    public CalendarEventFullDTO createFullEvent(@RequestBody CalendarEventFullDTO dto) {
-        
+    @PutMapping(path = "/calevent")
+    public CalendarEventFullDTO createFullEvent(@RequestBody CalendarEventFullDTO dto)
+    {
+
         try
         {
             CalendarEventFull result = this.calSvc.createFullEvent(this.calMapper.fullFromDTO(dto));
@@ -152,6 +154,23 @@ public class CalendarController
         {
             CalendarEventCore result = this.calSvc.updateEventCore(this.calMapper.coreFromDTO(evt));
             return this.calMapper.coreToDTO(result);
+        }
+        catch (TechnicalCalendarException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (CalEventNotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+    }
+
+    @DeleteMapping(path = "/calevent/{uuid}")
+    public void deleteEvent(@PathVariable("uuid") UUID uuid)
+    {
+        try
+        {
+            this.calSvc.deleteEvent(uuid);
         }
         catch (TechnicalCalendarException e)
         {

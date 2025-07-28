@@ -13,7 +13,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import allLocales from '@fullcalendar/core/locales-all';
 
 import { FullCalendarComponent } from '@fullcalendar/angular';
-import { CalendarEventMenuComponent } from '../calendar-event-menu/calendar-event-menu.component';
+import { CalendarEventMenuComponent, IDeleteOccurenceEvent } from '../calendar-event-menu/calendar-event-menu.component';
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { IDelta, RecurringRulsesetService } from '../../services/recurring-rulseset.service';
 import { CalendarService } from '../../services/calendar.service';
@@ -28,6 +28,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
 
   calendarOptions: CalendarOptions = {
     initialView: 'dayGridMonth',
+    height: '100%',
     locales: allLocales,
     locale: navigator.language,
     headerToolbar: false,
@@ -67,7 +68,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
   constructor(
     private router: Router,
     private titleBarSvc: TitlebarService,
-    private newCalSvc: CalendarService,
+    private calSvc: CalendarService,
     private recurringSvc: RecurringRulsesetService) {
 
   }
@@ -120,10 +121,10 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
       this.loadEventsSubscribtion.unsubscribe();
     }
 
-    this.loadEventsSubscribtion = this.newCalSvc.getAllEvents(info.start, info.end)
+    this.loadEventsSubscribtion = this.calSvc.getAllEvents(info.start, info.end)
       .subscribe(result => {
 
-        
+
         this.events = result;
         const mapped = result.map(e => {
           return e.toFullcalendarEvent();
@@ -140,6 +141,13 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
+   * 
+   */
+  onImport() {
+    alert('not yet implemented');
+  }
+
+  /**
    * Callback, welcher beim hinzugügen eines Events in den View
    * gerufen wird. Wir hängen hier einfach einen EventListener
    * zur anzeige des ContextMenus an das Element.
@@ -147,13 +155,15 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
    */
   onMountEvent(info: any) {
 
-    const eventId = info.event.id
+    const eventId = info.event.id;
+    const currStart = info.event.start;
+
     info.el.addEventListener("contextmenu", (jsEvent: MouseEvent) => {
 
       jsEvent.preventDefault();
       const event = this.getEventById(eventId);
       if (event) {
-        this.eventMenu.show(jsEvent, event);
+        this.eventMenu.show(jsEvent, event, currStart);
       }
     })
   }
@@ -278,15 +288,50 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
   }
 
   /**
+   * Lösche einen Termin aus einer Serie.
+   * 
+   * Dazu muss lediglich ein neues EXDATE in das RecurrenceSet aufgenommen werden.
+   * 
+   * @param evt 
+   */
+  onDeleteOccurence(evt: IDeleteOccurenceEvent) {
+
+    if (evt.event.rruleSet) {
+      evt.event.rruleSet.exdate(evt.start);
+      this.updateCoreEvent(evt.event);
+    }
+  }
+
+  /**
+   * 
+   * @param evt 
+   */
+  onDeleteEvent(evt: CalendarEventCore) {
+    this.calSvc.deleteEvent(evt)
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(_ => {
+      this.onReload();
+    });
+  }
+
+  /** 
+   * 
+   */
+  onExportEvent(evt: CalendarEventCore) {
+    alert('exportEvent');
+
+  }
+
+  /**
    * 
    * @param evt 
    */
   private updateCoreEvent(evt: CalendarEventCore) {
 
-    this.newCalSvc.updateEventTime(evt)
+    this.calSvc.updateEventCore(evt)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(_ => {
-        // this.loadEvents();
+        this.onReload();
       })
   }
 
@@ -297,9 +342,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
    */
   private getEventById(id: string): CalendarEventCore | null {
 
-    console.dir(this.events);
     for (let event of this.events) {
-      console.log(`test '${event.uuid}' === '${id}'`);
       if (event.uuid === id) {
         return event;
       }

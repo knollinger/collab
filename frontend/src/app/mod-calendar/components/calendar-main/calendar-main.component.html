@@ -24,13 +24,35 @@
 
         </div>
 
-        <button mat-icon-button  (click)="onReload()">
+        <button mat-icon-button
+                (click)="onReload()"
+                matTooltip="Aktualisieren">
             <mat-icon class="material-symbols-outlined">refresh</mat-icon>
         </button>
 
-        <span class="title" *ngIf="viewMode === 'timeGridDay'">{{date | date:"dd.MM.YYYY"}}</span>
-        <span class="title" *ngIf="viewMode === 'timeGridWeek'">{{date | date:"'Kalenderwoche' ww YYYY"}}</span>
-        <span class="title" *ngIf="viewMode === 'dayGridMonth'">{{date | date:"MMM YYYY"}}</span>
+        <button mat-icon-button
+                matTooltip="Import-Optionen"
+                [matMenuTriggerFor]="importMenu">
+            <mat-icon class="material-symbols-outlined">publish</mat-icon>
+        </button>
+
+        <mat-menu #importMenu="matMenu">
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">upload_file</mat-icon>
+                <span>iCAL importieren</span>
+            </button>
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
+                <span>Kalender importieren</span>
+            </button>
+        </mat-menu>
+
+        <span class="title"
+              *ngIf="viewMode === 'timeGridDay'">{{date | date:"dd.MM.YYYY"}}</span>
+        <span class="title"
+              *ngIf="viewMode === 'timeGridWeek'">{{date | date:"'Kalenderwoche' ww YYYY"}}</span>
+        <span class="title"
+              *ngIf="viewMode === 'dayGridMonth'">{{date | date:"MMM YYYY"}}</span>
 
         <mat-button-toggle-group class="view-mode"
                                  [value]="viewMode"
@@ -47,5 +69,8 @@
                        [options]="calendarOptions"></full-calendar>
     </div>
 
-    <app-calendar-event-menu #eventMenu></app-calendar-event-menu>
+    <app-calendar-event-menu #eventMenu
+                             (deleteOccurence)="onDeleteOccurence($event)"
+                             (deleteEvent)="onDeleteEvent($event)"
+                             (exportEvent)="onExportEvent($event)"></app-calendar-event-menu>
 </div>

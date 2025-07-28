@@ -46,6 +46,15 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
     ]
   );
 
+  private static RRULE_FREQ_TO_FREQ: Map<Frequency, string> = new Map<Frequency, string>(
+    [
+      [RRule.DAILY, 'DAILY'],
+      [RRule.WEEKLY, 'WEEKLY'],
+      [RRule.MONTHLY, 'MONTHLY'],
+      [RRule.YEARLY, 'YEARLY'],
+    ]
+  );
+
   private static WEEKDAYS_TO_RRULE_WEEKDAYS: Map<string, Weekday> = new Map<string, Weekday>(
     [
       ['MON', RRule.MO],
@@ -110,6 +119,8 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
   valid: EventEmitter<boolean> = new EventEmitter<boolean>(false);
 
   all: Date[] = new Array<Date>();
+  occurences: Set<number> = new Set<number>();
+  exDates: Set<number> = new Set<number>();
 
   /**
    * 
@@ -157,7 +168,6 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
 
     this.isRecurring = this.event.rruleSet !== null;
     this.formDataFromRRuleSet();
-    console.log(this.event);
   }
 
   /**
@@ -181,16 +191,20 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
 
       valid = this.recurringForm.valid;
       this.recurringForm.markAllAsTouched();
+
       if (valid) {
         this.rruleSetFromFormData();
       }
-      else {
-        this.all = [];
-      }
     }
+    
+    this.calcOccurrences();
     this.valid.emit(valid);
   }
 
+  /**
+   * 
+   * @param val 
+   */
   onFrequenceChange(val: string) {
 
     switch (val) {
@@ -254,9 +268,9 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
   }
 
   /**
-   * 
+   * Parse das RuleSet und fülle die Properties des Formulars
    */
-  formDataFromRRuleSet() {
+  private formDataFromRRuleSet() {
 
     let valid = true;
     const ruleSet = this.event.rruleSet;
@@ -273,34 +287,18 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
         monthDays: null
       };
       val.interval = ruleOpts.interval;
-
-      switch (ruleOpts.freq) {
-        case RRule.DAILY:
-          val.repeatFreq = 'DAILY';
-          break;
-
-        case RRule.WEEKLY:
-          val.repeatFreq = 'WEEKLY';
-          val.weekDays = ruleOpts.byweekday;
-          break;
-
-        case RRule.MONTHLY:
-          val.repeatFreq = 'MONTHLY';
-          val.monthDays = ruleOpts.bymonthday;
-          break;
-
-        case RRule.YEARLY:
-          val.repeatFreq = 'YEARLY';
-          break;
-      }
-
+      val.repeatFreq = CalendarEventEditorRecurringComponent.RRULE_FREQ_TO_FREQ.get(ruleOpts.freq);
+      val.weekDays = ruleOpts.byweekday;
+      val.monthDays = ruleOpts.bymonthday;
       val.repMode = this.extractRepeatMode(ruleOpts);
       val.repCount = ruleOpts.count;
       val.repUntil = ruleOpts.until;
+      this.calcOccurrences();
 
       this.recurringForm.setValue(val);
       this.recurringForm.updateValueAndValidity();
       valid = this.recurringForm.valid;
+
       this.isRecurring = true;
     }
     this.valid.emit(valid);
@@ -323,13 +321,11 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
         mode = 'REPEAT_N_TIMES';
       }
     }
-
     return mode;
-
   }
 
   /**
-   * 
+   * Erstelle ein neues Ruleset aus den Daten des Formulars
    */
   rruleSetFromFormData() {
 
@@ -366,13 +362,16 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
           break;
       }
 
-      const rule = new RRule(options, true);
       const ruleSet = new RRuleSet(true);
+
+      const rule = new RRule(options, true);
       ruleSet.rrule(rule);
+
+      this.exDates.forEach(time => {
+        ruleSet.exdate(new Date(time));
+      })
+
       this.event.rruleSet = ruleSet;
-      this.all = ruleSet.all((date: Date, nr: number) => {
-        return (nr > 100) ? false : true;
-      });
     }
   }
 
@@ -380,14 +379,55 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
    * 
    * @param date 
    */
-  addExcludeRule(date: Date) {
+  addExcludeDate(date: Date) {
+    this.exDates.add(date.getTime());
+    this.rruleSetFromFormData();
+  }
 
-    const ruleSet = this.event.rruleSet;
-    if (ruleSet) {
-      ruleSet.exdate(date);
-      this.event.rruleSet = ruleSet;
-      this.all = ruleSet.all((date: Date, nr: number) => {
+  /**
+   * 
+   * @param date 
+   */
+  removeExcludeDate(date: Date) {
+    this.exDates.delete(date.getTime());
+    this.rruleSetFromFormData();
+  }
+
+  /**
+   * 
+   * @param date 
+   * @returns 
+   */
+  isExcluded(date: Date) {
+    return this.exDates.has(date.getTime())
+  }
+
+  /**
+   * Berechne alle Occurences des RuleSets, jedoch max 100 Termine
+   */
+  private calcOccurrences() {
+
+    const all: Array<Date> = new Array<Date>();
+    this.occurences.clear();
+    this.exDates.clear();
+    
+    if (this.event.rruleSet) {
+      
+      const occurences = this.event.rruleSet.all((date: Date, nr: number) => {
         return (nr > 100) ? false : true;
+      });
+      occurences.map(date => {
+        all.push(date);
+        this.occurences.add(date.getTime());
+      })
+      
+      this.event.rruleSet.exdates().forEach(date => {
+        all.push(date);
+        this.exDates.add(date.getTime());
+      });
+
+      this.all = all.sort((d1, d2) => {
+        return d1.getTime() - d2.getTime();
       });
     }
   }
