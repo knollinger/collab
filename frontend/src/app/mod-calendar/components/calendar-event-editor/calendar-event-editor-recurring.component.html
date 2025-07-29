@@ -107,12 +107,12 @@
                 <mat-icon class="material-symbols-outlined"
                           *ngIf="!isExcluded(date)"
                           matChipTrailingIcon
-                          (click)="addExcludeDate(date)">close</mat-icon>
+                          (click)="addExcludeDate(date)">cancel</mat-icon>
 
                 <mat-icon class="material-symbols-outlined"
                           *ngIf="isExcluded(date)"
                           matChipTrailingIcon
-                          (click)="removeExcludeDate(date)">add</mat-icon>
+                          (click)="removeExcludeDate(date)">add_circle</mat-icon>
             </mat-chip>
 
             <mat-chip *ngIf="repMode.value === 'REPEAT_INFINITE'"

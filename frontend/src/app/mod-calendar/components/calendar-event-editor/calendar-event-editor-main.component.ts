@@ -8,6 +8,8 @@ import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import Quill, { Delta } from 'quill';
 
 import { CalendarEventCore } from '../../models/calendar-event-core';
+import { CalendarCategoriesService } from '../../services/calendar-categories.service';
+import { CalendarEventCategory } from '../../models/calendat-event-category';
 
 @Component({
   selector: 'app-calendar-event-editor-main',
@@ -26,14 +28,20 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
   @Output()
   valid: EventEmitter<boolean> = new EventEmitter<boolean>(false);
 
+  categories: CalendarEventCategory[] = new Array<CalendarEventCategory>();
+
   /**
    * 
    * @param formBuilder 
    */
-  constructor(formBuilder: FormBuilder) {
+  constructor(formBuilder: FormBuilder,
+    catSvc: CalendarCategoriesService) {
+
+    catSvc.getAllCategories().subscribe(cats => this.categories = cats);
 
     this.eventForm = formBuilder.group({
       title: new FormControl('', [Validators.required]),
+      category: new FormControl('', [Validators.required]),
       fullDay: new FormControl(false),
       private: new FormControl(false),
       startDate: new FormControl('', Validators.required),
@@ -69,6 +77,7 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
 
     const val = {
       title: this.event.title,
+      category: this.event.category,
       fullDay: this.event.fullDay,
       private: false,
       startDate: this.event.start,
@@ -172,6 +181,7 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
 
     this.event.start = this.composeDatetime(val.startDate, val.startTime);
     this.event.end = this.composeDatetime(val.endDate, val.endTime);
+    this.event.category = val.category;
     this.event.fullDay = val.fullDay;
     this.event.desc = this.quill?.getSemanticHTML() || '';
     this.valid.emit(this.eventForm.valid);
@@ -224,4 +234,9 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
     }
     return result;
   }
+
+  // getColorFor(category: string): string {
+
+  //   return this.categories.get(category) || 'unset';
+  // }
 }

@@ -17,6 +17,7 @@ import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
 import org.knollinger.colab.calendar.exc.TechnicalCalendarException;
 import org.knollinger.colab.calendar.models.CalendarEventCore;
 import org.knollinger.colab.calendar.models.CalendarEventFull;
+import org.knollinger.colab.calendar.models.ECalendarEventCategory;
 import org.knollinger.colab.calendar.services.ICalendarAttachmentsService;
 import org.knollinger.colab.calendar.services.ICalendarPersonsService;
 import org.knollinger.colab.calendar.services.ICalendarService;
@@ -38,22 +39,22 @@ public class CalendarServiceImpl implements ICalendarService
     private static final String ERR_DELETE_EVENT = "Das Event konnte nicht gelöscht werden.";
 
     private static final String SQL_GET_ALL_EVENTS = "" //
-        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `fullDay`, `rruleset`" //
+        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `category`, `fullDay`, `rruleset`" //
         + " from calendar" //
         + "  where start <= ? and last_occurence >=?";
 
     private static final String SQL_GET_EVENT_CORE = "" //
-        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `fullDay`, `rruleset`" //
+        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `category`, `fullDay`, `rruleset`" //
         + " from calendar" //
         + "  where `uuid`=?";
 
     private static final String SQL_CREATE_EVENT_CORE = "" //
         + "insert into calendar " //
-        + "  set `uuid`=?, `owner`=?, `start`=?, `end`=?, `title`=?, `desc`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?";
+        + "  set `uuid`=?, `owner`=?, `start`=?, `end`=?, `title`=?, `desc`=?, `category`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?";
 
     private static final String SQL_UPDATE_EVENT_CORE = "" //
         + "update calendar " //
-        + "  set `start`=?, `end`=?, `title`=?, `desc`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?" //
+        + "  set `start`=?, `end`=?, `title`=?, `desc`=?, `category`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?" //
         + "  where `uuid`=?";
 
     private static final String SQL_DELETE_EVENT_CORE = "" //
@@ -284,9 +285,10 @@ public class CalendarServiceImpl implements ICalendarService
             stmt.setTimestamp(4, new Timestamp(evt.getEnd()));
             stmt.setString(5, evt.getTitle());
             stmt.setString(6, evt.getDesc());
-            stmt.setBoolean(7, evt.isFullDay());
-            stmt.setString(8, ruleSet);
-            stmt.setTimestamp(9, lastOccurence);
+            stmt.setString(7, evt.getCategory().name());
+            stmt.setBoolean(8, evt.isFullDay());
+            stmt.setString(9, ruleSet);
+            stmt.setTimestamp(10, lastOccurence);
             stmt.executeUpdate();
             
             return CalendarEventCore.builder() //
@@ -341,10 +343,11 @@ public class CalendarServiceImpl implements ICalendarService
             stmt.setTimestamp(2, new Timestamp(evt.getEnd()));
             stmt.setString(3, evt.getTitle());
             stmt.setString(4, evt.getDesc());
-            stmt.setBoolean(5, evt.isFullDay());
-            stmt.setString(6, ruleSet);
-            stmt.setTimestamp(7, lastOccurence);
-            stmt.setString(8, evt.getUuid().toString());
+            stmt.setString(5, evt.getCategory().name());
+            stmt.setBoolean(6, evt.isFullDay());
+            stmt.setString(7, ruleSet);
+            stmt.setTimestamp(8, lastOccurence);
+            stmt.setString(9, evt.getUuid().toString());
             if (stmt.executeUpdate() != 1)
             {
                 throw new CalEventNotFoundException(evt.getUuid());
@@ -454,6 +457,7 @@ public class CalendarServiceImpl implements ICalendarService
             .end(rs.getTimestamp("end").getTime()) // 
             .title(rs.getString("title")) //
             .desc(rs.getString("desc")) //
+            .category(ECalendarEventCategory.valueOf(rs.getString("category"))) //
             .fullDay(rs.getBoolean("fullDay")) //
             .rruleset(rs.getString("rruleset")) //
             .build();

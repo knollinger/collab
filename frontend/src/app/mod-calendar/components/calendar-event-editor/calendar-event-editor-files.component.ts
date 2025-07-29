@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FilesDroppedEvent } from '../../../mod-files/directives/drop-target.directive';
 import { ContentTypeService } from '../../../mod-files/services/content-type.service';
 import { SessionService } from '../../../mod-session/session.module';
+import { BehaviorSubject } from 'rxjs';
 
 /**
  * Zeigt die Attachments eines CalendarEvents an.
@@ -42,10 +43,16 @@ export class CalendarEventEditorFilesComponent implements OnInit {
 
   @Input()
   set attachments(inodes: INode[]) {
-    this._attachments = inodes;
+    this.attachmentsChange.next(inodes);
     this.createRenderNodes();
   }
-  private _attachments: INode[] = new Array<INode>();
+
+  @Output()
+  attachmentsChange: BehaviorSubject<INode[]> = new BehaviorSubject<INode[]>(new Array<INode>());
+
+  get attachments(): INode[] {
+    return this.attachmentsChange.value;
+  }
 
   inodesToRender: INode[] = new Array<INode>();
   selectedNodes: Set<INode> = new Set<INode>();
@@ -62,7 +69,6 @@ export class CalendarEventEditorFilesComponent implements OnInit {
     private currUserSvc: SessionService,
     private mimetypeSvc: ContentTypeService,
     private filePicker: FilesPickerService) {
-
   }
 
   /**
@@ -73,7 +79,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   ngOnInit() {
 
     const user = this.currUserSvc.currentUser.userId;
-    this.attachmentsFolder = new INode('', '', '', 'inode/directory', 0, new Date(), new Date(), user, user,  0o777, 0o777);
+    this.attachmentsFolder = new INode('', '', '', 'inode/directory', 0, new Date(), new Date(), user, user, 0o777, 0o777);
 
   }
 
@@ -85,7 +91,10 @@ export class CalendarEventEditorFilesComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(inodes => {
         if (inodes) {
-          this._attachments.push(...inodes);
+
+          const newAttachments = this.attachments;
+          newAttachments.push(...inodes);
+          this.attachments = newAttachments;
           this.createRenderNodes();
         }
       });
@@ -139,7 +148,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
 
     });
 
-    newNodes.push(...this._attachments);
+    newNodes.push(...this.attachments);
 
     this.inodesToRender = newNodes.sort((first, second) => {
       return first.name.localeCompare(second.name);
@@ -194,7 +203,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
     const toDelete: INode[] = inode ? [inode] : Array.of(...this.selectedNodes);
     toDelete.forEach(node => {
       if (node.uuid) {
-        this._attachments = this._attachments.filter(attachment => { return attachment.uuid !== node.uuid }); // TODO: Das kommt im parent nicht an!
+        this.attachments = this.attachments.filter(attachment => { return attachment.uuid !== node.uuid });
       }
       else {
         this.files = this.files.filter(file => { return file.name !== node.name }); // TODO: Das ist doch scheiße! Zwei gleichnamige Files können aus unterschiedlichen Verzeichnissen stammen!
@@ -202,7 +211,6 @@ export class CalendarEventEditorFilesComponent implements OnInit {
       }
     });
     this.selectedNodes.clear();
-
     this.createRenderNodes();
   }
 

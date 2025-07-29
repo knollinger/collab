@@ -1,3 +1,12 @@
 <app-dashboard-widget-template title="Nächste Termine">
-    <p>calendar-widget works!</p>
+
+    <div class="row" *ngFor="let event of events" (click)="onClick(event)">
+        <div class="cell-0">
+            <mat-icon class="material-symbols-outlined">event</mat-icon>
+        </div>
+        <div class="cell-0">{{event.start | date:"dd.MM.yyyy"}}</div>
+        <div class="cell-0">{{event.start | date:"hh:mm"}} - {{event.end | date:"hh:mm"}}</div>
+        <div class="cell-1">{{event.title}}</div>
+        
+    </div>
 </app-dashboard-widget-template>

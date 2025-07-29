@@ -18,6 +18,7 @@ public class CalendarEventCore
     private long start; // wird als "millies sice epoch" transportiert, UTC ist gemeint
     private long end; // wird als "millies sice epoch" transportiert, UTC ist gemeint
     private String desc;
+    ECalendarEventCategory category;
     private boolean fullDay;
     private String rruleset;
 

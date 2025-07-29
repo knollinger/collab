@@ -14,7 +14,6 @@ export class DashboardFilesService {
     [
       ['loadINodes', 'v1/dashboard/files'],
       ['unlinkINode', 'v1/dashboard/links?refId={1}'],
-      ['getIcon', 'v1/contenttype/{1}/{2}']
     ]
   );
 
@@ -40,6 +39,7 @@ export class DashboardFilesService {
         return inodes.map(inode => {
           return INode.fromJSON(inode);
         })
+          .sort(this.sortINodes)
       })
     );
   }
@@ -54,9 +54,32 @@ export class DashboardFilesService {
     return this.http.delete<void>(url);
   }
 
-  getMimetypeIcon(inode: INode): string {
+  /**
+   * Sortiere die INode so, das zuerst alle Directories kommen 
+   * (wiederum nach Namen sortiert) und danach alle "normalen"
+   * Files (auch nach Namen sortiert)
+   * 
+   * @param inode1 
+   * @param inode2 
+   * @returns 
+   */
+  private sortINodes(inode1: INode, inode2: INode): number {
 
-    const parts = inode.type.split("/");
-    return this.backendRouter.getRouteForName('getIcon', DashboardFilesService.routes, parts[0], parts[1]);
+    if (inode1.isDirectory() && inode2.isDirectory()) {
+      return inode1.name.localeCompare(inode2.name);
+    }
+    else {
+      if (inode1.isDirectory()) {
+        return -1;
+      }
+      else {
+        if (inode2.isDirectory()) {
+          return 1;
+        }
+        else {
+          return inode1.name.localeCompare(inode2.name);
+        }
+      }
+    }
   }
 }

@@ -1,0 +1,25 @@
+.row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem 0.23rem 0.5rem;
+}
+
+.row:hover {
+    background-color: #e0e0e0;
+}
+
+.cell-0 {
+    flex: 0;
+    white-space: nowrap;
+    margin-right: 1rem;
+}
+
+.cell-1 {
+    flex: 1;
+    white-space: nowrap;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

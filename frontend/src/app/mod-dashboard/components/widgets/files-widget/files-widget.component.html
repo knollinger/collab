@@ -1,11 +1,19 @@
 <app-dashboard-widget-template title="Dateien">
 
-    <app-dashboard-widget-list-item *ngFor="let inode of inodes"
-                                    [icon]="getMimetypeIcon(inode)"
-                                    [name]="inode.name"
-                                    (open)="onOpen(inode)"
-                                    (remove)="onRemove($event, inode)">
+    <mat-chip-listbox>
+        <mat-chip highlighted
+                  color="primary"
+                  *ngFor="let inode of inodes"
+                  (click)="onOpen(inode)">
 
-    </app-dashboard-widget-list-item>
-    
+            <mat-icon class="material-symbols-outlined" matChipAvatar>{{inode.isDirectory() ? 'folder' : 'draft'}}</mat-icon>
+
+            <span>{{inode.name}}</span>
+            
+            <mat-icon class="material-symbols-outlined"
+                      matChipTrailingIcon
+                      (click)="onRemove($event, inode)">cancel</mat-icon>
+        </mat-chip>
+    </mat-chip-listbox>
+
 </app-dashboard-widget-template>

@@ -2,6 +2,8 @@ package org.knollinger.colab.calendar.dtos;
 
 import java.util.UUID;
 
+import org.knollinger.colab.calendar.models.ECalendarEventCategory;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,6 +18,7 @@ public class CalendarEventCoreDTO
     private long start;
     private long end;
     private String desc;
+    ECalendarEventCategory category;
     private boolean fullDay;
     private String rruleset;
 }

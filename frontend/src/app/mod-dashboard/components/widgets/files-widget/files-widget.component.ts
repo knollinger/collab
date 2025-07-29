@@ -1,5 +1,6 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { DashboardFilesService } from '../../../services/dashboard-files.service';
 import { INode } from '../../../../mod-files-data/mod-files-data.module';
 import { Router } from '@angular/router';
@@ -42,15 +43,6 @@ export class FilesWidgetComponent implements OnInit {
       })
   }
 
-  /**
-   * 
-   * @param inode 
-   * @returns 
-   */
-  getMimetypeIcon(inode: INode): string {
-    return this.inodeSvc.getMimetypeIcon(inode);
-  }
-
   onOpen(inode: INode) {
 
     const url = inode.isDirectory() ? `/files/main/${inode.uuid}` : `/viewer/show/${inode.uuid}`;
@@ -59,6 +51,7 @@ export class FilesWidgetComponent implements OnInit {
 
   onRemove(evt: Event, inode: INode) {
 
+    evt.stopPropagation();
     this.inodeSvc.unlinkINode(inode)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(_ => {

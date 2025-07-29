@@ -42,6 +42,11 @@ export interface ICalendarEventCore {
     desc: string,
 
     /**
+     * Art des events
+     */
+    category: string,
+
+    /**
      * Ganztägiges Event?
      */
     fullDay: boolean,
@@ -74,6 +79,7 @@ export class CalendarEventCore {
     public readonly startChange: BehaviorSubject<Date>;
     public readonly endChange: BehaviorSubject<Date>;
     public readonly descChange: BehaviorSubject<string>;
+    public readonly categoryChange: BehaviorSubject<string>;
     public readonly fullDayChange: BehaviorSubject<boolean>;
     public readonly rrulesetChange: BehaviorSubject<RRuleSet | null>;
     public readonly privateChange: BehaviorSubject<boolean>;
@@ -96,6 +102,7 @@ export class CalendarEventCore {
         start: Date,
         end: Date,
         desc: string,
+        category: string,
         fullDay: boolean,
         rruleset: RRuleSet | null) {
 
@@ -106,6 +113,7 @@ export class CalendarEventCore {
         this.endChange = new BehaviorSubject<Date>(end);
         this.descChange = new BehaviorSubject<string>(desc);
         this.fullDayChange = new BehaviorSubject<boolean>(fullDay);
+        this.categoryChange = new BehaviorSubject<string>(category);
         this.rrulesetChange = new BehaviorSubject<RRuleSet | null>(rruleset);
         this.privateChange = new BehaviorSubject<boolean>(false);
     }
@@ -115,7 +123,7 @@ export class CalendarEventCore {
      * @returns 
      */
     public static empty(): CalendarEventCore {
-        return new CalendarEventCore('', '', '', new Date(), new Date(), '', false, null);
+        return new CalendarEventCore('', '', '', new Date(), new Date(), '', '', false, null);
     }
 
     /**
@@ -139,7 +147,7 @@ export class CalendarEventCore {
         }
         const start = new Date(json.start); // wird als UTC angeliefert!
         const end = new Date(json.end); // dito
-        return new CalendarEventCore(json.uuid, json.owner, json.title, start, end, json.desc, json.fullDay, ruleset);
+        return new CalendarEventCore(json.uuid, json.owner, json.title, start, end, json.desc, json.category, json.fullDay, ruleset);
     }
 
     /**
@@ -155,6 +163,7 @@ export class CalendarEventCore {
             start: new Date(this.start).getTime(),
             end: new Date(this.end).getTime(),
             desc: this.desc,
+            category: this.category,
             fullDay: this.fullDay,
             rruleset: this.rruleSet ? this.rruleSet.toString() : ''
         }
@@ -223,6 +232,16 @@ export class CalendarEventCore {
         return this.descChange.value;
     }
 
+    set category(val: string) {
+        if (this.categoryChange.value !== val) {
+            this.categoryChange.next(val);
+        }
+    }
+
+    get category(): string {
+        return this.categoryChange.value;
+    }
+
     set fullDay(val: boolean) {
         if (this.fullDayChange.value !== val) {
             this.fullDayChange.next(val);
@@ -271,7 +290,7 @@ export class CalendarEventCore {
      * 
      * @returns 
      */
-    public toFullcalendarEvent(): any {
+    public toFullcalendarEvent(categoryDescs: Map<string, string>): any {
 
         return {
             id: this.uuid,
@@ -280,8 +299,7 @@ export class CalendarEventCore {
             start: this.start,
             end: this.end,
             title: this.title,
-            backgroundColor: 'whitesmoke',
-            textColor: '#333'
+            color: categoryDescs.get(this.category)
         };
     }
 }

@@ -58,6 +58,7 @@ class RecurringRuleParser
                 .owner(baseEvent.getOwner()) //
                 .title(baseEvent.getTitle()) //
                 .desc(baseEvent.getDesc()) //
+                .category(baseEvent.getCategory()) //
                 .fullDay(baseEvent.isFullDay()) //
                 .rruleset(baseEvent.getRruleset()) //
                 .start(dateTime.getTimestamp()) //

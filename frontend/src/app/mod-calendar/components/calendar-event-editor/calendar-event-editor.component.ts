@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SessionService } from '../../../mod-session/session.module';
-import { CalendarAttachmentsService } from '../../services/calendar-attachments.service';
 import { CalendarService } from '../../services/calendar.service';
 import { CalendarEventFull } from '../../models/calendar-event-full';
 
@@ -34,7 +33,6 @@ export class CalendarEventEditorComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private calSvc: CalendarService,
-    private attachmentsSvc: CalendarAttachmentsService,
     private sessSvc: SessionService,
     private titlebarSvc: TitlebarService) {
 
@@ -67,7 +65,7 @@ export class CalendarEventEditorComponent implements OnInit {
   }
 
   /**
-   * Lade das Event andand seiner UUID
+   * Lade das Event anhand seiner UUID
    * 
    * @param uuid 
    */
@@ -143,7 +141,6 @@ export class CalendarEventEditorComponent implements OnInit {
    */
   onSave() {
 
-    console.dir(this.fullEvent);
     const saveRsp = this.fullEvent.core.uuid ? this.calSvc.saveEvent(this.fullEvent) : this.calSvc.createEvent(this.fullEvent);
     saveRsp.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(event => {

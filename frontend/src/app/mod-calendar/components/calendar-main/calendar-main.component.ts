@@ -18,6 +18,7 @@ import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { IDelta, RecurringRulsesetService } from '../../services/recurring-rulseset.service';
 import { CalendarService } from '../../services/calendar.service';
 import { CalendarEventCore } from '../../models/calendar-event-core';
+import { CalendarCategoriesService } from '../../services/calendar-categories.service';
 
 @Component({
   selector: 'app-calendar-main',
@@ -57,6 +58,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
   title: string = 'Test';
   viewMode: string = 'dayGridMonth';
   events: CalendarEventCore[] = new Array<CalendarEventCore>();
+  categories: Map<string, string> = new Map<string, string>();
 
   private loadEventsSubscribtion: Subscription | null = null;
 
@@ -69,8 +71,18 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
     private router: Router,
     private titleBarSvc: TitlebarService,
     private calSvc: CalendarService,
+    private calCatSvc: CalendarCategoriesService,
     private recurringSvc: RecurringRulsesetService) {
 
+    this.calCatSvc.getAllCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(catDescs => {
+
+        catDescs.map(catDesc => {
+          this.categories.set(catDesc.category, catDesc.color)
+        });
+        // this.categories = catDescs;
+      })
   }
 
   /**
@@ -127,7 +139,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
 
         this.events = result;
         const mapped = result.map(e => {
-          return e.toFullcalendarEvent();
+          return e.toFullcalendarEvent(this.categories);
         });
         onSuccess(mapped);
       });
@@ -263,7 +275,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
       const newEnd = this.recurringSvc.applyDateDelta(evt.end, delta);
       const newRuleSet = (evt.isRecurring) ? this.recurringSvc.adjustRRuleSet(currRuleSet, delta) : evt.rruleSet;
 
-      const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, newStart, newEnd, evt.desc, evt.fullDay, newRuleSet);
+      const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, newStart, newEnd, evt.desc, evt.category, evt.fullDay, newRuleSet);
       this.updateCoreEvent(newEvt);
     }
   }
@@ -282,7 +294,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
     if (evt) {
       const delta = info.endDelta as IDelta;
       const newEnd = this.recurringSvc.applyDateDelta(evt.end, delta)
-      const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, evt.start, newEnd, evt.desc, evt.fullDay, evt.rruleSet);
+      const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, evt.start, newEnd, evt.desc, evt.category, evt.fullDay, evt.rruleSet);
       this.updateCoreEvent(newEvt);
     }
   }
@@ -308,10 +320,10 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
    */
   onDeleteEvent(evt: CalendarEventCore) {
     this.calSvc.deleteEvent(evt)
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(_ => {
-      this.onReload();
-    });
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(_ => {
+        this.onReload();
+      });
   }
 
   /** 

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import org.knollinger.colab.calendar.dtos.CalendarEventCategoryDescriptionDTO;
 import org.knollinger.colab.calendar.dtos.CalendarEventCoreDTO;
 import org.knollinger.colab.calendar.dtos.CalendarEventFullDTO;
 import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
@@ -12,6 +13,7 @@ import org.knollinger.colab.calendar.mapper.ICalendarMapper;
 import org.knollinger.colab.calendar.models.CalendarEventCore;
 import org.knollinger.colab.calendar.models.CalendarEventFull;
 import org.knollinger.colab.calendar.services.ICalendarAttachmentsService;
+import org.knollinger.colab.calendar.services.ICalendarCategoriesService;
 import org.knollinger.colab.calendar.services.ICalendarService;
 import org.knollinger.colab.filesys.dtos.INodeDTO;
 import org.knollinger.colab.filesys.mapper.IFileSysMapper;
@@ -36,6 +38,9 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping(path = "v1/calendar")
 public class CalendarController
 {
+    @Autowired
+    private ICalendarCategoriesService catSvc;
+    
     @Autowired()
     private ICalendarService calSvc;
 
@@ -48,6 +53,22 @@ public class CalendarController
     @Autowired()
     private IFileSysMapper fileSysMapper;
 
+    /**
+     * @return
+     */
+    @GetMapping(path = "/categories/all")
+    public List<CalendarEventCategoryDescriptionDTO> getAllCatgories() {
+        
+        try
+        {
+            return this.calMapper.categoryToDTO(this.catSvc.getAllCategories());
+        }
+        catch (TechnicalCalendarException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+    }
+    
     /**
      * Lädt alle Kalender-Einträge zwischen dem angegebenen Start-Timestamp 
      * und dem angegebenen End-Timestamp

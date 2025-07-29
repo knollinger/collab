@@ -9,3 +9,7 @@
     font-size: large;
     margin-bottom: 0.5rem;
 }
+
+.content {
+    overflow: auto;
+}
