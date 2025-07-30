@@ -26,20 +26,9 @@ export class RecurringRulsesetService {
 
     if (rruleSet) {
 
-      
-      let rrules = rruleSet.rrules();
-      let exrules = rruleSet.exrules();
-      
-      // wenn um Tage verschoben werden soll, so sind auch die RRULEs und EXRULEs 
-      // anzupassen, da diese je nach Frequence Wochentage oder Monats-Tage 
-      // referenzieren.
-      if (delta.days) {
-        rrules = rruleSet.rrules().map(rule => this.adjustRRule(rule, delta));
-        exrules = rruleSet.exrules().map(rule => this.adjustRRule(rule, delta));
-      }
-      
       const result = new RRuleSet(true);
       
+      const rrules = rruleSet.rrules().map(rule => this.adjustRRule(rule, delta));
       rrules.forEach(rule => {
         result.rrule(rule);
       })
@@ -49,6 +38,7 @@ export class RecurringRulsesetService {
         result.rdate(date);
       })
       
+      const exrules = rruleSet.exrules().map(rule => this.adjustRRule(rule, delta));
       exrules.forEach(rule => {
         result.exrule(rule);
       })  
@@ -60,8 +50,6 @@ export class RecurringRulsesetService {
 
       rruleSet = result;
     }
-
-    console.log(rruleSet.toString());
     return rruleSet;
   }
 

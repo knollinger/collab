@@ -36,6 +36,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialDate: new Date(),
     nowIndicator: true,
+    businessHours: true,
     stickyHeaderDates: true,
     editable: true, // Events können via DnD verschoben/resized werden
     selectable: true, // Auswahl eines Time-Ranges via Maus
@@ -81,7 +82,6 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
         catDescs.map(catDesc => {
           this.categories.set(catDesc.category, catDesc.color)
         });
-        // this.categories = catDescs;
       })
   }
 
@@ -271,10 +271,10 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
 
       const delta = info.delta as IDelta;
       const currRuleSet = evt.rruleSet as RRuleSet;
-      const newStart = this.recurringSvc.applyDateDelta(evt.start, delta);
-      const newEnd = this.recurringSvc.applyDateDelta(evt.end, delta);
-      const newRuleSet = (evt.isRecurring) ? this.recurringSvc.adjustRRuleSet(currRuleSet, delta) : evt.rruleSet;
+      const newStart = info.event.start;
+      const newEnd = info.event.end;
 
+      const newRuleSet = (evt.isRecurring) ? this.recurringSvc.adjustRRuleSet(currRuleSet, delta) : evt.rruleSet;
       const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, newStart, newEnd, evt.desc, evt.category, evt.fullDay, newRuleSet);
       this.updateCoreEvent(newEvt);
     }

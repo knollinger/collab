@@ -15,9 +15,15 @@
               <mat-label>Typ</mat-label>
               <mat-select formControlName="category">
 
-                     <mat-option *ngFor="let cat of categories" [value]="cat.category">
-                            <mat-icon class="material-symbols-outlined" [style.color]="cat.color">rectangle</mat-icon>
-                            <span>{{cat.desc}}</span>
+                     <mat-option *ngFor="let cat of categories"
+                                 [value]="cat.category">
+                            <div class="cat-row">
+
+                                   <span class="cat-color"
+                                         [style.backgroundColor]="cat.color"></span>
+                                   <span class="cat-title">{{cat.desc}}</span>
+
+                            </div>
                      </mat-option>
 
               </mat-select>

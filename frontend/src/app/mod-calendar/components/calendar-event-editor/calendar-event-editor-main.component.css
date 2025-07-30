@@ -54,3 +54,23 @@
 mat-slide-toggle {
   margin-left: 1rem;
 }
+
+.cat-row {
+  display: flex;
+  align-items: center;
+}
+
+.cat-color{
+  display: inline-block;
+  flex: 0 0 auto;
+  margin-right: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.cat-text {
+  flex: 1 0 auto;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow: ellipsis;
+}
