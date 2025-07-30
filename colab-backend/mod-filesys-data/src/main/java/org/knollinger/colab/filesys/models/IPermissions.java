@@ -24,6 +24,7 @@ public interface IPermissions
     public static final short WRITE = 02;
     public static final short DELETE = 01;
     public static final short ALL_PERMS = READ | WRITE | DELETE;
+    public static final short NO_PERMS = 0;
 
     public static final short USR_PERMS_MASK = 0700;
     public static final short USR_PERMS_SHIFT = 6;

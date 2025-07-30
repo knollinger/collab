@@ -23,6 +23,7 @@ public class INode
     private Timestamp created;
     private Timestamp modified;
     private int perms;
+    private int effectivePerms;
 
     /**
      * 

@@ -128,13 +128,15 @@ public class FileSysServiceImpl implements IFileSysService
 
             UUID owner = UUID.fromString(rs.getString("owner"));
             UUID group = UUID.fromString(rs.getString("group"));
-
+            short perms = rs.getShort("perms");
+            
             INode inode = INode.builder() //
                 .uuid(uuid) //
                 .parent(UUID.fromString(rs.getString("parent"))) //
                 .owner(owner) //
                 .group(group)//
-                .perms(rs.getShort("perms")) //
+                .perms(perms) //
+                .effectivePerms(this.checkPermsSvc.getEffectivePermissions(perms, owner, group)) //
                 .name(rs.getString("name")) //
                 .type(rs.getString("type")) //
                 .size(rs.getLong("size")) //
@@ -183,12 +185,17 @@ public class FileSysServiceImpl implements IFileSysService
             rs = stmt.executeQuery();
             while (rs.next())
             {
+                UUID owner = UUID.fromString(rs.getString("owner"));
+                UUID group = UUID.fromString(rs.getString("group"));
+                short perms = rs.getShort("perms");
+                
                 INode inode = INode.builder() // 
                     .uuid(UUID.fromString(rs.getString("uuid"))) //
                     .parent(parentId) //
-                    .owner(UUID.fromString(rs.getString("owner"))) //
-                    .group(UUID.fromString(rs.getString("group"))) //
-                    .perms(rs.getShort("perms")) //
+                    .owner(owner) //
+                    .group(group) //
+                    .perms(perms) //
+                    .effectivePerms(this.checkPermsSvc.getEffectivePermissions(perms, owner, group)) //
                     .name(rs.getString("name")) //
                     .type(rs.getString("type")) //
                     .size(rs.getLong("size")) //
@@ -269,7 +276,7 @@ public class FileSysServiceImpl implements IFileSysService
 
             UUID currentUUID = uuid;
             while (!currentUUID.equals(EWellknownINodeIDs.NONE.value()))
-            {
+            {                
                 stmt.setString(1, currentUUID.toString());
                 rs = stmt.executeQuery();
                 if (!rs.next())
@@ -278,12 +285,17 @@ public class FileSysServiceImpl implements IFileSysService
                 }
                 else
                 {
+                    UUID owner = UUID.fromString(rs.getString("owner"));
+                    UUID group = UUID.fromString(rs.getString("group"));
+                    short perms = rs.getShort("perms");
+
                     INode node = INode.builder() // 
                         .uuid(currentUUID) //
                         .parent(UUID.fromString(rs.getString("parent"))) //
-                        .owner(UUID.fromString(rs.getString("owner"))) //
-                        .group(UUID.fromString(rs.getString("group"))) //
-                        .perms(rs.getShort("perms")) //
+                        .owner(owner) //
+                        .group(group) //
+                        .perms(perms) //
+                        .effectivePerms(this.checkPermsSvc.getEffectivePermissions(perms, owner, group)) //
                         .name(rs.getString("name")) //
                         .type(rs.getString("type")) //
                         .size(rs.getLong("size")) //

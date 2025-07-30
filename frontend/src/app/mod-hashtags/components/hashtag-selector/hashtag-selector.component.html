@@ -8,6 +8,10 @@
            [matAutocomplete]="auto"
            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
            (matChipInputTokenEnd)="onAdd($event)" />
+
+    <mat-icon class="material-symbols-outlined"
+              matSuffix>tag</mat-icon>
+
     <mat-autocomplete #auto="matAutocomplete"
                       hideSingleSelectionIndicator="true"
                       (optionSelected)="onAutoCompleteSelected($event)">
@@ -15,18 +19,21 @@
                   [value]="hashCode">
         {{hashCode}}
       </mat-option>
+      
     </mat-autocomplete>
 
     <mat-chip-grid color="primary"
                    #chipGrid>
+
       <mat-chip-row highlighted
                     color="primary"
                     *ngFor="let tag of tags"
                     (removed)="onRemove(tag)">
-        #{{tag}}
+        <span>#{{tag}}</span>
         <button matChipRemove>
           <mat-icon class="material-symbols-outlined">cancel</mat-icon>
         </button>
+
       </mat-chip-row>
     </mat-chip-grid>
   </mat-form-field>

@@ -32,13 +32,17 @@ public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsServi
 {
     private static final String FOLDER_NAME = ".calendar_attachments";
 
-    private static final String SQL_GET_ALL_ATTACHMENTS = "" //
-        + "select `uuid`, `name`, `parent`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
-        + "  where `uuid` in (" //
-        + "    select inodeId from `calendar_attachments`" //
-        + "      where `eventId`=?" //
-        + "  )";
+//    private static final String SQL_GET_ALL_ATTACHMENTS = "" //
+//        + "select `uuid`, `name`, `parent`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
+//        + "  where `uuid` in (" //
+//        + "    select inodeId from `calendar_attachments`" //
+//        + "      where `eventId`=?" //
+//        + "  )";
 
+    private static final String SQL_GET_ALL_ATTACHMENTS = "" //
+        + "select inodeId from `calendar_attachments`" //
+        + "  where `eventId`=?";
+    
     private static final String SQL_CREATE_ATTACHMENT_LINK = "" //
         + "insert into `calendar_attachments`" //
         + "  set `eventId`=?, `inodeId`=?";
@@ -80,23 +84,13 @@ public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsServi
             rs = stmt.executeQuery();
             while (rs.next())
             {
-                INode inode = INode.builder() //
-                    .uuid(UUID.fromString(rs.getString("uuid"))) //
-                    .name(rs.getString("name")) //
-                    .parent(UUID.fromString(rs.getString("parent"))) //
-                    .owner(UUID.fromString(rs.getString("owner"))) //
-                    .group(UUID.fromString(rs.getString("group")))//
-                    .perms(rs.getShort("perms")) //
-                    .type(rs.getString("type")) //
-                    .size(rs.getLong("size")) //
-                    .created(rs.getTimestamp("created")) //
-                    .modified(rs.getTimestamp("modified")) //
-                    .build();
+                UUID inodeId = UUID.fromString(rs.getString("inodeId"));
+                INode inode = this.fileSysSvc.getINode(inodeId, IPermissions.NO_PERMS, conn);
                 result.add(inode);
             }
             return result;
         }
-        catch (SQLException e)
+        catch (Exception e)
         {
             throw new TechnicalCalendarException("Die Anhänge für diesen Termin konnten nicht geladen werden.", e);
         }

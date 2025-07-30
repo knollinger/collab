@@ -1,6 +1,8 @@
 package org.knollinger.colab.filesys.services.impl;
 
 
+import java.util.UUID;
+
 import org.knollinger.colab.filesys.exceptions.AccessDeniedException;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.models.IPermissions;
@@ -42,27 +44,35 @@ public class CheckPermsServiceImpl implements ICheckPermsService
      */
     public int getEffectivePermissions(INode inode)
     {
-        int inodePerms = inode.getPerms();
+        return this.getEffectivePermissions(inode.getPerms(), inode.getOwner(), inode.getGroup());
+    }
 
-        int result = this.extractWorldPerms(inodePerms);
+
+    /**
+     * @param inode
+     * @return
+     */
+    public int getEffectivePermissions(int perms, UUID ownerId, UUID groupId)
+    {
+        int result = this.extractWorldPerms(perms);
         if (result != IPermissions.ALL_PERMS)
         {
             TokenPayload token = this.currUserSvc.get();
             if (!token.isEmpty())
             {
                 User user = token.getUser();
-                if (user.getUserId().equals(inode.getOwner()))
+                if (user.getUserId().equals(ownerId))
                 {
-                    result |= this.extractUserPerms(inodePerms);
+                    result |= this.extractUserPerms(perms);
                 }
 
                 if (result != IPermissions.ALL_PERMS)
                 {
                     for (Group group : token.getGroups())
                     {
-                        if (group.getUuid().equals(inode.getGroup()))
+                        if (group.getUuid().equals(groupId))
                         {
-                            result |= this.extractGroupPerms(inodePerms);
+                            result |= this.extractGroupPerms(perms);
                             break;
                         }
                     }
@@ -70,7 +80,9 @@ public class CheckPermsServiceImpl implements ICheckPermsService
             }
         }
         return result;
+
     }
+
 
     /**
      * 

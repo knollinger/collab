@@ -19,7 +19,6 @@ public interface ICalendarMapper
     public List<CalendarEventCategoryDescription> categoryFromDTO(List<CalendarEventCategoryDescriptionDTO> dto);
     public List<CalendarEventCategoryDescriptionDTO> categoryToDTO(List<CalendarEventCategoryDescription> event);
 
-
     public CalendarEventCore coreFromDTO(CalendarEventCoreDTO dto);
     public CalendarEventCoreDTO coreToDTO(CalendarEventCore event);
 

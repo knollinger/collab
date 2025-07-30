@@ -1,5 +1,7 @@
 package org.knollinger.colab.filesys.services;
 
+import java.util.UUID;
+
 import org.knollinger.colab.filesys.exceptions.AccessDeniedException;
 import org.knollinger.colab.filesys.models.INode;
 
@@ -10,6 +12,12 @@ public interface ICheckPermsService
      * @return
      */
     public int getEffectivePermissions(INode inode);
+
+    /**
+     * @param inode
+     * @return
+     */
+    public int getEffectivePermissions(int perms, UUID owner, UUID group);
 
     /**
      * 
