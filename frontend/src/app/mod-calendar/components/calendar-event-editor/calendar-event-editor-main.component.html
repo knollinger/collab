@@ -7,7 +7,7 @@
               <input matInput
                      appAutoFocus
                      formControlName="title">
-              <mat-error *ngIf="eventForm.get('title')!.hasError('required')">Bitte ausfüllen</mat-error>
+              <mat-error *ngIf="hasError('title', 'required')">Bitte ausfüllen</mat-error>
        </mat-form-field>
 
        <!-- Category -->
@@ -27,6 +27,7 @@
                      </mat-option>
 
               </mat-select>
+              <mat-error *ngIf="hasError('category', 'required')">Bitte ausfüllen</mat-error>
 
        </mat-form-field>
 
@@ -55,6 +56,7 @@
               <mat-datepicker-toggle matIconSuffix
                                      [for]="startDatePicker"></mat-datepicker-toggle>
               <mat-datepicker #startDatePicker></mat-datepicker>
+              <mat-error *ngIf="hasError('startDate', 'required')">Bitte ausfüllen</mat-error>
        </mat-form-field>
 
        <mat-form-field class="col-2"
@@ -63,6 +65,7 @@
               <input matInput
                      type="time"
                      formControlName="startTime">
+              <mat-error *ngIf="hasError('startTime', 'required')">Bitte ausfüllen</mat-error>
        </mat-form-field>
 
        <mat-form-field [class.col-3-4]="fullDayToggle.checked"
@@ -74,6 +77,7 @@
               <mat-datepicker-toggle matIconSuffix
                                      [for]="endDatePicker"></mat-datepicker-toggle>
               <mat-datepicker #endDatePicker></mat-datepicker>
+              <mat-error *ngIf="hasError('endDate', 'required')">Bitte ausfüllen</mat-error>
        </mat-form-field>
 
        <mat-form-field class="col-4"
@@ -82,6 +86,7 @@
               <input matInput
                      type="time"
                      formControlName="endTime">
+              <mat-error *ngIf="hasError('endTime', 'required')">Bitte ausfüllen</mat-error>
        </mat-form-field>
 
        <div class="col-1-4">

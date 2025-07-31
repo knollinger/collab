@@ -21,7 +21,6 @@ import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.user.exceptions.TechnicalLoginException;
 import org.knollinger.colab.user.models.Group;
 import org.knollinger.colab.user.models.TokenCreatorResult;
-import org.knollinger.colab.user.models.TokenPayload;
 import org.knollinger.colab.user.models.User;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.knollinger.colab.user.services.ITokenService;
@@ -117,7 +116,7 @@ public class WOPIControler
         {
             log.info("WOPI::getFileInfo for {}", fileId);
 
-            User currentUser = this.currUserSvc.get().getUser();
+            User currentUser = this.currUserSvc.getUser();
             INode inode = this.fileSysServive.getINode(fileId, IPermissions.READ);
 
             return WOPIFileInfoDTO.builder() //
@@ -278,11 +277,8 @@ public class WOPIControler
      */
     private String createAccessToken(INode inode) throws TechnicalLoginException
     {
-
-        TokenPayload currToken = this.currUserSvc.get();
-
         List<Group> groups = new ArrayList<>();
-        for (Group g : currToken.getGroups())
+        for (Group g : this.currUserSvc.getGroups())
         {
             if (g.getUuid().equals(inode.getGroup()))
             {
@@ -290,7 +286,7 @@ public class WOPIControler
                 break;
             }
         }
-        TokenCreatorResult accessToken = this.tokenUserSvc.createToken(currToken.getUser(), groups, TWO_HOURS_IN_MILLIES);
+        TokenCreatorResult accessToken = this.tokenUserSvc.createToken(this.currUserSvc.getUser(), groups, TWO_HOURS_IN_MILLIES);
         return accessToken.token();
     }
 

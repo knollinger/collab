@@ -1,6 +1,11 @@
 package org.knollinger.colab.user.services.impl;
 
+import java.util.Collections;
+import java.util.List;
+
+import org.knollinger.colab.user.models.Group;
 import org.knollinger.colab.user.models.TokenPayload;
+import org.knollinger.colab.user.models.User;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +26,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class CurrentUserServiceImpl implements ICurrentUserService
 {
-    private ThreadLocal<TokenPayload> currentUser = ThreadLocal.withInitial(() -> TokenPayload.empty());
+    private ThreadLocal<TokenPayload> tokenPayload = ThreadLocal.withInitial(() -> TokenPayload.empty());
+
+    /**
+     *
+     */
+    @Override
+    public void set(TokenPayload payload)
+    {
+        this.tokenPayload.set(payload);
+    }
 
     /**
      *
@@ -29,7 +43,7 @@ public class CurrentUserServiceImpl implements ICurrentUserService
     @Override
     public TokenPayload get()
     {
-        return this.currentUser.get();
+        return this.tokenPayload.get();
     }
 
     /**
@@ -38,15 +52,33 @@ public class CurrentUserServiceImpl implements ICurrentUserService
     @Override
     public void clear()
     {
-        this.currentUser.set(TokenPayload.empty());
+        this.tokenPayload.set(TokenPayload.empty());
     }
 
     /**
      *
      */
     @Override
-    public void set(TokenPayload payload)
+    public User getUser()
     {
-        this.currentUser.set(payload);
+        User user = null;
+        TokenPayload token = this.get();
+        if (token != null)
+        {
+            user = token.getUser();
+        }
+        return user;
+    }
+
+    @Override
+    public List<Group> getGroups()
+    {
+        List<Group> groups = null;
+        TokenPayload token = this.get();
+        if (token != null)
+        {
+            groups = Collections.unmodifiableList(token.getGroups());
+        }
+        return groups;
     }
 }

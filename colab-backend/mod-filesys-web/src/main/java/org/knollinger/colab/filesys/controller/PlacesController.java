@@ -42,7 +42,7 @@ public class PlacesController
     {
         try
         {
-            UUID userId = this.currUserSvc.get().getUser().getUserId();
+            UUID userId = this.currUserSvc.getUser().getUserId();
             return this.fileSysMapper.toDTO(this.placesSvc.getPlaces(userId));
         }
         catch (TechnicalFileSysException e)
@@ -59,7 +59,7 @@ public class PlacesController
     {
         try
         {
-            UUID userId = this.currUserSvc.get().getUser().getUserId();
+            UUID userId = this.currUserSvc.getUser().getUserId();
             this.placesSvc.addPlaces(userId, this.fileSysMapper.fromDTO(nodes));
         }
         catch (TechnicalFileSysException e)
@@ -80,7 +80,7 @@ public class PlacesController
     {
         try
         {
-            UUID userId = this.currUserSvc.get().getUser().getUserId();
+            UUID userId = this.currUserSvc.getUser().getUserId();
             this.placesSvc.deletePlace(userId, uuid);
         }
         catch (TechnicalFileSysException e)

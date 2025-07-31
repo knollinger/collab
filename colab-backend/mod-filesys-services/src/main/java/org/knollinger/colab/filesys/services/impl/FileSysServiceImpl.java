@@ -21,7 +21,6 @@ import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.models.IPermissions;
 import org.knollinger.colab.filesys.services.ICheckPermsService;
 import org.knollinger.colab.filesys.services.IFileSysService;
-import org.knollinger.colab.user.models.TokenPayload;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -479,10 +478,9 @@ public class FileSysServiceImpl implements IFileSysService
             this.getINode(parentId, IPermissions.WRITE, conn); // check existence and write perm for parent
 
             UUID uuid = UUID.randomUUID();
-            TokenPayload token = this.currUserSvc.get();
             // TODO: Parent existenz und isDirectory testen
 
-            UUID userId = token.getUser().getUserId();
+            UUID userId = this.currUserSvc.getUser().getUserId();
             int perms = IPermissions.USR_READ | //
                 IPermissions.USR_WRITE | //
                 IPermissions.USR_DELETE | //
@@ -543,8 +541,7 @@ public class FileSysServiceImpl implements IFileSysService
             this.getINode(parentId, IPermissions.WRITE, conn); // check existence and write perm for parent
 
             UUID uuid = UUID.randomUUID();
-            TokenPayload token = this.currUserSvc.get();
-            UUID userId = token.getUser().getUserId();
+            UUID userId = this.currUserSvc.getUser().getUserId();
 
             int perms = IPermissions.USR_READ | //
                 IPermissions.USR_WRITE | //

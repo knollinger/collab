@@ -239,7 +239,7 @@ public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsServi
     private INode getCalAttachmentsBaseFolder(Connection conn) throws TechnicalCalendarException
     {
 
-        UUID user = this.currUserSvc.get().getUser().getUserId();
+        UUID user = this.currUserSvc.getUser().getUserId();
         return this.getOrCreateFolder(user, FOLDER_NAME, conn);
 
     }

@@ -23,6 +23,7 @@ import { CalendarEventEditorFilesComponent } from './components/calendar-event-e
 import { CalendarEventMenuComponent } from './components/calendar-event-menu/calendar-event-menu.component';
 
 import { ModCalendarRoutingModule } from './mod-calendar-routing.module';
+import { ModSettingsModule } from '../mod-settings/mod-settings.module';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { ModCalendarRoutingModule } from './mod-calendar-routing.module';
     ModHashTagsModule,
     ModFilesModule,
     ModFilesDataModule,
+    ModSettingsModule,
     ModCalendarRoutingModule,
   ],
   exports: [

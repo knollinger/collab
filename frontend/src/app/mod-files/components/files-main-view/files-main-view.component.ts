@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SessionService } from '../../../mod-session/session.module';
+import { SettingsService } from '../../../mod-settings/mod-settings.module';
 
 import { FilesFolderViewComponent } from '../files-folder-view/files-folder-view.component';
 
@@ -27,14 +28,16 @@ export class FilesMainViewComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  public viewMode: string = 'grid';
-  public iconSize: number = 128;
+  // public viewMode: string = 'grid';
+  // public iconSize: number = 128;
 
   @ViewChild('leftPane')
   leftPane: FilesFolderViewComponent | null = null;
 
   @ViewChild('rightPane')
   rightPane: FilesFolderViewComponent | null = null;
+
+  private settings: any = {}
 
   /**
    * 
@@ -46,7 +49,8 @@ export class FilesMainViewComponent implements OnInit {
     private titlebarSvc: TitlebarService,
     private inodeSvc: INodeService,
     private clipboardSvc: ClipboardService,
-    private sessionSvc: SessionService) {
+    private sessionSvc: SessionService,
+    private settingsSvc: SettingsService) {
 
   }
 
@@ -57,6 +61,8 @@ export class FilesMainViewComponent implements OnInit {
 
     this.titlebarSvc.subTitle = 'Dateien';
 
+    this.loadSettings();
+    
     this.route.params
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
@@ -83,6 +89,63 @@ export class FilesMainViewComponent implements OnInit {
             }
           })
       });
+  }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about the settings                                                  */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
+  /**
+   * 
+   */
+  private loadSettings() {
+
+    this.settingsSvc.getDomainSettings('files')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(settings => {
+        this.settings = settings;
+      })
+  }
+
+  /**
+   * 
+   */
+  get viewMode(): string {
+
+    return this.settings['viewMode'] || 'grid';
+  }
+
+  /**
+   * 
+   */
+  set viewMode(mode: string) {
+
+    if(mode && mode !== this.settings['viewMode']) {
+      this.settings['viewMode'] = mode;
+      this.settingsSvc.setDomainSettings('files', this.settings);
+
+    }
+  }
+
+  /**
+   * 
+   */
+  get iconSize(): number {
+
+    return this.settings['iconSize'] || 128;
+  }
+
+  /**
+   * 
+   */
+  set iconSize(size: number) {
+
+    if(size !== this.settings['iconSize']) {
+      this.settings['iconSize'] = size;
+      this.settingsSvc.setDomainSettings('files', this.settings);
+    }
   }
 
   /**
@@ -128,7 +191,7 @@ export class FilesMainViewComponent implements OnInit {
    */
   get hasSelection(): boolean {
 
-    const pane = this.currentPane; 
+    const pane = this.currentPane;
     return pane && pane.selectedINodes.size > 0;
   }
 

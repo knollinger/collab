@@ -18,7 +18,6 @@ import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.exceptions.UploadException;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.services.IUploadService;
-import org.knollinger.colab.user.models.TokenPayload;
 import org.knollinger.colab.user.models.User;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.knollinger.colab.utils.services.IDbService;
@@ -83,13 +82,11 @@ public class UploadServiceImpl implements IUploadService
     {
         try
         {
-            TokenPayload token = this.currUserSvc.get();
-
             List<INode> result = new ArrayList<>();
             List<INode> duplicates = new ArrayList<>();
             for (MultipartFile file : files)
             {
-                INode node = this.handleOneFile(parentUUID, file, token.getUser(), conn);
+                INode node = this.handleOneFile(parentUUID, file, this.currUserSvc.getUser(), conn);
                 if (node != null)
                 {
                     result.add(node);

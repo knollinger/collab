@@ -19,6 +19,7 @@ import { IDelta, RecurringRulsesetService } from '../../services/recurring-rulse
 import { CalendarService } from '../../services/calendar.service';
 import { CalendarEventCore } from '../../models/calendar-event-core';
 import { CalendarCategoriesService } from '../../services/calendar-categories.service';
+import { SettingsService } from '../../../mod-settings/services/settings.service';
 
 @Component({
   selector: 'app-calendar-main',
@@ -56,12 +57,12 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
   @ViewChild('eventMenu')
   eventMenu!: CalendarEventMenuComponent;
 
-  title: string = 'Test';
-  viewMode: string = 'dayGridMonth';
+  title: string = '';
   events: CalendarEventCore[] = new Array<CalendarEventCore>();
   categories: Map<string, string> = new Map<string, string>();
 
   private loadEventsSubscribtion: Subscription | null = null;
+  private settings: any = {};
 
   /**
    * 
@@ -73,7 +74,8 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
     private titleBarSvc: TitlebarService,
     private calSvc: CalendarService,
     private calCatSvc: CalendarCategoriesService,
-    private recurringSvc: RecurringRulsesetService) {
+    private recurringSvc: RecurringRulsesetService,
+    private settingsSvc: SettingsService) {
 
     this.calCatSvc.getAllCategories()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -88,8 +90,22 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
   /**
    * 
    */
+  private loadSettings() {
+
+    this.settingsSvc.getDomainSettings('calendar')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(settings => {
+        this.settings = settings;
+        this.calendar.getApi().changeView(this.viewMode);
+      })
+  }
+
+  /**
+   * 
+   */
   ngAfterViewInit(): void {
     this.titleBarSvc.subTitle = 'Kalender';
+    this.loadSettings();
   }
 
   /**
@@ -178,6 +194,25 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
         this.eventMenu.show(jsEvent, event, currStart);
       }
     })
+  }
+
+  /**
+   * 
+   */
+  get viewMode(): string {
+    return this.settings['viewMode'] || 'dayGridMonth';
+  }
+
+  /**
+   * 
+   */
+  set viewMode(val: string) {
+
+    if (val) {
+      this.settings['viewMode'] = val;
+      this.calendar.getApi().changeView(val);
+      this.settingsSvc.setDomainSettings('calendar', this.settings);
+    }
   }
 
   /**

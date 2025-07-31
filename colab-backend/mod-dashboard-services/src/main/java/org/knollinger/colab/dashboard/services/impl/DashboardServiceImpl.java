@@ -64,7 +64,7 @@ public class DashboardServiceImpl implements IDashboardService
             List<DashboardWidgetDesc> result = new ArrayList<>();
             conn = this.dbSvc.openConnection();
             stmt = conn.prepareStatement(SQL_GET_WIDGETS);
-            stmt.setString(1, this.userSvc.get().getUser().getUserId().toString());
+            stmt.setString(1, this.userSvc.getUser().getUserId().toString());
             rs = stmt.executeQuery();
             while (rs.next())
             {
@@ -103,7 +103,7 @@ public class DashboardServiceImpl implements IDashboardService
         try
         {
             UUID uuid = UUID.randomUUID();
-            UUID userId = this.userSvc.get().getUser().getUserId();
+            UUID userId = this.userSvc.getUser().getUserId();
             conn = this.dbSvc.openConnection();
             stmt = conn.prepareStatement(SQL_ADD_WIDGET);
             stmt.setString(1, uuid.toString());
@@ -190,7 +190,7 @@ public class DashboardServiceImpl implements IDashboardService
         {
             conn = this.dbSvc.openConnection();
             stmt = conn.prepareStatement(SQL_ADD_LINK);
-            stmt.setString(1, this.userSvc.get().getUser().getUserId().toString());
+            stmt.setString(1, this.userSvc.getUser().getUserId().toString());
             stmt.setString(2, refId.toString());
             stmt.setString(3, refType);
             stmt.executeUpdate();
@@ -221,7 +221,7 @@ public class DashboardServiceImpl implements IDashboardService
         {
             conn = this.dbSvc.openConnection();
             stmt = conn.prepareStatement(SQL_DELETE_LINK);
-            stmt.setString(1, this.userSvc.get().getUser().getUserId().toString());
+            stmt.setString(1, this.userSvc.getUser().getUserId().toString());
             stmt.setString(2, refId.toString());
             stmt.executeUpdate();
         }

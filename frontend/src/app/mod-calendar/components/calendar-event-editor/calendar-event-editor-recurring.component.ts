@@ -137,7 +137,7 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
       weekDays: new FormControl(''),
       monthDays: new FormControl(''),
       repMode: new FormControl('', Validators.required),
-      repUntil: new FormControl(''),
+      repUntil: new FormControl(null),
       repCount: new FormControl(2, [Validators.required, Validators.min(2)])
     });
 
@@ -189,9 +189,9 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
     let valid: boolean = true;
     if (this.isRecurring) {
 
-      valid = this.recurringForm.valid;
       this.recurringForm.markAllAsTouched();
-
+      
+      valid = this.recurringForm.valid;
       if (valid) {
         this.rruleSetFromFormData();
       }
@@ -232,6 +232,7 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
    */
   onRepeatModeChange(val: string) {
 
+    console.log('onRepModeChange');
     switch (val) {
 
       case 'REPEAT_INFINITE':
@@ -278,6 +279,7 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
       this.isRecurring = false;
     }
     else {
+      this.isRecurring = true;
 
       const rule = (ruleSet.rrules() as RRule[])[0];
       const ruleOpts = rule!.options;
@@ -296,10 +298,12 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
       this.calcOccurrences();
 
       this.recurringForm.setValue(val);
+      
+      this.onFrequenceChange(val.repeatFreq);
+      this.onRepeatModeChange(val.repMode);
       this.recurringForm.updateValueAndValidity();
+      
       valid = this.recurringForm.valid;
-
-      this.isRecurring = true;
     }
     this.valid.emit(valid);
   }

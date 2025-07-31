@@ -47,7 +47,7 @@ public class DashboardINodesServiceImpl implements IDashboardINodesService
 
         try
         {
-            UUID userId = currUserSvc.get().getUser().getUserId();
+            UUID userId = currUserSvc.getUser().getUserId();
             List<INode> result = new ArrayList<>();
 
             conn = this.dbSvc.openConnection();

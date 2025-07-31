@@ -280,7 +280,7 @@ public class CalendarServiceImpl implements ICalendarService
             stmt = conn.prepareStatement(SQL_CREATE_EVENT_CORE);
 
             stmt.setString(1, uuid.toString());
-            stmt.setString(2, this.currUserSvc.get().getUser().getUserId().toString());
+            stmt.setString(2, this.currUserSvc.getUser().getUserId().toString());
             stmt.setTimestamp(3, new Timestamp(evt.getStart()));
             stmt.setTimestamp(4, new Timestamp(evt.getEnd()));
             stmt.setString(5, evt.getTitle());

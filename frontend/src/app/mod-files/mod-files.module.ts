@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModUserDataModule } from '../mod-userdata/mod-userdata.module';
 import { ModFilesDataModule } from '../mod-files-data/mod-files-data.module';
+import { ModSettingsModule } from '../mod-settings/mod-settings.module';
 
 import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
@@ -76,6 +77,7 @@ export { WopiService };
     ModFilesDataModule,
     ModUserDataModule,
     ModHashTagsModule,
+    ModSettingsModule,
     ModMaterialImportModule,
     FormsModule,
     ReactiveFormsModule,

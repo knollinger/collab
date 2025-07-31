@@ -235,8 +235,21 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
     return result;
   }
 
-  // getColorFor(category: string): string {
 
-  //   return this.categories.get(category) || 'unset';
-  // }
+  /**
+   * 
+   * @param elemName 
+   * @param errName 
+   * @returns 
+   */
+  hasError(elemName: string, errName: string): boolean {
+
+    let result = false;
+
+    const elem = this.eventForm.get(elemName);
+    if (elem) {
+      result = elem.hasError(errName);
+    }
+    return result;
+  }
 }
