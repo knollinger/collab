@@ -7,14 +7,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 
-import { SettingsMainComponent } from './components/settions-main/settings-main.component';
-
 import { SettingsService } from './services/settings.service';
 export { SettingsService }
 
 @NgModule({
   declarations: [
-    SettingsMainComponent
   ],
   imports: [
     CommonModule,

@@ -93,7 +93,7 @@ export class UserMainEditComponent implements OnInit {
 
   onDeleteUser() {
 
-    const msg = `Möchtest Du wirklich den Benutzer ${this.user.accountName} löschen?<br>Es werden alle Daten, Termine... gelöscht!`;
+    const msg = `Möchtest Du wirklich den Benutzer ${this.user.accountName} löschen?<br>Es werden alle Dateien, Termine, ... gelöscht!`;
     this.msgBoxSvc.showQueryBox('Bist Du sicher?', msg)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(rsp => {

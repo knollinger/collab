@@ -14,25 +14,13 @@
                                     [appINodeDragSourceSelectedINodes]="selectedINodes"
                                     [appDropTarget]="inode"
                                     [iconSize]="iconSize"
-                                    (contextmenu)="contextMenu.show(inode, $event)"
+                                    (contextmenu)="onShowContextMenu($event, inode)"
                                     (inodesDropped)="onINodesDropped($event)"
                                     (filesDropped)="onFilesDropped($event)"
                                     (select)="onSelect(inode, $event)"
                                     (click)="onOpen(inode)">
           </app-files-grid-view-item>
      </div>
-
-     <app-files-item-context-menu #contextMenu
-                                  (open)="onOpen($event)"
-                                  (create)="onCreate($event)"
-                                  (rename)="onRename($event)"
-                                  (delete)="onDelete($event)"
-                                  (cut)="onCut($event)"
-                                  (copy)="onCopy($event)"
-                                  (paste)="onPaste($event)"
-                                  (sendToDashboard)="onSendToDashboard($event)"
-                                  (showProps)="onShowProps($event)">
-     </app-files-item-context-menu>
 
      <app-files-frame-selector *ngIf="showSelectionFrame"
                                (selRectChange)="onSelRectChange(outer, $event)"

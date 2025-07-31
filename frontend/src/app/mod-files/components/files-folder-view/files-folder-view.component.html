@@ -1,7 +1,6 @@
 <div class="full-height disp-flex flex-col">
 
-    <div
-         class="breadcrumb small-bottom-lightgray-border flex-0 disp-flex flex-row flex-alignitems-center">
+    <div class="breadcrumb small-bottom-lightgray-border flex-0 disp-flex flex-row flex-alignitems-center">
         <app-files-bread-crumb-item *ngFor="let inode of path"
                                     [inode]="inode"
                                     (open)="onOpen($event)"></app-files-bread-crumb-item>
@@ -17,24 +16,16 @@
              (inodesDropped)="inodeDropMenu.show($event)">
 
             <app-files-grid-view *ngSwitchCase="'grid'"
-                                 [class.mat-elevation-z4]="active"
                                  [inodes]="inodes"
                                  [iconSize]="iconSize"
                                  [selectedINodes]="selectedINodes"
                                  [showSelectionFrame]="showSelectionFrame"
+                                 (open)="onOpen($event)"
                                  (selectionChange)="onSelectionChange($event)"
                                  (selectionFrameClosed)="onSelectionFrameClosed()"
                                  (filesDropped)="onFilesDropped($event)"
                                  (inodesDropped)="inodeDropMenu.show($event)"
-                                 (open)="onOpen($event)"
-                                 (create)="onCreateDocument($event)"
-                                 (rename)="onRename($event)"
-                                 (delete)="onDelete($event)"
-                                 (cut)="onCut($event)"
-                                 (copy)="onCopy($event)"
-                                 (paste)="onPaste()"
-                                 (sendToDashboard)="onSendToDashboard($event)"
-                                 (showProps)="onShowProps($event)">
+                                 (showContextMenu)="itemContextMenu.show($event.inode, $event.orgEvt)">
             </app-files-grid-view>
 
             <app-files-list-view *ngSwitchCase="'list'"
@@ -47,22 +38,28 @@
                                  (filesDropped)="onFilesDropped($event)"
                                  (inodesDropped)="inodeDropMenu.show($event)"
                                  (open)="onOpen($event)"
-                                 (create)="onCreateDocument($event)"
-                                 (rename)="onRename($event)"
-                                 (delete)="onDelete($event)"
-                                 (cut)="onCut($event)"
-                                 (copy)="onCopy($event)"
-                                 (paste)="onPaste()"
-                                 (sendToDashboard)="onSendToDashboard($event)"
-                                 (showProps)="onShowProps($event)">
+                                 (showContextMenu)="itemContextMenu.show($event.inode, $event.orgEvt)">
             </app-files-list-view>
 
-            <app-files-table-view *ngSwitchCase="'table'"></app-files-table-view>
 
             <h1 *ngSwitchDefault>
                 Kein Viewer für den ViewMode <b>'{{viewMode}}'</b> definiert.
             </h1>
         </div>
+
+        <app-files-item-context-menu #itemContextMenu
+                                     (open)="onOpen($event)"
+                                     (create)="onCreateDocument($event)"
+                                     (rename)="onRename($event)"
+                                     (delete)="onDelete($event)"
+                                     (cut)="onCut($event)"
+                                     (copy)="onCopy($event)"
+                                     (paste)="onPaste()"
+                                     (sendToDashboard)="onSendToDashboard($event)"
+                                     (showProps)="onShowProps($event)">
+        </app-files-item-context-menu>
+
+
 
         <!-- Das ContextMenu für den Folder selbst -->
         <app-files-folder-context-menu #contextMenu
@@ -78,7 +75,8 @@
     </div>
 
 
-    <app-toolbar class="flex-0 small-top-lightgray-border" *ngIf="showStatusBar">
+    <app-toolbar class="flex-0 small-top-lightgray-border"
+                 *ngIf="showStatusBar">
         Gesamt: {{inodes.length}} Objekte mit {{allObjectsSize | fileSize}}
         <div *ngIf="selectedINodes.size">
             <app-toolbar-separator></app-toolbar-separator>

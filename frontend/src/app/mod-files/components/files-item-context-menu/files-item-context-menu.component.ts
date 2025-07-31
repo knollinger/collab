@@ -10,6 +10,13 @@ import { CreateMenuEvent } from '../files-create-menu/files-create-menu.componen
 import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { ClipboardService } from '../../services/clipboard.service';
 
+export class ShowFilesItemContextMenuEvent {
+
+  constructor(public readonly orgEvt: MouseEvent, public readonly inode: INode) {
+    
+  }
+}
+
 @Component({
   selector: 'app-files-item-context-menu',
   templateUrl: './files-item-context-menu.component.html',

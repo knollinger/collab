@@ -5,6 +5,7 @@ import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { INodeDroppedEvent, FilesDroppedEvent } from '../../directives/drop-target.directive';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 import { extractSelectedINodes } from '../files-frame-selector/files-frame-selector.component';
+import { ShowFilesItemContextMenuEvent } from '../files-item-context-menu/files-item-context-menu.component';
 
 /**
  * Stellt den GridView dar.
@@ -38,6 +39,9 @@ export class FilesGridViewComponent implements OnInit {
   selectedINodes: Set<INode> = new Set<INode>();
 
   @Output()
+  open: EventEmitter<INode> = new EventEmitter<INode>();
+
+  @Output()
   selectionChange: EventEmitter<Set<INode>> = new EventEmitter<Set<INode>>();
 
   @Input()
@@ -49,38 +53,14 @@ export class FilesGridViewComponent implements OnInit {
   @Output()
   filesDropped: EventEmitter<FilesDroppedEvent> = new EventEmitter<FilesDroppedEvent>();
 
-  @Output()
-  open: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  create: EventEmitter<CreateMenuEvent> = new EventEmitter<CreateMenuEvent>();
-
-  @Output()
-  rename: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  delete: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  cut: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  copy: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  paste: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  sendToDashboard: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Output()
-  showProps: EventEmitter<INode> = new EventEmitter<INode>();
-
   @Input()
   showSelectionFrame: boolean = false;
 
   @Output()
   selectionFrameClosed: EventEmitter<void> = new EventEmitter<void>();
+
+  @Output()
+  showContextMenu: EventEmitter<ShowFilesItemContextMenuEvent> = new EventEmitter<ShowFilesItemContextMenuEvent>();
 
   /**
    * 
@@ -91,7 +71,7 @@ export class FilesGridViewComponent implements OnInit {
 
   /**
    * 
-  */
+   */
   ngOnInit(): void {
   }
 
@@ -175,100 +155,23 @@ export class FilesGridViewComponent implements OnInit {
   }
 
   /**
-   * An einem GridViewItem wurde ein open() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
    * 
-   * @param inode 
+   * @param idx 
+   * @returns 
    */
+  mustBreak(idx: number): boolean {
+
+    return (idx > 0 && this.inodes[idx - 1].isDirectory() && !this.inodes[idx].isDirectory());
+  }
+
   onOpen(inode: INode) {
     this.open.emit(inode);
   }
 
-  /**
-   * 
-   * @param evt 
-   */
-  onCreate(evt: CreateMenuEvent) {
-    this.create.emit(evt);
-  }
+  onShowContextMenu(evt: MouseEvent, inode: INode) {
 
-  /**
-   * An einem GridViewItem wurde ein rename() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
-   * 
-   * @param inode 
-   */
-  onRename(inode: INode) {
-    this.rename.emit(inode);
-  }
-
-  /**
-   * An einem GridViewItem wurde ein delete() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
-   * 
-   * @param inode 
-   */
-  onDelete(inode: INode) {
-    this.delete.emit(inode);
-  }
-
-  /**
-   * An einem GridViewItem wurde ein cut() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
-   * 
-   * @param inode 
-   */
-  onCut(inode: INode) {
-    this.cut.emit(inode);
-  }
-
-  /**
-   * An einem GridViewItem wurde ein copy() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
-   * 
-   * @param inode 
-   */
-  onCopy(inode: INode) {
-    this.copy.emit(inode);
-  }
-
-  /**
-   * An einem GridViewItem wurde ein paste() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
-   * 
-   * @param inode 
-   */
-  onPaste(inode: INode) {
-    this.paste.emit(inode);
-  }
-
-  /**
-   * 
-   * @param inode 
-   */
-  onSendToDashboard(inode: INode) {
-    this.sendToDashboard.emit(inode);
-  }
-
-  /**
-   * An einem GridViewItem wurde ein showProps() angefordert.
-   * Wir behandeln das nicht selber sondern geben das 
-   * einfach an den Parent weiter
-   * 
-   * @param inode 
-   */
-  onShowProps(inode: INode) {
-    this.showProps.emit(inode);
-  }
-
-  mustBreak(idx: number): boolean {
-
-    return (idx > 0 && this.inodes[idx - 1].isDirectory() && !this.inodes[idx].isDirectory());
+    evt.stopPropagation();
+    evt.preventDefault();
+    this.showContextMenu.emit(new ShowFilesItemContextMenuEvent(evt, inode));
   }
 }

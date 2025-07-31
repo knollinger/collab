@@ -23,6 +23,7 @@ public class DeleteUserServiceImpl implements IDeleteUserService
     private static final String SQL_DELETE_GROUP_MEMBERS = "delete from group_members where memberId=?";
     private static final String SQL_DELETE_PRIMARY_GROUP = "delete from groups where uuid=?";
     private static final String SQL_DELETE_CALENDAR = "delete from calendar where owner=?";
+    private static final String SQL_DELETE_SETTINGS = "delete from settings where owner=?";
     private static final String SQL_DELETE_DASHBOARD_LINKS = "delete from dashboard_links where owner=?";
     private static final String SQL_DELETE_DASHBOARD_WIDGETS = "delete from dashboard_widgets where owner=?";
     private static final String SQL_DELETE_USER = "delete from user where uuid=?";
@@ -33,7 +34,8 @@ public class DeleteUserServiceImpl implements IDeleteUserService
         DeleteUserServiceImpl.SQL_DELETE_GROUP_MEMBERS, //
         DeleteUserServiceImpl.SQL_DELETE_PRIMARY_GROUP, //
         DeleteUserServiceImpl.SQL_DELETE_CALENDAR, //
-        DeleteUserServiceImpl.SQL_DELETE_DASHBOARD_LINKS, // = "delete from dashboard_links where owner=?";
+        DeleteUserServiceImpl.SQL_DELETE_SETTINGS, //
+        DeleteUserServiceImpl.SQL_DELETE_DASHBOARD_LINKS,
         DeleteUserServiceImpl.SQL_DELETE_DASHBOARD_WIDGETS, //
         DeleteUserServiceImpl.SQL_DELETE_USER //
     };
