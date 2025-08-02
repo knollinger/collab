@@ -9,8 +9,6 @@ import { ModFilesDataModule } from '../mod-files-data/mod-files-data.module';
 
 import { DashboardMainComponent } from './components/dashboard-main/dashboard-main.component';
 import { ModDashboardRoutingModule } from './mod-dashboard-routing.module';
-import { DashboardDockComponent } from './components/dashboard-dock/dashboard-dock.component';
-import { DashboardWorkspaceComponent } from './components/dashboard-workspace/dashboard-workspace.component';
 import { DashboardWidget } from './components/dashboard-widget/dashboard-widget.component';
 import { FilesWidgetComponent } from './components/widgets/files-widget/files-widget.component';
 import { CalendarWidgetComponent } from './components/widgets/calendar-widget/calendar-widget.component';
@@ -22,8 +20,6 @@ import { DashboardUnknownWidgetTypeComponent } from './components/widgets/dashbo
 @NgModule({
   declarations: [
     DashboardMainComponent,
-    DashboardDockComponent,
-    DashboardWorkspaceComponent,
     DashboardWidget,
     FilesWidgetComponent,
     CalendarWidgetComponent,

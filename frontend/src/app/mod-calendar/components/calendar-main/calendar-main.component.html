@@ -53,13 +53,27 @@
               *ngIf="viewMode === 'timeGridWeek'">{{date | date:"'Kalenderwoche' ww/YYYY"}}</span>
         <span class="title"
               *ngIf="viewMode === 'dayGridMonth'">{{date | date:"MMM YYYY"}}</span>
+        <span class="title"
+              *ngIf="viewMode === 'listYear'">{{date | date:"YYYY"}}</span>
 
         <mat-button-toggle-group class="view-mode"
                                  [value]="viewMode"
                                  (change)="onViewModeChange($event)">
-            <mat-button-toggle value="timeGridDay">Tag</mat-button-toggle>
-            <mat-button-toggle value="timeGridWeek">Woche</mat-button-toggle>
-            <mat-button-toggle value="dayGridMonth">Monat</mat-button-toggle>
+            <mat-button-toggle value="timeGridDay" matTooltip="Tages-Ansicht">
+                <mat-icon class="material-symbols-outlined">calendar_view_day</mat-icon>
+            </mat-button-toggle>
+
+            <mat-button-toggle value="timeGridWeek" matTooltip="Wochen-Ansicht">
+                <mat-icon class="material-symbols-outlined">calendar_view_week</mat-icon>
+            </mat-button-toggle>
+            
+            <mat-button-toggle value="dayGridMonth" matTooltip="Monats-Ansicht">
+                <mat-icon class="material-symbols-outlined">calendar_view_month</mat-icon>
+            </mat-button-toggle>
+            
+            <mat-button-toggle value="listYear" matTooltip="Listen-Ansicht">
+                <mat-icon class="material-symbols-outlined">list</mat-icon>
+            </mat-button-toggle>
         </mat-button-toggle-group>
 
     </div>

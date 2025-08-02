@@ -51,6 +51,8 @@ export class FilesFolderViewComponent implements OnInit {
   @Input()
   viewMode: string = 'grid';
 
+  private _showHidden: boolean = false;
+
   @Input()
   active: boolean = false;
 
@@ -114,21 +116,33 @@ export class FilesFolderViewComponent implements OnInit {
     }
   }
 
+  @Input()
+  public set showHidden(val: boolean) {
+    this._showHidden = val;
+    this.reloadEntries();
+  }
+  public get showHidden(): boolean {
+    return this._showHidden;
+  }
+
   /**
    * 
    */
   public reloadEntries() {
 
+    if (!this.currentFolder.isEmpty()) {
 
-    this.inodeSvc.getAllChilds(this.currentFolder.uuid)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(inodes => {
+      this.inodeSvc.getAllChilds(this.currentFolder.uuid)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(inodes => {
 
-       this.inodes = inodes.filter(node => !node.isHidden());
-        this.selectableINodes = this.extractSelectableNodes(inodes);
-        this.selectedINodes.clear();
-        this.previewINode = INode.empty();
-      });
+          console.log('this.reloadEntries');
+          this.inodes = this.showHidden ? inodes : inodes.filter(node => !node.isHidden());
+          this.selectableINodes = this.extractSelectableNodes(inodes);
+          this.selectedINodes.clear();
+          this.previewINode = INode.empty();
+        });
+    }
   }
 
   /**
@@ -213,7 +227,7 @@ export class FilesFolderViewComponent implements OnInit {
     })
     this.selectedINodes = inodes;
     this.selectionChanged.emit(this.selectedINodes);
-    
+
   }
 
   /**

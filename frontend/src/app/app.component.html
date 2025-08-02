@@ -4,20 +4,25 @@
 
         <button mat-icon-button
                 class="toolbar-btn"
-                *ngIf="isShowMenu"
                 (click)="navMenu.toggle()"
                 matTooltip="Menü">
             <mat-icon class="material-symbols-outlined">menu</mat-icon>
         </button>
 
+        <!-- <button mat-icon-button
+                class="toolbar-btn"
+                *ngFor="let item of menuItems"
+                [routerLink]="item.route"
+                [matTooltip]="item.title">
+            <mat-icon class="material-symbols-outlined">{{item.icon}}</mat-icon>
+        </button> -->
+
         <button mat-icon-button
                 class="toolbar-btn"
-                *ngIf="isShowDashboard"
                 routerLink="/dashboard"
                 matTooltip="Dashboard">
             <mat-icon class="material-symbols-outlined">dashboard</mat-icon>
         </button>
-
 
         <span class="toolbar-title">{{title}}</span>
 
@@ -39,55 +44,12 @@
                     (click)="navMenu.close()">
 
             <button mat-menu-item
-                    routerLink="/dashboard">
-                <mat-icon class="material-symbols-outlined">dashboard</mat-icon>
-                <span>Dashboard</span>
+                    *ngFor="let item of menuItems"
+                    [routerLink]="item.route">
+                <mat-icon class="material-symbols-outlined">{{item.icon}}</mat-icon>
+                <span>{{item.title}}</span>
             </button>
 
-            <button mat-menu-item
-                    routerLink="/files/main">
-                <mat-icon class="material-symbols-outlined">folder</mat-icon>
-                <span>Dateien</span>
-            </button>
-
-            <button mat-menu-item
-                    routerLink="/calendar/show">
-                <mat-icon class="material-symbols-outlined">calendar_month</mat-icon>
-                <span>Kalender</span>
-            </button>
-
-            <button mat-menu-item
-                    routerLink="/mail"
-                    disabled="true">
-                <mat-icon class="material-symbols-outlined">mail</mat-icon>
-                <span>Mail</span>
-            </button>
-
-            <button mat-menu-item
-                    routerLink="/message"
-                    disabled="true">
-                <mat-icon class="material-symbols-outlined">message</mat-icon>
-                <span>Chat</span>
-            </button>
-
-            <button mat-menu-item
-                    routerLink="/pinboard"
-                    disabled="true">
-                <mat-icon class="material-symbols-outlined">pinboard</mat-icon>
-                <span>Pin-Wand</span>
-            </button>
-
-            <button mat-menu-item
-                    routerLink="/user/users">
-                <mat-icon class="material-symbols-outlined">person</mat-icon>
-                <span>Benutzer-Verwaltung</span>
-            </button>
-
-            <button mat-menu-item
-                    routerLink="/user/groups">
-                <mat-icon class="material-symbols-outlined">groups</mat-icon>
-                <span>Gruppen-Verwaltung</span>
-            </button>
         </mat-drawer>
 
         <div class="content-cnr">

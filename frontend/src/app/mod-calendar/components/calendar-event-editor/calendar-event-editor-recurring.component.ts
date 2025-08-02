@@ -190,13 +190,13 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
     if (this.isRecurring) {
 
       this.recurringForm.markAllAsTouched();
-      
+
       valid = this.recurringForm.valid;
       if (valid) {
         this.rruleSetFromFormData();
       }
     }
-    
+
     this.calcOccurrences();
     this.valid.emit(valid);
   }
@@ -224,6 +224,15 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
         this.setValidatorFor('weekDays', null);
         break;
     }
+  }
+
+  private nativeDayOfWeekToRRuleDayOfWeek(day: number): number {
+
+    let result = day - 1;
+    if (result < 0) {
+      result += 7;
+    }
+    return this.daysOfWeek[result].value; 
   }
 
   /**
@@ -298,11 +307,11 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
       this.calcOccurrences();
 
       this.recurringForm.setValue(val);
-      
+
       this.onFrequenceChange(val.repeatFreq);
       this.onRepeatModeChange(val.repMode);
       this.recurringForm.updateValueAndValidity();
-      
+
       valid = this.recurringForm.valid;
     }
     this.valid.emit(valid);
@@ -414,9 +423,9 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
     const all: Array<Date> = new Array<Date>();
     this.occurences.clear();
     this.exDates.clear();
-    
+
     if (this.event.rruleSet) {
-      
+
       const occurences = this.event.rruleSet.all((date: Date, nr: number) => {
         return (nr > 100) ? false : true;
       });
@@ -424,7 +433,7 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
         all.push(date);
         this.occurences.add(date.getTime());
       })
-      
+
       this.event.rruleSet.exdates().forEach(date => {
         all.push(date);
         this.exDates.add(date.getTime());

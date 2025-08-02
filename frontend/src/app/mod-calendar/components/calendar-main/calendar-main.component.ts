@@ -9,7 +9,9 @@ import { RRuleSet } from 'rrule';
 import { CalendarOptions } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction';
+import multiMonthPlugin from '@fullcalendar/multimonth'
 import allLocales from '@fullcalendar/core/locales-all';
 
 import { FullCalendarComponent } from '@fullcalendar/angular';
@@ -34,11 +36,12 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
     locales: allLocales,
     locale: navigator.language,
     headerToolbar: false,
-    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+    plugins: [dayGridPlugin, timeGridPlugin, listPlugin, multiMonthPlugin, interactionPlugin],
     initialDate: new Date(),
     nowIndicator: true,
     businessHours: true,
     stickyHeaderDates: true,
+    multiMonthMaxColumns: 1,
     editable: true, // Events können via DnD verschoben/resized werden
     selectable: true, // Auswahl eines Time-Ranges via Maus
     select: info => this.onDateSelection(info),

@@ -7,6 +7,12 @@ import { INodeSearchResultItem, ISearchResultItem } from './mod-search/models/se
 import { NavigationEnd, Router } from '@angular/router';
 import { Location } from '@angular/common';
 
+export interface IMenuItem {
+  icon: string,
+  title: string,
+  route: string
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -17,8 +23,50 @@ export class AppComponent implements OnInit {
 
   public title: string = '';
   private _showSearch: boolean = false;
-  private _showDashboard: boolean = false;
-  private _showMenu: boolean = false;
+
+  menuItems: IMenuItem[] = [
+
+    {
+      icon: 'dashboard',
+      title: 'Dashboard',
+      route: '/dashboard'
+    },
+    {
+      icon: 'folder',
+      title: 'Dateien',
+      route: '/files/main'
+    },
+    {
+      icon: 'calendar_month',
+      title: 'Kalender',
+      route: '/calendar/show'
+    },
+    {
+      icon: 'mail',
+      title: 'Mail',
+      route: '/mail'
+    },
+    {
+      icon: 'chat',
+      title: 'Chat',
+      route: '/chat'
+    },
+    {
+      icon: 'note_alt',
+      title: 'Pinwand',
+      route: '/pinboard'
+    },
+    {
+      icon: 'person',
+      title: 'Benutzer',
+      route: '/user/users'
+    },
+    {
+      icon: 'group',
+      title: 'Benutzer-Gruppen',
+      route: '/user/groups'
+    }
+  ]
 
   /**
    * 
@@ -26,7 +74,6 @@ export class AppComponent implements OnInit {
    */
   constructor(
     private router: Router,
-    private location: Location,
     private titlebarSvc: TitlebarService,
     private sessSvc: SessionService) {
 
@@ -59,16 +106,8 @@ export class AppComponent implements OnInit {
     return !this.sessSvc.currentUser.isEmpty();
   }
 
-  get isShowDashboard(): boolean {
-    return this.isLoggedOn && this._showDashboard;
-  }
-
   get isShowSearch(): boolean {
     return this.isLoggedOn && this._showSearch;
-  }
-
-  get isShowMenu(): boolean {
-    return this.isLoggedOn && this._showMenu;
   }
 
   /** 
@@ -98,8 +137,6 @@ export class AppComponent implements OnInit {
       .subscribe(event => {
         const url = (event as NavigationEnd).url;
         this._showSearch = (url !== '/search');
-        this._showDashboard = (url !== '/dashboard');
-        this._showMenu = (url !== '/dashboard');
       });
   }
 }

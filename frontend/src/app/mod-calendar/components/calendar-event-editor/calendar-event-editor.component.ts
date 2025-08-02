@@ -77,6 +77,7 @@ export class CalendarEventEditorComponent implements OnInit {
 
         this.fullEvent = fullEvent;
         this.uploads = new Array<File>();
+        this.titlebarSvc.subTitle = this.fullEvent.core.title;
       })
   }
 
@@ -93,6 +94,7 @@ export class CalendarEventEditorComponent implements OnInit {
     this.fullEvent.core.end = end;
     this.fullEvent.core.fullDay = fullDay;
     this.fullEvent.reqPersons.push(this.sessSvc.currentUser);
+    this.titlebarSvc.subTitle = 'Neuer Termin';
   }
 
 

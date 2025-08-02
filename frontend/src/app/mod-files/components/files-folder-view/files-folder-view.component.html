@@ -7,7 +7,7 @@
     </div>
 
     <div class="flex-1 disp-flex flex-row scrollable working-area"
-         (contextmenu)="contextMenu.show($event)">
+         (contextmenu)="folderContextMenu.show($event)">
 
         <div class="flex-1 scrollable"
              [appDropTarget]="currentFolder"
@@ -62,7 +62,7 @@
 
 
         <!-- Das ContextMenu für den Folder selbst -->
-        <app-files-folder-context-menu #contextMenu
+        <app-files-folder-context-menu #folderContextMenu
                                        [inode]="currentFolder"
                                        (createDocument)="onCreateDocument($event)"
                                        (paste)="onPaste()"

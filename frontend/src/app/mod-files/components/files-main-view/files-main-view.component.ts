@@ -37,6 +37,7 @@ export class FilesMainViewComponent implements OnInit {
   @ViewChild('rightPane')
   rightPane: FilesFolderViewComponent | null = null;
 
+  showHiddenFiles: boolean = false;
   private settings: any = {}
 
   /**
@@ -62,7 +63,7 @@ export class FilesMainViewComponent implements OnInit {
     this.titlebarSvc.subTitle = 'Dateien';
 
     this.loadSettings();
-    
+
     this.route.params
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
@@ -122,7 +123,7 @@ export class FilesMainViewComponent implements OnInit {
    */
   set viewMode(mode: string) {
 
-    if(mode && mode !== this.settings['viewMode']) {
+    if (mode && mode !== this.settings['viewMode']) {
       this.settings['viewMode'] = mode;
       this.settingsSvc.setDomainSettings('files', this.settings);
 
@@ -142,7 +143,7 @@ export class FilesMainViewComponent implements OnInit {
    */
   set iconSize(size: number) {
 
-    if(size !== this.settings['iconSize']) {
+    if (size !== this.settings['iconSize']) {
       this.settings['iconSize'] = size;
       this.settingsSvc.setDomainSettings('files', this.settings);
     }
@@ -262,6 +263,10 @@ export class FilesMainViewComponent implements OnInit {
 
   onDelete() {
     this.currentPane.onDelete();
+  }
+
+  onToggleHiddenFiles() {
+    this.showHiddenFiles = !this.showHiddenFiles;
   }
 
   /*-------------------------------------------------------------------------*/

@@ -39,10 +39,19 @@ public class CalendarServiceImpl implements ICalendarService
     private static final String ERR_DELETE_EVENT = "Das Event konnte nicht gelöscht werden.";
 
     private static final String SQL_GET_ALL_EVENTS = "" //
-        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `category`, `fullDay`, `rruleset`" //
-        + " from calendar" //
-        + "  where start <= ? and last_occurence >=?";
-
+//        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `category`, `fullDay`, `rruleset`" //
+//        + " from calendar" //
+//        + "  where start <= ? and last_occurence >=?";
+          + "select `c`.`uuid`, `c`.`owner`, `c`.`start`, `c`.`end`, `c`.`title`, `c`.`desc`, `c`.`category`, `c`.`fullDay`, `c`.`rruleset`" //
+          + "  from calendar c" //
+          + "  left join calendar_persons p" //
+          + "  on c.uuid=p.eventId" //
+          + "  where c.start <= ? and c.last_occurence >=? AND p.userId=?";
+        
+        
+        
+        
+        
     private static final String SQL_GET_EVENT_CORE = "" //
         + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `category`, `fullDay`, `rruleset`" //
         + " from calendar" //
@@ -97,6 +106,7 @@ public class CalendarServiceImpl implements ICalendarService
             stmt = conn.prepareStatement(SQL_GET_ALL_EVENTS);
             stmt.setTimestamp(1, end);
             stmt.setTimestamp(2, start);
+            stmt.setString(3, this.currUserSvc.getUser().getUserId().toString());
 
             rs = stmt.executeQuery();
             while (rs.next())

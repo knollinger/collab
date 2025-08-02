@@ -9,16 +9,17 @@
     <div [class.hidden]="!recurring.checked"
          class="scrollable grid-container">
 
-        <!-- Frequenz -->
-        <mat-form-field class="col-1">
-            <mat-label>Wiederholen alle</mat-label>
-            <input matInput
-                   formControlName="interval"
-                   type="number"
-                   width="3">
-            <mat-error *ngIf="hasError('interval', 'required')">Bitte ausfüllen</mat-error>
-        </mat-form-field>
-
+         <!-- Interval -->
+         <mat-form-field class="col-1">
+             <mat-label>Wiederholen alle</mat-label>
+             <input matInput
+             formControlName="interval"
+             type="number"
+             width="3">
+             <mat-error *ngIf="hasError('interval', 'required')">Bitte ausfüllen</mat-error>
+            </mat-form-field>
+            
+            <!-- Frequenz -->
         <mat-form-field class="col-2">
             <mat-label>Tage, Wochen, Monate, Jahre</mat-label>
             <mat-select #repFreq

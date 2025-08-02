@@ -97,12 +97,23 @@
             <mat-icon class="material-symbols-outlined">cloud_download</mat-icon>
         </button>
 
+        <app-toolbar-separator></app-toolbar-separator>
         <button mat-icon-button
                 matTooltip="Dateien löschen"
                 (click)="onDelete()"
                 [disabled]="!hasSelection">
             <mat-icon class="material-symbols-outlined">delete</mat-icon>
         </button>
+
+        <button mat-icon-button
+                matTooltip="Versteckte Dateien anzeigen"
+                (click)="onToggleHiddenFiles()">
+            <mat-icon class="material-symbols-outlined"
+                      *ngIf="!showHiddenFiles">visibility</mat-icon>
+            <mat-icon class="material-symbols-outlined"
+                      *ngIf="showHiddenFiles">visibility_off</mat-icon>
+        </button>
+
 
         <span class="flex-1"></span>
 
@@ -156,6 +167,7 @@
                          (open)="onOpen(0, $event)"
                          [viewMode]="viewMode"
                          [iconSize]="iconSize"
+                         [showHidden]="showHiddenFiles"
                          (inodesGrabbed)="rightPane.reloadEntries()">
         </app-folder-view>
 

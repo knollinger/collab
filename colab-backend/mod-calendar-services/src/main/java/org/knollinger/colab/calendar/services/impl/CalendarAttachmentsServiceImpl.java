@@ -32,13 +32,6 @@ public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsServi
 {
     private static final String FOLDER_NAME = ".calendar_attachments";
 
-//    private static final String SQL_GET_ALL_ATTACHMENTS = "" //
-//        + "select `uuid`, `name`, `parent`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
-//        + "  where `uuid` in (" //
-//        + "    select inodeId from `calendar_attachments`" //
-//        + "      where `eventId`=?" //
-//        + "  )";
-
     private static final String SQL_GET_ALL_ATTACHMENTS = "" //
         + "select inodeId from `calendar_attachments`" //
         + "  where `eventId`=?";
