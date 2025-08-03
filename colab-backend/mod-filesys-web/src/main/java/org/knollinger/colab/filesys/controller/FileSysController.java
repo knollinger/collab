@@ -196,6 +196,7 @@ public class FileSysController
         }
         catch (TechnicalFileSysException e)
         {
+            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }

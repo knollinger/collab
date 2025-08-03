@@ -27,7 +27,7 @@ public class DeleteServiceImpl implements IDeleteService
 
     private static final String SQL_DELETE_INODE = "" //
         + "delete from `inodes`" //
-        + "  where `uuid`=?";
+        + "  where `uuid`=? or `linkTo`=?";
 
     private static final String SQL_DELETE_from_PLACES = "" //
         + "delete from `places`" //
@@ -77,11 +77,13 @@ public class DeleteServiceImpl implements IDeleteService
             for (UUID id : toDelete)
             {
                 stmtINode.setString(1, id.toString());
+                stmtINode.setString(2, id.toString());
                 stmtINode.executeUpdate();
             }
         }
         catch (SQLException e)
         {
+            e.printStackTrace();
             throw new TechnicalFileSysException(ERR_DELETE_INODE);
         }
     }
@@ -133,12 +135,13 @@ public class DeleteServiceImpl implements IDeleteService
             for (UUID id : toDelete)
             {
                 stmtINode.setString(1, id.toString());
+                stmtINode.setString(2, id.toString());
                 stmtINode.executeUpdate();
             }
         }
         catch (SQLException e)
         {
-            throw new TechnicalFileSysException(ERR_DELETE_INODE);
+            throw new TechnicalFileSysException(ERR_DELETE_INODE, e);
         }
     }
 
