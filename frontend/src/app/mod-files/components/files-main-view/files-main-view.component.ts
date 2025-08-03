@@ -231,6 +231,10 @@ export class FilesMainViewComponent implements OnInit {
     this.currentPane.onCopy();
   }
 
+  onLink() {
+    this.currentPane.onLink();
+  }
+
   onPaste() {
     this.currentPane.onPaste();
   }

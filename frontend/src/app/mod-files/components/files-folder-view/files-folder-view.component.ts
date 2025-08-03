@@ -366,6 +366,28 @@ export class FilesFolderViewComponent implements OnInit {
       })
   }
 
+  /**
+   * Für die gedroppte INode soll im target ein Link erstellt werden
+   * 
+   * @param event 
+   */
+  onLinkDroppedINodes(event: INodeDroppedEvent) {
+
+    this.checkDuplSvc.handleDuplicateINodes(event.target.uuid, event.sources)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(inodes => {
+
+        this.inodeSvc.link(inodes, event.target)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+
+            this.inodesGrabbed.emit();
+            this.reloadEntries();
+          });
+
+      })
+  }
+
   /*-------------------------------------------------------------------------*/
   /*                                                                         */
   /* Klassische INode-Ops                                                    */
@@ -502,6 +524,23 @@ export class FilesFolderViewComponent implements OnInit {
   }
 
   /**
+   * Eine LINK-Operation wurde angeforder. Entweder ist diese via ContextMenu
+   * auf einer INode passiert oder aus der Toolbar.
+   * 
+   * Aus diesem Grund ist das INode-Argument auch optional. Beim Copy via
+   * ContextMenu ist die INode bekannt. Beim Copy aus der Toolbar sollen
+   * alle selektierten INodes kopiert werden. Das Argument ist dann
+   * undefined. 
+   *  
+   * @param inode 
+   */
+  onLink(inode?: INode) {
+
+    const inodes = inode ? [inode] : Array.from(this.selectedINodes);
+    this.clipboardSvc.link(inodes);
+  }
+
+  /**
    * Auf dem aktuellen Folder wurde eine Paste-Operation angefordert.
    * 
    * Je nach angeforderter OP werden unterschiedliche Services gerufen.
@@ -520,6 +559,17 @@ export class FilesFolderViewComponent implements OnInit {
 
       case ClipboardService.OP_MOVE:
         this.inodeSvc.move(this.clipboardSvc.inodes, this.currentFolder)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.inodesGrabbed.emit();
+            this.reloadEntries();
+            this.clipboardSvc.clear();
+          })
+        break;
+
+
+      case ClipboardService.OP_LINK:
+        this.inodeSvc.link(this.clipboardSvc.inodes, this.currentFolder)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(() => {
             this.inodesGrabbed.emit();

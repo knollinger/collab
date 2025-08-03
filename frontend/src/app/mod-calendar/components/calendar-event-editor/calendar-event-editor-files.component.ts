@@ -79,7 +79,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   ngOnInit() {
 
     const user = this.currUserSvc.currentUser.userId;
-    this.attachmentsFolder = new INode('', '', '', 'inode/directory', 0, new Date(), new Date(), user, user, 0o777, 0o777);
+    this.attachmentsFolder = new INode('', '', '', null, 'inode/directory', 0, new Date(), new Date(), user, user, 0o777, 0o777);
 
   }
 
@@ -143,7 +143,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
 
     const newNodes = new Array<INode>();
     this.files.forEach(file => {
-      const tmpNode = new INode(file.name, '', '', file.type, file.size, new Date(), new Date(), 'owner', 'group', 0o777, 0o777);
+      const tmpNode = new INode(file.name, '', '', null, file.type, file.size, new Date(), new Date(), 'owner', 'group', 0o777, 0o777);
       newNodes.push(tmpNode);
 
     });

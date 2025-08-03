@@ -50,6 +50,9 @@ export class FilesItemContextMenuComponent implements OnInit {
   copy: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Output()
+  link: EventEmitter<INode> = new EventEmitter<INode>();
+
+  @Output()
   paste: EventEmitter<INode> = new EventEmitter<INode>();
 
   @Output()
@@ -141,6 +144,13 @@ export class FilesItemContextMenuComponent implements OnInit {
    */
   onCopy() {
     this.copy.emit(this.inode);
+  }
+
+  /**
+   * 
+   */
+  onLink() {
+    this.link.emit(this.inode);
   }
 
   /**

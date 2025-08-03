@@ -16,6 +16,7 @@ public class INode
     private String name;
     private UUID uuid;
     private UUID parent;
+    private UUID linkTo;
     private UUID owner;
     private UUID group;
     private String type;
@@ -26,15 +27,6 @@ public class INode
     private int effectivePerms;
 
     /**
-     * 
-     * @return
-     */
-    public boolean isDirectory()
-    {
-        return this.type.toLowerCase().startsWith("inode/directory");
-    }
-
-    /**
      * @return
      */
     public static INode empty()
@@ -43,6 +35,7 @@ public class INode
             .name("") //
             .uuid(EWellknownINodeIDs.NONE.value()) //
             .parent(EWellknownINodeIDs.NONE.value()) //
+            .linkTo(null) //
             .owner(EWellknownINodeIDs.NONE.value()) //
             .type("") //
             .size(0) //
@@ -57,5 +50,21 @@ public class INode
     public boolean isEmpty()
     {
         return this.uuid.equals(EWellknownINodeIDs.NONE.value());
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public boolean isDirectory()
+    {
+        return this.type.toLowerCase().startsWith("inode/directory");
+    }
+
+    /**
+     * @return
+     */
+    public boolean isLink() {
+        return this.linkTo != null;
     }
 }

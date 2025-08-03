@@ -17,4 +17,7 @@
           <mat-icon class="material-symbols-outlined">add</mat-icon>
      </div>
 
+     <img class="link"
+          *ngIf="inode.isLink()"
+          [src]="linkIcon">
 </div>

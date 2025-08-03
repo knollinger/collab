@@ -9,6 +9,7 @@ export class ClipboardService {
   public static readonly OP_NOOP: number = 0;
   public static readonly OP_COPY: number = 1;
   public static readonly OP_MOVE: number = 2;
+  public static readonly OP_LINK: number = 3;
 
   private _inodes: INode[] = new Array<INode>();
   private _op: number = ClipboardService.OP_NOOP;
@@ -39,6 +40,16 @@ export class ClipboardService {
   public copy(src: INode | INode[]) {
     this._inodes = (src instanceof INode) ? Array.of(src) : src;
     this._op = ClipboardService.OP_COPY;
+    console.log('copy inodes: ' + this._inodes);
+  }
+
+  /**
+   * 
+   * @param src 
+   */
+  public link(src: INode | INode[]) {
+    this._inodes = (src instanceof INode) ? Array.of(src) : src;
+    this._op = ClipboardService.OP_LINK;
     console.log('copy inodes: ' + this._inodes);
   }
 

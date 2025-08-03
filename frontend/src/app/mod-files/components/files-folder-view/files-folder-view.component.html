@@ -54,6 +54,7 @@
                                      (delete)="onDelete($event)"
                                      (cut)="onCut($event)"
                                      (copy)="onCopy($event)"
+                                     (link)="onLink($event)"
                                      (paste)="onPaste()"
                                      (sendToDashboard)="onSendToDashboard($event)"
                                      (showProps)="onShowProps($event)">
@@ -71,7 +72,8 @@
         <!-- Das Menu für die Auswahl der OPs bei einem INode-Drop -->
         <app-files-inode-drop-menu #inodeDropMenu
                                    (copy)="onCopyDroppedINodes($event)"
-                                   (move)="onMoveDroppedINodes($event)"></app-files-inode-drop-menu>
+                                   (move)="onMoveDroppedINodes($event)"
+                                   (link)="onLinkDroppedINodes($event)"></app-files-inode-drop-menu>
     </div>
 
 

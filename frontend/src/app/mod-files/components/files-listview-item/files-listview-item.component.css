@@ -29,6 +29,14 @@
     color: white;
 }
 
+
+.link {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    width: 28px;
+}
+
 .outer:hover>.selector {
     display: block;
 }

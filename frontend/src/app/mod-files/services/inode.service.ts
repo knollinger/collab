@@ -7,6 +7,7 @@ import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 import { IINode, INode } from '../../mod-files-data/models/inode';
 import { RenameINodeRequest } from '../models/rename-inode-request';
 import { MoveINodeRequest } from '../models/move-inode-request';
+import { SessionService } from '../../mod-session/session.module';
 
 /**
  * 
@@ -25,7 +26,8 @@ export class INodeService {
       ['deleteINode', 'v1/filesys/delete'],
       ['copyINode', 'v1/filesys/copy'],
       ['moveINode', 'v1/filesys/move'],
-      ['createFolder', 'v1/filesys/createFolder/{1}/{2}'],
+      ['linkINode', 'v1/filesys/link'],
+      ['createFolder', 'v1/filesys/mkdir/{1}/{2}'],
       ['createDocument', 'v1/filesys/createDocument/{1}/{2}/{3}'],
       ['updateINode', 'v1/filesys/update'],
       ['getContent', 'v1/filecontent/{1}'],
@@ -39,8 +41,19 @@ export class INodeService {
   constructor(
     private backendRouter: BackendRoutingService,
     private httpClient: HttpClient,
-    private sanitizer: DomSanitizer) {
+    private sessionSvc: SessionService) {
 
+  }
+
+  /**
+   * Liefere die INode des HimeDirectories des aktuellen Benutzers
+   * 
+   * @returns 
+   */
+  getHomeDir(): Observable<INode> {
+
+    const uuid = this.sessionSvc.currentUser.userId;
+    return this.getINode(uuid);
   }
 
   /**
@@ -136,6 +149,21 @@ export class INodeService {
   move(src: INode | INode[], parent: INode): Observable<void> {
 
     const url = this.backendRouter.getRouteForName('moveINode', INodeService.routes);
+
+    const toMove = Array.isArray(src) ? src : Array.of(src);
+    const req = new MoveINodeRequest(toMove, parent);
+    return this.httpClient.post<void>(url, req.toJSON());
+  }
+
+  /**
+   * 
+   * @param src 
+   * @param parent 
+   * @returns 
+   */
+  link(src: INode | INode[], parent: INode): Observable<void> {
+
+    const url = this.backendRouter.getRouteForName('linkINode', INodeService.routes);
 
     const toMove = Array.isArray(src) ? src : Array.of(src);
     const req = new MoveINodeRequest(toMove, parent);

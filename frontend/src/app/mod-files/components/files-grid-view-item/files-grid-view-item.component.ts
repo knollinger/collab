@@ -48,6 +48,14 @@ export class FilesGridViewItemComponent {
     return !this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode);
   }
 
+  get isLink(): boolean {
+    return this.inode.isLink();
+  }
+
+  get linkIcon() {
+    return this.iconSvc.getTypeIconUrl('inode/link');
+  }
+
   onSelect(evt: MouseEvent, inode: INode) {
     evt.stopPropagation();
     this.select.emit(evt.ctrlKey);

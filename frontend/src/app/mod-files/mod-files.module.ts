@@ -42,6 +42,7 @@ import { FilesPickerService } from './services/files-picker.service';
 export { FilesPickerService }
 
 import { WopiService } from './services/wopi.service';
+import { ModSessionModule } from '../mod-session/session.module';
 export { WopiService };
 
 @NgModule({
@@ -76,6 +77,7 @@ export { WopiService };
     ModUserDataModule,
     ModHashTagsModule,
     ModSettingsModule,
+    ModSessionModule,
     ModMaterialImportModule,
     FormsModule,
     ReactiveFormsModule,

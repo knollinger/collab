@@ -6,6 +6,7 @@ import { Permissions } from "../../mod-files/models/permissions";
 export interface IINode {
     name: string,
     uuid: string,
+    linkTo: string | null,
     parent: string,
     type: string,
     size: number,
@@ -50,6 +51,7 @@ export class INode {
         public readonly name: string,
         public readonly uuid: string,
         public readonly parent: string,
+        public readonly linkTo: string | null,
         public readonly type: string,
         public readonly size: number,
         public readonly created: Date,
@@ -71,6 +73,7 @@ export class INode {
             json.name,
             json.uuid,
             json.parent,
+            json.linkTo,
             json.type,
             json.size,
             json.created,
@@ -91,6 +94,7 @@ export class INode {
             name: this.name,
             uuid: this.uuid,
             parent: this.parent,
+            linkTo: this.linkTo,
             type: this.type,
             size: this.size,
             created: this.created,
@@ -122,6 +126,7 @@ export class INode {
             'root',
             EINodeUUIDs.INODE_ROOT,
             EINodeUUIDs.INODE_NONE,
+            null,
             'inode/directory',
             0,
             now,
@@ -143,6 +148,7 @@ export class INode {
         return new INode('', 
             EINodeUUIDs.INODE_NONE, 
             EINodeUUIDs.INODE_NONE, 
+            null,
             '', 
             0, 
             now, 
@@ -165,6 +171,7 @@ export class INode {
         return new INode('', 
             EINodeUUIDs.INODE_NONE, 
             EINodeUUIDs.INODE_NONE, 
+            null,
             'inode/directory', 
             0, 
             now, 
@@ -190,6 +197,14 @@ export class INode {
      */
     public isDirectory(): boolean {
         return this.type.toLowerCase().startsWith('inode/directory');
+    }
+
+    /**
+     * 
+     * @returns 
+     */
+    public isLink(): boolean {
+        return this.linkTo !== null;
     }
 
     /**

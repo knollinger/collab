@@ -6,6 +6,7 @@
           [style.backgroundImage]="iconUrl"
           [style.height]="iconWidth"
           [style.width]="iconWidth">
+          <img class="link" *ngIf="inode.isLink()" [src]="linkIcon">
      </div>
 
      <div class="label"
@@ -16,4 +17,5 @@
           matTooltip="halte STRG um mehrere Objekte auszuwählen">
           <mat-icon class="material-symbols-outlined">add</mat-icon>
      </div>
+
 </div>

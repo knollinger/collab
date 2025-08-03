@@ -5,6 +5,7 @@
 </span>
 
 <mat-menu #dropMenu="matMenu">
+
     <button mat-menu-item
             (click)="onCopy()">
         <mat-icon class="material-symbols-outlined">file_copy</mat-icon>Kopieren
@@ -16,10 +17,14 @@
         <mat-icon class="material-symbols-outlined">drive_file_move</mat-icon>Verschieben
     </button>
 
+    <button mat-menu-item
+            (click)="onLink()">
+        <mat-icon class="material-symbols-outlined">link</mat-icon>Verknüpfung erstellen
+    </button>
+
     <mat-divider></mat-divider>
     <button mat-menu-item>
         <mat-icon class="material-symbols-outlined">close</mat-icon>Abbrechen
     </button>
-
     
 </mat-menu>

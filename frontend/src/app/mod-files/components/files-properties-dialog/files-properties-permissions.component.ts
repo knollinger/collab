@@ -94,6 +94,7 @@ export class FilesPropertiesPermissionsComponent implements OnInit {
             this.inode.name, //
             this.inode.uuid, //
             this.inode.parent, //
+            this.inode.linkTo, //
             this.inode.type, //
             this.inode.size, //
             this.inode.created, //
@@ -116,6 +117,7 @@ export class FilesPropertiesPermissionsComponent implements OnInit {
             this.inode.name, //
             this.inode.uuid, //
             this.inode.parent, //
+            this.inode.linkTo, //
             this.inode.type, //
             this.inode.size, //
             this.inode.created, //
@@ -137,6 +139,7 @@ export class FilesPropertiesPermissionsComponent implements OnInit {
             this.inode.name, //
             this.inode.uuid, //
             this.inode.parent, //
+            this.inode.linkTo,
             this.inode.type, //
             this.inode.size, //
             this.inode.created, //

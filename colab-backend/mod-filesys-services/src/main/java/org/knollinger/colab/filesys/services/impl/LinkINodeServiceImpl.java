@@ -16,41 +16,41 @@ import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.models.IPermissions;
 import org.knollinger.colab.filesys.services.ICheckPermsService;
-import org.knollinger.colab.filesys.services.ICopyINodeService;
+import org.knollinger.colab.filesys.services.ILinkINodeService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CopyINodeServiceImpl implements ICopyINodeService
+public class LinkINodeServiceImpl implements ILinkINodeService
 {
+    private static final String SQL_LINK_INODE = "" //
+        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `owner`, `group`, `perms`, `name`, `size`, `type`, `data`, `hash`)" //
+        + "  select ? , ?, ?, `owner`, `group`, `perms`, ?, `size`, `type`, `data`, `hash`" //
+        + "    from `inodes`" //
+        + "      where `uuid` = ?";
+
+
+    private static final String SQL_GET_INODE = "" //
+        + "select `uuid`, `parent`, `linkTo`, `name`, `owner`, `group`, `perms`, `created`, `modified`, `size`, `type`" //
+        + "  from inodes" //
+        + "    where uuid=?";
+
+    
+    
+    
     @Autowired
     private IDbService dbSvc;
 
     @Autowired()
     private ICheckPermsService checkPermsSvc;
 
-    private static final String SQL_COPY = "" //
-        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `owner`, `group`, `perms`, `name`, `size`, `type`, `data`, `hash`)" //
-        + "  select ? , ?, `linkTo`, `owner`, `group`, `perms`, ?, `size`, `type`, `data`, `hash`" //
-        + "    from `inodes`" //
-        + "      where `uuid` = ?";
-
-    private static final String SQL_GET_CHILDS = "" //
-        + "select `uuid`, `name`, `type` from `inodes`" //
-        + "  where `parent`=?";
-
-    private static final String SQL_GET_INODE = "" //
-        + "select `uuid`, `parent`, `linkTo`, `name`, `owner`, `group`, `perms`, `created`, `modified`, `size`, `type`" //
-        + "  from inodes" //
-        + "    where uuid=?";
-    
     /**
      * @throws AccessDeniedException 
      *
      */
     @Override
-    public List<INode> copyINodes(List<INode> inodes, INode target)
+    public List<INode> linkINodes(List<INode> inodes, INode target)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
         Connection conn = null;
@@ -66,7 +66,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
 
             for (INode inode : inodes)
             {
-                INode newINode = this.copyOneINode(inode, target, conn);
+                INode newINode = this.linkOneINode(inode, target, conn);
                 if (newINode == null)
                 {
                     duplicates.add(inode);
@@ -88,7 +88,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         catch (SQLException e)
         {
             throw new TechnicalFileSysException(
-                "Der Kopier-Vorgang ist aufgrund eines technischen Problems fehl geschlagen.", e);
+                "Der Link-Vorgang ist aufgrund eines technischen Problems fehl geschlagen.", e);
         }
         finally
         {
@@ -106,7 +106,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
      * @throws TechnicalFileSysException 
      * @throws AccessDeniedException 
      */
-    private INode copyOneINode(INode inode, INode target, Connection conn)
+    private INode linkOneINode(INode inode, INode target, Connection conn)
         throws NotFoundException, TechnicalFileSysException, AccessDeniedException
     {
         PreparedStatement stmt = null;
@@ -114,24 +114,15 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         try
         {
             UUID newUUID = UUID.randomUUID();
-            stmt = conn.prepareStatement(SQL_COPY);
+            stmt = conn.prepareStatement(SQL_LINK_INODE);
             stmt.setString(1, newUUID.toString());
             stmt.setString(2, target.getUuid().toString());
-            stmt.setString(3, inode.getName());
-            stmt.setString(4, inode.getUuid().toString());
-            if (stmt.executeUpdate() == 0)
-            {
-                throw new NotFoundException(inode.getUuid());
-            }
-
-            INode newINode = this.getINode(newUUID, conn);
+            stmt.setString(3, inode.getUuid().toString());
+            stmt.setString(4, inode.getName());
+            stmt.setString(5, inode.getUuid().toString());
             
-            this.checkPermsSvc.checkPermission(IPermissions.READ, newINode);
-            if (inode.isDirectory())
-            {
-                this.copyChilds(inode, newINode, conn);
-            }
-            return newINode;
+            stmt.executeUpdate();
+            return this.getINode(newUUID, conn);
         }
         catch (SQLIntegrityConstraintViolationException e)
         {
@@ -139,8 +130,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         }
         catch (SQLException e)
         {
-            e.printStackTrace();
-            throw new TechnicalFileSysException("???", e);
+            throw new TechnicalFileSysException("Der Dateisystem-Link konnte nicht angelegt werden.", e);
         }
         finally
         {
@@ -148,73 +138,6 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         }
     }
 
-    /**
-     * 
-     * @param parent
-     * @param target
-     * @param conn
-     * @throws TechnicalFileSysException 
-     * @throws NotFoundException 
-     * @throws AccessDeniedException 
-     */
-    private void copyChilds(INode parent, INode target, Connection conn)
-        throws NotFoundException, TechnicalFileSysException, AccessDeniedException
-    {
-        try
-        {
-            List<INode> childs = this.getChilds(parent, conn);
-            for (INode child : childs)
-            {
-                this.copyOneINode(child, target, conn);
-            }
-        }
-        catch (SQLException e)
-        {
-            throw new TechnicalFileSysException("", e);
-        }
-    }
-
-    /**
-     * @param parent
-     * @param conn
-     * @return
-     * @throws SQLException 
-     */
-    private List<INode> getChilds(INode parent, Connection conn) throws SQLException
-    {
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        List<INode> result = new ArrayList<INode>();
-
-        try
-        {
-            stmt = conn.prepareStatement(SQL_GET_CHILDS);
-            stmt.setString(1, parent.getUuid().toString());
-            rs = stmt.executeQuery();
-            while (rs.next())
-            {
-                INode inode = INode.builder() //
-                    .uuid(UUID.fromString(rs.getString("uuid"))) //
-                    .name(rs.getString("name")) //
-                    .type(rs.getString("type")) //
-                    .build();
-                result.add(inode);
-            }
-            return result;
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(rs);
-            this.dbSvc.closeQuitely(stmt);
-        }
-    }
-
-    /**
-     * @param uuid
-     * @param conn
-     * @return
-     * @throws SQLException
-     */
     private INode getINode(UUID uuid, Connection conn) throws SQLException
     {
 
@@ -252,6 +175,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         }
     }
 
+
     /**
      * @param string
      * @return
@@ -259,8 +183,9 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     private UUID parseNullableUUID(String val)
     {
         UUID result = null;
-        
-        if(val != null) {
+
+        if (val != null)
+        {
             result = UUID.fromString(val);
         }
         return result;

@@ -41,6 +41,11 @@
         <mat-icon class="material-symbols-outlined">file_copy</mat-icon>Kopieren
     </button>
     <button mat-menu-item
+            [disabled]="!this.isReadAllowed"
+            (click)="onLink()">
+        <mat-icon class="material-symbols-outlined">add_link</mat-icon>Verknüpfung kopieren
+    </button>
+    <button mat-menu-item
             [disabled]="!this.isWriteAllowed"
             *ngIf="isPasteEnabled"
             (click)="onPaste()">

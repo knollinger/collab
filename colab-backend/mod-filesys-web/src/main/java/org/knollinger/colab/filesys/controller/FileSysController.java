@@ -21,6 +21,7 @@ import org.knollinger.colab.filesys.models.IPermissions;
 import org.knollinger.colab.filesys.services.ICopyINodeService;
 import org.knollinger.colab.filesys.services.IDeleteService;
 import org.knollinger.colab.filesys.services.IFileSysService;
+import org.knollinger.colab.filesys.services.ILinkINodeService;
 import org.knollinger.colab.filesys.services.IUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,6 +52,9 @@ public class FileSysController
 
     @Autowired
     private ICopyINodeService copySvc;
+
+    @Autowired
+    private ILinkINodeService linkSvc;
 
     @Autowired
     private IFileSysMapper fileSysMapper;
@@ -132,7 +136,6 @@ public class FileSysController
         }
         catch (NotFoundException e)
         {
-            e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
         catch (AccessDeniedException e)
@@ -259,11 +262,41 @@ public class FileSysController
     }
 
     /**
+     * Erstelle für eine Sequenz von INodes Links im anfǵegebenen Ziel-Ordner
+     */
+    @PostMapping(path = "/link")
+    public void link(@RequestBody() MoveINodeRequestDTO req)
+    {
+        try
+        {
+            List<INode> source = this.fileSysMapper.fromDTO(req.getSource());
+            INode target = this.fileSysMapper.fromDTO(req.getTarget());
+            this.linkSvc.linkINodes(source, target);
+        }
+        catch (TechnicalFileSysException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (NotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+        }
+        catch (DuplicateEntryException e)
+        {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
+        }
+    }
+
+    /**
      * @param parentId
      * @param name
      * @return
      */
-    @PutMapping(path = "/createFolder/{parentId}/{name}")
+    @PutMapping(path = "/mkdir/{parentId}/{name}")
     public INodeDTO createFolder(//
         @PathVariable("parentId") UUID parentId, //
         @PathVariable("name") String name)
@@ -380,7 +413,8 @@ public class FileSysController
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
-        catch(Exception e) {
+        catch (Exception e)
+        {
             e.printStackTrace();
             throw e;
         }

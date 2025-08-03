@@ -20,6 +20,7 @@ public class INodeDTO
     private String name;
     private UUID uuid;
     private UUID parent;
+    private UUID linkTo;
     private UUID owner;
     private UUID group;
     private String type;

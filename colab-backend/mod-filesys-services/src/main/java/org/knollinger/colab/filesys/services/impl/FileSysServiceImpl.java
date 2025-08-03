@@ -30,11 +30,11 @@ import org.springframework.stereotype.Service;
 public class FileSysServiceImpl implements IFileSysService
 {
     private static final String SQL_GET_INODE = "" //
-        + "select `name`, `parent`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
+        + "select `name`, `parent`, `linkTo`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
         + "  where `uuid`=?";
 
     private static final String SQL_GET_ALL_CHILDS = "" //
-        + "select `name`, `uuid`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
+        + "select `name`, `uuid`, `linkTo`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
         + "  where `parent`=?" //
         + "  order by `name` asc";
 
@@ -127,11 +127,13 @@ public class FileSysServiceImpl implements IFileSysService
 
             UUID owner = UUID.fromString(rs.getString("owner"));
             UUID group = UUID.fromString(rs.getString("group"));
+
             short perms = rs.getShort("perms");
-            
+
             INode inode = INode.builder() //
                 .uuid(uuid) //
                 .parent(UUID.fromString(rs.getString("parent"))) //
+                .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
                 .owner(owner) //
                 .group(group)//
                 .perms(perms) //
@@ -144,6 +146,11 @@ public class FileSysServiceImpl implements IFileSysService
                 .build();
 
             this.checkPermsSvc.checkPermission(reqPermission, inode);
+
+            if (inode.isLink())
+            {
+                inode = this.getINode(inode.getLinkTo(), reqPermission, conn);
+            }
             return inode;
         }
         catch (SQLException e)
@@ -174,10 +181,11 @@ public class FileSysServiceImpl implements IFileSysService
 
         try
         {
+            
             List<INode> result = new ArrayList<INode>();
-
             conn = this.dbService.openConnection();
-            this.getINode(parentId, reqPerms, conn); // prüft existenz und berechtigungen
+            
+            this.getINode(parentId, reqPerms, conn); // prüft existenz, berechtigungen und löst ggf einen link auf
 
             stmt = conn.prepareStatement(SQL_GET_ALL_CHILDS);
             stmt.setString(1, parentId.toString());
@@ -187,10 +195,11 @@ public class FileSysServiceImpl implements IFileSysService
                 UUID owner = UUID.fromString(rs.getString("owner"));
                 UUID group = UUID.fromString(rs.getString("group"));
                 short perms = rs.getShort("perms");
-                
+
                 INode inode = INode.builder() // 
                     .uuid(UUID.fromString(rs.getString("uuid"))) //
                     .parent(parentId) //
+                    .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
                     .owner(owner) //
                     .group(group) //
                     .perms(perms) //
@@ -275,7 +284,7 @@ public class FileSysServiceImpl implements IFileSysService
 
             UUID currentUUID = uuid;
             while (!currentUUID.equals(EWellknownINodeIDs.NONE.value()))
-            {                
+            {
                 stmt.setString(1, currentUUID.toString());
                 rs = stmt.executeQuery();
                 if (!rs.next())
@@ -291,6 +300,7 @@ public class FileSysServiceImpl implements IFileSysService
                     INode node = INode.builder() // 
                         .uuid(currentUUID) //
                         .parent(UUID.fromString(rs.getString("parent"))) //
+                        .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
                         .owner(owner) //
                         .group(group) //
                         .perms(perms) //
@@ -415,7 +425,7 @@ public class FileSysServiceImpl implements IFileSysService
             result = INode.builder() //
                 .uuid(UUID.fromString(rs.getString("uuid"))) //
                 .parent(parentId) //
-                .owner(UUID.fromString(rs.getString("owner"))) //
+                .linkTo(this.parseNullableUUID(rs.getString("linkTo"))).owner(UUID.fromString(rs.getString("owner"))) //
                 .group(UUID.fromString(rs.getString("group"))) //
                 .perms(rs.getShort("perms")) //
                 .name(name) //
@@ -522,6 +532,21 @@ public class FileSysServiceImpl implements IFileSysService
         {
             this.dbService.closeQuitely(stmt);
         }
+    }
+
+    /**
+     * @param val
+     * @return
+     */
+    private UUID parseNullableUUID(String val)
+    {
+
+        UUID result = null;
+        if (val != null)
+        {
+            result = UUID.fromString(val);
+        }
+        return result;
     }
 
     /**
