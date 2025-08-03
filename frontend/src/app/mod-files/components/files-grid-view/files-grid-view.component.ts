@@ -3,7 +3,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 
 import { INodeDroppedEvent, FilesDroppedEvent } from '../../directives/drop-target.directive';
-import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 import { extractSelectedINodes } from '../files-frame-selector/files-frame-selector.component';
 import { ShowFilesItemContextMenuEvent } from '../files-item-context-menu/files-item-context-menu.component';
 
