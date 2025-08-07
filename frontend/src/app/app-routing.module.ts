@@ -29,10 +29,13 @@ const routes: Routes = [
     path: 'viewer',
     loadChildren: () => import('./mod-files-viewer/mod-files-viewer.module').then(mod => mod.ModFilesViewerModule)
   },
-  
   {
     path: 'calendar',
     loadChildren: () => import('./mod-calendar/mod-calendar.module').then(mod => mod.ModCalendarModule)
+  },
+  {
+    path: 'pinwall',
+    loadChildren: () => import('./mod-pinwall/mod-pinwall.module').then(mod => mod.ModPinwallModule)
   },
   {
     path: 'user',

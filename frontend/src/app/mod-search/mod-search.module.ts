@@ -11,7 +11,7 @@ import { SearchResultItemComponent } from './components/search-result-item/searc
 @NgModule({
   declarations: [
     SearchMainComponent,
-    SearchResultItemComponent
+    SearchResultItemComponent,
   ],
   imports: [
     CommonModule,

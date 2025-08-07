@@ -8,8 +8,15 @@
     <button mat-menu-item
             [disabled]="!this.isReadAllowed"
             (click)="onOpen()">
-        <mat-icon class="material-symbols-outlined">open_in_new</mat-icon><b>Öffnen</b>
+        <mat-icon class="material-symbols-outlined">file_open</mat-icon><b>Öffnen</b>
     </button>
+
+    <a mat-menu-item
+       *ngIf="!inode.isDirectory()"
+       target="_blank"
+       href="viewer/show/{{inode.uuid}}">
+        <mat-icon class="material-symbols-outlined">open_in_new</mat-icon>
+        In neuem Tab öffnen</a>
 
     <!-- Das SubMenu mit den Create-Optionen -->
     <mat-divider *ngIf="inode.isDirectory()"></mat-divider>
@@ -66,5 +73,5 @@
         <mat-icon class="material-symbols-outlined">settings</mat-icon>Eigenschaften
     </button>
 
-    
+
 </mat-menu>

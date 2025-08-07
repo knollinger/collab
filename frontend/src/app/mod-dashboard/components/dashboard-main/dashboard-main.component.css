@@ -13,9 +13,9 @@
 
 .add-widget-btn {
 
-    position: fixed;
-    top: 1rem;
-    left: 1rem;
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
 }
 
 mat-grid-list {

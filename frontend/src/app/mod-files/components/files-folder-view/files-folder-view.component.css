@@ -11,3 +11,16 @@
 .footer {
     background-color: white;
 }
+
+/* New stuff */
+/* .grid-workspace {
+    overflow: auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.grid-item {
+    flex: 0 0 auto;
+} */

@@ -17,9 +17,4 @@
                               (select)="onSelect(inode, $event)"
                               (click)="onOpen(inode)"></app-files-listview-item>
 
-
-     <app-files-frame-selector *ngIf="showSelectionFrame"
-                               (selRectChange)="onSelRectChange(outer, $event)"
-                               (close)="onSelRectClose()"></app-files-frame-selector>
-
 </div>

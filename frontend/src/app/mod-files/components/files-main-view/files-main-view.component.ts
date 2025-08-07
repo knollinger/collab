@@ -210,13 +210,6 @@ export class FilesMainViewComponent implements OnInit {
     this.currentPane.onDeselectAll();
   }
 
-  /**
-   * schalte den SelectionFrame in der aktuelle SubPane ein/aus
-   */
-  onToggleSelectionFrame() {
-    this.currentPane.onToggleSelectionFrame();
-  }
-
   /*-------------------------------------------------------------------------*/
   /*                                                                         */
   /* All about clipbord actions                                              */

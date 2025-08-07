@@ -10,7 +10,6 @@ import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 
 import { FilesMainViewComponent } from './components/files-main-view/files-main-view.component';
-import { FilesFrameSelectorComponent } from './components/files-frame-selector/files-frame-selector.component';
 import { FilesPlacesComponent } from './components/files-places/files-places.component';
 import { FilePickerComponent } from './components/files-picker/files-picker.component';
 
@@ -66,7 +65,6 @@ export { WopiService };
     FilesPermissionsComponent,
     FilesCreateMenuComponent,
     FilesShowDuplicatesComponent,
-    FilesFrameSelectorComponent,
     FilesPlacesComponent,
     FilePickerComponent,
   ],

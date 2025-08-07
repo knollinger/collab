@@ -1,0 +1,78 @@
+<div class="outer-cnr mat-app-background">
+
+    <!-- die Toolbar -->
+    <app-toolbar class="small-bottom-lightgray-border toolbar">
+
+        <button mat-icon-button>
+            <mat-icon class="material-symbols-outlined">note_add</mat-icon>
+        </button>
+
+        <button mat-icon-button>
+            <mat-icon class="material-symbols-outlined">refresh</mat-icon>
+        </button>
+
+        <span class="flex-1"></span>
+        <mat-button-toggle-group name="viewMode"
+                                 [(value)]="viewMode">
+
+            <mat-button-toggle value="grid"
+                               matTooltip="Raster-Darstellung">
+                <mat-icon class="material-symbols-outlined">grid_on</mat-icon>
+            </mat-button-toggle>
+
+            <mat-button-toggle value="list"
+                               matTooltip="Listen-Darstellung">
+                <mat-icon class="material-symbols-outlined">list</mat-icon>
+            </mat-button-toggle>
+
+        </mat-button-toggle-group>
+
+    </app-toolbar>
+
+    <div class="workspace"
+         [class.grid-workspace]="viewMode==='grid'"
+         [class.list-workspace]="viewMode==='list'">
+
+        <mat-card [class.grid-card]="viewMode==='grid'"
+                  [class.list-card]="viewMode==='list'"
+                  *ngFor="let a of aa">
+
+            <mat-card-header>
+                <div class="card-header">
+                    <img class="card-avatar"
+                         src="http://localhost:8080/v1/users/avatar/31da8e8e-e7db-4338-b597-dabc5e41bc16">
+                    <span class="card-title">Test TestTestTestTestTestTestTestTestTestTestTestTestTestTest</span>
+                    <button mat-icon-button
+                            [matMenuTriggerFor]="menu"
+                            class="card-menu">
+                        <mat-icon class="material-symbols-outlined">more_vert</mat-icon>
+                    </button>
+
+                    <mat-menu #menu="matMenu">
+                        <button mat-menu-item>
+                            <mat-icon class="material-symbols-outlined">edit</mat-icon>
+                            Bearbeiten
+                        </button>
+                        <button mat-menu-item>
+                            <mat-icon class="material-symbols-outlined">done</mat-icon>
+                            Fertig
+                        </button>
+                        <mat-divider></mat-divider>
+                        <button mat-menu-item>
+                            <mat-icon class="material-symbols-outlined">delete</mat-icon>
+                            Löschen
+                        </button>
+                    </mat-menu>
+                </div>
+            </mat-card-header>
+
+            <mat-card-content>
+                <p>
+                    The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
+                    A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
+                    bred for hunting.
+                </p>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

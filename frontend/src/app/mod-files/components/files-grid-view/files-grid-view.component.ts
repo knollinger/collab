@@ -3,7 +3,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 
 import { INodeDroppedEvent, FilesDroppedEvent } from '../../directives/drop-target.directive';
-import { extractSelectedINodes } from '../files-frame-selector/files-frame-selector.component';
 import { ShowFilesItemContextMenuEvent } from '../files-item-context-menu/files-item-context-menu.component';
 
 /**
@@ -51,12 +50,6 @@ export class FilesGridViewComponent implements OnInit {
 
   @Output()
   filesDropped: EventEmitter<FilesDroppedEvent> = new EventEmitter<FilesDroppedEvent>();
-
-  @Input()
-  showSelectionFrame: boolean = false;
-
-  @Output()
-  selectionFrameClosed: EventEmitter<void> = new EventEmitter<void>();
 
   @Output()
   showContextMenu: EventEmitter<ShowFilesItemContextMenuEvent> = new EventEmitter<ShowFilesItemContextMenuEvent>();
@@ -130,26 +123,6 @@ export class FilesGridViewComponent implements OnInit {
    */
   onDeselectAll() {
     this.selectedINodes.clear();
-    this.selectionChange.emit(this.selectedINodes);
-  }
-
-  onSelRectClose() {
-    this.selectionFrameClosed.emit();
-  }
-
-  /**
-   * Der SelectionFrame hat sich geändert
-   * 
-   * @param parent 
-   * @param rect 
-   */
-  onSelRectChange(parent: HTMLElement, rect: DOMRect) {
-
-    this.selectedINodes.clear();
-    const selected = extractSelectedINodes(parent, rect, 'app-files-grid-view-item', this.inodes);
-    selected.forEach(inode => {
-      this.selectedINodes.add(inode);
-    });
     this.selectionChange.emit(this.selectedINodes);
   }
 

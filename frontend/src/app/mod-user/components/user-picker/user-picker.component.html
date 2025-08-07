@@ -6,7 +6,7 @@
            [matChipInputFor]="chipGrid"
            [matAutocomplete]="auto"
            (input)="onSearchInput(searchInput.value)">
-    <mat-icon class="material-symbols-outlined"
+    <mat-icon class="material-symbols-outlined" (click)="auto.showPanel=true"
               matSuffix>person_add</mat-icon>
     <mat-hint>Vorname, Nachname, Email, Account-Namen...</mat-hint>
 

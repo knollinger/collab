@@ -4,8 +4,6 @@ import { INode } from '../../../mod-files-data/mod-files-data.module';
 
 import { ContentTypeService } from '../../services/content-type.service';
 import { FilesDroppedEvent, INodeDroppedEvent } from '../../directives/drop-target.directive';
-import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
-import { extractSelectedINodes } from '../files-frame-selector/files-frame-selector.component';
 import { ShowFilesItemContextMenuEvent } from '../files-item-context-menu/files-item-context-menu.component';
 
 @Component({
@@ -36,12 +34,6 @@ export class FilesListViewComponent implements OnInit {
 
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
-
-  @Input()
-  showSelectionFrame: boolean = false;
-
-  @Output()
-  selectionFrameClosed: EventEmitter<void> = new EventEmitter<void>();
 
   @Output()
   showContextMenu: EventEmitter<ShowFilesItemContextMenuEvent> = new EventEmitter<ShowFilesItemContextMenuEvent>();
@@ -92,27 +84,6 @@ export class FilesListViewComponent implements OnInit {
    */
   onDeselectAll() {
     this.selectedINodes.clear();
-    this.selectionChange.emit(this.selectedINodes);
-  }
-
-
-  onSelRectClose() {
-    this.selectionFrameClosed.emit();
-  }
-
-  /**
-   * Der SelectionFrame hat sich geändert
-   * 
-   * @param parent 
-   * @param rect 
-   */
-  onSelRectChange(parent: HTMLElement, rect: DOMRect) {
-
-    this.selectedINodes.clear();
-    const selected = extractSelectedINodes(parent, rect, 'app-files-listview-item', this.inodes);
-    selected.forEach(inode => {
-      this.selectedINodes.add(inode);
-    })
     this.selectionChange.emit(this.selectedINodes);
   }
 

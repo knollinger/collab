@@ -23,6 +23,7 @@ export class AppComponent implements OnInit {
 
   public title: string = '';
   private _showSearch: boolean = false;
+  private _showDashboard: boolean = false;
 
   menuItems: IMenuItem[] = [
 
@@ -54,7 +55,7 @@ export class AppComponent implements OnInit {
     {
       icon: 'note_alt',
       title: 'Pinwand',
-      route: '/pinboard'
+      route: '/pinwall/main'
     },
     {
       icon: 'person',
@@ -110,6 +111,10 @@ export class AppComponent implements OnInit {
     return this.isLoggedOn && this._showSearch;
   }
 
+  get isShowDashboard(): boolean {
+    return this.isLoggedOn && this._showDashboard;
+  }
+
   /** 
    * 
    */
@@ -137,6 +142,8 @@ export class AppComponent implements OnInit {
       .subscribe(event => {
         const url = (event as NavigationEnd).url;
         this._showSearch = (url !== '/search');
+        this._showDashboard = (url !== '/dashboard');
+        
       });
   }
 }

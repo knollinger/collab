@@ -9,15 +9,8 @@
             <mat-icon class="material-symbols-outlined">menu</mat-icon>
         </button>
 
-        <!-- <button mat-icon-button
-                class="toolbar-btn"
-                *ngFor="let item of menuItems"
-                [routerLink]="item.route"
-                [matTooltip]="item.title">
-            <mat-icon class="material-symbols-outlined">{{item.icon}}</mat-icon>
-        </button> -->
-
         <button mat-icon-button
+                *ngIf="isShowDashboard"
                 class="toolbar-btn"
                 routerLink="/dashboard"
                 matTooltip="Dashboard">

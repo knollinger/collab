@@ -20,13 +20,13 @@
           </mat-grid-tile>
      </mat-grid-list>
 
-     <button mat-raised-button
+     <button mat-fab
              *ngIf="widgetsToAdd.length !== 0"
              [matMenuTriggerFor]="widgetsMenu"
+             matTooltip="Widget hinzu fügen"
              color="primary"
              class="add-widget-btn">
           <mat-icon class="material-symbols-outlined">dashboard_customize</mat-icon>
-          Widget hinzu fügen
      </button>
 
      <mat-menu #widgetsMenu="matMenu">
