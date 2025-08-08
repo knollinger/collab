@@ -18,6 +18,14 @@
     gap: 1rem;
 }
 
+.card {
+    cursor: pointer;
+}
+
+.card:active {
+    transform: translate(2px, 2px);
+}
+
 .grid-workspace {
     flex-direction: row;
     flex-wrap: wrap;

@@ -33,7 +33,8 @@
          [class.grid-workspace]="viewMode==='grid'"
          [class.list-workspace]="viewMode==='list'">
 
-        <mat-card [class.grid-card]="viewMode==='grid'"
+        <mat-card class="card"
+                  [class.grid-card]="viewMode==='grid'"
                   [class.list-card]="viewMode==='list'"
                   *ngFor="let a of aa">
 

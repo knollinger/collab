@@ -33,6 +33,10 @@
     white-space: nowrap;    
 }
 
+.locked {
+    filter: grayscale(60%);
+}
+
 /*
  * Beim GridView gilt folgendes: 
  *

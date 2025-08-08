@@ -4,6 +4,9 @@
   font-size: 16px; */
 }
 
+.ql-toolbar.ql-snow { border: none !important;}
+.ql-container.ql-snow{ border: none !important;}
+
 /*---------------------------------------------------------------------------*/
 /*                                                                           */
 /* all about the lineNumber-Module                                           */

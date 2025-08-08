@@ -146,6 +146,15 @@ export class FilesFolderViewComponent implements OnInit {
   }
 
   /**
+   * 
+   * @param inode 
+   * @returns 
+   */
+  public isLocked(inode: INode): boolean {
+    return !this.checkPermsSvc.hasPermissions(Permissions.READ, inode);
+  }
+
+  /**
    * Lade den Path für die aktuelle INode
    */
   private loadPathInfo() {

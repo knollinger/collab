@@ -82,6 +82,7 @@
         <div *ngFor="let inode of inodes"
              [class.grid-item]="viewMode === 'grid'"
              [class.list-item]="viewMode === 'list'"
+             [class.locked]="isLocked(inode)"
              [class.mat-elevation-z4]="isSelected(inode)"
              [appINodeDragSource]="inode"
              [appINodeDragSourceSelectedINodes]="selectedINodes"

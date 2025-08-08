@@ -24,7 +24,7 @@
          [appDropTarget]="attachmentsFolder"
          (filesDropped)="onFilesDropped($event)">
 
-        <a class="inode mat-elevation-z4"
+        <a class="inode"
            *ngFor="let inode of inodesToRender"
            target="_blank"
            href="viewer/show/{{inode.uuid}}"

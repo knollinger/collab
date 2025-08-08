@@ -6,6 +6,7 @@ import { ChangeDimensionsEvent } from '../dashboard-widget-properties/dashboard-
 
 import { DashboardWidgetDescriptor } from '../../models/dashboard-widget-descriptor';
 import { WidgetTypeRegistryService, IWidgetTypeAndDesc } from '../../services/widget-type-registry.service';
+import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
   selector: 'app-dashboard-main',
@@ -28,6 +29,7 @@ export class DashboardMainComponent implements OnInit {
    * @param typeRegistry 
    */
   constructor(
+    private titlebarSvc: TitlebarService,
     private dashboardSvc: DashboardService,
     private widgetRegistrySvc: WidgetTypeRegistryService) {
   }
@@ -37,6 +39,7 @@ export class DashboardMainComponent implements OnInit {
    */
   ngOnInit() {
 
+    this.titlebarSvc.subTitle = 'Dashboard';
     this.dashboardSvc.loadWidgets()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(widgets => {
