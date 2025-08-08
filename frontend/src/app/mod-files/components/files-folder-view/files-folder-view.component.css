@@ -13,14 +13,102 @@
 }
 
 /* New stuff */
-/* .grid-workspace {
+.workspace {
+    height: 100%;
     overflow: auto;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 1rem;
+    padding: 1rem;
+}
+
+.image {
+    position: relative;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.label {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;    
+}
+
+/*
+ * Beim GridView gilt folgendes: 
+ *
+ * * Die Items werden von links nach rechts angeordnet und brechen um
+ * * Innerhalb des Items stehen Icon und Label zentriert untereinender, 
+ *   das Label hat die selbe breite wie das Icon und wird ggf mit ellipsen abgeschnitten
+ */
+.grid-workspace {
 }
 
 .grid-item {
+    position: relative;
+    display: inline-block;
+    margin: 0 0.5rem 0.5rem 0;
+    cursor: pointer;
+}
+
+.grid-item>.label {
+    text-align: center;
+}
+
+/**
+ * Beim ListView werden die Items von oben nach unten angeordnet und brechen
+ * ggf. ein weitere Spalten um.
+ *
+ * In den Items stehen Icon und Label zentriert nebeneinander, das Label hat
+ * eine maximale breite von 150px und wird ggf. mit elippsen abgeschnitten.
+ */
+.list-workspace {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    gap: 1rem;
+}
+
+.list-item {
+    position: relative;
     flex: 0 0 auto;
-} */
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.list-item>.label {
+    width: 150px !important;
+}
+
+/**
+ * Der selector wird oben links im item angezeigt, sobald der
+ * Cursor über dem Item steht
+ */
+.selector {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    border-radius: 2px;
+    display: none;
+    background-color: lightgray;
+    color: white;
+}
+
+.grid-item:hover>.selector,
+.list-item:hover>.selector {
+    display: block;
+}
+
+.link-indicator {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 32px;
+}

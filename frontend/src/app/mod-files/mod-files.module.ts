@@ -14,21 +14,16 @@ import { FilesPlacesComponent } from './components/files-places/files-places.com
 import { FilePickerComponent } from './components/files-picker/files-picker.component';
 
 import { ModFilesRoutingModule } from './mod-files-routing.module';
-import { FilesGridViewItemComponent } from './components/files-grid-view-item/files-grid-view-item.component';
 import { FilesPropertiesDialogComponent } from './components/files-properties-dialog/files-properties-dialog.component';
 import { FilesPropertiesCommonsComponent } from './components/files-properties-dialog/files-properties-commons.component';
 import { FilesPropertiesPermissionsComponent } from './components/files-properties-dialog/files-properties-permissions.component';
 import { FilesBreadCrumbItemComponent } from './components/files-bread-crumb-item/files-bread-crumb-item.component';
 import { FilesFolderViewComponent } from './components/files-folder-view/files-folder-view.component';
-import { FilesGridViewComponent } from './components/files-grid-view/files-grid-view.component';
-import { FilesListViewComponent } from './components/files-list-view/files-list-view.component';
 import { FilesItemContextMenuComponent } from './components/files-item-context-menu/files-item-context-menu.component';
 import { INodeDragSourceDirective } from './directives/inode-drag-source.directive';
 import { DropTargetDirective } from './directives/drop-target.directive';
 import { FilesFolderContextMenuComponent } from './components/files-folder-context-menu/files-folder-context-menu.component';
 import { FileDropINodeMenuComponent } from './components/files-inode-drop-menu/files-inode-drop-menu.component';
-import { FilesIconsizeMenuComponent } from './components/files-iconsize-menu/files-iconsize-menu.component';
-import { FilesListViewItemComponent } from './components/files-listview-item/files-listview-item.component';
 import { FilesPermissionsComponent } from './components/files-permissions/files-permissions.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
@@ -47,21 +42,16 @@ export { WopiService };
 @NgModule({
   declarations: [
     FilesMainViewComponent,
-    FilesGridViewItemComponent,
     FilesPropertiesDialogComponent,
     FilesPropertiesCommonsComponent,
     FilesPropertiesPermissionsComponent,
     FilesFolderViewComponent,
     FilesBreadCrumbItemComponent,
-    FilesGridViewComponent,
-    FilesListViewComponent,
     FilesItemContextMenuComponent,
     INodeDragSourceDirective,
     DropTargetDirective,
     FilesFolderContextMenuComponent,
     FileDropINodeMenuComponent,
-    FilesIconsizeMenuComponent,
-    FilesListViewItemComponent,
     FilesPermissionsComponent,
     FilesCreateMenuComponent,
     FilesShowDuplicatesComponent,
@@ -83,11 +73,8 @@ export { WopiService };
   ],
   exports: [
     FilesMainViewComponent,
+    FilesFolderViewComponent,
     FilePickerComponent,
-    FilesGridViewComponent,
-    FilesGridViewItemComponent,
-    FilesListViewComponent,
-    FilesListViewItemComponent,
     DropTargetDirective,
     ModFilesRoutingModule
 

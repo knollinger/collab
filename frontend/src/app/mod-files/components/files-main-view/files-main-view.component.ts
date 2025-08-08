@@ -14,6 +14,16 @@ import { INodeService } from '../../services/inode.service';
 import { ClipboardService } from '../../services/clipboard.service';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 
+export class IconSize {
+
+  constructor(
+    public readonly size: string,
+    public readonly text: string) {
+
+  }
+}
+
+
 /**
  * Die Haupt-Component der Files-Ansicht
  */
@@ -39,6 +49,14 @@ export class FilesMainViewComponent implements OnInit {
 
   showHiddenFiles: boolean = false;
   private settings: any = {}
+
+
+  iconSizes: IconSize[] = [
+    new IconSize('64px', "Klein"),
+    new IconSize('128px', "Mittel"),
+    new IconSize('192px', "Groß"),
+    new IconSize('256px', "Sehr groß")
+  ]
 
   /**
    * 
@@ -126,22 +144,21 @@ export class FilesMainViewComponent implements OnInit {
     if (mode && mode !== this.settings['viewMode']) {
       this.settings['viewMode'] = mode;
       this.settingsSvc.setDomainSettings('files', this.settings);
-
     }
   }
 
   /**
    * 
    */
-  get iconSize(): number {
+  get iconSize(): string {
 
-    return this.settings['iconSize'] || 128;
+     return this.settings['iconSize'] || '128px';
   }
 
   /**
    * 
    */
-  set iconSize(size: number) {
+  set iconSize(size: string) {
 
     if (size !== this.settings['iconSize']) {
       this.settings['iconSize'] = size;

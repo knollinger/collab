@@ -44,11 +44,13 @@
          [appDropTarget]="attachmentsFolder"
          (filesDropped)="onFilesDropped($event)">
 
-        <app-files-grid-view [iconSize]="128"
-                             [inodes]="inodesToRender"
-                             [selectedINodes]="selectedNodes"
-                             (selectionChange)="onSelectionChange($event)">
-        </app-files-grid-view>
+        <div class="inode" *ngFor="let inode of inodesToRender">
+        </div>
+        
+        <!-- <app-folder-view [inodes]="inodesToRender"
+                               [selectedINodes]="selectedNodes"
+                               (selectionChange)="onSelectionChange($event)">
+        </app-folder-view> -->
     </div>
 
 </div>

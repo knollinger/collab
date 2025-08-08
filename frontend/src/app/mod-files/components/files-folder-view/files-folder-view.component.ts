@@ -57,7 +57,7 @@ export class FilesFolderViewComponent implements OnInit {
   active: boolean = false;
 
   @Input()
-  iconSize: number = 128;
+  iconSize: string = '128px';
 
   @Input()
   showStatusBar: boolean = true;
@@ -81,7 +81,6 @@ export class FilesFolderViewComponent implements OnInit {
    * @param propsSvc 
    */
   constructor(
-    private router: Router,
     private inodeSvc: INodeService,
     private uploadSvc: UploadService,
     private commonsDlgSvc: CommonDialogsService,
@@ -119,6 +118,7 @@ export class FilesFolderViewComponent implements OnInit {
     this._showHidden = val;
     this.reloadEntries();
   }
+
   public get showHidden(): boolean {
     return this._showHidden;
   }
@@ -134,13 +134,16 @@ export class FilesFolderViewComponent implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(inodes => {
 
-          console.log('this.reloadEntries');
           this.inodes = this.showHidden ? inodes : inodes.filter(node => !node.isHidden());
           this.selectableINodes = this.extractSelectableNodes(inodes);
           this.selectedINodes.clear();
           this.previewINode = INode.empty();
         });
     }
+  }
+
+  public get linkIcon(): string {
+    return this.contentTypeSvc.getTypeIconUrl('inode/link');
   }
 
   /**
@@ -233,6 +236,39 @@ export class FilesFolderViewComponent implements OnInit {
    */
   public onDeselectAll() {
     this.selectedINodes = new Set<INode>();
+    this.selectionChanged.emit(this.selectedINodes);
+  }
+
+  /**
+   * 
+   * @param inode 
+   * @returns 
+   */
+  public isSelected(inode: INode): boolean {
+
+    return this.selectedINodes.has(inode);
+  }
+
+  /** 
+   * 
+   */
+  public onSelect(evt: MouseEvent, inode: INode) {
+
+    evt.stopPropagation();
+    
+    if (!evt.ctrlKey) {      
+      this.selectedINodes.clear();
+      this.selectedINodes.add(inode);
+    }
+    else {
+
+      if (this.selectedINodes.has(inode)) {
+        this.selectedINodes.delete(inode);
+      }
+      else {
+        this.selectedINodes.add(inode);
+      }
+    }
     this.selectionChanged.emit(this.selectedINodes);
   }
 
@@ -650,5 +686,9 @@ export class FilesFolderViewComponent implements OnInit {
       result += inode.size;
     }
     return result;
+  }
+
+  getINodeImage(inode: INode): string {
+    return `url(${this.contentTypeSvc.getTypeIconUrl(inode.type)})`;
   }
 }

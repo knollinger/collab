@@ -121,13 +121,28 @@
         <!-- IconSize-Menu -->
         <mat-button-toggle class="small-right-spacer"
                            matTooltip="Icons-Größe auswählen"
-                           checked="false"
-                           (click)="iconSizeMenu.show($event)">
+                           [matMenuTriggerFor]="sizeMenu"
+                           [checked]="false">
             <mat-icon class="material-symbols-outlined">aspect_ratio</mat-icon>
-            <app-files-iconsize-menu #iconSizeMenu
-                                     (iconSize)="iconSize=$event"></app-files-iconsize-menu>
+            <!-- <app-files-iconsize-menu #iconSizeMenu
+                                     (iconSize)="iconSize=$event"></app-files-iconsize-menu> -->
         </mat-button-toggle>
 
+        <mat-menu #sizeMenu="matMenu">
+
+            <mat-radio-group [(ngModel)]="iconSize">
+                <div mat-menu-item
+                     *ngFor="let size of iconSizes"
+                     (click)="iconSize=size.size"
+                     class="disp-flex flex-alignitems-center">
+                    <mat-radio-button color="primary"
+                                      class="flex-0"
+                                      [value]="size.size"></mat-radio-button>
+                    <span class="flex-1">{{size.text}}</span>
+                </div>
+            </mat-radio-group>
+
+        </mat-menu>
 
         <!-- SplitView-Toggle -->
         <mat-button-toggle class="small-right-spacer"
