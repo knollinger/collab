@@ -19,3 +19,37 @@
     height: 100%;
     padding: 0.5rem; /* platz für das mat-elevation-zeuchs lassen */
 }
+
+.inode {
+    position: relative;
+    cursor: pointer;
+    color: #333;
+    background-color: white;
+    text-decoration: none;
+    margin: 0 1rem 1rem 0;
+}
+
+.inode>.icon, .inode>.label {
+    width: 128px;
+    display:block;
+}
+
+.inode>.label {
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.delete {
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background-color: white;
+    color: #333;
+}
+
+.inode:hover>.delete {
+    display: block;
+}

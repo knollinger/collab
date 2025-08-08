@@ -3,11 +3,13 @@
     <app-toolbar class="toolbar small-bottom-lightgray-border">
 
         <button mat-icon-button
+                matTooltip="Dateien hinzu fügen"
                 (click)="onPickINodes()">
             <mat-icon class="material-symbols-outlined">attach_file_add</mat-icon>
         </button>
 
         <button mat-icon-button
+                matTooltip="Dateien hoch laden"
                 (click)="fileDialog.click()">
             <mat-icon class="material-symbols-outlined">cloud_upload</mat-icon>
             <input class="hidden"
@@ -16,41 +18,27 @@
                    multiple="true"
                    (change)="onFileUploadBtn($event)">
         </button>
-
-        <app-toolbar-separator></app-toolbar-separator>
-        <button mat-icon-button
-                matTooltip="Alles auswählen"
-                (click)="onSelectAll()">
-            <mat-icon class="material-symbols-outlined">check_box</mat-icon>
-        </button>
-
-        <button mat-icon-button
-                matTooltip="Auswahl aufheben"
-                (click)="onDeselectAll()"
-                [disabled]="!hasSelection">
-            <mat-icon class="material-symbols-outlined">check_box_outline_blank</mat-icon>
-        </button>
-
-        <app-toolbar-separator></app-toolbar-separator>
-        <button mat-icon-button
-                [disabled]="!hasSelection"
-                (click)="onDelete()">
-            <mat-icon class="material-symbols-outlined">delete</mat-icon>
-        </button>
-
     </app-toolbar>
 
     <div class="content"
          [appDropTarget]="attachmentsFolder"
          (filesDropped)="onFilesDropped($event)">
 
-        <div class="inode" *ngFor="let inode of inodesToRender">
-        </div>
-        
-        <!-- <app-folder-view [inodes]="inodesToRender"
-                               [selectedINodes]="selectedNodes"
-                               (selectionChange)="onSelectionChange($event)">
-        </app-folder-view> -->
+        <a class="inode mat-elevation-z4"
+           *ngFor="let inode of inodesToRender"
+           target="_blank"
+           href="viewer/show/{{inode.uuid}}"
+           [matTooltip]="inode.name">
+
+            <img class="icon"
+                 [src]="getIcon(inode)">
+
+            <span class="label">{{inode.name}}</span>
+
+            <button mat-mini-fab class="delete" (click)="onDelete(inode, $event)">
+                <mat-icon class="material-symbols-outlined">delete</mat-icon>
+            </button>
+        </a>
     </div>
 
 </div>

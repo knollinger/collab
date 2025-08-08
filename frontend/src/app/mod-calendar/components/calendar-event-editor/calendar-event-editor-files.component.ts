@@ -55,7 +55,6 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   }
 
   inodesToRender: INode[] = new Array<INode>();
-  selectedNodes: Set<INode> = new Set<INode>();
 
   @Output()
   filesChange: EventEmitter<File[]> = new EventEmitter<File[]>();
@@ -156,61 +155,19 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   }
 
   /**
-   * Selektiere alle INodes
-   */
-  onSelectAll() {
-
-    const newSelection: Set<INode> = new Set<INode>();
-    this.inodesToRender.forEach(inode => {
-      newSelection.add(inode);
-    })
-    this.selectedNodes = newSelection;
-  }
-
-  /**
-   * Lösche die Auswahl
-   */
-  onDeselectAll() {
-
-    this.selectedNodes.clear();
-  }
-
-  /**
-   * Aus dem INode-View wurde die Auswahl geändert.
-   * 
-   * @param selected 
-   */
-  onSelectionChange(selected: Set<INode>) {
-    this.selectedNodes = selected;
-  }
-
-  /**
-   * Liegt eine Selection vor?
-   */
-  get hasSelection(): boolean {
-    return this.selectedNodes.size > 0;
-  }
-
-  /**
-   * Lösche INodes. Entweder wird delete direkt auf einer INode ausgeführt,
-   * in diesem Fall ist der Parameter `inode` gesetzt. Anderenfalls wurde der 
-   * delete via Toolbar ausgelöst, es werden alle selektierten INodes gelöscht.
    * 
    * @param inode 
    */
-  onDelete(inode?: INode) {
+  onDelete(inode: INode, evt: MouseEvent) {
 
-    const toDelete: INode[] = inode ? [inode] : Array.of(...this.selectedNodes);
-    toDelete.forEach(node => {
-      if (node.uuid) {
-        this.attachments = this.attachments.filter(attachment => { return attachment.uuid !== node.uuid });
-      }
-      else {
-        this.files = this.files.filter(file => { return file.name !== node.name }); // TODO: Das ist doch scheiße! Zwei gleichnamige Files können aus unterschiedlichen Verzeichnissen stammen!
-        this.filesChange.emit(this.files);
-      }
-    });
-    this.selectedNodes.clear();
+    evt.preventDefault();
+    if (inode.uuid) {
+      this.attachments = this.attachments.filter(attachment => { return attachment.uuid !== inode.uuid });
+    }
+    else {
+      this.files = this.files.filter(file => { return file.name !== inode.name }); // TODO: Das ist doch scheiße! Zwei gleichnamige Files können aus unterschiedlichen Verzeichnissen stammen!
+      this.filesChange.emit(this.files);
+    }
     this.createRenderNodes();
   }
 
