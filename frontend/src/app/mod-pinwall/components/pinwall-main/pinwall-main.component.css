@@ -20,6 +20,13 @@
 
 .card {
     cursor: pointer;
+    background-color: blanchedalmond;
+}
+
+.card-content {
+    max-height: 10rem;
+    overflow: hidden;
+    text-overflow:ellipsis;
 }
 
 .card:active {
@@ -29,12 +36,19 @@
 .grid-workspace {
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
+    align-items: flex-start;
+    align-content: flex-start;
 }
 
 .-grid-card {
     display: inline-block;
     cursor: pointer;
+}
+
+.grid-card>.card-content {
+    height: 10rem;
+    
 }
 
 .list-workspace {

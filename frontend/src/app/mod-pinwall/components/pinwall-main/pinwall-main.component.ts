@@ -3,6 +3,8 @@ import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SettingsService } from '../../../mod-settings/services/settings.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PinwallService } from '../../services/pinwall.service';
+import { PostIt } from '../../models/postit';
 
 @Component({
   selector: 'app-pinwall-main',
@@ -15,7 +17,7 @@ export class PinwallMainComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   private settings: any = {};
 
-  aa = ['a', 'b', 'b', 'b', 'b', 'b', 'b', 'b', 'b'];
+  postIts: PostIt[] = new Array<PostIt>();
 
   /**
    * 
@@ -23,6 +25,7 @@ export class PinwallMainComponent implements OnInit {
    */
   constructor(
     private titlebarSvc: TitlebarService,
+    private pinwallSvc: PinwallService,
     private settingsSvc: SettingsService) {
 
   }
@@ -33,6 +36,7 @@ export class PinwallMainComponent implements OnInit {
   ngOnInit(): void {
     this.titlebarSvc.subTitle = 'Pinwand';
     this.loadSettings();
+    this.onReload();
   }
 
   /**
@@ -45,6 +49,16 @@ export class PinwallMainComponent implements OnInit {
       .subscribe(settings => {
         this.settings = settings;
       })
+  }
+
+  public onReload() {
+
+    this.pinwallSvc.getAll()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(postIts => {
+        this.postIts = postIts;
+      })
+
   }
 
   public set viewMode(val: string) {

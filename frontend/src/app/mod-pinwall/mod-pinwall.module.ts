@@ -7,13 +7,15 @@ import { ModMaterialImportModule } from '../mod-material-import/mod-material-imp
 
 import { PinwallMainComponent } from './components/pinwall-main/pinwall-main.component';
 import { ModPinwallRoutingModule } from './mod-pinwall-routing.module';
+import { PinwallEditorComponent } from './components/pinwall-editor/pinwall-editor.component';
 
 /**
  * 
  */
 @NgModule({
   declarations: [
-    PinwallMainComponent
+    PinwallMainComponent,
+    PinwallEditorComponent
   ],
   imports: [
     CommonModule,

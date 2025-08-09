@@ -3,11 +3,11 @@
     <!-- die Toolbar -->
     <app-toolbar class="small-bottom-lightgray-border toolbar">
 
-        <button mat-icon-button>
+        <button mat-icon-button routerLink="/pinwall/edit/">
             <mat-icon class="material-symbols-outlined">note_add</mat-icon>
         </button>
 
-        <button mat-icon-button>
+        <button mat-icon-button (click)="onReload()">
             <mat-icon class="material-symbols-outlined">refresh</mat-icon>
         </button>
 
@@ -36,13 +36,14 @@
         <mat-card class="card"
                   [class.grid-card]="viewMode==='grid'"
                   [class.list-card]="viewMode==='list'"
-                  *ngFor="let a of aa">
+                  routerLink="/pinwall/edit/123"
+                  *ngFor="let postIt of postIts">
 
             <mat-card-header>
                 <div class="card-header">
                     <img class="card-avatar"
                          src="http://localhost:8080/v1/users/avatar/31da8e8e-e7db-4338-b597-dabc5e41bc16">
-                    <span class="card-title">Test TestTestTestTestTestTestTestTestTestTestTestTestTestTest</span>
+                    <span class="card-title">{{postIt.title}}</span>
                     <button mat-icon-button
                             [matMenuTriggerFor]="menu"
                             class="card-menu">
@@ -67,12 +68,8 @@
                 </div>
             </mat-card-header>
 
-            <mat-card-content>
-                <p>
-                    The Shiba Inu is the smallest of the six original and distinct spitz breeds of dog from Japan.
-                    A small, agile dog that copes very well with mountainous terrain, the Shiba Inu was originally
-                    bred for hunting.
-                </p>
+            <mat-card-content class="card-content">
+                {{postIt.content}}
             </mat-card-content>
         </mat-card>
     </div>

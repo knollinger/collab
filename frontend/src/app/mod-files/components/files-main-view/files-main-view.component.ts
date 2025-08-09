@@ -38,9 +38,6 @@ export class FilesMainViewComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  // public viewMode: string = 'grid';
-  // public iconSize: number = 128;
-
   @ViewChild('leftPane')
   leftPane: FilesFolderViewComponent | null = null;
 

@@ -31,7 +31,11 @@
               "src/styles.css"
             ],
             "scripts": [],
-            "baseHref": "/ui"
+            "baseHref": "/ui",
+            "allowedCommonJsDependencies": [
+              "moment",
+              "quill-delta"
+            ]
           },
           "configurations": {
             "production": {

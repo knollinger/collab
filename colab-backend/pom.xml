@@ -1,691 +1,173 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-        	
-  
-  
-  
-  <modelVersion>4.0.0</modelVersion>
-        	
-  
-  
-  
-  <groupId>org.knollinger</groupId>
-        	
-  
-  
-  
-  <artifactId>colab-backend</artifactId>
-        	
-  
-  
-  
-  <version>1.0-SNAPSHOT</version>
-        	
-  
-  
-  
-  <packaging>pom</packaging>
-        	
-  
-  
-  
-  <name>colab-backend</name>
-        	
-  
-  
-  
-  <url>https://github.com/knollinger/collab</url>
-        	
-  
-  
-  
-  <properties>
-                		
-    
-    
-    
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-                		
-    
-    
-    
-    <maven.compiler.release>17</maven.compiler.release>
-                	
-  
-  
-  
-  </properties>
-        	
-  
-  
-  
-  <dependencyManagement>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.knollinger</groupId>
+	<artifactId>colab-backend</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>colab-backend</name>
+	<url>https://github.com/knollinger/collab</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.release>17</maven.compiler.release>
+	</properties>
+
+	<dependencyManagement>
 	</dependencyManagement>
-        	
-  
-  
-  
-  <dependencies>
-                		
-    
-    
-    
-    <dependency>
-                        			
-      
-      
-      
-      <groupId>org.springframework.boot</groupId>
-                        			
-      
-      
-      
-      <artifactId>spring-boot-starter-web</artifactId>
-                        			
-      
-      
-      
-      <version>3.5.2</version>
-                        		
-    
-    
-    
-    </dependency>
-                		
-    
-    
-    
-    <dependency>
-                        			
-      
-      
-      
-      <groupId>org.springframework.boot</groupId>
-                        			
-      
-      
-      
-      <artifactId>spring-boot-devtools</artifactId>
-                        			
-      
-      
-      
-      <version>3.5.2</version>
-                        		
-    
-    
-    
-    </dependency>
-                		
-    
-    
-    
-    <dependency>
-                        			
-      
-      
-      
-      <groupId>org.projectlombok</groupId>
-                        			
-      
-      
-      
-      <artifactId>lombok</artifactId>
-                        			
-      
-      
-      
-      <version>1.18.38</version>
-                        		
-    
-    
-    
-    </dependency>
-                		
-    
-    
-    
-    <dependency>
-                        			
-      
-      
-      
-      <groupId>org.mapstruct</groupId>
-                        			
-      
-      
-      
-      <artifactId>mapstruct</artifactId>
-                        			
-      
-      
-      
-      <version>1.4.1.Final</version>
-                        		
-    
-    
-    
-    </dependency>
-                	
-  
-  
-  
-  </dependencies>
-        	
-  
-  
-  
-  <build>
-                		
-    
-    
-    
-    <pluginManagement>
-                        			
-      
-      
-      
-      <plugins>
-                                				
-        
-        
-        
-        <plugin>
-                                        					
-          
-          
-          
-          <artifactId>maven-clean-plugin</artifactId>
-                                        					
-          
-          
-          
-          <version>3.4.0</version>
-                                        				
-        
-        
-        
-        </plugin>
-                                				
-        
-        
-        
-        <plugin>
-                                        					
-          
-          
-          
-          <artifactId>maven-resources-plugin</artifactId>
-                                        					
-          
-          
-          
-          <version>3.3.1</version>
-                                        				
-        
-        
-        
-        </plugin>
-                                				
-        
-        
-        
-        <plugin>
-                                        					
-          
-          
-          
-          <groupId>org.springframework.boot</groupId>
-                                        					
-          
-          
-          
-          <artifactId>spring-boot-maven-plugin</artifactId>
-                                        					
-          
-          
-          
-          <configuration>
-                                                						
-            
-            
-            
-            <excludes>
-                                                        							
-              
-              
-              
-              <exclude>
-                                                                								
-                
-                
-                
-                <groupId>org.projectlombok</groupId>
-                                                                								
-                
-                
-                
-                <artifactId>lombok</artifactId>
-                                                                							
-              
-              
-              
-              </exclude>
-                                                        						
-            
-            
-            
-            </excludes>
-                                                					
-          
-          
-          
-          </configuration>
-                                        				
-        
-        
-        
-        </plugin>
-                                				
-        
-        
-        
-        <plugin>
-                                        					
-          
-          
-          
-          <artifactId>maven-compiler-plugin</artifactId>
-                                        					
-          
-          
-          
-          <version>3.13.0</version>
-                                        					
-          
-          
-          
-          <configuration>
-                                                						
-            
-            
-            
-            <source>${java.version}</source>
-                                                						
-            
-            
-            
-            <target>${java.version}</target>
-                                                						
-            
-            
-            
-            <annotationProcessorPaths>
-                                                        							
-              
-              
-              
-              <path>
-                                                                								
-                
-                
-                
-                <groupId>org.mapstruct</groupId>
-                                                                								
-                
-                
-                
-                <artifactId>mapstruct-processor</artifactId>
-                                                                								
-                
-                
-                
-                <version>1.4.1.Final</version>
-                                                                							
-              
-              
-              
-              </path>
-                                                        							
-              
-              
-              
-              <path>
-                                                                								
-                
-                
-                
-                <groupId>org.projectlombok</groupId>
-                                                                								
-                
-                
-                
-                <artifactId>lombok</artifactId>
-                                                                								
-                
-                
-                
-                <version>1.18.20</version>
-                                                                							
-              
-              
-              
-              </path>
-                                                        							
-              
-              
-              
-              <!-- This is needed when using Lombok 1.18.16 and
+
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<version>3.5.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<version>3.5.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.38</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>1.4.1.Final</version>
+		</dependency>
+	</dependencies>
+
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.4.0</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.3.1</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+					<configuration>
+						<excludes>
+							<exclude>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+							</exclude>
+						</excludes>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.13.0</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+						<annotationProcessorPaths>
+							<path>
+								<groupId>org.mapstruct</groupId>
+								<artifactId>mapstruct-processor</artifactId>
+								<version>1.4.1.Final</version>
+							</path>
+
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>1.18.20</version>
+							</path>
+
+							<!-- This is needed when using Lombok 1.18.16 and
 							above -->
-                                                        							
-              
-              
-              
-              <path>
-                                                                								
-                
-                
-                
-                <groupId>org.projectlombok</groupId>
-                                                                								
-                
-                
-                
-                <artifactId>lombok-mapstruct-binding</artifactId>
-                                                                								
-                
-                
-                
-                <version>0.2.0</version>
-                                                                							
-              
-              
-              
-              </path>
-                                                        						
-            
-            
-            
-            </annotationProcessorPaths>
-                                                					
-          
-          
-          
-          </configuration>
-                                        				
-        
-        
-        
-        </plugin>
-                                				
-        
-        
-        
-        <plugin>
-                                        					
-          
-          
-          
-          <artifactId>maven-surefire-plugin</artifactId>
-                                        					
-          
-          
-          
-          <version>3.3.0</version>
-                                        				
-        
-        
-        
-        </plugin>
-                                				
-        
-        
-        
-        <plugin>
-                                        					
-          
-          
-          
-          <artifactId>maven-jar-plugin</artifactId>
-                                        					
-          
-          
-          
-          <version>3.4.2</version>
-                                        				
-        
-        
-        
-        </plugin>
-                                				
-        
-        
-        
-        <plugin>
-                                        					
-          
-          
-          
-          <artifactId>maven-install-plugin</artifactId>
-                                        					
-          
-          
-          
-          <version>3.1.2</version>
-                                        				
-        
-        
-        
-        </plugin>
-                                				
-        
-        
-        
-        <plugin>
-                                        					
-          
-          
-          
-          <artifactId>maven-deploy-plugin</artifactId>
-                                        					
-          
-          
-          
-          <version>3.1.2</version>
-                                        				
-        
-        
-        
-        </plugin>
-                                				
-        
-        
-        
-        <plugin>
-                                        					
-          
-          
-          
-          <artifactId>maven-site-plugin</artifactId>
-                                        					
-          
-          
-          
-          <version>3.12.1</version>
-                                        				
-        
-        
-        
-        </plugin>
-                                				
-        
-        
-        
-        <plugin>
-                                        					
-          
-          
-          
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-                                        					
-          
-          
-          
-          <version>3.6.1</version>
-                                        				
-        
-        
-        
-        </plugin>
-                                			
-      
-      
-      
-      </plugins>
-                        		
-    
-    
-    
-    </pluginManagement>
-                	
-  
-  
-  
-  </build>
-        	
-  
-  
-  
-  <modules>
-                		
-    
-    
-    
-    <module>main</module>
-                		
-    
-    
-    
-    <module>mod-filesys-data</module>
-                		
-    
-    
-    
-    <module>mod-filesys-services</module>
-                		
-    
-    
-    
-    <module>mod-filesys-web</module>
-                		
-    
-    
-    
-    <module>mod-calendar-data</module>
-                		
-    
-    
-    
-    <module>mod-calendar-services</module>
-                		
-    
-    
-    
-    <module>mod-calendar-web</module>
-                		
-    
-    
-    
-    <module>mod-user-data</module>
-                		
-    
-    
-    
-    <module>mod-user-services</module>
-                		
-    
-    
-    
-    <module>mod-user-web</module>
-                		
-    
-    
-    
-    <module>mod-user-web-data</module>
-                		
-    
-    
-    
-    <module>mod-hashtags-web</module>
-                		
-    
-    
-    
-    <module>mod-hashtags-data</module>
-                		
-    
-    
-    
-    <module>mod-hashtags-services</module>
-                		
-    
-    
-    
-    <module>mod-search-services</module>
-                		
-    
-    
-    
-    <module>mod-search-data</module>
-                		
-    
-    
-    
-    <module>mod-search-web</module>
-                		
-    
-    
-    
-    <module>mod-utils-services</module>
-                		
-    
-    
-    
-    <module>mod-wopi-services</module>
-                		
-    
-    
-    
-    <module>mod-wopi-data</module>
-                		
-    
-    
-    
-    <module>mod-wopi-web</module>
-                	  
-    
-    
-    
-    <module>mod-dashboard-data</module>
-                
-    
-    
-    <module>mod-dashboard-services</module>
-                
-    
-    
-    <module>mod-dashboard-web</module>
-                
-    
-    
-    <module>mod-settings-services</module>
-          
-    
-    <module>mod-settings-web</module>
-      
-  </modules>
-        
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok-mapstruct-binding</artifactId>
+								<version>0.2.0</version>
+							</path>
+						</annotationProcessorPaths>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>3.3.0</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.4.2</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>3.1.2</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>3.1.2</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>3.12.1</version>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>3.6.1</version>
+				</plugin>
+
+			</plugins>
+
+		</pluginManagement>
+
+	</build>
 
 
+	<modules>
+		<module>main</module>
+		<module>mod-filesys-data</module>
+		<module>mod-filesys-services</module>
+		<module>mod-filesys-web</module>
+		<module>mod-calendar-data</module>
+		<module>mod-calendar-services</module>
+		<module>mod-calendar-web</module>
+		<module>mod-user-data</module>
+		<module>mod-user-services</module>
+		<module>mod-user-web</module>
+		<module>mod-user-web-data</module>
+		<module>mod-hashtags-web</module>
+		<module>mod-hashtags-data</module>
+		<module>mod-hashtags-services</module>
+		<module>mod-search-services</module>
+		<module>mod-search-data</module>
+		<module>mod-search-web</module>
+		<module>mod-utils-services</module>
+		<module>mod-wopi-services</module>
+		<module>mod-wopi-data</module>
+		<module>mod-wopi-web</module>
+		<module>mod-dashboard-data</module>
+		<module>mod-dashboard-services</module>
+		<module>mod-dashboard-web</module>
+		<module>mod-settings-services</module>
+		<module>mod-settings-web</module>
+		<module>mod-pinwall-data</module>
+		<module>mod-pinwall-web</module>
+		<module>mod-pinwall-services</module>
+	</modules>
 
 </project>
