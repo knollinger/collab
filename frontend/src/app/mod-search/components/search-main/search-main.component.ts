@@ -80,7 +80,6 @@ export class SearchMainComponent implements OnInit {
           this.searchSvc.search(query)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(results => {
-              console.log(results);
               this.results = results;
             })
         }
@@ -131,8 +130,6 @@ export class SearchMainComponent implements OnInit {
     else {
       this.filters.add(filter);
     }
-
-    console.log(this.filters);
   }
 
   /**

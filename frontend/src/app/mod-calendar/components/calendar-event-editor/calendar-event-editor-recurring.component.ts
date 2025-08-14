@@ -241,7 +241,6 @@ export class CalendarEventEditorRecurringComponent implements AfterViewInit {
    */
   onRepeatModeChange(val: string) {
 
-    console.log('onRepModeChange');
     switch (val) {
 
       case 'REPEAT_INFINITE':

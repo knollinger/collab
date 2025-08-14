@@ -62,7 +62,6 @@ export class CalendarEventMenuComponent {
    * 
    */
   onDeleteSerie() {
-    console.log(`deleteSerie ${this.currStart}`);
     this.deleteEvent.emit(this.calendarEvent);
   }
 

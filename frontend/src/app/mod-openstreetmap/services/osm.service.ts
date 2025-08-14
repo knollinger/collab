@@ -42,7 +42,6 @@ export class OSMService {
   reverseSearch(lat: number, lon: number): Observable<OSMLocation> {
 
     const url = OSMService.reverseUrl.replace('{lat}', lat.toString()).replace('{lon}', lon.toString());
-    console.log(url);
 
     return this.http.get<IOSMLocation>(url, { withCredentials: false })
       .pipe(
@@ -55,7 +54,6 @@ export class OSMService {
   lookup(osmLocId: string): Observable<OSMLocation[]> {
 
     const url = OSMService.lookupUrl.replace('{id}', osmLocId);
-    console.log(url);
 
     return this.http.get<IOSMLocation[]>(url, { withCredentials: false })
       .pipe(

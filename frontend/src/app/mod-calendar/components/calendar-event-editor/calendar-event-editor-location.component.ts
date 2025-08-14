@@ -50,5 +50,12 @@ export class CalendarEventEditorLocationComponent {
    */
   onLocationPicked(location: OSMLocation) {
     this.currLocation = location;
+    this.locationIdChange.next(location.osmId);
+  }
+
+  onLocationSelected(location: OSMLocation) {
+    console.dir(location);
+    this.currLocation = location;
+    this.locationIdChange.next(location.osmId);
   }
 }

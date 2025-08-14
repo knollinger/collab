@@ -2,6 +2,7 @@
      [class.show-map-utils]="showMap">
     <app-open-street-map class="location-map"
                          [location]="currLocation"
+                         (locationChange)="onLocationSelected($event)"
                          *ngIf="showMap">
     </app-open-street-map>
 

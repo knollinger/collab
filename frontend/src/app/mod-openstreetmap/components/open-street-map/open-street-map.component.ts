@@ -22,9 +22,6 @@ export class OpenStreetMapComponent implements AfterViewInit {
   private markerTemplate: L.Icon;
   private currMarker: L.Marker | null = null;
 
-  @Output()
-  locationChange: BehaviorSubject<OSMLocation> = new BehaviorSubject<OSMLocation>(OSMLocation.empty());
-
   /**
    * 
    * @param osmSvc 
@@ -60,7 +57,6 @@ export class OpenStreetMapComponent implements AfterViewInit {
    */
   private initMap(): void {
 
-    console.log('initMap');
     const lat = 0;
     const lon = 0;
     this.map = L.map(this.mapCnr!.nativeElement, {
@@ -79,11 +75,8 @@ export class OpenStreetMapComponent implements AfterViewInit {
       this.onMapClick(evt.latlng);
     });
 
-    const currLoc = this.location;
-    if (!currLoc.isEmpty()) {
-      console.log('setMarker')
-      this.setMarker(currLoc.lat, currLoc.lon, 10);
-
+    if (!this.location.isEmpty()) {
+      this.setMarker(this.location.lat, this.location.lon);
     }
   }
 
@@ -93,31 +86,35 @@ export class OpenStreetMapComponent implements AfterViewInit {
    * 
    * @param location 
    */
+  private _location: OSMLocation = OSMLocation.empty();
+  
   @Input()
   public set location(location: OSMLocation) {
 
-    console.log(`Map::setLocation: ${location}`);
     this.removeMarker();
-    if (location && !location.isEmpty()) {
+    this._location = location;
 
-      this.locationChange.next(location);
-      if (this.map) {
+    if (this.map) {
         this.setMarker(location.lat, location.lon, 16);
-      }
     }
   }
 
   public get location(): OSMLocation {
-    return this.locationChange.value;
+    return this._location;
   }
+
+  @Output()
+  locationChange: EventEmitter<OSMLocation> = new EventEmitter<OSMLocation>();
+
 
   /**
    * 
    * @param latLon 
    */
   onMapClick(latLon: L.LatLng) {
-    this.setMarker(latLon.lat, latLon.lng);
     this.osmSvc.reverseSearch(latLon.lat, latLon.lng).subscribe(location => {
+      this.setMarker(location.lat, location.lon);
+      this._location = location;
       this.locationChange.next(location);
     });
   }

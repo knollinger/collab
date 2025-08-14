@@ -68,7 +68,6 @@ export class CryptoService {
     }, key, encrypted);
 
     const json = JSON.parse(new TextDecoder().decode(decrypted));
-    console.log(JSON.stringify(json));
 
     return {
       privateKey: await this.cSubtle.importKey("jwk", json.privateKey, '', false, ["deriveKey"]),

@@ -30,7 +30,6 @@ export class ClipboardService {
 
     this._inodes = (src instanceof INode) ? Array.of(src) : src;
     this._op = ClipboardService.OP_MOVE;
-    console.log('cut inodes: ' + this._inodes);
   }
 
   /**
@@ -40,7 +39,6 @@ export class ClipboardService {
   public copy(src: INode | INode[]) {
     this._inodes = (src instanceof INode) ? Array.of(src) : src;
     this._op = ClipboardService.OP_COPY;
-    console.log('copy inodes: ' + this._inodes);
   }
 
   /**
@@ -50,7 +48,6 @@ export class ClipboardService {
   public link(src: INode | INode[]) {
     this._inodes = (src instanceof INode) ? Array.of(src) : src;
     this._op = ClipboardService.OP_LINK;
-    console.log('copy inodes: ' + this._inodes);
   }
 
   /**

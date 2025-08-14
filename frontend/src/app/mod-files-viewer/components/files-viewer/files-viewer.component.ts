@@ -55,18 +55,14 @@ export class FilesViewerComponent {
       .subscribe(params => {
 
         const uuid = params.get('uuid') || '';
-        console.log(`show viewer for uuid ${uuid}`);
 
         // INode laden
         this.inodeSvc.getINode(uuid)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(inode => {
 
-            console.log(`inode loaded: ${JSON.stringify(inode)}`);
             this.inode = inode;
             this.titleBarSvc.subTitle = inode.name;
-
-            console.log('load mimetypes');
             this.loadMimetypes(inode);
           })
       })

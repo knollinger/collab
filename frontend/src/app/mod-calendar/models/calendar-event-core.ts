@@ -175,7 +175,8 @@ export class CalendarEventCore {
             desc: this.desc,
             category: this.category,
             fullDay: this.fullDay,
-            rruleset: this.rruleSet ? this.rruleSet.toString() : ''
+            rruleset: this.rruleSet ? this.rruleSet.toString() : '',
+            osmLocId: this.osmLocId ? this.osmLocId :  ''
         }
     }
 
@@ -287,6 +288,7 @@ export class CalendarEventCore {
     }
 
     set osmLocId(val: string | null) {
+
         if (this.osmLocIdChange.value !== val) {
             this.osmLocIdChange.next(val);
         }

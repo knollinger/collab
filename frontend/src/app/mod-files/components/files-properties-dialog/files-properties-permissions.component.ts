@@ -112,7 +112,6 @@ export class FilesPropertiesPermissionsComponent implements OnInit {
      */
     public onGroupChange(evt: MatSelectChange) {
 
-        console.log(evt);
         this.inode = new INode( //
             this.inode.name, //
             this.inode.uuid, //
