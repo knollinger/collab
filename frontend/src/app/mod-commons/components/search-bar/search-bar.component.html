@@ -1,0 +1,21 @@
+<div class="outer-cnr">
+    <input #searchInput
+           [value]="value"
+           (input)="onSearchInput($event)"
+           (keyup)="onKeyUp($event)"
+           [matAutocomplete]="auto">
+
+    <button mat-icon-button
+            (click)="onClear(searchInput)">
+        <mat-icon class="material-symbols-outlined">close_small</mat-icon>
+    </button>
+
+    <mat-autocomplete #auto="matAutocomplete"
+                      (optionSelected)="onOptionSelected($event)">
+        <mat-option *ngFor="let option of optionsFound"
+                    [value]="option">
+            {{option}}
+        </mat-option>
+    </mat-autocomplete>
+
+</div>

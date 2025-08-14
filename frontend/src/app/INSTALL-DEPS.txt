@@ -11,3 +11,5 @@ npm install --save \
   @fullcalendar/multimonth \
   @fullcalendar/interaction
   
+npm install --save leaflet
+

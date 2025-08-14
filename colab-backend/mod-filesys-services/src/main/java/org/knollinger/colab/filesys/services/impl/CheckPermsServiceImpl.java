@@ -8,7 +8,6 @@ import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.models.IPermissions;
 import org.knollinger.colab.filesys.services.ICheckPermsService;
 import org.knollinger.colab.user.models.Group;
-import org.knollinger.colab.user.models.TokenPayload;
 import org.knollinger.colab.user.models.User;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,18 +56,16 @@ public class CheckPermsServiceImpl implements ICheckPermsService
         int result = this.extractWorldPerms(perms);
         if (result != IPermissions.ALL_PERMS)
         {
-            TokenPayload token = this.currUserSvc.get();
-            if (!token.isEmpty())
+            User user = this.currUserSvc.getUser();
+            if (!user.isEmpty())
             {
-                User user = token.getUser();
-                if (user.getUserId().equals(ownerId))
                 {
                     result |= this.extractUserPerms(perms);
                 }
 
                 if (result != IPermissions.ALL_PERMS)
                 {
-                    for (Group group : token.getGroups())
+                    for (Group group : this.currUserSvc.getGroups())
                     {
                         if (group.getUuid().equals(groupId))
                         {

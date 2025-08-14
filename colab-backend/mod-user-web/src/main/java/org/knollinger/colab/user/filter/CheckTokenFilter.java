@@ -73,7 +73,8 @@ public class CheckTokenFilter extends OncePerRequestFilter
         {
             try
             {
-                this.currentUserSvc.set(payload);
+                this.currentUserSvc.setToken(payload);
+                this.currentUserSvc.setLanguage(this.extractLanguage(httpReq));
                 chain.doFilter(httpReq, httpRsp);
             }
             finally
@@ -87,6 +88,22 @@ public class CheckTokenFilter extends OncePerRequestFilter
             httpRsp.setHeader("Access-Control-Allow-Origin", "*");
             httpRsp.getOutputStream().write("Ooooooops".getBytes());
         }
+    }
+
+    /**
+     * 
+     * @param httpReq
+     * @return
+     */
+    private String extractLanguage(HttpServletRequest httpReq)
+    {
+        String result = "de-DE";
+        String header = httpReq.getHeader("Accept-Language");
+        if (header != null && !header.isBlank())
+        {
+            result = header.split(",")[0].trim();
+        }
+        return result;
     }
 
     /**

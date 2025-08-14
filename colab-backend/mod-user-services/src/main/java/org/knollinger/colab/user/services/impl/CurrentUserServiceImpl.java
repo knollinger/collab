@@ -27,23 +27,15 @@ import org.springframework.stereotype.Service;
 public class CurrentUserServiceImpl implements ICurrentUserService
 {
     private ThreadLocal<TokenPayload> tokenPayload = ThreadLocal.withInitial(() -> TokenPayload.empty());
+    private ThreadLocal<String> lang = ThreadLocal.withInitial(() -> "de-DE");
 
     /**
      *
      */
     @Override
-    public void set(TokenPayload payload)
+    public void setToken(TokenPayload payload)
     {
         this.tokenPayload.set(payload);
-    }
-
-    /**
-     *
-     */
-    @Override
-    public TokenPayload get()
-    {
-        return this.tokenPayload.get();
     }
 
     /**
@@ -61,8 +53,8 @@ public class CurrentUserServiceImpl implements ICurrentUserService
     @Override
     public User getUser()
     {
-        User user = null;
-        TokenPayload token = this.get();
+        User user = User.empty();
+        TokenPayload token = this.tokenPayload.get();
         if (token != null)
         {
             user = token.getUser();
@@ -73,12 +65,26 @@ public class CurrentUserServiceImpl implements ICurrentUserService
     @Override
     public List<Group> getGroups()
     {
-        List<Group> groups = null;
-        TokenPayload token = this.get();
+        List<Group> groups = Collections.emptyList();
+        TokenPayload token = this.tokenPayload.get();
         if (token != null)
         {
             groups = Collections.unmodifiableList(token.getGroups());
         }
         return groups;
+    }
+    
+    /**
+     * 
+     */
+    public void setLanguage(String language) {
+        this.lang.set(language);
+    }
+    
+    /**
+     * 
+     */
+    public String getLanguage() {
+        return this.lang.get();
     }
 }

@@ -54,7 +54,12 @@ export interface ICalendarEventCore {
     /**
      * Gegebenenfalls existiert ein RecurrenceRuleSet
      */
-    rruleset?: string
+    rruleset?: string,
+
+    /**
+     * Ggf existiert eine Openstreatmap-LocationId
+     */
+    osmLocId?: string
 }
 
 /**
@@ -83,6 +88,7 @@ export class CalendarEventCore {
     public readonly fullDayChange: BehaviorSubject<boolean>;
     public readonly rrulesetChange: BehaviorSubject<RRuleSet | null>;
     public readonly privateChange: BehaviorSubject<boolean>;
+    public readonly osmLocIdChange: BehaviorSubject<string | null>;
 
     /**
      * 
@@ -104,7 +110,8 @@ export class CalendarEventCore {
         desc: string,
         category: string,
         fullDay: boolean,
-        rruleset: RRuleSet | null) {
+        rruleset: RRuleSet | null,
+        osmLocId: string | null) {
 
         this.uuidChange = new BehaviorSubject<string>(uuid);
         this.ownerChange = new BehaviorSubject<string>(owner);
@@ -116,6 +123,7 @@ export class CalendarEventCore {
         this.categoryChange = new BehaviorSubject<string>(category);
         this.rrulesetChange = new BehaviorSubject<RRuleSet | null>(rruleset);
         this.privateChange = new BehaviorSubject<boolean>(false);
+        this.osmLocIdChange = new BehaviorSubject<string | null>(osmLocId);
     }
 
     /**
@@ -123,7 +131,7 @@ export class CalendarEventCore {
      * @returns 
      */
     public static empty(): CalendarEventCore {
-        return new CalendarEventCore('', '', '', new Date(), new Date(), '', '', false, null);
+        return new CalendarEventCore('', '', '', new Date(), new Date(), '', '', false, null, null);
     }
 
     /**
@@ -143,11 +151,13 @@ export class CalendarEventCore {
 
         let ruleset: RRuleSet | null = null;
         if (json.rruleset) {
-            ruleset = rrulestr(json.rruleset, {forceset: true}) as RRuleSet;
+            ruleset = rrulestr(json.rruleset, { forceset: true }) as RRuleSet;
         }
+
+        const locId = json.osmLocId ? json.osmLocId : null;
         const start = new Date(json.start); // wird als UTC angeliefert!
         const end = new Date(json.end); // dito
-        return new CalendarEventCore(json.uuid, json.owner, json.title, start, end, json.desc, json.category, json.fullDay, ruleset);
+        return new CalendarEventCore(json.uuid, json.owner, json.title, start, end, json.desc, json.category, json.fullDay, ruleset, locId);
     }
 
     /**
@@ -275,6 +285,17 @@ export class CalendarEventCore {
     get isRecurring(): boolean {
         return this.rruleSet !== null;
     }
+
+    set osmLocId(val: string | null) {
+        if (this.osmLocIdChange.value !== val) {
+            this.osmLocIdChange.next(val);
+        }
+    }
+
+    get osmLocId(): string | null {
+        return this.osmLocIdChange.value;
+    }
+
 
     /**
      * Transformiere das CalendarEvent in eine Form, welche vom Fullcalendar

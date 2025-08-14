@@ -39,31 +39,24 @@ public class CalendarServiceImpl implements ICalendarService
     private static final String ERR_DELETE_EVENT = "Das Event konnte nicht gelöscht werden.";
 
     private static final String SQL_GET_ALL_EVENTS = "" //
-//        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `category`, `fullDay`, `rruleset`" //
-//        + " from calendar" //
-//        + "  where start <= ? and last_occurence >=?";
-          + "select `c`.`uuid`, `c`.`owner`, `c`.`start`, `c`.`end`, `c`.`title`, `c`.`desc`, `c`.`category`, `c`.`fullDay`, `c`.`rruleset`" //
+          + "select `c`.`uuid`, `c`.`owner`, `c`.`start`, `c`.`end`, `c`.`title`, `c`.`desc`, `c`.`category`, `c`.`fullDay`, `c`.`rruleset`, `c`.`osmLocId`" //
           + "  from calendar c" //
           + "  left join calendar_persons p" //
           + "  on c.uuid=p.eventId" //
           + "  where c.start <= ? and c.last_occurence >=? AND p.userId=?";
         
-        
-        
-        
-        
     private static final String SQL_GET_EVENT_CORE = "" //
-        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `category`, `fullDay`, `rruleset`" //
+        + "select `uuid`, `owner`, `start`, `end`, `title`, `desc`, `category`, `fullDay`, `rruleset`, `osmLocId`" //
         + " from calendar" //
         + "  where `uuid`=?";
 
     private static final String SQL_CREATE_EVENT_CORE = "" //
         + "insert into calendar " //
-        + "  set `uuid`=?, `owner`=?, `start`=?, `end`=?, `title`=?, `desc`=?, `category`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?";
+        + "  set `uuid`=?, `owner`=?, `start`=?, `end`=?, `title`=?, `desc`=?, `category`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?, `osmLocId`=?";
 
     private static final String SQL_UPDATE_EVENT_CORE = "" //
         + "update calendar " //
-        + "  set `start`=?, `end`=?, `title`=?, `desc`=?, `category`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?" //
+        + "  set `start`=?, `end`=?, `title`=?, `desc`=?, `category`=?, `fullDay`=?, `rruleset`=?, `last_occurence`=?, `osmLocId`=?" //
         + "  where `uuid`=?";
 
     private static final String SQL_DELETE_EVENT_CORE = "" //
@@ -108,6 +101,7 @@ public class CalendarServiceImpl implements ICalendarService
             stmt.setTimestamp(2, start);
             stmt.setString(3, this.currUserSvc.getUser().getUserId().toString());
 
+            System.err.println(stmt);
             rs = stmt.executeQuery();
             while (rs.next())
             {
@@ -126,6 +120,7 @@ public class CalendarServiceImpl implements ICalendarService
         }
         catch (SQLException | IOException | InvalidRecurrenceRuleException | ParseException e)
         {
+            e.printStackTrace();
             throw new TechnicalCalendarException(ERR_LOAD_ALL_EVENTS, e);
         }
         finally
@@ -299,6 +294,7 @@ public class CalendarServiceImpl implements ICalendarService
             stmt.setBoolean(8, evt.isFullDay());
             stmt.setString(9, ruleSet);
             stmt.setTimestamp(10, lastOccurence);
+            stmt.setString(11, evt.getOsmLocId());
             stmt.executeUpdate();
             
             return CalendarEventCore.builder() //
@@ -357,7 +353,8 @@ public class CalendarServiceImpl implements ICalendarService
             stmt.setBoolean(6, evt.isFullDay());
             stmt.setString(7, ruleSet);
             stmt.setTimestamp(8, lastOccurence);
-            stmt.setString(9, evt.getUuid().toString());
+            stmt.setString(9, evt.getOsmLocId());
+            stmt.setString(10, evt.getUuid().toString());
             if (stmt.executeUpdate() != 1)
             {
                 throw new CalEventNotFoundException(evt.getUuid());
@@ -470,6 +467,7 @@ public class CalendarServiceImpl implements ICalendarService
             .category(ECalendarEventCategory.valueOf(rs.getString("category"))) //
             .fullDay(rs.getBoolean("fullDay")) //
             .rruleset(rs.getString("rruleset")) //
+            .osmLocId(rs.getString("osmLocId")) //
             .build();
     }
 }

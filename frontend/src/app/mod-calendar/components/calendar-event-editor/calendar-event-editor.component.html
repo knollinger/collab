@@ -6,6 +6,7 @@
         <!-- Core Daten -->
         <mat-tab>
             <ng-template mat-tab-label>
+                <mat-icon class="tab-icon material-symbols-outlined">today</mat-icon>
                 <span>Termin</span>
                 <span class="invalid-marker"
                       *ngIf="!mainFormValid">*</span>
@@ -18,6 +19,7 @@
         <!-- Wiederholungen -->
         <mat-tab>
             <ng-template mat-tab-label>
+                <mat-icon class="tab-icon material-symbols-outlined">event_repeat</mat-icon>
                 <span>Wiederholung</span>
                 <span class="invalid-marker"
                       *ngIf="!recurringFormValid">*</span>
@@ -30,6 +32,7 @@
         <!-- Personen -->
         <mat-tab>
             <ng-template mat-tab-label>
+                <mat-icon class="tab-icon material-symbols-outlined">person</mat-icon>
                 <span>Personen</span>
                 <span class="invalid-marker"
                       *ngIf="!personFormValid">*</span>
@@ -41,20 +44,32 @@
         </mat-tab>
 
         <!-- Orte -->
-        <mat-tab label="Ort">
-            not yet implemented
-        </mat-tab>
-
-        <!-- Hashtags -->
-        <mat-tab label="Tags">
-            <app-hashtag-selector [(hashTags)]="fullEvent.hashTags"></app-hashtag-selector>
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon material-symbols-outlined">location_on</mat-icon>
+                <span>Ort</span>
+            </ng-template>
+            <app-calendar-event-editor-location [(locationId)]="fullEvent.core.osmLocId"></app-calendar-event-editor-location>
         </mat-tab>
 
         <!-- Files -->
-        <mat-tab label="Anhänge">
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon material-symbols-outlined">attach_file</mat-icon>
+                <span>Anhänge</span>
+            </ng-template>
             <app-calendar-event-editor-files [(attachments)]="fullEvent.attachments"
                                              (filesChange)="onUploadChange($event)">
             </app-calendar-event-editor-files>
+        </mat-tab>
+
+        <!-- Hashtags -->
+        <mat-tab>
+            <ng-template mat-tab-label>
+                <mat-icon class="tab-icon material-symbols-outlined">tag</mat-icon>
+                <span>Hashtags</span>
+            </ng-template>
+            <app-hashtag-selector [(hashTags)]="fullEvent.hashTags"></app-hashtag-selector>
         </mat-tab>
 
     </mat-tab-group>

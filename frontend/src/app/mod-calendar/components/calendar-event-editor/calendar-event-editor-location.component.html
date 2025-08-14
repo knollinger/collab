@@ -1,0 +1,24 @@
+<div class="outer-cnr"
+     [class.show-map-utils]="showMap">
+    <app-open-street-map class="location-map"
+                         [location]="currLocation"
+                         *ngIf="showMap">
+    </app-open-street-map>
+
+    <div class="toolbar">
+        <app-osm-location-picker class="location-picker"
+                                 [location]="currLocation"
+                                 (locationChange)="onLocationPicked($event)">
+        </app-osm-location-picker>
+
+        <button mat-mini-fab
+                class="toggle-btn"
+                color="primary"
+                (click)="showMap=!showMap">
+            <mat-icon *ngIf="!showMap"
+                      class="material-symbols-outlined">location_on</mat-icon>
+            <mat-icon *ngIf="showMap"
+                      class="material-symbols-outlined">location_off</mat-icon>
+        </button>
+    </div>
+</div>

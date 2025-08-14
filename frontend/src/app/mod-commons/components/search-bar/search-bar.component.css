@@ -1,0 +1,20 @@
+.outer-cnr {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    background-color: white;
+}
+
+input {
+    flex: 1 1 auto;
+    border: none;
+    height: 2rem;
+    padding: 0.5rem;
+    outline: none;
+}
+
+button {
+    flex: 0 0 auto;
+}

@@ -1,0 +1,34 @@
+.outer-cnr {
+    height: 100%;
+    position: relative;
+}
+
+.location-map {
+    height: 100%;
+}
+
+
+.toolbar {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 2000;
+}
+
+.location-picker {
+    flex: 1;
+}
+
+.toggle-btn {
+    flex: 0 0 auto;    
+}
+
+.show-map-utils>.toolbar {
+    
+    left: 3rem;
+}

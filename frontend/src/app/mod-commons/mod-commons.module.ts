@@ -40,6 +40,7 @@ import { InputBoxComponent } from './components/input-box/input-box.component';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusDirective } from './directives/auto-focus.directive';
 import { HintComponent } from './components/hint/hint.component';
+import { SearchBarComponent } from './components/search-bar/search-bar.component';
 
 @NgModule({
   declarations: [
@@ -53,6 +54,7 @@ import { HintComponent } from './components/hint/hint.component';
     InputBoxComponent,
     AutoFocusDirective,
     HintComponent,
+    SearchBarComponent,
   ],
   imports: [
     CommonModule,
@@ -69,6 +71,7 @@ import { HintComponent } from './components/hint/hint.component';
     FileSizePipe,
     SafePipe,
     AutoFocusDirective,
+    SearchBarComponent
 
   ]
 })

@@ -313,7 +313,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
       const newEnd = info.event.end;
 
       const newRuleSet = (evt.isRecurring) ? this.recurringSvc.adjustRRuleSet(currRuleSet, delta) : evt.rruleSet;
-      const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, newStart, newEnd, evt.desc, evt.category, evt.fullDay, newRuleSet);
+      const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, newStart, newEnd, evt.desc, evt.category, evt.fullDay, newRuleSet, evt.osmLocId);
       this.updateCoreEvent(newEvt);
     }
   }
@@ -332,7 +332,7 @@ export class CalendarMainComponent implements AfterViewInit, OnDestroy {
     if (evt) {
       const delta = info.endDelta as IDelta;
       const newEnd = this.recurringSvc.applyDateDelta(evt.end, delta)
-      const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, evt.start, newEnd, evt.desc, evt.category, evt.fullDay, evt.rruleSet);
+      const newEvt = new CalendarEventCore(evt.uuid, evt.owner, evt.title, evt.start, newEnd, evt.desc, evt.category, evt.fullDay, evt.rruleSet, evt.osmLocId);
       this.updateCoreEvent(newEvt);
     }
   }

@@ -14,12 +14,7 @@ public interface ICurrentUserService
     /**
      * @param user
      */
-    public void set(TokenPayload user);
-    
-    /**
-     * @return
-     */
-    public TokenPayload get();
+    public void setToken(TokenPayload user);
     
     /**
      * 
@@ -31,6 +26,18 @@ public interface ICurrentUserService
      * @return
      */
     public List<Group> getGroups();
+    
+    /**
+     * 
+     * @param language
+     */
+    public void setLanguage(String language);
+    
+    /**
+     * 
+     * @return
+     */
+    public String getLanguage();
     
     /**
      * 

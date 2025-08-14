@@ -1,0 +1,6 @@
+<app-search-bar class="search-bar"
+                [value]="location"
+                (searchChange)="onSearchChange($event)"
+                (selected)="onLocationSelected($event)"
+                [optionsFound]="locationsFound">
+</app-search-bar>

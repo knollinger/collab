@@ -21,6 +21,7 @@ public class CalendarEventCore
     ECalendarEventCategory category;
     private boolean fullDay;
     private String rruleset;
+    private String osmLocId;
 
     /**
      * @return

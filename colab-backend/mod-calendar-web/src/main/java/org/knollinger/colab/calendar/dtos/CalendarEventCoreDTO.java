@@ -21,4 +21,5 @@ public class CalendarEventCoreDTO
     ECalendarEventCategory category;
     private boolean fullDay;
     private String rruleset;
+    private String osmLocId;
 }
