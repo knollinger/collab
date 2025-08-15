@@ -152,4 +152,16 @@ public interface IFileSysService
      * @throws AccessDeniedException 
      */
     public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
+
+    /**
+     * @param parentId
+     * @param name
+     * @return
+     * @throws AccessDeniedException
+     * @throws NotFoundException
+     * @throws TechnicalFileSysException
+     * @throws DuplicateEntryException
+     */
+    INode getOrCreateFolder(UUID parentId, String name)
+        throws AccessDeniedException, NotFoundException, TechnicalFileSysException, DuplicateEntryException;
 }

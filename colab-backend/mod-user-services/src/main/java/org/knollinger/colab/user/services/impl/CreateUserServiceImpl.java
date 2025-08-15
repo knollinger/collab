@@ -41,9 +41,6 @@ public class CreateUserServiceImpl implements ICreateUserService
     private static final String SQL_ADD_TO_GROUP = "" //
         + "insert into groupMembers set parentId=?, memberId=?";
 
-    private static final String SQL_ADD_TO_PLACES = "" //
-        + "insert into places set userId=?, refId=?";
-
     private static final String SQL_SAVE_AVATAR = "" //
         + "update users set avatar=?, avatarType=?" //
         + "  where uuid=?";
@@ -260,8 +257,6 @@ public class CreateUserServiceImpl implements ICreateUserService
                 stmt.setLong(7, 0);
                 stmt.setString(8, commonDir.mimeType);
                 stmt.executeUpdate();
-                
-                this.addToPlaces(user, newUUID, conn);
             }
         }
         finally
@@ -270,31 +265,6 @@ public class CreateUserServiceImpl implements ICreateUserService
         }
     }
 
-    /**
-     * 
-     * @param user
-     * @param refId
-     * @param conn
-     * @throws SQLException
-     */
-    private void addToPlaces(User user, UUID refId, Connection conn) throws SQLException
-    {
-        PreparedStatement stmt = null;
-
-        try
-        {
-            stmt = conn.prepareStatement(SQL_ADD_TO_PLACES);
-            stmt.setString(1, user.getUserId().toString());
-            stmt.setString(2, refId.toString());
-            stmt.executeUpdate();
-
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(stmt);
-        }
-
-    }
     /**
      * 
      * @param user
@@ -319,6 +289,11 @@ public class CreateUserServiceImpl implements ICreateUserService
         }
     }
 
+    /**
+     * @param user
+     * @param conn
+     * @throws SQLException
+     */
     private void addToDefaultGroups(User user, Connection conn) throws SQLException
     {
         PreparedStatement stmt = null;

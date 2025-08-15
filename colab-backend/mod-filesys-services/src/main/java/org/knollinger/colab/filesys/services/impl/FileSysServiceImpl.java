@@ -181,10 +181,10 @@ public class FileSysServiceImpl implements IFileSysService
 
         try
         {
-            
+
             List<INode> result = new ArrayList<INode>();
             conn = this.dbService.openConnection();
-            
+
             this.getINode(parentId, reqPerms, conn); // prüft existenz, berechtigungen und löst ggf einen link auf
 
             stmt = conn.prepareStatement(SQL_GET_ALL_CHILDS);
@@ -484,7 +484,6 @@ public class FileSysServiceImpl implements IFileSysService
         PreparedStatement stmt = null;
         try
         {
-
             this.getINode(parentId, IPermissions.WRITE, conn); // check existence and write perm for parent
 
             UUID uuid = UUID.randomUUID();
@@ -522,6 +521,10 @@ public class FileSysServiceImpl implements IFileSysService
                 .modified(now) //
                 .perms(perms) //
                 .build();
+        }
+        catch (SQLIntegrityConstraintViolationException e)
+        {
+            throw new DuplicateEntryException(this.getChildByName(parentId, name, 0, conn));
         }
         catch (SQLException e)
         {
@@ -684,6 +687,9 @@ public class FileSysServiceImpl implements IFileSysService
         }
     }
 
+    /**
+     *
+     */
     @Override
     public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
@@ -715,6 +721,49 @@ public class FileSysServiceImpl implements IFileSysService
         finally
         {
             this.dbService.closeQuitely(stmt);
+            this.dbService.closeQuitely(conn);
+        }
+    }
+
+    /**
+     * @param parentId
+     * @param name
+     * @return
+     * @throws AccessDeniedException
+     * @throws NotFoundException
+     * @throws TechnicalFileSysException
+     * @throws DuplicateEntryException
+     */
+    @Override
+    public INode getOrCreateFolder(UUID parentId, String name)
+        throws AccessDeniedException, NotFoundException, TechnicalFileSysException, DuplicateEntryException
+    {
+        Connection conn = null;
+        try
+        {
+            conn = this.dbService.openConnection();
+            INode result = INode.empty();
+            try
+            {
+                result = this.createFolder(parentId, name, conn);
+            }
+            catch (DuplicateEntryException e)
+            {
+                result = this.getChildByName(parentId, name, IPermissions.READ, conn);
+                if (!result.isDirectory())
+                {
+                    throw e;
+                }
+            }
+            return result;
+        }
+        catch (SQLException e)
+        {
+            String msg = String.format("Die existenz des Ordners '%1$s' konnte nicht sicher gestellt werden.", name);
+            throw new TechnicalFileSysException(msg, e);
+        }
+        finally
+        {
             this.dbService.closeQuitely(conn);
         }
     }

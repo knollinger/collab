@@ -29,10 +29,6 @@ public class DeleteServiceImpl implements IDeleteService
         + "delete from `inodes`" //
         + "  where `uuid`=? or `linkTo`=?";
 
-    private static final String SQL_DELETE_from_PLACES = "" //
-        + "delete from `places`" //
-        + "  where `refId`=?";
-
     private static final String ERR_DELETE_INODE = "Das Datei-System Objekt konnte aufgrund eines technischen Problems nicht gelöscht werden.";
 
     @Autowired
@@ -71,7 +67,6 @@ public class DeleteServiceImpl implements IDeleteService
         try
         {
             List<UUID> toDelete = this.collectINodes(uuid, conn);
-            this.deleteFromPlaces(toDelete, conn);
 
             PreparedStatement stmtINode = conn.prepareStatement(SQL_DELETE_INODE);
             for (UUID id : toDelete)
@@ -129,8 +124,6 @@ public class DeleteServiceImpl implements IDeleteService
                 toDelete.addAll(this.collectINodes(uuid, conn));
             }
 
-            this.deleteFromPlaces(toDelete, conn);
-
             PreparedStatement stmtINode = conn.prepareStatement(SQL_DELETE_INODE);
             for (UUID id : toDelete)
             {
@@ -172,30 +165,5 @@ public class DeleteServiceImpl implements IDeleteService
             }
         }
         return result;
-    }
-
-    /**
-     * Lösche die INodes aus einer ggf vorliegenden Zuordnung zum Places-Panel
-     * 
-     * @param nodeIds
-     * @param conn
-     * @throws SQLException
-     */
-    private void deleteFromPlaces(List<UUID> nodeIds, Connection conn) throws SQLException
-    {
-        PreparedStatement stmt = null;
-        try
-        {
-            stmt = conn.prepareStatement(SQL_DELETE_from_PLACES);
-            for (UUID nodeId : nodeIds)
-            {
-                stmt.setString(1, nodeId.toString());
-                stmt.executeUpdate();
-            }
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(stmt);
-        }
     }
 }

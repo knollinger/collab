@@ -30,6 +30,7 @@ export class INodeService {
       ['createFolder', 'v1/filesys/mkdir/{1}/{2}'],
       ['createDocument', 'v1/filesys/createDocument/{1}/{2}/{3}'],
       ['updateINode', 'v1/filesys/update'],
+      ['getOrCreateFolder', 'v1/filesys/ensureFolder/{1}/{2}'],
       ['getContent', 'v1/filecontent/{1}'],
       ['sendToDashboard', 'v1/dashboard/links?refId={1}&refType=INODES']
     ]
@@ -237,5 +238,20 @@ export class INodeService {
   public sendToDashboard(inode: INode): Observable<void> {
     const url = this.backendRouter.getRouteForName('sendToDashboard', INodeService.routes, inode.uuid);
     return this.httpClient.put<void>(url, null);
+  }
+
+  /**
+   * 
+   * @param parentId 
+   * @param name 
+   * @returns 
+   */
+  public getOrCreateFolder(parentId: string, name: string): Observable<INode> {
+    const url = this.backendRouter.getRouteForName('getOrCreateFolder', INodeService.routes, parentId, name);
+    return this.httpClient.get<INode>(url).pipe(
+      map(json => {
+        return INode.fromJSON(json);
+      })
+    );
   }
 }

@@ -4,9 +4,7 @@
 
         <mat-list-item *ngFor="let place of places"
                        (click)="onOpen(place)">
-            <div class="item"
-                 [matTooltip]="getTooltip(place)"
-                 matTooltipPosition="right">
+            <div class="item">
                 <mat-icon class="material-symbols-outlined type-icon"
                           *ngIf="place.isDirectory()">folder</mat-icon>
                 <mat-icon class="material-symbols-outlined type-icon"

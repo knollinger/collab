@@ -1,11 +1,11 @@
 import { Component, DestroyRef, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { PlacesService } from '../../services/places.service';
 import { INodeService } from '../../services/inode.service';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { INodeDroppedEvent } from '../../directives/drop-target.directive';
 import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
+import { SessionService } from '../../../mod-session/session.module';
 
 /**
  * Die Places-Komponente zeigt die vom Benutzer gespeicherten "Lese-Zeichen" auf
@@ -29,16 +29,17 @@ export class FilesPlacesComponent implements OnInit {
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
 
+  baseFldr: INode = INode.empty();
+
   places: INode[] = new Array<INode>();
   pseudoNode: INode = INode.emptyDir();
-  private tooltips: Map<string, string> = new Map<string, string>();
-
   /**
    * 
    * @param placesSvc 
    * @param inodeSvc 
    */
-  constructor(private placesSvc: PlacesService,
+  constructor(
+    private currUserSvc: SessionService,
     private inodeSvc: INodeService,
     private commonDlgSvc: CommonDialogsService) {
 
@@ -48,7 +49,14 @@ export class FilesPlacesComponent implements OnInit {
    * 
    */
   ngOnInit(): void {
-    this.reload();
+
+    this.inodeSvc.getOrCreateFolder(this.currUserSvc.currentUser.userId, '.places')
+    .pipe(takeUntilDestroyed(this.destroyRef))
+    .subscribe(folder => {
+
+      this.baseFldr = folder;
+      this.reload();
+    })
   }
 
   /**
@@ -56,12 +64,11 @@ export class FilesPlacesComponent implements OnInit {
    */
   private reload() {
 
-    this.placesSvc.getPlaces()
+    this.inodeSvc.getAllChilds(this.baseFldr.uuid)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(places => {
 
         this.places = this.sortPlaces(places);
-        this.makeTooltips(places);
       })
   }
 
@@ -79,38 +86,6 @@ export class FilesPlacesComponent implements OnInit {
     newPlaces.push(...dirs);
     newPlaces.push(...files);
     return newPlaces;
-  }
-
-  /**
-   * Als Tooltip soll der komplette Pfad zu einer INode angezeigt 
-   * werden. Um das jetzt nicht permanent berechnen zu müssen, werden
-   * die Pfade einmalig nach dem Einlesen der INodes generiert und
-   * in einer Map mit der INode-UUID als Key gespeichert. 
-   * 
-   * @param places 
-   */
-  private makeTooltips(places: INode[]) {
-
-    this.tooltips.clear();
-    places.forEach(place => {
-
-      this.inodeSvc.getPath(place.uuid).subscribe(path => {
-
-        const entries = path.map(pathEntry => {
-          return pathEntry.name;
-        });
-        this.tooltips.set(place.uuid, entries.join('/'));
-      })
-    });
-  }
-
-  /**
-   * 
-   * @param inode 
-   * @returns 
-   */
-  public getTooltip(inode: INode): string {
-    return this.tooltips.get(inode.uuid) || '';
   }
 
   /**
@@ -137,13 +112,12 @@ export class FilesPlacesComponent implements OnInit {
 
         if (rsp) {
 
-          this.placesSvc.deletePlace(inode.uuid)
+          this.inodeSvc.delete([inode.uuid])
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(_ => {
               this.places = this.places.filter(place => {
                 return place.uuid !== inode.uuid;
               })
-              this.tooltips.delete(inode.uuid);
             });
         }
       });
@@ -155,7 +129,7 @@ export class FilesPlacesComponent implements OnInit {
    */
   onINodesDropped(evt: INodeDroppedEvent) {
 
-    this.placesSvc.addPlaces(evt.sources)
+    this.inodeSvc.link(evt.sources, this.baseFldr)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(_ => {
         this.reload();

@@ -3,11 +3,13 @@
     <!-- die Toolbar -->
     <app-toolbar class="small-bottom-lightgray-border toolbar">
 
-        <button mat-icon-button routerLink="/pinwall/edit/">
+        <button mat-icon-button
+                routerLink="/pinwall/edit/">
             <mat-icon class="material-symbols-outlined">note_add</mat-icon>
         </button>
 
-        <button mat-icon-button (click)="onReload()">
+        <button mat-icon-button
+                (click)="onReload()">
             <mat-icon class="material-symbols-outlined">refresh</mat-icon>
         </button>
 
@@ -44,11 +46,12 @@
                     <img class="card-avatar"
                          src="http://localhost:8080/v1/users/avatar/31da8e8e-e7db-4338-b597-dabc5e41bc16">
                     <span class="card-title">{{postIt.title}}</span>
-                    <button mat-icon-button
-                            [matMenuTriggerFor]="menu"
-                            class="card-menu">
-                        <mat-icon class="material-symbols-outlined">more_vert</mat-icon>
-                    </button>
+
+                    <mat-icon class="card-menu material-symbols-outlined"
+                              [matMenuTriggerFor]="menu"
+                              (click)="$event.stopPropagation()">
+                        more_vert
+                    </mat-icon>
 
                     <mat-menu #menu="matMenu">
                         <button mat-menu-item>

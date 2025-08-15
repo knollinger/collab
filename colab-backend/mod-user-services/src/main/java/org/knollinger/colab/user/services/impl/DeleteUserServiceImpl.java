@@ -18,7 +18,6 @@ public class DeleteUserServiceImpl implements IDeleteUserService
     private static final String ERR_DELETE_USER = "" //
         + "Der Benutzer mit der UUID '%1$s' konnte nicht gelöscht werden";
 
-    private static final String SQL_DELETE_FILESYS_PLACES = "delete from places where userId=?";
     private static final String SQL_DELETE_FILES = "delete from inodes where owner=?";
     private static final String SQL_DELETE_GROUP_MEMBERS = "delete from group_members where memberId=?";
     private static final String SQL_DELETE_PRIMARY_GROUP = "delete from groups where uuid=?";
@@ -29,7 +28,6 @@ public class DeleteUserServiceImpl implements IDeleteUserService
     private static final String SQL_DELETE_USER = "delete from user where uuid=?";
 
     private static final String[] ALL_SQLS = {
-        DeleteUserServiceImpl.SQL_DELETE_FILESYS_PLACES, //
         DeleteUserServiceImpl.SQL_DELETE_FILES, //
         DeleteUserServiceImpl.SQL_DELETE_GROUP_MEMBERS, //
         DeleteUserServiceImpl.SQL_DELETE_PRIMARY_GROUP, //

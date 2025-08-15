@@ -101,7 +101,6 @@ public class CalendarServiceImpl implements ICalendarService
             stmt.setTimestamp(2, start);
             stmt.setString(3, this.currUserSvc.getUser().getUserId().toString());
 
-            System.err.println(stmt);
             rs = stmt.executeQuery();
             while (rs.next())
             {

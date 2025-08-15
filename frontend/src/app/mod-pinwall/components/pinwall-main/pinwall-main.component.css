@@ -20,17 +20,13 @@
 
 .card {
     cursor: pointer;
-    background-color: blanchedalmond;
+    background-color: lemonchiffon;
 }
 
 .card-content {
     max-height: 10rem;
     overflow: hidden;
     text-overflow:ellipsis;
-}
-
-.card:active {
-    transform: translate(2px, 2px);
 }
 
 .grid-workspace {
