@@ -31,8 +31,7 @@ export class INodeService {
       ['createDocument', 'v1/filesys/createDocument/{1}/{2}/{3}'],
       ['updateINode', 'v1/filesys/update'],
       ['getOrCreateFolder', 'v1/filesys/ensureFolder/{1}/{2}'],
-      ['getContent', 'v1/filecontent/{1}'],
-      ['sendToDashboard', 'v1/dashboard/links?refId={1}&refType=INODES']
+      ['getContent', 'v1/filecontent/{1}']
     ]
   );
 
@@ -228,16 +227,6 @@ export class INodeService {
   public getContentUrl(uuid: string): string {
 
     return this.backendRouter.getRouteForName('getContent', INodeService.routes, uuid);
-  }
-
-  /**
-   * 
-   * @param inode 
-   * @returns 
-   */
-  public sendToDashboard(inode: INode): Observable<void> {
-    const url = this.backendRouter.getRouteForName('sendToDashboard', INodeService.routes, inode.uuid);
-    return this.httpClient.put<void>(url, null);
   }
 
   /**

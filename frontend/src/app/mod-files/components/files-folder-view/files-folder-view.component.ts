@@ -263,8 +263,8 @@ export class FilesFolderViewComponent implements OnInit {
   public onSelect(evt: MouseEvent, inode: INode) {
 
     evt.stopPropagation();
-    
-    if (!evt.ctrlKey) {      
+
+    if (!evt.ctrlKey) {
       this.selectedINodes.clear();
       this.selectedINodes.add(inode);
     }
@@ -611,11 +611,21 @@ export class FilesFolderViewComponent implements OnInit {
     }
   }
 
+  /**
+   * 
+   * @param inode 
+   */
   onSendToDashboard(inode: INode) {
-    this.inodeSvc.sendToDashboard(inode)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(_ => {
 
+    this.inodeSvc.getOrCreateFolder(this.sessionSvc.currentUser.userId, '.dashboardLinks')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(baseFolder => {
+
+        this.inodeSvc.link(inode, baseFolder)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(baseFolder => {
+
+          })
       })
   }
 
