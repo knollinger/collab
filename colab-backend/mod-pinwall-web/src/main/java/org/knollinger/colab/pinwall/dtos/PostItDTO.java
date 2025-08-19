@@ -3,6 +3,8 @@ package org.knollinger.colab.pinwall.dtos;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+import org.knollinger.colab.pinwall.models.EPostItType;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +17,7 @@ public class PostItDTO
 {
     private UUID uuid;
     private UUID owner;
+    private EPostItType type;
     private String title;
     private String content;
     private Timestamp created;

@@ -1,0 +1,34 @@
+.editor-line {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    /* gap: 0.5rem; */
+}
+
+.preview-line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+
+.done-marker,
+.delete-button {
+    flex: 0 0 auto;
+}
+
+.text-value {
+    flex: 1 0 auto;
+}
+
+ul {
+    list-style-type: none;
+}
+
+input {
+    background-color: inherit;
+    border: 0;
+    outline: none;
+}

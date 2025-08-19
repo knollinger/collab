@@ -15,6 +15,7 @@ public class PostIt
 {
     private UUID uuid;
     private UUID owner;
+    private EPostItType type;
     private String title;
     private String content;
     private Timestamp created;

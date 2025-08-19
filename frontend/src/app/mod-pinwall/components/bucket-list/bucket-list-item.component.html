@@ -1,0 +1,31 @@
+<!-- Anzeige im ReadOnly-Mode -->
+<div class="preview-line"
+     *ngIf="readonly">
+    <mat-icon class="done-marker material-symbols-outlined"
+              *ngIf="item.done">check_box</mat-icon>
+    <mat-icon class="done-marker material-symbols-outlined"
+              *ngIf="!item.done">check_box_outline_blank</mat-icon>
+    <span class="text-value">{{item.title}}</span>
+</div>
+
+<!-- Anzeige im EditMode -->
+<div class="editor-line"
+     *ngIf="!readonly">
+    <mat-checkbox class="done-marker"
+                  color="primary"
+                  [checked]="item.done"></mat-checkbox>
+    <mat-form-field class="text-value">
+        <textarea matInput
+                  (keyup)="adjustFieldHeight($event)"
+                  rows="1"
+                  [value]="item.title"></textarea>
+    </mat-form-field>
+</div>
+
+<!-- ggf noch Kinder anzeigen -->
+<ul *ngIf="item.childs && item.childs.length">
+    <li *ngFor="let child of item.childs">
+        <app-bucket-list-item [item]="child"
+                              [readonly]="readonly"></app-bucket-list-item>
+    </li>
+</ul>

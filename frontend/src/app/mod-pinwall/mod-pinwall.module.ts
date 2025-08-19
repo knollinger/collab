@@ -7,7 +7,10 @@ import { ModMaterialImportModule } from '../mod-material-import/mod-material-imp
 
 import { PinwallMainComponent } from './components/pinwall-main/pinwall-main.component';
 import { ModPinwallRoutingModule } from './mod-pinwall-routing.module';
-import { PinwallEditorComponent } from './components/pinwall-editor/pinwall-editor.component';
+import { BucketListComponent } from './components/bucket-list/bucket-list.component';
+import { BucketListItemComponent } from './components/bucket-list/bucket-list-item.component';
+import { PostitTextEditorComponent } from './components/postit-text-editor/postit-text-editor.component';
+import { PostitListEditorComponent } from './components/postit-list-editor/postit-list-editor.component';
 
 /**
  * 
@@ -15,7 +18,10 @@ import { PinwallEditorComponent } from './components/pinwall-editor/pinwall-edit
 @NgModule({
   declarations: [
     PinwallMainComponent,
-    PinwallEditorComponent
+    BucketListComponent,
+    BucketListItemComponent,
+    PostitTextEditorComponent,
+    PostitListEditorComponent,
   ],
   imports: [
     CommonModule,

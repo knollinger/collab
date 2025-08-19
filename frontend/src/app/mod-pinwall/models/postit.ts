@@ -1,6 +1,7 @@
 export interface IPostIt {
     uuid: string,
     owner: string,
+    type: string,
     title: string,
     content: string
 }
@@ -16,6 +17,7 @@ export class PostIt {
     constructor(
         public readonly uuid: string,
         public readonly owner: string,
+        public readonly type: string,
         public readonly title: string,
         public readonly content: string) {
 
@@ -26,7 +28,7 @@ export class PostIt {
      * @returns 
      */
     public static empty(): PostIt {
-        return new PostIt('', '', '', '');
+        return new PostIt('', '', '', '', '');
     }
 
     /**
@@ -43,7 +45,7 @@ export class PostIt {
      * @returns 
      */
     public static fromJSON(json: IPostIt): PostIt {
-        return new PostIt(json.uuid, json.owner, json.title, json.content);
+        return new PostIt(json.uuid, json.owner, json.type, json.title, json.content);
     }
 
     /**
@@ -54,6 +56,7 @@ export class PostIt {
         return {
             uuid: this.uuid,
             owner: this.owner,
+            type: this.type,
             title: this.title,
             content: this.content
         }

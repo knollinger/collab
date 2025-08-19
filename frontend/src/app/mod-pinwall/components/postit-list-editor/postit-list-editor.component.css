@@ -1,0 +1,29 @@
+.outer-cnr {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow: auto;
+}
+
+app-toolbar {
+    flex: 0;
+    border-bottom: 1px solid #d0d0d0;
+}
+
+.workspace {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0 0.5rem;
+    overflow: auto;
+}
+
+.buttons {
+    flex: 0;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-top: 1px solid #d0d0d0;
+}

@@ -3,27 +3,28 @@ import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
-
+import { PinwallService } from '../../services/pinwall.service';
 import { PostIt } from '../../models/postit';
 
 @Component({
-  selector: 'app-pinwall-editor',
-  templateUrl: './pinwall-editor.component.html',
-  styleUrls: ['./pinwall-editor.component.css']
+  selector: 'app-postit-text-editor',
+  templateUrl: './postit-text-editor.component.html',
+  styleUrls: ['./postit-text-editor.component.css']
 })
-export class PinwallEditorComponent implements OnInit {
+export class PostitTextEditorComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
-  public postIt: PostIt = PostIt.empty();
+  postIt: PostIt = PostIt.empty();
 
   /**
    * 
+   * @param route 
    * @param titlebarSvc 
    */
   constructor(
     private route: ActivatedRoute,
+    private pinwallSvc: PinwallService,
     private titlebarSvc: TitlebarService) {
-
   }
 
   /**
@@ -31,6 +32,7 @@ export class PinwallEditorComponent implements OnInit {
    */
   ngOnInit(): void {
 
+    this.titlebarSvc.subTitle = 'neuer PostIt';
     this.route.params
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
@@ -40,10 +42,6 @@ export class PinwallEditorComponent implements OnInit {
 
           this.loadEntry(uuid);
         }
-        else {
-
-          this.titlebarSvc.subTitle = 'neuer PostIt';
-        }
       })
   }
 
@@ -52,6 +50,13 @@ export class PinwallEditorComponent implements OnInit {
    * @param uuid 
    */
   loadEntry(uuid: any) {
-    throw new Error('Method not implemented.');
+
+    this.pinwallSvc.get(uuid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(postIt => { 
+
+        this.postIt = postIt;
+        this.titlebarSvc.subTitle = postIt.title;
+      })
   }
 }

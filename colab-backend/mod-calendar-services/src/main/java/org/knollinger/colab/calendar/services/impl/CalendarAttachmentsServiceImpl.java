@@ -224,7 +224,6 @@ public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsServi
     private INode getEventAttachmentsBaseFolder(UUID eventId, Connection conn) throws TechnicalCalendarException
     {
 
-
         INode base = this.getCalAttachmentsBaseFolder(conn);
         return this.getOrCreateFolder(base.getUuid(), eventId.toString(), conn);
     }

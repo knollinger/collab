@@ -2,32 +2,21 @@
 
     <div class="toolbar">
 
-        <button mat-icon-button
-                class="toolbar-btn"
-                (click)="navMenu.toggle()"
-                matTooltip="Menü">
-            <mat-icon class="material-symbols-outlined">menu</mat-icon>
-        </button>
+        <mat-icon class="material-symbols-outlined toolbar-btn"
+                  (click)="navMenu.toggle()"
+                  matTooltip="Menü">menu</mat-icon>
 
-        <button mat-icon-button
-                *ngIf="isShowDashboard"
-                class="toolbar-btn"
-                routerLink="/dashboard"
-                matTooltip="Dashboard">
-            <mat-icon class="material-symbols-outlined">dashboard</mat-icon>
-        </button>
+        <mat-icon class="material-symbols-outlined toolbar-btn"
+                  *ngIf="isShowDashboard"
+                  routerLink="/dashboard"
+                  matTooltip="Dashboard">dashboard</mat-icon>
 
         <span class="toolbar-title">{{title}}</span>
-
-        <button mat-icon-button
-                *ngIf="isShowSearch"
-                routerLink="/search"
-                class="toolbar-btn"
-                matTooltip="Dashboard">
-            <mat-icon class="material-symbols-outlined">search</mat-icon>
-        </button>
+        <span class="filler"></span>
 
         <app-session-menu *ngIf="isLoggedOn"></app-session-menu>
+
+
     </div>
 
 

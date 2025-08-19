@@ -75,6 +75,7 @@ export class OpenStreetMapComponent implements AfterViewInit {
       this.onMapClick(evt.latlng);
     });
 
+
     if (!this.location.isEmpty()) {
       this.setMarker(this.location.lat, this.location.lon);
     }

@@ -15,7 +15,8 @@ export class PinwallService {
 
     private static routes: Map<string, string> = new Map<string, string>(
         [
-            ['getAll', 'v1/pinwall/all']
+            ['getAll', 'v1/pinwall/all'],
+            ['get', 'v1/pinwall/get/{1}']
         ]
     );
 
@@ -38,6 +39,22 @@ export class PinwallService {
                     return postIts.map(postIt => {
                         return PostIt.fromJSON(postIt);
                     })
+                })
+            );
+    }
+
+    /**
+     * 
+     * @param uuid 
+     * @returns 
+     */
+    public get(uuid: string): Observable<PostIt> {
+
+        const url = this.backendRouter.getRouteForName('get', PinwallService.routes, uuid);
+        return this.http.get<IPostIt>(url)
+            .pipe(
+                map(postIt => {
+                    return PostIt.fromJSON(postIt);
                 })
             );
     }

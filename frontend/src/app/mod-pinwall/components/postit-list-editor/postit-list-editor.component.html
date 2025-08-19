@@ -1,0 +1,20 @@
+<div class="outer-cnr mat-app-background">
+
+    <app-toolbar>Toolbar</app-toolbar>
+
+    <div class="workspace">
+
+        <mat-form-field>
+            <mat-label>Ende</mat-label>
+            <input matInput [value]="postIt.title">
+        </mat-form-field>
+        <app-bucket-list [content]="postIt.content"></app-bucket-list>
+    </div>
+
+    <div class="buttons">
+        <button mat-flat-button
+                color="primary">Speichern</button>
+        <button mat-button routerLink="/pinwall/main"
+                color="primary">Zurück</button>
+    </div>
+</div>

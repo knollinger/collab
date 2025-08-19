@@ -4,9 +4,20 @@
     <app-toolbar class="small-bottom-lightgray-border toolbar">
 
         <button mat-icon-button
-                routerLink="/pinwall/edit/">
+                [matMenuTriggerFor]="createMenu">
             <mat-icon class="material-symbols-outlined">note_add</mat-icon>
         </button>
+
+        <mat-menu #createMenu="matMenu">
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">text_fields</mat-icon>
+                Text
+            </button>
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">format_list_bulleted</mat-icon>
+                Checkliste
+            </button>
+        </mat-menu>
 
         <button mat-icon-button
                 (click)="onReload()">
@@ -38,13 +49,13 @@
         <mat-card class="card"
                   [class.grid-card]="viewMode==='grid'"
                   [class.list-card]="viewMode==='list'"
-                  routerLink="/pinwall/edit/123"
+                  [routerLink]="getEditorRoute(postIt)"
                   *ngFor="let postIt of postIts">
 
             <mat-card-header>
                 <div class="card-header">
                     <img class="card-avatar"
-                         src="http://localhost:8080/v1/users/avatar/31da8e8e-e7db-4338-b597-dabc5e41bc16">
+                         src="http://localhost:8080/v1/users/avatar/{{postIt.owner}}">
                     <span class="card-title">{{postIt.title}}</span>
 
                     <mat-icon class="card-menu material-symbols-outlined"
@@ -71,8 +82,17 @@
                 </div>
             </mat-card-header>
 
-            <mat-card-content class="card-content">
-                {{postIt.content}}
+            <mat-card-content class="card-content"
+                              [ngSwitch]="postIt.type">
+
+                <div *ngSwitchCase="'TEXT'"
+                     [innerHTML]="postIt.content">
+                </div>
+
+                <app-bucket-list *ngSwitchCase="'BUCKET_LIST'"
+                                [readonly]="true"
+                                 [content]="postIt.content"></app-bucket-list>
+
             </mat-card-content>
         </mat-card>
     </div>

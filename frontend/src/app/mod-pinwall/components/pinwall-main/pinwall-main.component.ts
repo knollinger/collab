@@ -14,6 +14,13 @@ import { PostIt } from '../../models/postit';
 })
 export class PinwallMainComponent implements OnInit {
 
+  private static editorRoutes: Map<string, string> = new Map<string, string>(
+    [
+      ['TEXT', '/pinwall/edit/text/{uuid}'],
+      ['BUCKET_LIST', '/pinwall/edit/list/{uuid}'],
+    ]
+  );
+
   private destroyRef = inject(DestroyRef);
   private settings: any = {};
 
@@ -51,6 +58,9 @@ export class PinwallMainComponent implements OnInit {
       })
   }
 
+  /**
+   * 
+   */
   public onReload() {
 
     this.pinwallSvc.getAll()
@@ -61,14 +71,31 @@ export class PinwallMainComponent implements OnInit {
 
   }
 
+  /**
+   * 
+   */
   public set viewMode(val: string) {
 
     this.settings['viewMode'] = val;
     this.settingsSvc.setDomainSettings('pinwall', this.settings);
   }
 
+  /**
+   * 
+   */
   public get viewMode(): string {
 
     return this.settings['viewMode'] || 'grid';
+  }
+
+  /**
+   * 
+   * @param postIt 
+   * @returns 
+   */
+  public getEditorRoute(postIt: PostIt): string {
+
+    let result = PinwallMainComponent.editorRoutes.get(postIt.type) || '';
+    return result.replace('{uuid}', encodeURIComponent(postIt.uuid));
   }
 }
