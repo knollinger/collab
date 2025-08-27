@@ -45,4 +45,12 @@ export class BucketListItem {
         result.childs = childs;
         return result;
     }
+
+    public toJSON(): IBucketListItem {
+        return {
+            done: this.done,
+            title: this.title,
+            childs: this.childs.map(child => {return child.toJSON()})
+        }
+    }
 }

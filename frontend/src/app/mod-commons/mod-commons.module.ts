@@ -71,8 +71,7 @@ import { SearchBarComponent } from './components/search-bar/search-bar.component
     FileSizePipe,
     SafePipe,
     AutoFocusDirective,
-    SearchBarComponent
-
+    SearchBarComponent,
   ]
 })
 export class ModCommonsModule { }

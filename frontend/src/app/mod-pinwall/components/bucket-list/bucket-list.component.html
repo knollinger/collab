@@ -1,5 +1,7 @@
-<ul>
+<ul (keydown)="onKeyDown($event)">
     <li *ngFor="let item of rootItems">
-        <app-bucket-list-item [item]="item" [readonly]="readonly"></app-bucket-list-item>
+        <app-bucket-list-item [item]="item"
+                              [readonly]="readonly"
+                              (select)="onSelect($event)"></app-bucket-list-item>
     </li>
 </ul>

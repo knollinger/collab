@@ -27,6 +27,7 @@
     max-height: 10rem;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-bottom: 5rem;
 }
 
 .grid-workspace {

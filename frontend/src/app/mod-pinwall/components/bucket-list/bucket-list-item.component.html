@@ -11,21 +11,80 @@
 <!-- Anzeige im EditMode -->
 <div class="editor-line"
      *ngIf="!readonly">
+
     <mat-checkbox class="done-marker"
                   color="primary"
-                  [checked]="item.done"></mat-checkbox>
-    <mat-form-field class="text-value">
-        <textarea matInput
-                  (keyup)="adjustFieldHeight($event)"
-                  rows="1"
-                  [value]="item.title"></textarea>
-    </mat-form-field>
+                  [checked]="item.done"
+                  (change)="onStateChange($event.checked)"
+                  [indeterminate]="someComplete"></mat-checkbox>
+
+    <mat-icon class="move-menu-trigger material-symbols-outlined"
+              (click)="onToggleToolbox()">build</mat-icon>
+
+    <!-- 
+        Als Editor verwendet wir hier eine ContentEditable DIV. Diese skaliert Ihre Höhe
+        einfach anhand des Inhaltes. Dies kann weder ein <input> noch eine <textarea>
+        leisten
+     -->
+    <div class="text-value"
+         cdkOverlayOrigin
+         #toolboxAnchor="cdkOverlayOrigin"
+         [textContent]="item.title"
+         contenteditable="plaintext-only"
+         (input)="onTextChange($event)"
+         (focus)="onSelect(item)"></div>
+
+    <ng-template cdkConnectedOverlay
+                 [cdkConnectedOverlayOrigin]="toolboxAnchor"
+                 [cdkConnectedOverlayOpen]="showToolbox"
+                 [cdkConnectedOverlayHasBackdrop]="true"
+                 [cdkConnectedOverlayBackdropClass]="'cdk-overlay-transparent-backdrop'"
+                 (backdropClick)="onHideToolbox()">
+        <div class="toolbox mat-elevation-z2">
+
+            <button mat-icon-button
+                    matTooltip="Nach oben (Strg+↑)"
+                    [disabled]="!canMoveUp()"
+                    (click)="onMoveUp()">
+                <mat-icon class="material-symbols-outlined">keyboard_arrow_up</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    matTooltip="Nach unten (Strg+↓)"
+                    [disabled]="!canMoveDown()"
+                    (click)="onMoveDown()">
+                <mat-icon class="material-symbols-outlined">keyboard_arrow_down</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    matTooltip="Nach links verschieben"
+                    [disabled]="!canMoveLeft()"
+                    (click)="onMoveLeft()">
+                <mat-icon class="material-symbols-outlined">format_indent_decrease</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    matTooltip="Nach rechts verschieben"
+                    [disabled]="!canMoveRight()"
+                    (click)="onMoveRight()">
+                <mat-icon class="material-symbols-outlined">format_indent_increase</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    matTooltip="Löschen"
+                    (click)="onDelete()">
+                <mat-icon class="material-symbols-outlined">delete</mat-icon>
+            </button>
+        </div>
+    </ng-template>
 </div>
 
 <!-- ggf noch Kinder anzeigen -->
 <ul *ngIf="item.childs && item.childs.length">
-    <li *ngFor="let child of item.childs">
+    <li *ngFor="let child of item.childs; let childIdx=index">
         <app-bucket-list-item [item]="child"
-                              [readonly]="readonly"></app-bucket-list-item>
+                              [readonly]="readonly"
+                              (select)="onSelect($event)">
+        </app-bucket-list-item>
     </li>
 </ul>

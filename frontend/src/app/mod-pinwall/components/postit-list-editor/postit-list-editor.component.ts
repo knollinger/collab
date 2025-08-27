@@ -1,10 +1,11 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { PinwallService } from '../../services/pinwall.service';
 import { PostIt } from '../../models/postit';
+import { BucketListComponent } from '../bucket-list/bucket-list.component';
 
 
 @Component({
@@ -16,6 +17,9 @@ export class PostitListEditorComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
   postIt: PostIt = PostIt.empty();
+
+  @ViewChild(BucketListComponent)
+  private bucketList!: BucketListComponent | undefined;
 
   /**
    * 
@@ -61,5 +65,10 @@ export class PostitListEditorComponent implements OnInit {
         this.titlebarSvc.subTitle = postIt.title;
       })
 
+  }
+
+  onSave() {
+
+    console.log(this.bucketList!.content);
   }
 }

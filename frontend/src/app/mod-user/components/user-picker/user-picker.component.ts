@@ -13,11 +13,11 @@ import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR
  * Vorname, Nachname, AccountName und die Email berücksichtigt.
  * 
  * Die Suche selbst erfolgt lazy. Nur wenn während der 
- * Eingabe des Sich-Strings mindestens 500ms keine neue
+ * Eingabe des Such-Strings mindestens 500ms keine neue
  * Eingabe erfolgt wird gesucht.
  * 
  * Die Component implementiert alle Interfaces, um als
- * FormControl durch zu gehen, kanns also mittes formControl,
+ * FormControl durch zu gehen, kanns also mittels formControl,
  * formControlName und ngModel an TemplateDriven- und 
  * ReactiveForms gebunden werden.
  */
@@ -204,13 +204,11 @@ export class UserPickerComponent implements OnInit, ControlValueAccessor, Valida
   private _onChange = (users: User[]) => { }
   registerOnChange(callBack: any): void {
 
-    console.debug('UserPickerComponent.registerOnChange');
     this._onChange = callBack;
   }
 
   private _onTouched = () => { }
   registerOnTouched(callBack: any): void {
-    console.debug('UserPickerComponent.registerOnTouched');
     this._onTouched = callBack;
   }
 
@@ -237,7 +235,6 @@ export class UserPickerComponent implements OnInit, ControlValueAccessor, Valida
 
   private _validatorChangeCallback = () => { };
   registerOnValidatorChange?(callBack: () => void): void {
-    console.debug('UserPickerComponent.registerOnValidatorChange');
     this._validatorChangeCallback = callBack;
   }
 }

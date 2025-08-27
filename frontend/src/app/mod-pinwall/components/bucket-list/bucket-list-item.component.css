@@ -1,7 +1,9 @@
+@import '@angular/cdk/overlay-prebuilt.css';
+
 .editor-line {
     display: flex;
     flex-direction: row;
-    align-items: baseline;
+    align-items: center;
     /* gap: 0.5rem; */
 }
 
@@ -19,16 +21,39 @@
     flex: 0 0 auto;
 }
 
+.move-menu-trigger {
+    flex: 0 0 auto;
+}
+
 .text-value {
     flex: 1 0 auto;
+    border: 0;
+    outline: none;
+    padding: 0.5rem;
+    overflow-wrap: break-word;
+    inline-size: calc(100% - 100px);
+}
+
+.text-value:focus {
+    border-left: 1px solid #d0d0d0;
+    border-right: 1px solid #d0d0d0;
+    border-top: 1px solid #d0d0d0;
+    border-bottom: 2px solid darkblue;
+    border-radius: 4px;
 }
 
 ul {
     list-style-type: none;
 }
 
-input {
-    background-color: inherit;
-    border: 0;
-    outline: none;
+.toolbox {
+
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.toolbox1>button {
+    flex: 0;
 }

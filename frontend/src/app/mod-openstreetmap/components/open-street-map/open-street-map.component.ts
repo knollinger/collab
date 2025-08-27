@@ -48,7 +48,7 @@ export class OpenStreetMapComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.initMap();
     if (!this.location.isEmpty()) {
-      this.setMarker(this.location.lat, this.location.lon, 16);
+      this.setMarker(this.location.lat, this.location.lon, 10);
     }
   }
 
@@ -96,7 +96,7 @@ export class OpenStreetMapComponent implements AfterViewInit {
     this._location = location;
 
     if (this.map) {
-        this.setMarker(location.lat, location.lon, 16);
+        this.setMarker(location.lat, location.lon, 10);
     }
   }
 
@@ -135,7 +135,7 @@ export class OpenStreetMapComponent implements AfterViewInit {
     //   this.currMarker.bindPopup(name);
     // }
     this.currMarker.addTo(this.map);
-    this.map.flyTo([lat, lon], zoom)
+   this.map.flyTo([lat, lon], zoom)
   }
 
   /**

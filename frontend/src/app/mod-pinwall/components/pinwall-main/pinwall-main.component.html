@@ -82,17 +82,18 @@
                 </div>
             </mat-card-header>
 
-            <mat-card-content class="card-content"
-                              [ngSwitch]="postIt.type">
+            <mat-card-content [ngSwitch]="postIt.type">
 
-                <div *ngSwitchCase="'TEXT'"
-                     [innerHTML]="postIt.content">
+                <div class="card-content">
+
+                    <div *ngSwitchCase="'TEXT'"
+                         [innerHTML]="postIt.content">
+                    </div>
+
+                    <app-bucket-list *ngSwitchCase="'BUCKET_LIST'"
+                                     [readonly]="true"
+                                     [content]="postIt.content"></app-bucket-list>
                 </div>
-
-                <app-bucket-list *ngSwitchCase="'BUCKET_LIST'"
-                                [readonly]="true"
-                                 [content]="postIt.content"></app-bucket-list>
-
             </mat-card-content>
         </mat-card>
     </div>
