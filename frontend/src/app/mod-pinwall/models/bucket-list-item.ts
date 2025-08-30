@@ -19,7 +19,8 @@ export class BucketListItem {
         public done: boolean,
         public title: string,
         public parent: BucketListItem | null,
-        public childs: BucketListItem[]) {
+        public childs: BucketListItem[],
+        public selected: boolean = false) {
 
     }
 

@@ -1,12 +1,5 @@
 @import '@angular/cdk/overlay-prebuilt.css';
 
-.editor-line {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    /* gap: 0.5rem; */
-}
-
 .preview-line {
     display: flex;
     flex-direction: row;
@@ -15,14 +8,22 @@
     margin-bottom: 0.5rem;
 }
 
+.editor-line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem;
+    border-radius: 4px;
+}    
 
-.done-marker,
-.delete-button {
+
+.done-marker, .drag-handle {
     flex: 0 0 auto;
 }
 
-.move-menu-trigger {
-    flex: 0 0 auto;
+.drag-handle {
+    cursor: move;
 }
 
 .text-value {
@@ -34,7 +35,7 @@
     inline-size: calc(100% - 100px);
 }
 
-.text-value:focus {
+.selected>.text-value {
     border-left: 1px solid #d0d0d0;
     border-right: 1px solid #d0d0d0;
     border-top: 1px solid #d0d0d0;
@@ -44,16 +45,4 @@
 
 ul {
     list-style-type: none;
-}
-
-.toolbox {
-
-    background-color: white;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-}
-
-.toolbox1>button {
-    flex: 0;
 }

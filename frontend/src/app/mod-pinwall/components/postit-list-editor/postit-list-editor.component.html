@@ -1,6 +1,48 @@
 <div class="outer-cnr mat-app-background">
 
-    <app-toolbar>Toolbar</app-toolbar>
+    <app-toolbar>
+        <button mat-icon-button>
+            <mat-icon class="material-symbols-outlined">note_add</mat-icon>
+        </button>
+        <button mat-icon-button
+                class="delete"
+                matTooltip="Löschen">
+            <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        </button>
+        <app-toolbar-separator></app-toolbar-separator>
+
+        <button mat-icon-button
+                matTooltip="Nach oben"
+                [disabled]="!canMoveUp"
+                (click)="onMoveItemUp()">
+            <mat-icon class="material-symbols-outlined">keyboard_arrow_up</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                class="moveDown"
+                matTooltip="Nach unten"
+                [disabled]="!canMoveDown"
+                (click)="onMoveItemDown()">
+            <mat-icon class="material-symbols-outlined">keyboard_arrow_down</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                class="moveLeft"
+                matTooltip="Nach links verschieben"
+                [disabled]="!canMoveLeft"
+                (click)="onMoveItemLeft()">
+            <mat-icon class="material-symbols-outlined">format_indent_decrease</mat-icon>
+        </button>
+
+        <button mat-icon-button
+                class="moveRight"
+                matTooltip="Nach rechts verschieben"
+                [disabled]="!canMoveRight"
+                (click)="onMoveItemRight()">
+            <mat-icon class="material-symbols-outlined">format_indent_increase</mat-icon>
+        </button>
+
+    </app-toolbar>
 
     <div class="workspace">
 
@@ -10,8 +52,10 @@
                    [value]="postIt.title">
         </mat-form-field>
         <app-bucket-list #bucketList
-                         [content]="postIt.content">
+                         [content]="postIt.content"
+                         (selected)="onSelectItem($event)">
         </app-bucket-list>
+
     </div>
 
     <div class="buttons">

@@ -1,6 +1,13 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { BucketListItem, IBucketListItem } from '../../models/bucket-list-item';
+
+export class FlatBucketListItem {
+
+  constructor(public done: boolean, public title: string, public level: number) {
+
+  }
+}
 
 @Component({
   selector: 'app-bucket-list',
@@ -11,6 +18,10 @@ import { BucketListItem, IBucketListItem } from '../../models/bucket-list-item';
 export class BucketListComponent {
 
   private rootBucket: BucketListItem = BucketListItem.empty();
+  private currBucket: BucketListItem | null = null;
+
+  @Output()
+  selected: EventEmitter<BucketListItem> = new EventEmitter<BucketListItem>();
 
   @Input()
   readonly: boolean = false;
@@ -26,6 +37,8 @@ export class BucketListComponent {
         return BucketListItem.fromJSON(item, this.rootBucket);
       })
       this.rootBucket.childs = items;
+
+      console.dir(this.makeFlatModel(items));
     }
 
   }
@@ -44,23 +57,33 @@ export class BucketListComponent {
   }
 
 
-  onKeyDown(evt: KeyboardEvent) {
+  /**
+   * Ein Item wurde selektiert
+   * 
+   * @param item 
+   */
+  onSelect(item: BucketListItem) {
 
-    if (evt.ctrlKey) {
-
-      switch (evt.key) {
-        case 'ArrowUp':
-          console.log('moveUp');
-          break;
-
-        case 'ArrowDown':
-          console.log('moveDown');
-          break;
-      }
+    if (this.currBucket) {
+      this.currBucket.selected = false;
     }
+
+    this.currBucket = item;
+    this.currBucket.selected = true;
+    this.selected.emit(item);
   }
 
-  onSelect(item: BucketListItem) {
-    console.log(`select: ${item.title}`);
+
+
+  private makeFlatModel(items: IBucketListItem[], level: number = 0): FlatBucketListItem[] {
+
+    const result: FlatBucketListItem[] = new Array<FlatBucketListItem>();
+    items.forEach(item => {
+
+      const flat = new FlatBucketListItem(item.done, item.title, level);
+      result.push(flat);
+      result.push(...this.makeFlatModel(item.childs!, level + 1));
+    });
+    return result;
   }
 }
