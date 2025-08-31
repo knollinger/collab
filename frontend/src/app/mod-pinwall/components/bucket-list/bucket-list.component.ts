@@ -17,25 +17,32 @@ export class FlatBucketListItem {
 })
 export class BucketListComponent {
 
+  @Input()
   rootBucket: BucketListItem = BucketListItem.empty();
   private currBucket: BucketListItem | null = null;
 
+  @Input()
+  readonly: boolean = false;
+  
   @Output()
   selected: EventEmitter<BucketListItem> = new EventEmitter<BucketListItem>();
 
-  @Input()
-  readonly: boolean = false;
+  /**
+   * 
+   * @param rawJSON 
+   * @returns parsed das rawJSON und liefert ein rootElement. Dies ist ggf leer
+   */
+  public static parseRawJSON(rawJSON: string): BucketListItem {
 
-  @Input()
-  set content(rawJSON: string) {
-
-    if(rawJSON) {
+    const result: BucketListItem = BucketListItem.empty();
+    if (rawJSON) {
 
       const rawChilds: IBucketListItem[] = JSON.parse(rawJSON);
-      this.rootBucket.childs = rawChilds.map(rawChild => {
-        return BucketListItem.fromJSON(rawChild, this.rootBucket);
+      result.childs = rawChilds.map(rawChild => {
+        return BucketListItem.fromJSON(rawChild, result);
       })
     }
+    return result;
   }
 
   /**
@@ -60,19 +67,5 @@ export class BucketListComponent {
     this.currBucket = item;
     this.currBucket.selected = true;
     this.selected.emit(item);
-  }
-
-
-
-  private makeFlatModel(items: IBucketListItem[], level: number = 0): FlatBucketListItem[] {
-
-    const result: FlatBucketListItem[] = new Array<FlatBucketListItem>();
-    items.forEach(item => {
-
-      const flat = new FlatBucketListItem(item.done, item.title, level);
-      result.push(flat);
-      result.push(...this.makeFlatModel(item.childs!, level + 1));
-    });
-    return result;
   }
 }

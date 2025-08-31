@@ -37,7 +37,7 @@ export class BucketListItem {
      * @param json 
      * @returns 
      */
-    public static fromJSON(json: IBucketListItem, parent: BucketListItem): BucketListItem {
+    public static fromJSON(json: IBucketListItem, parent: BucketListItem | null): BucketListItem {
 
         const result = new BucketListItem(json.done, json.title, parent, []); 
         const childs = !json.childs ? new Array<BucketListItem>() : json.childs!.map(child => {
@@ -47,6 +47,10 @@ export class BucketListItem {
         return result;
     }
 
+    /**
+     * 
+     * @returns 
+     */
     public toJSON(): IBucketListItem {
         return {
             done: this.done,

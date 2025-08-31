@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PinwallService } from '../../services/pinwall.service';
 import { PostIt } from '../../models/postit';
 import { BucketListItem, IBucketListItem } from '../../models/bucket-list-item';
+import { BucketListComponent } from '../bucket-list/bucket-list.component';
 
 @Component({
   selector: 'app-pinwall-main',
@@ -98,5 +99,9 @@ export class PinwallMainComponent implements OnInit {
 
     let result = PinwallMainComponent.editorRoutes.get(postIt.type) || '';
     return result.replace('{uuid}', encodeURIComponent(postIt.uuid));
+  }
+
+  rootBucket(postIt: PostIt): BucketListItem {
+    return BucketListComponent.parseRawJSON(postIt.content);
   }
 }

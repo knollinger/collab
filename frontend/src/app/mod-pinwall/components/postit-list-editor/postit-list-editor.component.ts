@@ -19,6 +19,10 @@ export class PostitListEditorComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   postIt: PostIt = PostIt.empty();
 
+  @ViewChild(BucketListComponent)
+  bucketList!: BucketListComponent;
+
+  rootItem: BucketListItem = BucketListItem.empty();
   private currItem: BucketListItem | null = null;
 
   public canMoveUp: boolean = false;
@@ -69,7 +73,40 @@ export class PostitListEditorComponent implements OnInit {
 
         this.postIt = postIt;
         this.titlebarSvc.subTitle = postIt.title;
+
+        this.rootItem = BucketListComponent.parseRawJSON(postIt.content);
       })
+  }
+
+  /**
+   * 
+   */
+  onAddBucket() {
+
+    const parent = this.currItem ? this.currItem : this.rootItem;
+    const child = new BucketListItem(false, '', parent, [], false);
+    parent.childs.push(child);
+  }
+
+  /**
+   * 
+   * @returns 
+   */
+  get showDeleteBtn(): boolean {
+    return this.currItem !== null;
+  }
+
+  /**
+   * Lösche ein Element (und alle seine Kinder)
+   */
+  onDeleteBucket() {
+
+    if (this.currItem) {
+      const idx = this.findInParent(this.currItem);
+      if (idx >= 0) {
+        this.currItem.parent!.childs.splice(idx, 1);
+      }
+    }
   }
 
   onSave() {

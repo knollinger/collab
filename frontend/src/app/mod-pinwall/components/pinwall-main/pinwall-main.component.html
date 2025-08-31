@@ -92,7 +92,7 @@
 
                     <app-bucket-list *ngSwitchCase="'BUCKET_LIST'"
                                      [readonly]="true"
-                                     [content]="postIt.content">
+                                     [rootBucket]="rootBucket(postIt)">
                                     </app-bucket-list>
                 </div>
             </mat-card-content>

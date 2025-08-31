@@ -1,12 +1,13 @@
 <div class="outer-cnr mat-app-background">
 
     <app-toolbar>
-        <button mat-icon-button>
+        <button mat-icon-button (click)="onAddBucket()">
             <mat-icon class="material-symbols-outlined">note_add</mat-icon>
         </button>
         <button mat-icon-button
-                class="delete"
-                matTooltip="Löschen">
+                [disabled]="!showDeleteBtn"
+                matTooltip="Löschen"
+                (click)="onDeleteBucket()">
             <mat-icon class="material-symbols-outlined">delete</mat-icon>
         </button>
         <app-toolbar-separator></app-toolbar-separator>
@@ -52,7 +53,7 @@
                    [value]="postIt.title">
         </mat-form-field>
         <app-bucket-list
-                         [content]="postIt.content"
+                         [rootBucket]="rootItem"
                          (selected)="onSelectItem($event)">
         </app-bucket-list>
 
