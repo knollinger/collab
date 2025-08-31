@@ -51,7 +51,7 @@
             <input matInput
                    [value]="postIt.title">
         </mat-form-field>
-        <app-bucket-list #bucketList
+        <app-bucket-list
                          [content]="postIt.content"
                          (selected)="onSelectItem($event)">
         </app-bucket-list>

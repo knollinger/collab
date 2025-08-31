@@ -17,7 +17,7 @@ export class FlatBucketListItem {
 })
 export class BucketListComponent {
 
-  private rootBucket: BucketListItem = BucketListItem.empty();
+  rootBucket: BucketListItem = BucketListItem.empty();
   private currBucket: BucketListItem | null = null;
 
   @Output()
@@ -29,24 +29,13 @@ export class BucketListComponent {
   @Input()
   set content(rawJSON: string) {
 
-    this.rootBucket = new BucketListItem(false, '', null, []);
-    if (rawJSON) {
+    if(rawJSON) {
 
-      const rawItems = JSON.parse(rawJSON) as IBucketListItem[];
-      const items = rawItems.map(item => {
-        return BucketListItem.fromJSON(item, this.rootBucket);
+      const rawChilds: IBucketListItem[] = JSON.parse(rawJSON);
+      this.rootBucket.childs = rawChilds.map(rawChild => {
+        return BucketListItem.fromJSON(rawChild, this.rootBucket);
       })
-      this.rootBucket.childs = items;
-
-      console.dir(this.makeFlatModel(items));
     }
-
-  }
-
-  get content(): string {
-
-    const json = this.rootBucket.childs.map(child => { return child.toJSON() })
-    return JSON.stringify(json);
   }
 
   /**

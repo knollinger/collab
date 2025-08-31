@@ -5,6 +5,7 @@ import { SettingsService } from '../../../mod-settings/services/settings.service
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PinwallService } from '../../services/pinwall.service';
 import { PostIt } from '../../models/postit';
+import { BucketListItem, IBucketListItem } from '../../models/bucket-list-item';
 
 @Component({
   selector: 'app-pinwall-main',

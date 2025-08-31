@@ -19,9 +19,6 @@ export class PostitListEditorComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   postIt: PostIt = PostIt.empty();
 
-  @ViewChild(BucketListComponent)
-  private bucketList!: BucketListComponent | undefined;
-
   private currItem: BucketListItem | null = null;
 
   public canMoveUp: boolean = false;
@@ -73,12 +70,10 @@ export class PostitListEditorComponent implements OnInit {
         this.postIt = postIt;
         this.titlebarSvc.subTitle = postIt.title;
       })
-
   }
 
   onSave() {
 
-    console.log(this.bucketList!.content);
   }
 
   /**
