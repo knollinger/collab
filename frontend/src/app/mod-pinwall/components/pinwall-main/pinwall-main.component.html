@@ -55,30 +55,8 @@
             <mat-card-header>
                 <div class="card-header">
                     <img class="card-avatar"
-                         src="http://localhost:8080/v1/users/avatar/{{postIt.owner}}">
+                         [src]="getAvatarUrl(postIt.owner)">
                     <span class="card-title">{{postIt.title}}</span>
-
-                    <mat-icon class="card-menu material-symbols-outlined"
-                              [matMenuTriggerFor]="menu"
-                              (click)="$event.stopPropagation()">
-                        more_vert
-                    </mat-icon>
-
-                    <mat-menu #menu="matMenu">
-                        <button mat-menu-item>
-                            <mat-icon class="material-symbols-outlined">edit</mat-icon>
-                            Bearbeiten
-                        </button>
-                        <button mat-menu-item>
-                            <mat-icon class="material-symbols-outlined">done</mat-icon>
-                            Fertig
-                        </button>
-                        <mat-divider></mat-divider>
-                        <button mat-menu-item>
-                            <mat-icon class="material-symbols-outlined">delete</mat-icon>
-                            Löschen
-                        </button>
-                    </mat-menu>
                 </div>
             </mat-card-header>
 
@@ -93,7 +71,7 @@
                     <app-bucket-list *ngSwitchCase="'BUCKET_LIST'"
                                      [readonly]="true"
                                      [rootBucket]="rootBucket(postIt)">
-                                    </app-bucket-list>
+                    </app-bucket-list>
                 </div>
             </mat-card-content>
         </mat-card>

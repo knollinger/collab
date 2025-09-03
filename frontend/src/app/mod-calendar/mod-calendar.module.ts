@@ -13,6 +13,8 @@ import { ModUserModule } from '../mod-user/mod-user.module';
 import { ModSessionModule } from '../mod-session/session.module';
 import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
 import { ModOpenstreetmapModule } from '../mod-openstreetmap/mod-openstreetmap.module';
+import { ModQuillModule } from '../mod-quill/mod-quill.module';
+import { ModSettingsModule } from '../mod-settings/mod-settings.module';
 
 import { CalendarMainComponent } from './components/calendar-main/calendar-main.component';
 import { CalendarEventEditorComponent } from './components/calendar-event-editor/calendar-event-editor.component';
@@ -21,11 +23,9 @@ import { CalendarEventEditorRecurringComponent } from './components/calendar-eve
 import { CalendarEventEditorPersonComponent } from './components/calendar-event-editor/calendar-event-editor-person.component';
 import { CalendarEventEditorFilesComponent } from './components/calendar-event-editor//calendar-event-editor-files.component';
 import { CalendarEventEditorLocationComponent } from './components/calendar-event-editor/calendar-event-editor-location.component';
-
 import { CalendarEventMenuComponent } from './components/calendar-event-menu/calendar-event-menu.component';
 
 import { ModCalendarRoutingModule } from './mod-calendar-routing.module';
-import { ModSettingsModule } from '../mod-settings/mod-settings.module';
 
 @NgModule({
   declarations: [
@@ -52,6 +52,7 @@ import { ModSettingsModule } from '../mod-settings/mod-settings.module';
     ModFilesModule,
     ModFilesDataModule,
     ModSettingsModule,
+    ModQuillModule,
     ModOpenstreetmapModule,
     ModCalendarRoutingModule,
   ],

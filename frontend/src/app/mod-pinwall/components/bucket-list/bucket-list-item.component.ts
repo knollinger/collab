@@ -44,8 +44,7 @@ export class BucketListItemComponent {
 
         const edit = evt.target as HTMLDivElement;
         if (edit) {
-            console.log(edit.textContent);
-
+            this.item.title = edit.textContent || '';
         }
     }
 

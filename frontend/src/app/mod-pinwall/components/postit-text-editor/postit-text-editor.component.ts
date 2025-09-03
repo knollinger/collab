@@ -1,6 +1,8 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+import Quill, { Delta } from 'quill';
 
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { PinwallService } from '../../services/pinwall.service';
@@ -11,7 +13,7 @@ import { PostIt } from '../../models/postit';
   templateUrl: './postit-text-editor.component.html',
   styleUrls: ['./postit-text-editor.component.css']
 })
-export class PostitTextEditorComponent implements OnInit {
+export class PostitTextEditorComponent implements OnInit, AfterViewInit {
 
   private destroyRef = inject(DestroyRef);
   postIt: PostIt = PostIt.empty();
@@ -25,6 +27,9 @@ export class PostitTextEditorComponent implements OnInit {
     private route: ActivatedRoute,
     private pinwallSvc: PinwallService,
     private titlebarSvc: TitlebarService) {
+  }
+
+  ngAfterViewInit(): void {
   }
 
   /**
@@ -53,7 +58,7 @@ export class PostitTextEditorComponent implements OnInit {
 
     this.pinwallSvc.get(uuid)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(postIt => { 
+      .subscribe(postIt => {
 
         this.postIt = postIt;
         this.titlebarSvc.subTitle = postIt.title;

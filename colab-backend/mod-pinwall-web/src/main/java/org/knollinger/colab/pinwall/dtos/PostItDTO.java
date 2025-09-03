@@ -6,11 +6,15 @@ import java.util.UUID;
 import org.knollinger.colab.pinwall.models.EPostItType;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.NONE)
 public class PostItDTO

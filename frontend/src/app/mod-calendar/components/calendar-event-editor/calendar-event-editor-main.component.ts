@@ -48,6 +48,7 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
       startTime: new FormControl('', Validators.required),
       endDate: new FormControl('', Validators.required),
       endTime: new FormControl('', Validators.required),
+      desc: new FormControl('')
 
     });
     this.fillForm();
@@ -83,7 +84,8 @@ export class CalendarEventEditorMainComponent implements AfterViewInit {
       startDate: this.event.start,
       startTime: this.getTimeString(this.event.start),
       endDate: this.event.end,
-      endTime: this.getTimeString(this.event.end)
+      endTime: this.getTimeString(this.event.end),
+      desc: this.event.desc
     };
     this.eventForm.setValue(val);
   }

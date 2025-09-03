@@ -1,0 +1,17 @@
+.outer-cnr {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    border: 1px solid #d0d0d0;
+}
+
+.quill-toolbar {
+    flex: 0;
+    border-bottom: 1px solid #d0d0d0 !important;
+}
+
+.quill-host {
+    flex: 1;
+    overflow: auto;
+    font-size:  var(--mat-form-field-container-text-size);
+}

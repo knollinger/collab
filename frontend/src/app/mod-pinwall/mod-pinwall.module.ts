@@ -6,6 +6,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModSessionModule } from '../mod-session/session.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
+import { ModQuillModule } from '../mod-quill/mod-quill.module';
 
 import { PinwallMainComponent } from './components/pinwall-main/pinwall-main.component';
 import { ModPinwallRoutingModule } from './mod-pinwall-routing.module';
@@ -34,6 +35,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ModCommonsModule,
     ModMaterialImportModule,
     ModSessionModule,
+    ModQuillModule,
     ModPinwallRoutingModule
   ]
 })

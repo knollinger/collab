@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -74,7 +74,7 @@ export class PostitListEditorComponent implements OnInit {
         this.postIt = postIt;
         this.titlebarSvc.subTitle = postIt.title;
 
-        this.rootItem = BucketListComponent.parseRawJSON(postIt.content);
+        this.rootItem = BucketListItem.parseRawJSON(postIt.content);
       })
   }
 
@@ -110,6 +110,23 @@ export class PostitListEditorComponent implements OnInit {
   }
 
   onSave() {
+
+    const items: IBucketListItem[] = this.rootItem.childs.map(item => {
+      return item.toJSON();
+    });
+
+    const toSave = new PostIt(
+      this.postIt.uuid,
+      this.postIt.owner,
+      this.postIt.type,
+      this.postIt.title,
+      JSON.stringify(items));
+
+    this.pinwallSvc.save(toSave)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(rsp => {
+        console.dir(rsp);
+      });
 
   }
 

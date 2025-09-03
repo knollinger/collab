@@ -39,7 +39,7 @@ export class BucketListItem {
      */
     public static fromJSON(json: IBucketListItem, parent: BucketListItem | null): BucketListItem {
 
-        const result = new BucketListItem(json.done, json.title, parent, []); 
+        const result = new BucketListItem(json.done, json.title, parent, []);
         const childs = !json.childs ? new Array<BucketListItem>() : json.childs!.map(child => {
             return BucketListItem.fromJSON(child, result);
         });
@@ -55,7 +55,25 @@ export class BucketListItem {
         return {
             done: this.done,
             title: this.title,
-            childs: this.childs.map(child => {return child.toJSON()})
+            childs: this.childs.map(child => { return child.toJSON() })
         }
+    }
+
+    /**
+     * 
+     * @param rawJSON 
+     * @returns parsed das rawJSON und liefert ein rootElement. Dies ist ggf leer
+     */
+    public static parseRawJSON(rawJSON: string): BucketListItem {
+
+        const result: BucketListItem = BucketListItem.empty();
+        if (rawJSON) {
+
+            const rawChilds: IBucketListItem[] = JSON.parse(rawJSON);
+            result.childs = rawChilds.map(rawChild => {
+                return BucketListItem.fromJSON(rawChild, result);
+            })
+        }
+        return result;
     }
 }

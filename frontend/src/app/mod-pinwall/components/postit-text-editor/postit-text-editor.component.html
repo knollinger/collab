@@ -1,2 +1,20 @@
 <div class="outer-cnr mat-app-background">
+
+    <mat-form-field>
+        <mat-label>Titel</mat-label>
+        <input matInput
+               [(ngModel)]="postIt.title">
+    </mat-form-field>
+
+    <app-rich-text-editor class="editor"
+                          [(ngModel)]="postIt.content"></app-rich-text-editor>
+
+    <div class="buttons">
+        <button mat-flat-button
+                color="primary">Speichern</button>
+        <button mat-button
+                color="primary"
+                routerLink="/pinwall/main">Zurück</button>
+
+    </div>
 </div>

@@ -3,7 +3,7 @@ package org.knollinger.colab.pinwall.exc;
 /**
  * 
  */
-public class TechnicalPillwallException extends Exception
+public class TechnicalPinwallException extends Exception
 {
     private static final long serialVersionUID = 1L;
 
@@ -11,7 +11,7 @@ public class TechnicalPillwallException extends Exception
      * @param message
      * @param cause
      */
-    public TechnicalPillwallException(String message, Throwable cause)
+    public TechnicalPinwallException(String message, Throwable cause)
     {
         super(message, cause);
     }

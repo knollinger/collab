@@ -15,11 +15,11 @@ export class PostIt {
      * @param content 
      */
     constructor(
-        public readonly uuid: string,
-        public readonly owner: string,
-        public readonly type: string,
-        public readonly title: string,
-        public readonly content: string) {
+        public uuid: string,
+        public owner: string,
+        public type: string,
+        public title: string,
+        public content: string) {
 
     }
 

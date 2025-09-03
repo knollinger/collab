@@ -1,12 +1,13 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SettingsService } from '../../../mod-settings/services/settings.service';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
+
 import { PinwallService } from '../../services/pinwall.service';
 import { PostIt } from '../../models/postit';
-import { BucketListItem, IBucketListItem } from '../../models/bucket-list-item';
-import { BucketListComponent } from '../bucket-list/bucket-list.component';
+import { BucketListItem } from '../../models/bucket-list-item';
 
 @Component({
   selector: 'app-pinwall-main',
@@ -35,6 +36,7 @@ export class PinwallMainComponent implements OnInit {
   constructor(
     private titlebarSvc: TitlebarService,
     private pinwallSvc: PinwallService,
+    private avatarSvc: AvatarService,
     private settingsSvc: SettingsService) {
 
   }
@@ -101,7 +103,16 @@ export class PinwallMainComponent implements OnInit {
     return result.replace('{uuid}', encodeURIComponent(postIt.uuid));
   }
 
+  public getAvatarUrl(uuid: string): string { 
+    return this.avatarSvc.getAvatarUrl(uuid);
+  }
+  
+  /**
+   * 
+   * @param postIt 
+   * @returns 
+   */
   rootBucket(postIt: PostIt): BucketListItem {
-    return BucketListComponent.parseRawJSON(postIt.content);
+    return BucketListItem.parseRawJSON(postIt.content);
   }
 }
