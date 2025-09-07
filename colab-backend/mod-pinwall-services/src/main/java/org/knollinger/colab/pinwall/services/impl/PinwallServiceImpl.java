@@ -13,6 +13,7 @@ import org.knollinger.colab.pinwall.exc.TechnicalPinwallException;
 import org.knollinger.colab.pinwall.models.EPostItType;
 import org.knollinger.colab.pinwall.models.PostIt;
 import org.knollinger.colab.pinwall.services.IPinwallService;
+import org.knollinger.colab.user.services.ICurrentUserService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,10 +42,17 @@ public class PinwallServiceImpl implements IPinwallService
 
     private static final String SQL_CREATE = "" //
         + "insert into `pinwalls`" //
-        + "  set `uuid`=?\", `owner`=?, `type`=?, `title`=?, `content`=?";
+        + "  set `uuid`=?, `owner`=?, `type`=?, `title`=?, `content`=?";
+    
+    private static final String SQL_DELETE = "" //
+        + "delete from `pinwalls`" //
+        + "  where `uuid`=?";
 
     @Autowired()
     private IDbService dbSvc;
+    
+    @Autowired
+    private ICurrentUserService currUserSvc;
 
     /**
      *
@@ -175,14 +183,16 @@ public class PinwallServiceImpl implements IPinwallService
             conn = this.dbSvc.openConnection();
             stmt = conn.prepareStatement(SQL_CREATE);
             stmt.setString(1, uuid.toString());
-            stmt.setString(2, postIt.getOwner().toString());
+            stmt.setString(2, this.currUserSvc.getUser().getUserId().toString());
             stmt.setString(3, postIt.getType().name());
             stmt.setString(4, postIt.getTitle());
             stmt.setString(5, postIt.getContent());
+            stmt.executeUpdate();
             return this.get(uuid, conn);
         }
         catch (SQLException | NotFoundException e)
         {
+            e.printStackTrace();
             throw new TechnicalPinwallException("unable to save postit", e);
         }
         finally
@@ -233,6 +243,27 @@ public class PinwallServiceImpl implements IPinwallService
     @Override
     public void delete(UUID uuid) throws TechnicalPinwallException, NotFoundException
     {
+        Connection conn = null;
+        PreparedStatement stmt = null;
 
+        try
+        {
+            conn = this.dbSvc.openConnection();
+            stmt = conn.prepareStatement(SQL_DELETE);
+            stmt.setString(1, uuid.toString());
+            if (stmt.executeUpdate() != 1)
+            {
+                throw new NotFoundException(uuid);
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalPinwallException("unable to delete postit", e);
+        }
+        finally
+        {
+            this.dbSvc.closeQuitely(stmt);
+            this.dbSvc.closeQuitely(conn);
+        }
     }
 }

@@ -2,8 +2,6 @@ import { AfterViewInit, Component, DestroyRef, inject, OnInit } from '@angular/c
 import { ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import Quill, { Delta } from 'quill';
-
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { PinwallService } from '../../services/pinwall.service';
 import { PostIt } from '../../models/postit';
@@ -44,9 +42,10 @@ export class PostitTextEditorComponent implements OnInit, AfterViewInit {
 
         const uuid = params['uuid'] || '';
         if (uuid) {
-
           this.loadEntry(uuid);
         }
+        this.postIt.type = 'TEXT';
+
       })
   }
 
@@ -63,5 +62,17 @@ export class PostitTextEditorComponent implements OnInit, AfterViewInit {
         this.postIt = postIt;
         this.titlebarSvc.subTitle = postIt.title;
       })
+  }
+
+  /**
+   * 
+   */
+  onSave() {
+
+    const subscr = this.postIt.isEmpty() ? this.pinwallSvc.create(this.postIt) : this.pinwallSvc.save(this.postIt);
+    subscr.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(_ => {
+
+      });
   }
 }

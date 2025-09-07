@@ -1,7 +1,7 @@
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { TitlebarService } from '../../../mod-commons/mod-commons.module';
+import { CommonDialogsService, TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SettingsService } from '../../../mod-settings/services/settings.service';
 import { AvatarService } from '../../../mod-userdata/mod-userdata.module';
 
@@ -37,6 +37,7 @@ export class PinwallMainComponent implements OnInit {
     private titlebarSvc: TitlebarService,
     private pinwallSvc: PinwallService,
     private avatarSvc: AvatarService,
+    private msgBoxSvc: CommonDialogsService,
     private settingsSvc: SettingsService) {
 
   }
@@ -75,6 +76,26 @@ export class PinwallMainComponent implements OnInit {
 
   }
 
+  public onDelete(evt: Event, postIt: PostIt) {
+
+    evt.stopPropagation();
+
+    this.msgBoxSvc.showQueryBox('Bist Du sicher?', 'Möchtest Du das PostIt wirklich löschen?')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(rsp => {
+
+        if (rsp) {
+
+          this.pinwallSvc.delete(postIt.uuid)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(_ => {
+              this.onReload();
+            })
+        }
+      })
+
+  }
+
   /**
    * 
    */
@@ -103,10 +124,10 @@ export class PinwallMainComponent implements OnInit {
     return result.replace('{uuid}', encodeURIComponent(postIt.uuid));
   }
 
-  public getAvatarUrl(uuid: string): string { 
+  public getAvatarUrl(uuid: string): string {
     return this.avatarSvc.getAvatarUrl(uuid);
   }
-  
+
   /**
    * 
    * @param postIt 

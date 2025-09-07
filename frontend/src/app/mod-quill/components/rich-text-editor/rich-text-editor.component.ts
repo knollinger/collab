@@ -21,15 +21,9 @@ import Quill, { Delta } from 'quill';
     }
   ]
 })
-export class RichTextEditorComponent implements OnInit, AfterViewInit, ControlValueAccessor, Validator {
+export class RichTextEditorComponent implements AfterViewInit, ControlValueAccessor, Validator {
 
   private quill: Quill | null = null;
-
-  /**
-   * 
-   */
-  ngOnInit(): void {
-  }
 
   /**
    * 
@@ -54,7 +48,7 @@ export class RichTextEditorComponent implements OnInit, AfterViewInit, ControlVa
     this.quill.on('text-change', (newContent: Delta, oldContent: Delta, source: string) => {
 
       if (source === 'user') {
-        // this.contentChange.emit(newContent.)
+        this.onChange(this.quill!.getSemanticHTML().replaceAll('&nbsp;', ' '));
       }
     })
   }
@@ -87,19 +81,54 @@ export class RichTextEditorComponent implements OnInit, AfterViewInit, ControlVa
     this.setEditorContent(content);
   }
 
-  private _onChange = (content: string) => { }
-  registerOnChange(callBack: any): void {
+  /**
+   * Default-Impl von onChange. Sie wird überschrieben, wenn registerOnChange
+   * aufgerufen wird. Die DefaultImpl sorgt aber dafür, dass wir nicht ständig
+   * prüfen müssen ob ein onChange-Listener gesetzt ist
+   * 
+   * @param content 
+   */
+  private onChange = (content: string) => { 
 
-    this._onChange = callBack;
   }
 
-  private _onTouched = () => { }
+  /**
+   * Implementiert das ControlValueAccessor-Interface zur Registrierung von 
+   * onChange-Callbacks
+   * 
+   * @param callBack 
+   */
+  registerOnChange(callBack: any): void {
+
+    this.onChange = callBack;
+  }
+
+  /**
+   * Default-Impl von onTouched. Sie wird überschrieben, wenn registerOnTouched
+   * aufgerufen wird. Die DefaultImpl sorgt aber dafür, dass wir nicht ständig
+   * prüfen müssen ob ein onTouched-Listener gesetzt ist
+   * 
+   * @param content 
+   */
+  private onTouched = () => { 
+
+  }
+
+  /**
+   * Implementiert das ControlValueAccessor-Interface zur Registrierung von 
+   * onTouched-Callbacks
+   * 
+   * @param callBack 
+   */
   registerOnTouched(callBack: any): void {
-    this._onTouched = callBack;
+    this.onTouched = callBack;
   }
 
   setDisabledState?(isDisabled: boolean): void {
-    //  throw new Error('Method not implemented.');
+ 
+    if(this.quill) {
+      this.quill.enable(!isDisabled);
+    }
   }
 
   /*-------------------------------------------------------------------------*/

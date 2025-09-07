@@ -8,6 +8,7 @@
 	<artifactId>colab-backend</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
+
 	<name>colab-backend</name>
 	<url>https://github.com/knollinger/collab</url>
 
@@ -43,7 +44,6 @@
 			<artifactId>mapstruct</artifactId>
 			<version>1.4.1.Final</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>
@@ -63,7 +63,6 @@
 					<groupId>org.springframework.boot</groupId>
 					<artifactId>spring-boot-maven-plugin</artifactId>
 					<configuration>
-
 						<excludes>
 							<exclude>
 								<groupId>org.projectlombok</groupId>
@@ -85,6 +84,7 @@
 								<artifactId>mapstruct-processor</artifactId>
 								<version>1.4.1.Final</version>
 							</path>
+
 							<path>
 								<groupId>org.projectlombok</groupId>
 								<artifactId>lombok</artifactId>
@@ -112,7 +112,6 @@
 					<version>3.4.2</version>
 				</plugin>
 
-
 				<plugin>
 					<artifactId>maven-install-plugin</artifactId>
 					<version>3.1.2</version>
@@ -132,13 +131,11 @@
 					<artifactId>maven-project-info-reports-plugin</artifactId>
 					<version>3.6.1</version>
 				</plugin>
-
 			</plugins>
 		</pluginManagement>
 	</build>
 
 	<modules>
-
 		<module>main</module>
 		<module>mod-filesys-data</module>
 		<module>mod-filesys-services</module>
@@ -171,6 +168,8 @@
 		<module>mod-openstreetmap-services</module>
 		<module>mod-openstreetmap-data</module>
 		<module>mod-openstreetmap-web</module>
+		<module>mod-journal-data</module>
+		<module>mod-journal-web</module>
+		<module>mod-journal-services</module>
 	</modules>
-
 </project>

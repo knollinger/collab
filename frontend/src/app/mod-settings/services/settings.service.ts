@@ -111,7 +111,6 @@ export class SettingsService {
 
       const url = this.backendRouter.getRouteForName('saveSettings', SettingsService.routes);
       this.http.post<void>(url, this.settings).subscribe(_ => {
-        console.log('Einstellungen gespeichert');
       })
     }
   }

@@ -1,5 +1,9 @@
 @import '../../../../assets/styles/grid.css';
 
+.outer-cnr {
+  height: 100%;
+}
+
 .cat-row {
   display: flex;
   align-items: center;

@@ -9,11 +9,11 @@
         </button>
 
         <mat-menu #createMenu="matMenu">
-            <button mat-menu-item>
+            <button mat-menu-item routerLink="/pinwall/edit/text">
                 <mat-icon class="material-symbols-outlined">text_fields</mat-icon>
                 Text
             </button>
-            <button mat-menu-item>
+            <button mat-menu-item routerLink="/pinwall/edit/list">
                 <mat-icon class="material-symbols-outlined">format_list_bulleted</mat-icon>
                 Checkliste
             </button>
@@ -57,6 +57,9 @@
                     <img class="card-avatar"
                          [src]="getAvatarUrl(postIt.owner)">
                     <span class="card-title">{{postIt.title}}</span>
+                    <button mat-icon-button (click)="onDelete($event, postIt)">
+                        <mat-icon class="material-symbols-outlined">delete</mat-icon>
+                    </button>
                 </div>
             </mat-card-header>
 
@@ -65,7 +68,7 @@
                 <div class="card-content">
 
                     <div *ngSwitchCase="'TEXT'"
-                         [innerHTML]="postIt.content">
+                         [innerHTML]="postIt.content | safe:'html'">
                     </div>
 
                     <app-bucket-list *ngSwitchCase="'BUCKET_LIST'"

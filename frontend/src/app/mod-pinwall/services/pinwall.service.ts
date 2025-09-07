@@ -5,6 +5,7 @@ import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 
 import { PostIt, IPostIt } from '../models/postit';
 import { HttpClient } from '@angular/common/http';
+
 /**
  * 
  */
@@ -18,10 +19,16 @@ export class PinwallService {
             ['getAll', 'v1/pinwall/all'],
             ['get', 'v1/pinwall/get/{1}'],
             ['save', 'v1/pinwall/save'],
-            
+            ['create', 'v1/pinwall/create'],
+            ['delete', 'v1/pinwall/delete/{1}'],
         ]
     );
 
+    /**
+     * 
+     * @param http 
+     * @param backendRouter 
+     */
     constructor(
         private http: HttpClient,
         private backendRouter: BackendRoutingService) {
@@ -75,5 +82,32 @@ export class PinwallService {
                     return PostIt.fromJSON(postIt);
                 })
             );
+    }
+
+    /**
+     * 
+     * @param postIt 
+     * @returns 
+     */
+    public create(postIt: PostIt): Observable<PostIt> {
+
+        const url = this.backendRouter.getRouteForName('create', PinwallService.routes);
+        return this.http.put<IPostIt>(url, postIt.toJSON())
+            .pipe(
+                map(postIt => {
+                    return PostIt.fromJSON(postIt);
+                })
+            );
+    }
+
+    /**
+     * 
+     * @param uuid 
+     * @returns 
+     */
+    public delete(uuid: string): Observable<void> {
+
+        const url = this.backendRouter.getRouteForName('delete', PinwallService.routes, uuid);
+        return this.http.delete<void>(url);
     }
 }

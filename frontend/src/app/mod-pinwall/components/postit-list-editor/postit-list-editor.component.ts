@@ -55,8 +55,11 @@ export class PostitListEditorComponent implements OnInit {
 
         const uuid = params['uuid'] || '';
         if (uuid) {
-
           this.loadEntry(uuid);
+        }
+        else {
+          this.rootItem.childs.push(new BucketListItem(false, 'Neuer Eintrag', this.rootItem, [], false));
+          this.postIt.type = 'BUCKET_LIST';
         }
       })
   }
@@ -122,12 +125,11 @@ export class PostitListEditorComponent implements OnInit {
       this.postIt.title,
       JSON.stringify(items));
 
-    this.pinwallSvc.save(toSave)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+    const subscr = this.postIt.isEmpty() ? this.pinwallSvc.create(toSave) : this.pinwallSvc.save(toSave);
+    subscr.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(rsp => {
         console.dir(rsp);
       });
-
   }
 
   /**

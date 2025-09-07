@@ -27,7 +27,6 @@
     max-height: 10rem;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding-bottom: 5rem;
 }
 
 .grid-workspace {
@@ -43,8 +42,9 @@
     cursor: pointer;
 }
 
-.grid-card>.card-content {
+.grid-card>mat-card-content>.card-content {
     height: 10rem;
+    min-height: 10rem;
 
 }
 
