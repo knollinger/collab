@@ -168,8 +168,5 @@
 		<module>mod-openstreetmap-services</module>
 		<module>mod-openstreetmap-data</module>
 		<module>mod-openstreetmap-web</module>
-		<module>mod-journal-data</module>
-		<module>mod-journal-web</module>
-		<module>mod-journal-services</module>
 	</modules>
 </project>

@@ -21,7 +21,6 @@ import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.models.IPermissions;
 import org.knollinger.colab.filesys.services.ICheckPermsService;
 import org.knollinger.colab.filesys.services.IFileSysService;
-import org.knollinger.colab.journal.services.IWriteJournalService;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,9 +72,6 @@ public class FileSysServiceImpl implements IFileSysService
     @Autowired()
     private ICheckPermsService checkPermsSvc;
 
-    @Autowired()
-    IWriteJournalService journalSvc;
-    
     /**
      *
      */
@@ -155,7 +151,6 @@ public class FileSysServiceImpl implements IFileSysService
             {
                 inode = this.getINode(inode.getLinkTo(), reqPermission, conn);
             }
-            this.journalSvc.writeJournal(conn, EFileSysJournalIds.READ_INODE, uuid, inode.getName());
             return inode;
         }
         catch (SQLException e)
@@ -220,7 +215,6 @@ public class FileSysServiceImpl implements IFileSysService
                 {
                     result.add(inode);
                 }
-                this.journalSvc.writeJournal(conn, EFileSysJournalIds.READ_INODE_CHILDS, parentId, inode.getName());
             }
             return result;
         }
