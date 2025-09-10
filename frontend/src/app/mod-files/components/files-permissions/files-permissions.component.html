@@ -1,12 +1,12 @@
 <table>
     <tr>
-        <td></td>
-        <td>Lesen</td>
-        <td>Schreiben</td>
-        <td>Löschen</td>
+        <th></th>
+        <th>Lesen</th>
+        <th>Schreiben</th>
+        <th>Löschen</th>
     </tr>
     <tr>
-        <td>Besitzer:</td>
+        <th class="label">Besitzer:</th>
         <td><mat-checkbox color="primary"
                           [disabled]="disabled"
                           [checked]="hasPermission(usrRead)"
@@ -22,7 +22,7 @@
     </tr>
 
     <tr>
-        <td>Gruppe:</td>
+        <th class="label">Gruppe:</th>
         <td><mat-checkbox color="primary"
                           [disabled]="disabled"
                           [checked]="hasPermission(grpRead)"
@@ -38,7 +38,7 @@
     </tr>
 
     <tr>
-        <td>Andere:</td>
+        <th class="label">Andere:</th>
         <td><mat-checkbox color="primary"
                           [disabled]="disabled"
                           [checked]="hasPermission(worldRead)"
@@ -53,8 +53,4 @@
                           (change)="onPermChange($event, worldDelete)"></mat-checkbox></td>
     </tr>
 
-    <tr>
-        <td>Numerisch:</td>
-        <td>{{octalPresentation}}</td>
-    </tr>
 </table>

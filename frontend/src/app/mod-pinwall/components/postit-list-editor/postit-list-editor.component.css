@@ -4,6 +4,7 @@
     flex-direction: column;
     gap: 0.5rem;
     overflow: auto;
+    gap: 0.5rem;
 }
 
 app-toolbar {
@@ -12,11 +13,11 @@ app-toolbar {
 }
 
 .workspace {
+    padding: 1rem;
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    margin: 1rem;
     overflow: auto;
 }
 
@@ -24,6 +25,5 @@ app-toolbar {
     flex: 0;
     display: flex;
     gap: 0.5rem;
-    padding: 0.5rem;
-    border-top: 1px solid #d0d0d0;
+    padding: 1rem;
 }

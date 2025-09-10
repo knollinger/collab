@@ -128,7 +128,7 @@ export class PostitListEditorComponent implements OnInit {
     const subscr = this.postIt.isEmpty() ? this.pinwallSvc.create(toSave) : this.pinwallSvc.save(toSave);
     subscr.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(rsp => {
-        console.dir(rsp);
+        this.postIt = rsp;
       });
   }
 

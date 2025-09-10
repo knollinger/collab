@@ -71,8 +71,8 @@ export class PostitTextEditorComponent implements OnInit, AfterViewInit {
 
     const subscr = this.postIt.isEmpty() ? this.pinwallSvc.create(this.postIt) : this.pinwallSvc.save(this.postIt);
     subscr.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(_ => {
-
+      .subscribe(rsp => {
+        this.postIt = rsp;
       });
   }
 }

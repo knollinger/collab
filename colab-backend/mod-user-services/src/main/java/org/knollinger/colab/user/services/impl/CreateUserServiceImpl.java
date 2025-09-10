@@ -47,10 +47,13 @@ public class CreateUserServiceImpl implements ICreateUserService
 
     private static final UUID[] DEFAULT_GROUPS = {EWellknownGroupIDs.GROUP_USERS.value()};
 
-    public static RNameAndMimetype COMMON_DIRS[] = {new RNameAndMimetype("Dokumente", "inode/directory+documents"),
-        new RNameAndMimetype("Musik", "inode/directory+sound"), new RNameAndMimetype("Videos", "inode/directory+video"),
-        new RNameAndMimetype("Bilder", "inode/directory+image"), new RNameAndMimetype("Notizen", "inode/directory"),
-        new RNameAndMimetype("Whiteboards", "inode/directory")};
+    public static RNameAndMimetype COMMON_DIRS[] = //
+        { //
+            new RNameAndMimetype("Dokumente", "inode/directory+documents"),
+            new RNameAndMimetype("Musik", "inode/directory+sound"), //
+            new RNameAndMimetype("Videos", "inode/directory+video"),
+            new RNameAndMimetype("Bilder", "inode/directory+image")//
+        };
 
     @Autowired
     IDbService dbSvc;
@@ -97,9 +100,10 @@ public class CreateUserServiceImpl implements ICreateUserService
             this.dbSvc.closeQuitely(conn);
         }
     }
-    
-    public User createUser(User user) throws TechnicalUserException, DuplicateUserException {
-        
+
+    public User createUser(User user) throws TechnicalUserException, DuplicateUserException
+    {
+
         Connection conn = null;
         User result = User.empty();
         try
@@ -118,7 +122,8 @@ public class CreateUserServiceImpl implements ICreateUserService
         catch (SQLException e)
         {
             e.printStackTrace();
-            String msg = String.format("Der Benutzer-Account '%1$s' konnte nicht angelegt werden", user.getAccountName());
+            String msg = String.format("Der Benutzer-Account '%1$s' konnte nicht angelegt werden",
+                user.getAccountName());
             throw new TechnicalUserException(msg, e);
         }
         finally
@@ -180,8 +185,7 @@ public class CreateUserServiceImpl implements ICreateUserService
         }
     }
 
-    private User createAccount(User user, Connection conn)
-        throws DuplicateUserException, TechnicalUserException
+    private User createAccount(User user, Connection conn) throws DuplicateUserException, TechnicalUserException
     {
         PreparedStatement stmt = null;
 

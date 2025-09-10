@@ -57,10 +57,6 @@
     cursor: pointer;
 }
 
-.card-menu {
-    flex: 0 0 auto;
-}
-
 @media (width <=599px) {
 
     .grid-card {

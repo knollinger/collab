@@ -7,6 +7,7 @@ import org.knollinger.colab.pinwall.dtos.PostItDTO;
 import org.knollinger.colab.pinwall.exc.NotFoundException;
 import org.knollinger.colab.pinwall.exc.TechnicalPinwallException;
 import org.knollinger.colab.pinwall.mapper.IPinwallMapper;
+import org.knollinger.colab.pinwall.models.PostIt;
 import org.knollinger.colab.pinwall.services.IPinwallService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -68,8 +69,8 @@ public class PinwallController
     {
         try
         {
-            this.pinwallSvc.create(this.mapper.fromDTO(postItDTO));
-            return postItDTO;
+            PostIt postIt = this.pinwallSvc.create(this.mapper.fromDTO(postItDTO));
+            return this.mapper.toDTO(postIt);
         }
         catch (TechnicalPinwallException e)
         {

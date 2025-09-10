@@ -19,13 +19,12 @@ public class DeleteUserServiceImpl implements IDeleteUserService
         + "Der Benutzer mit der UUID '%1$s' konnte nicht gelöscht werden";
 
     private static final String SQL_DELETE_FILES = "delete from inodes where owner=?";
-    private static final String SQL_DELETE_GROUP_MEMBERS = "delete from group_members where memberId=?";
+    private static final String SQL_DELETE_GROUP_MEMBERS = "delete from groupMembers where memberId=?";
     private static final String SQL_DELETE_PRIMARY_GROUP = "delete from groups where uuid=?";
     private static final String SQL_DELETE_CALENDAR = "delete from calendar where owner=?";
     private static final String SQL_DELETE_SETTINGS = "delete from settings where owner=?";
-    private static final String SQL_DELETE_DASHBOARD_LINKS = "delete from dashboard_links where owner=?";
     private static final String SQL_DELETE_DASHBOARD_WIDGETS = "delete from dashboard_widgets where owner=?";
-    private static final String SQL_DELETE_USER = "delete from user where uuid=?";
+    private static final String SQL_DELETE_USER = "delete from users where uuid=?";
 
     private static final String[] ALL_SQLS = {
         DeleteUserServiceImpl.SQL_DELETE_FILES, //
@@ -33,7 +32,6 @@ public class DeleteUserServiceImpl implements IDeleteUserService
         DeleteUserServiceImpl.SQL_DELETE_PRIMARY_GROUP, //
         DeleteUserServiceImpl.SQL_DELETE_CALENDAR, //
         DeleteUserServiceImpl.SQL_DELETE_SETTINGS, //
-        DeleteUserServiceImpl.SQL_DELETE_DASHBOARD_LINKS,
         DeleteUserServiceImpl.SQL_DELETE_DASHBOARD_WIDGETS, //
         DeleteUserServiceImpl.SQL_DELETE_USER //
     };
@@ -60,6 +58,7 @@ public class DeleteUserServiceImpl implements IDeleteUserService
         }
         catch (SQLException e)
         {
+            e.printStackTrace();
             String msg = String.format(ERR_DELETE_USER, uuid.toString());
             throw new TechnicalUserException(msg, e);
         }

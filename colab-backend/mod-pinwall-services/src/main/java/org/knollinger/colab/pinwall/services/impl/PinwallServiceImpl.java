@@ -134,7 +134,6 @@ public class PinwallServiceImpl implements IPinwallService
 
         try
         {
-            List<PostIt> result = new ArrayList<>();
             stmt = conn.prepareStatement(SQL_GET);
             stmt.setString(1, uuid.toString());
             rs = stmt.executeQuery();
@@ -152,7 +151,6 @@ public class PinwallServiceImpl implements IPinwallService
                 .created(rs.getTimestamp("created")) //
                 .modified(rs.getTimestamp("modified")) //
                 .build();
-            result.add(postIt);
 
             return postIt;
         }

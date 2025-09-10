@@ -1,6 +1,6 @@
 .grid-container {
   display: grid;
-  grid-template-columns: auto auto auto auto;
+  grid-template-columns: 1fr 2fr;
   gap: 10px;
 }
 
@@ -12,12 +12,5 @@
 }
 
 .label {
-  grid-column-start: 1;
-  grid-column-end: 2;
   font-weight: 500;
-}
-
-.value {
-  grid-column-start: 2;
-  grid-column-end: 4;
 }

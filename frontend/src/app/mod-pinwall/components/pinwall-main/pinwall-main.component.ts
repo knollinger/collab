@@ -24,6 +24,13 @@ export class PinwallMainComponent implements OnInit {
     ]
   );
 
+  private static colorsByType: Map<string, string> = new Map<string, string>(
+    [
+      ['TEXT', 'lemonchiffon'],
+      ['BUCKET_LIST', 'azure'],
+    ]
+  );
+
   private destroyRef = inject(DestroyRef);
   private settings: any = {};
 
@@ -122,6 +129,11 @@ export class PinwallMainComponent implements OnInit {
 
     let result = PinwallMainComponent.editorRoutes.get(postIt.type) || '';
     return result.replace('{uuid}', encodeURIComponent(postIt.uuid));
+  }
+
+  getBackgroundColor(postIt: PostIt): string {
+
+    return PinwallMainComponent.colorsByType.get(postIt.type) || 'white';
   }
 
   public getAvatarUrl(uuid: string): string {

@@ -49,6 +49,7 @@
         <mat-card class="card"
                   [class.grid-card]="viewMode==='grid'"
                   [class.list-card]="viewMode==='list'"
+                  [style.background-color]="getBackgroundColor(postIt)"
                   [routerLink]="getEditorRoute(postIt)"
                   *ngFor="let postIt of postIts">
 
