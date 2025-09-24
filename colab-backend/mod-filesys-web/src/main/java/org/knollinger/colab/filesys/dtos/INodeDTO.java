@@ -3,6 +3,8 @@ package org.knollinger.colab.filesys.dtos;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+import org.knollinger.colab.permissions.dtos.ACLDTO;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,4 +31,5 @@ public class INodeDTO
     private Timestamp modified;
     private int perms;
     private int effectivePerms;
+    private ACLDTO acl;
 }

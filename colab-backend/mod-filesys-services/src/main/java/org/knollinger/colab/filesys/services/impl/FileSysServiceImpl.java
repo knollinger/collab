@@ -7,7 +7,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -19,8 +18,12 @@ import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.EWellknownINodeIDs;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.models.IPermissions;
-import org.knollinger.colab.filesys.services.ICheckPermsService;
 import org.knollinger.colab.filesys.services.IFileSysService;
+import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
+import org.knollinger.colab.permissions.models.ACL;
+import org.knollinger.colab.permissions.models.ACLEntry;
+import org.knollinger.colab.permissions.models.EACLEntryType;
+import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,18 +32,20 @@ import org.springframework.stereotype.Service;
 @Service
 public class FileSysServiceImpl implements IFileSysService
 {
-    private static final String SQL_GET_INODE = "" //
-        + "select `name`, `parent`, `linkTo`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
-        + "  where `uuid`=?";
-
     private static final String SQL_GET_ALL_CHILDS = "" //
-        + "select `name`, `uuid`, `linkTo`, `owner`, `group`, `perms`, `size`, `type`, `created`, `modified` from `inodes`" //
-        + "  where `parent`=?" //
-        + "  order by `name` asc";
+        + "select `i`.`name`, `i`.`uuid`, `i`.`linkTo`, `i`.`owner`, `i`.`parent`, `i`.`group`, `i`.`perms`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `p`.`ownerId`, `p`.`ownerType`, `p`.`perms`" //
+        + "  from `inodes` i " //
+        + "  left join `permissions` p" //
+        + "    on `i`.`uuid` = `p`.`resourceId`" //
+        + "  where `i`.`parent`=?" //
+        + "  order by `i`.`name`, `i`.`uuid` asc";
 
-    private static final String SQL_CREATE_FOLDER = "" //
-        + "insert into `inodes`" // 
-        + "  set `uuid`=?, `parent`=?, `owner`=?, `group`=?, `perms`=?, `name`=?, `size`=?, `type`=?";
+    private static final String SQL_GET_INODE = "" //
+        + "select `i`.`name`, `i`.`parent`, `i`.`linkTo`, `i`.`owner`, `i`.`group`, `i`.`perms`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `p`.`ownerId`, `p`.`ownerType`, `p`.`perms` " //
+        + "  from `inodes` i " //
+        + "  left join `permissions` p" //
+        + "    on `i`.`uuid` = `p`.`resourceId`" //
+        + "  where `i`.`uuid`=?";
 
     private static final String SQL_CREATE_DOCUMENT = "" //
         + "insert into `inodes`" // 
@@ -56,22 +61,22 @@ public class FileSysServiceImpl implements IFileSysService
         + "  where `uuid`=?";
 
     private static final String SQL_GET_CHILD_BY_NAME = "" //
-        + "select * from `inodes`" //
+        + "select uuid from `inodes`" //
         + "  where `parent`=? and `name`=?";
 
     private static final String SQL_MOVE_INODE = "" //
         + "update `inodes` set `parent`=?, `name`=?" //
         + "  where `uuid`=?";
 
-    @Autowired
+    @Autowired()
     private IDbService dbService;
 
-    @Autowired
-    private ICurrentUserService currUserSvc;
+    @Autowired()
+    private IPermissionsService permsSvc;
 
     @Autowired()
-    private ICheckPermsService checkPermsSvc;
-
+    private ICurrentUserService currUserSvc;
+    
     /**
      *
      */
@@ -79,21 +84,14 @@ public class FileSysServiceImpl implements IFileSysService
     public INode getINode(UUID uuid, int reqPermission)
         throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
-        Connection conn = null;
-
-        try
+        try (Connection conn = this.dbService.openConnection())
         {
-            conn = this.dbService.openConnection();
             return this.getINode(uuid, reqPermission, conn);
         }
         catch (SQLException e)
         {
             String msg = String.format("Die INode mit der UUID '%1$s' konnte nicht geladen werden", uuid);
             throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(conn);
         }
     }
 
@@ -112,46 +110,65 @@ public class FileSysServiceImpl implements IFileSysService
     public INode getINode(UUID uuid, int reqPermission, Connection conn)
         throws NotFoundException, AccessDeniedException, TechnicalFileSysException
     {
-        PreparedStatement stmt = null;
         ResultSet rs = null;
 
-        try
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_GET_INODE))
         {
-            stmt = conn.prepareStatement(SQL_GET_INODE);
+            boolean found = false;
             stmt.setString(1, uuid.toString());
             rs = stmt.executeQuery();
-            if (!rs.next())
+
+            INode.INodeBuilder nodeBuilder = INode.builder();
+            ACL.ACLBuilder aclBuilder = ACL.builder();
+            List<ACLEntry> aclEntries = new ArrayList<>();
+
+            while (rs.next())
+            {
+                if (!found)
+                {
+                    nodeBuilder //
+                        .uuid(uuid) //
+                        .parent(UUID.fromString(rs.getString("i.parent"))) //
+                        .linkTo(this.parseNullableUUID(rs.getString("i.linkTo"))) //
+                        .owner(UUID.fromString(rs.getString("i.owner"))) //
+                        .group(UUID.fromString(rs.getString("i.group")))//
+                        .perms(rs.getShort("i.perms")) //
+                        .effectivePerms(511) //
+                        .name(rs.getString("i.name")) //
+                        .type(rs.getString("i.type")) //
+                        .size(rs.getLong("i.size")) //
+                        .created(rs.getTimestamp("i.created")) //
+                        .modified(rs.getTimestamp("i.modified"));
+
+                    aclBuilder //
+                        .ownerId(UUID.fromString(rs.getString("i.owner"))) //
+                        .groupId(UUID.fromString(rs.getString("i.group")));
+
+                    found = true;
+                }
+
+                ACLEntry entry = ACLEntry.builder() //
+                    .uuid(UUID.fromString(rs.getString("p.ownerId"))) //
+                    .type(EACLEntryType.valueOf(rs.getString("p.ownerType"))) //
+                    .perms(rs.getInt("p.perms")) //
+                    .build();
+                aclEntries.add(entry);
+            }
+
+            if (!found)
             {
                 throw new NotFoundException(uuid);
             }
 
-            UUID owner = UUID.fromString(rs.getString("owner"));
-            UUID group = UUID.fromString(rs.getString("group"));
+            aclBuilder.entries(aclEntries);
+            nodeBuilder.acl(aclBuilder.build());
+            INode result = nodeBuilder.build();
 
-            short perms = rs.getShort("perms");
-
-            INode inode = INode.builder() //
-                .uuid(uuid) //
-                .parent(UUID.fromString(rs.getString("parent"))) //
-                .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
-                .owner(owner) //
-                .group(group)//
-                .perms(perms) //
-                .effectivePerms(this.checkPermsSvc.getEffectivePermissions(perms, owner, group)) //
-                .name(rs.getString("name")) //
-                .type(rs.getString("type")) //
-                .size(rs.getLong("size")) //
-                .created(rs.getTimestamp("created")) //
-                .modified(rs.getTimestamp("modified")) //
-                .build();
-
-            this.checkPermsSvc.checkPermission(reqPermission, inode);
-
-            if (inode.isLink())
+            if (result.isLink())
             {
-                inode = this.getINode(inode.getLinkTo(), reqPermission, conn);
+                result = this.getINode(result.getLinkTo(), reqPermission, conn);
             }
-            return inode;
+            return result;
         }
         catch (SQLException e)
         {
@@ -161,7 +178,6 @@ public class FileSysServiceImpl implements IFileSysService
         finally
         {
             this.dbService.closeQuitely(rs);
-            this.dbService.closeQuitely(stmt);
         }
     }
 
@@ -175,47 +191,78 @@ public class FileSysServiceImpl implements IFileSysService
     public List<INode> getAllChilds(UUID parentId, int reqPerms, boolean foldersOnly)
         throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
-        Connection conn = null;
-        PreparedStatement stmt = null;
         ResultSet rs = null;
 
-        try
+        try (Connection conn = this.dbService.openConnection();
+            PreparedStatement stmt = conn.prepareStatement(SQL_GET_ALL_CHILDS))
         {
 
             List<INode> result = new ArrayList<INode>();
-            conn = this.dbService.openConnection();
 
-            this.getINode(parentId, reqPerms, conn); // prüft existenz, berechtigungen und löst ggf einen link auf
+            List<ACLEntry> aclEntries = new ArrayList<>();
+            ACL.ACLBuilder currACLBuilder = null;
+            INode.INodeBuilder currNodeBuilder = null;
+            UUID currUUID = null;
 
-            stmt = conn.prepareStatement(SQL_GET_ALL_CHILDS);
             stmt.setString(1, parentId.toString());
             rs = stmt.executeQuery();
             while (rs.next())
             {
-                UUID owner = UUID.fromString(rs.getString("owner"));
-                UUID group = UUID.fromString(rs.getString("group"));
-                short perms = rs.getShort("perms");
-
-                INode inode = INode.builder() // 
-                    .uuid(UUID.fromString(rs.getString("uuid"))) //
-                    .parent(parentId) //
-                    .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
-                    .owner(owner) //
-                    .group(group) //
-                    .perms(perms) //
-                    .effectivePerms(this.checkPermsSvc.getEffectivePermissions(perms, owner, group)) //
-                    .name(rs.getString("name")) //
-                    .type(rs.getString("type")) //
-                    .size(rs.getLong("size")) //
-                    .created(rs.getTimestamp("created")) //
-                    .modified(rs.getTimestamp("modified")) //
-                    .build();
-
-                if (!foldersOnly || inode.isDirectory())
+                UUID uuid = UUID.fromString(rs.getString("i.uuid"));
+                if (currUUID == null || !uuid.equals(currUUID))
                 {
-                    result.add(inode);
+                    if (currUUID != null)
+                    {
+                        currACLBuilder.entries(aclEntries);
+                        aclEntries = new ArrayList<>();
+                        currNodeBuilder.acl(currACLBuilder.build());
+                        INode node = currNodeBuilder.build();
+                        if (!foldersOnly || node.isDirectory())
+                        {
+                            result.add(currNodeBuilder.build());
+                        }
+                    }
+                    currUUID = uuid;
+                    currNodeBuilder = INode.builder();
+                    currACLBuilder = ACL.builder();
+
+                    currNodeBuilder.uuid(uuid) //
+                        .parent(parentId) //
+                        .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
+                        .owner(UUID.fromString(rs.getString("i.owner"))) //
+                        .group(UUID.fromString(rs.getString("i.group"))) //
+                        .perms(rs.getInt("i.perms")) //
+                        .effectivePerms(511) //
+                        .name(rs.getString("i.name")) //
+                        .type(rs.getString("i.type")) //
+                        .size(rs.getLong("i.size")) //
+                        .created(rs.getTimestamp("i.created")) //
+                        .modified(rs.getTimestamp("i.modified"));
+
+                    currACLBuilder//
+                        .ownerId(UUID.fromString(rs.getString("i.owner"))) //
+                        .groupId(UUID.fromString(rs.getString("i.group")));
+                }
+
+                ACLEntry entry = ACLEntry.builder() //
+                    .uuid(UUID.fromString(rs.getString("p.ownerId"))) //
+                    .type(EACLEntryType.valueOf(rs.getString("p.ownerType"))) //
+                    .perms(rs.getInt("p.perms")) //
+                    .build();
+                aclEntries.add(entry);
+            }
+
+            if (currNodeBuilder != null)
+            {
+                currACLBuilder.entries(aclEntries);
+                currNodeBuilder.acl(currACLBuilder.build());
+                INode node = currNodeBuilder.build();
+                if (!foldersOnly || node.isDirectory())
+                {
+                    result.add(currNodeBuilder.build());
                 }
             }
+
             return result;
         }
         catch (SQLException e)
@@ -227,8 +274,6 @@ public class FileSysServiceImpl implements IFileSysService
         finally
         {
             this.dbService.closeQuitely(rs);
-            this.dbService.closeQuitely(stmt);
-            this.dbService.closeQuitely(conn);
         }
     }
 
@@ -240,21 +285,15 @@ public class FileSysServiceImpl implements IFileSysService
     @Override
     public List<INode> getPath(UUID uuid) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
-        Connection conn = null;
 
-        try
+        try (Connection conn = this.dbService.openConnection())
         {
-            conn = this.dbService.openConnection();
             return this.getPath(uuid, conn);
         }
         catch (SQLException e)
         {
             String msg = String.format("Der Pfad zum Object mit der UUID '%1$s' konnte nicht ermittelt werden", uuid);
             throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(conn);
         }
     }
 
@@ -272,107 +311,17 @@ public class FileSysServiceImpl implements IFileSysService
     private List<INode> getPath(UUID uuid, Connection conn)
         throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
+        List<INode> result = new ArrayList<INode>();
 
-        try
+        UUID currentUUID = uuid;
+        while (!currentUUID.equals(EWellknownINodeIDs.NONE.value()))
         {
-            List<INode> result = new ArrayList<INode>();
-            stmt = conn.prepareStatement(SQL_GET_INODE);
-
-            this.getINode(uuid, IPermissions.READ, conn); // testet existenz und permissions
-
-            UUID currentUUID = uuid;
-            while (!currentUUID.equals(EWellknownINodeIDs.NONE.value()))
-            {
-                stmt.setString(1, currentUUID.toString());
-                rs = stmt.executeQuery();
-                if (!rs.next())
-                {
-                    throw new NotFoundException(currentUUID);
-                }
-                else
-                {
-                    UUID owner = UUID.fromString(rs.getString("owner"));
-                    UUID group = UUID.fromString(rs.getString("group"));
-                    short perms = rs.getShort("perms");
-
-                    INode node = INode.builder() // 
-                        .uuid(currentUUID) //
-                        .parent(UUID.fromString(rs.getString("parent"))) //
-                        .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
-                        .owner(owner) //
-                        .group(group) //
-                        .perms(perms) //
-                        .effectivePerms(this.checkPermsSvc.getEffectivePermissions(perms, owner, group)) //
-                        .name(rs.getString("name")) //
-                        .type(rs.getString("type")) //
-                        .size(rs.getLong("size")) //
-                        .created(rs.getTimestamp("created")) //
-                        .modified(rs.getTimestamp("modified")) //
-                        .build();
-                    result.add(0, node);
-
-                    currentUUID = node.getParent();
-                }
-            }
-            return result;
+            INode node = this.getINode(currentUUID, 0, conn);
+            result.add(0, node);
+            currentUUID = node.getParent();
         }
-        catch (SQLException e)
-        {
-            String msg = String.format("Der Pfad zum Object mit der UUID '%1$s' konnte nicht ermittelt werden", uuid);
-            throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(rs);
-            this.dbService.closeQuitely(stmt);
-        }
+        return result;
     }
-
-    /**
-     * @throws AccessDeniedException 
-     *
-     */
-    @Override
-    public void rename(UUID uuid, String name)
-        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
-    {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        INode node = null;
-        try
-        {
-            conn = this.dbService.openConnection();
-            node = this.getINode(uuid, IPermissions.WRITE, conn);
-
-            stmt = conn.prepareStatement(SQL_RENAME_INODE);
-            stmt.setString(1, name);
-            stmt.setString(2, uuid.toString());
-            stmt.executeUpdate();
-        }
-        catch (SQLIntegrityConstraintViolationException e)
-        {
-            node = this.getChildByName(node.getParent(), name, 0, conn);
-            if (node != null)
-            {
-                throw new DuplicateEntryException(node);
-            }
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            String msg = String.format("Das Dateisystem-Objekt mit der UUID '%1$s' konnte nicht umbenannt werden",
-                uuid);
-            throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(stmt);
-            this.dbService.closeQuitely(conn);
-        }
-    }
-
     /**
      * @throws AccessDeniedException 
      * @throws NotFoundException 
@@ -382,15 +331,13 @@ public class FileSysServiceImpl implements IFileSysService
     public INode getChildByName(UUID parentId, String name, int reqPerms)
         throws AccessDeniedException, NotFoundException, TechnicalFileSysException
     {
-        Connection conn = null;
-
-        try
+        try (Connection conn = this.dbService.openConnection())
         {
             return this.getChildByName(parentId, name, reqPerms, conn);
         }
-        finally
+        catch (SQLException e)
         {
-            this.dbService.closeQuitely(conn);
+            throw new TechnicalFileSysException("Das Dateisystem-Objekt konnte nicht geladen werden.", e);
         }
     }
 
@@ -407,13 +354,11 @@ public class FileSysServiceImpl implements IFileSysService
     public INode getChildByName(UUID parentId, String name, int reqPerms, Connection conn)
         throws AccessDeniedException, NotFoundException, TechnicalFileSysException
     {
-        PreparedStatement stmt = null;
         ResultSet rs = null;
-        INode result = null;
 
-        try
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_GET_CHILD_BY_NAME))
         {
-            stmt = conn.prepareStatement(SQL_GET_CHILD_BY_NAME);
+
             stmt.setString(1, parentId.toString());
             stmt.setString(2, name);
             rs = stmt.executeQuery();
@@ -422,19 +367,8 @@ public class FileSysServiceImpl implements IFileSysService
                 throw new NotFoundException(name);
             }
 
-            result = INode.builder() //
-                .uuid(UUID.fromString(rs.getString("uuid"))) //
-                .parent(parentId) //
-                .linkTo(this.parseNullableUUID(rs.getString("linkTo"))).owner(UUID.fromString(rs.getString("owner"))) //
-                .group(UUID.fromString(rs.getString("group"))) //
-                .perms(rs.getShort("perms")) //
-                .name(name) //
-                .size(rs.getLong("size")) //
-                .type(rs.getString("type")) //
-                .created(rs.getTimestamp("created")) //
-                .modified(rs.getTimestamp("modified")) //
-                .build();
-
+            UUID uuid = UUID.fromString(rs.getString("uuid"));
+            return this.getINode(uuid, reqPerms, conn);
         }
         catch (SQLException e)
         {
@@ -443,9 +377,7 @@ public class FileSysServiceImpl implements IFileSysService
         finally
         {
             this.dbService.closeQuitely(rs);
-            this.dbService.closeQuitely(stmt);
         }
-        return result;
     }
 
     /**
@@ -456,20 +388,17 @@ public class FileSysServiceImpl implements IFileSysService
     public INode createFolder(UUID parentId, String name)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
-        Connection conn = null;
-        try
+        try (Connection conn = this.dbService.openConnection())
         {
-            conn = this.dbService.openConnection();
-            return this.createFolder(parentId, name, conn);
+            conn.setAutoCommit(false);
+            INode result = this.createFolder(parentId, name, conn);
+            conn.commit();
+            return result;
         }
         catch (SQLException e)
         {
             String msg = String.format("Der Ordner '%1$s' konnte nicht angelegt werden", e);
             throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(conn);
         }
     }
 
@@ -481,60 +410,7 @@ public class FileSysServiceImpl implements IFileSysService
     public INode createFolder(UUID parentId, String name, Connection conn)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
-        PreparedStatement stmt = null;
-        try
-        {
-            this.getINode(parentId, IPermissions.WRITE, conn); // check existence and write perm for parent
-
-            UUID uuid = UUID.randomUUID();
-            // TODO: Parent existenz und isDirectory testen
-
-            UUID userId = this.currUserSvc.getUser().getUserId();
-            int perms = IPermissions.USR_READ | //
-                IPermissions.USR_WRITE | //
-                IPermissions.USR_DELETE | //
-                IPermissions.GRP_READ | //
-                IPermissions.GRP_WRITE | //
-                IPermissions.GRP_DELETE;
-
-            stmt = conn.prepareStatement(SQL_CREATE_FOLDER);
-            stmt.setString(1, uuid.toString());
-            stmt.setString(2, parentId.toString());
-            stmt.setString(3, userId.toString());
-            stmt.setString(4, userId.toString());
-            stmt.setInt(5, perms);
-            stmt.setString(6, name.trim());
-            stmt.setLong(7, 0);
-            stmt.setString(8, "inode/directory");
-            stmt.executeUpdate();
-
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-            return INode.builder() //
-                .uuid(uuid) //
-                .parent(parentId) //
-                .name(name.trim()) //
-                .owner(userId) //
-                .group(userId) //
-                .size(0) //
-                .type("inode/directory") //
-                .created(now) //
-                .modified(now) //
-                .perms(perms) //
-                .build();
-        }
-        catch (SQLIntegrityConstraintViolationException e)
-        {
-            throw new DuplicateEntryException(this.getChildByName(parentId, name, 0, conn));
-        }
-        catch (SQLException e)
-        {
-            String msg = String.format("Der Ordner '%1$s' konnte nicht angelegt werden", e);
-            throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(stmt);
-        }
+        return this.createDocument(parentId, name, "inode/directory", conn);
     }
 
     /**
@@ -553,21 +429,38 @@ public class FileSysServiceImpl implements IFileSysService
     }
 
     /**
-     *
-     */
+    *
+    */
     @Override
     public INode createDocument(UUID parentId, String name, String contentType)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        String resourcePath = String.format("create-new-menu/templates/%1$s.template", contentType);
-        try (InputStream in = this.getClass().getClassLoader().getResourceAsStream(resourcePath))
+        try (Connection conn = this.dbService.openConnection())
         {
-            conn = this.dbService.openConnection();
+            conn.setAutoCommit(false);
+            INode inode = this.createDocument(parentId, name, contentType, conn);
+            conn.commit();
+            return inode;
+        }
+        catch (SQLException e)
+        {
+            String msg = String.format("Der Ordner '%1$s' konnte nicht angelegt werden", e);
+            throw new TechnicalFileSysException(msg, e);
+        }
+    }
 
-            this.getINode(parentId, IPermissions.WRITE, conn); // check existence and write perm for parent
+    /**
+     *
+     */
+    @Override
+    public INode createDocument(UUID parentId, String name, String contentType, Connection conn)
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
+    {
+        String resourcePath = String.format("create-new-menu/templates/%1$s.template", contentType);
 
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_CREATE_DOCUMENT);
+            InputStream in = this.getClass().getClassLoader().getResourceAsStream(resourcePath))
+        {
             UUID uuid = UUID.randomUUID();
             UUID userId = this.currUserSvc.getUser().getUserId();
 
@@ -578,7 +471,6 @@ public class FileSysServiceImpl implements IFileSysService
                 IPermissions.GRP_WRITE | //
                 IPermissions.GRP_DELETE;
 
-            stmt = conn.prepareStatement(SQL_CREATE_DOCUMENT);
             stmt.setString(1, uuid.toString());
             stmt.setString(2, parentId.toString());
             stmt.setString(3, userId.toString());
@@ -590,56 +482,105 @@ public class FileSysServiceImpl implements IFileSysService
             stmt.setBinaryStream(9, in);
             stmt.executeUpdate();
 
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-            return INode.builder() //
-                .uuid(uuid) //
-                .parent(parentId) //
-                .name(name.trim()) //
-                .owner(userId) //
-                .group(userId) //
-                .size(0) //
-                .type("inode/directory") //
-                .created(now) //
-                .modified(now) //
-                .perms(perms) //
-                .build();
+            this.permsSvc.createACLEntry(uuid, userId, EACLEntryType.USER, ACL.PERM_ALL);
+            this.permsSvc.createACLEntry(uuid, userId, EACLEntryType.GROUP, ACL.PERM_ALL);
+
+            return this.getINode(uuid, perms, conn);
         }
-        catch (SQLException | IOException e)
+        catch (SQLIntegrityConstraintViolationException e)
         {
-            String msg = String.format("Der Ordner '%1$s' konnte nicht angelegt werden", e);
+            throw new DuplicateEntryException(this.getChildByName(parentId, name, 0, conn));
+        }
+        catch (SQLException | IOException | TechnicalPermissionException e)
+        {
+            String msg = String.format("Der Ordner '%1$s' konnte nicht angelegt werden", name, e);
             throw new TechnicalFileSysException(msg, e);
         }
-        finally
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void rename(UUID uuid, String name)
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
+    {
+        try (Connection conn = this.dbService.openConnection())
         {
-            this.dbService.closeQuitely(stmt);
-            this.dbService.closeQuitely(conn);
+            this.rename(uuid, name, conn);
+        }
+        catch (SQLException e)
+        {
+            String msg = String.format("Das Dateisystem-Objekt mit der UUID '%1$s' konnte nicht umbenannt werden",
+                uuid);
+            throw new TechnicalFileSysException(msg, e);
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public void rename(UUID uuid, String name, Connection conn)
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
+    {
+        INode node = null;
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_RENAME_INODE))
+        {
+            node = this.getINode(uuid, IPermissions.WRITE, conn);
+            stmt.setString(1, name);
+            stmt.setString(2, uuid.toString());
+            stmt.executeUpdate();
+        }
+        catch (SQLIntegrityConstraintViolationException e)
+        {
+            node = this.getChildByName(node.getParent(), name, 0, conn);
+            throw new DuplicateEntryException(node);
+        }
+        catch (SQLException e)
+        {
+            String msg = String.format("Das Dateisystem-Objekt mit der UUID '%1$s' konnte nicht umbenannt werden",
+                uuid);
+            throw new TechnicalFileSysException(msg, e);
         }
     }
 
     /**
      * @throws AccessDeniedException 
-     *
      */
     @Override
     public void move(List<INode> src, INode target)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
+        try (Connection conn = this.dbService.openConnection())
+        {
+            conn.setAutoCommit(false);
+            this.move(src, target, conn);
+            conn.commit();
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalFileSysException(
+                "Das verschieben des Objektes konnte aufgrund eines technischen Fehlers nicht durchgeführt werden.", e);
+        }
+    }
+
+    /**
+     * @throws AccessDeniedException 
+     */
+    @Override
+    public void move(List<INode> src, INode target, Connection conn)
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
+    {
         // TODO testen, ob das objekt nicht in eines seiner kinder verschoben werden soll
         // Dazu getPath (target), die src darf nicht darin enthalten sein!
 
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
-        try
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_MOVE_INODE);)
         {
-            conn = this.dbService.openConnection();
-            conn.setAutoCommit(false);
-
             for (INode iNode : src)
             {
                 this.checkMoveAllowed(iNode, target, conn);
 
-                stmt = conn.prepareStatement(SQL_MOVE_INODE);
                 stmt.setString(1, target.getUuid().toString());
                 stmt.setString(2, iNode.getName());
                 stmt.setString(3, iNode.getUuid().toString());
@@ -648,7 +589,6 @@ public class FileSysServiceImpl implements IFileSysService
                     throw new NotFoundException(iNode.getUuid());
                 }
             }
-            conn.commit();
         }
         catch (SQLIntegrityConstraintViolationException e)
         {
@@ -658,11 +598,6 @@ public class FileSysServiceImpl implements IFileSysService
         {
             throw new TechnicalFileSysException(
                 "Das verschieben des Objektes konnte aufgrund eines technischen Fehlers nicht durchgeführt werden.", e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(stmt);
-            this.dbService.closeQuitely(conn);
         }
     }
 
@@ -693,35 +628,48 @@ public class FileSysServiceImpl implements IFileSysService
     @Override
     public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
-        try
+        try (Connection conn = this.dbService.openConnection())
         {
-            conn = this.dbService.openConnection();
-            this.getINode(inode.getUuid(), IPermissions.WRITE, conn); // check existence and write permission of current inode
+            conn.setAutoCommit(false);
+            INode result = this.updateINode(inode, conn);
+            conn.commit();
+            return result;
+        }
+        catch (SQLException e)
+        {
+            String msg = String.format(
+                "Das Dateisystem-Object `%1$s` konnte aufgrund eines technischen Problems nicht aktualisiert werden.",
+                inode.getName());
+            throw new TechnicalFileSysException(msg, e);
+        }
+    }
 
-            stmt = conn.prepareStatement(SQL_UPDATE_INODE);
+
+    /**
+     *
+     */
+    @Override
+    public INode updateINode(INode inode, Connection conn)
+        throws TechnicalFileSysException, NotFoundException, AccessDeniedException
+    {
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE_INODE);)
+        {
             stmt.setString(1, inode.getOwner().toString());
             stmt.setString(2, inode.getGroup().toString());
             stmt.setInt(3, inode.getPerms());
             stmt.setString(4, inode.getUuid().toString());
             stmt.executeUpdate();
 
+            this.permsSvc.deleteACLEntries(inode.getUuid(), conn);
+            this.permsSvc.createACLEntries(inode.getUuid(), inode.getAcl().getEntries(), conn);
             return this.getINode(inode.getUuid(), IPermissions.READ, conn);
         }
-        catch (SQLException e)
+        catch (SQLException | TechnicalPermissionException e)
         {
-            e.printStackTrace();
             String msg = String.format(
                 "Das Dateisystem-Object `%1$s` konnte aufgrund eines technischen Problems nicht aktualisiert werden.",
                 inode.getName());
             throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(stmt);
-            this.dbService.closeQuitely(conn);
         }
     }
 
@@ -738,33 +686,44 @@ public class FileSysServiceImpl implements IFileSysService
     public INode getOrCreateFolder(UUID parentId, String name)
         throws AccessDeniedException, NotFoundException, TechnicalFileSysException, DuplicateEntryException
     {
-        Connection conn = null;
-        try
+        try (Connection conn = this.dbService.openConnection())
         {
-            conn = this.dbService.openConnection();
-            INode result = INode.empty();
-            try
-            {
-                result = this.createFolder(parentId, name, conn);
-            }
-            catch (DuplicateEntryException e)
-            {
-                result = this.getChildByName(parentId, name, IPermissions.READ, conn);
-                if (!result.isDirectory())
-                {
-                    throw e;
-                }
-            }
-            return result;
+            return this.getOrCreateFolder(parentId, name, conn);
         }
         catch (SQLException e)
         {
             String msg = String.format("Die existenz des Ordners '%1$s' konnte nicht sicher gestellt werden.", name);
             throw new TechnicalFileSysException(msg, e);
         }
-        finally
+    }
+
+    /**
+     * @param parentId
+     * @param name
+     * @param conn
+     * @return
+     * @throws AccessDeniedException
+     * @throws NotFoundException
+     * @throws TechnicalFileSysException
+     * @throws DuplicateEntryException
+     */
+    @Override
+    public INode getOrCreateFolder(UUID parentId, String name, Connection conn)
+        throws AccessDeniedException, NotFoundException, TechnicalFileSysException, DuplicateEntryException
+    {
+        INode result = INode.empty();
+        try
         {
-            this.dbService.closeQuitely(conn);
+            result = this.createFolder(parentId, name, conn);
         }
+        catch (DuplicateEntryException e)
+        {
+            result = this.getChildByName(parentId, name, IPermissions.READ, conn);
+            if (!result.isDirectory())
+            {
+                throw e;
+            }
+        }
+        return result;
     }
 }

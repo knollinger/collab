@@ -1,4 +1,4 @@
-import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } from "@angular/core";
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { MatSelectChange } from "@angular/material/select";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
@@ -7,6 +7,7 @@ import { INode } from "../../../mod-files-data/mod-files-data.module";
 import { AvatarService, Group } from "../../../mod-userdata/mod-userdata.module";
 import { GroupService } from "../../../mod-user/mod-user.module";
 import { SessionService } from "../../../mod-session/session.module";
+import { PermissionListComponent } from "../../../mod-permissions/components/permission-list/permission-list.component";
 
 /**
  * 
@@ -20,6 +21,9 @@ import { SessionService } from "../../../mod-session/session.module";
 export class FilesPropertiesPermissionsComponent implements OnInit {
 
     private destroyRef = inject(DestroyRef);
+
+    @ViewChild(PermissionListComponent)
+    private permsList!: PermissionListComponent;
 
     possibleGroups: Group[] = new Array<Group>();
     userGroups: Group[] = new Array<Group>();
@@ -148,5 +152,9 @@ export class FilesPropertiesPermissionsComponent implements OnInit {
             perms,
             this.inode.effectivePerms); // TODO: wrong!!!
         this.inodeChange.emit(this.inode);
+    }
+
+    public onAddPermission() {
+        this.permsList.addLine();
     }
 }

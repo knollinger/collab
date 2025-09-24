@@ -1,0 +1,74 @@
+<div [formGroup]="form">
+
+    <table formArrayName="lines">
+
+        <tr>
+            <th></th>
+            <th>Lesen</th>
+            <th>Schreiben</th>
+            <th>Löschen</th>
+            <th></th>
+        </tr>
+
+        <tr *ngFor="let linesForm of lines.controls; let i = index"
+            [formGroup]="getPermsRow(i)"
+            class="perm-line">
+
+            <td>
+
+                <mat-form-field>
+                    <mat-select formControlName="uuid"
+                                placeholder="Benutzer/Gruppe">
+
+                        <mat-optgroup label="Benutzer">
+                            <mat-option *ngFor="let user of users"
+                                        [value]="user">
+                                <div class="selector-entry">
+                                    <img class="avatar"
+                                         [src]="getAvatar(user)">
+                                    {{user.accountName}}
+                                </div>
+                            </mat-option>
+                        </mat-optgroup>
+
+                        <mat-optgroup label="Gruppen">
+                            <mat-option *ngFor="let group of groups"
+                                        [value]="group">
+                                <div class="selector-entry">
+                                    <mat-icon class="material-symbols-outlined">group</mat-icon>
+                                    {{group.name}}
+                                </div>
+
+                            </mat-option>
+                        </mat-optgroup>
+
+                    </mat-select>
+                </mat-form-field>
+            </td>
+
+            <td>
+
+                <mat-checkbox formControlName="permRead"
+                              color="primary"></mat-checkbox>
+            </td>
+            <td>
+                <mat-checkbox formControlName="permWrite"
+                              color="primary"></mat-checkbox>
+            </td>
+
+            <td>
+                <mat-checkbox formControlName="permDelete"
+                              color="primary"></mat-checkbox>
+
+            </td>
+
+            <td>
+                <button mat-icon-button
+                        (click)="deleteLine(i)">
+                    <mat-icon class="material-symbols-outlined">delete_forever</mat-icon>
+                </button>
+            </td>
+        </tr>
+
+    </table>
+</div>

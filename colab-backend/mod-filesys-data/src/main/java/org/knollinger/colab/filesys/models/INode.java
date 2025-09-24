@@ -3,6 +3,8 @@ package org.knollinger.colab.filesys.models;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+import org.knollinger.colab.permissions.models.ACL;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +27,7 @@ public class INode
     private Timestamp modified;
     private int perms;
     private int effectivePerms;
+    private ACL acl;
 
     /**
      * @return
@@ -41,6 +44,7 @@ public class INode
             .size(0) //
             .created(new Timestamp(0)) //
             .modified(new Timestamp(0)) //
+            .acl(ACL.empty()) //
             .build();
     }
 

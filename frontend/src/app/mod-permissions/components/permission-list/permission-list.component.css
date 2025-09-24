@@ -1,0 +1,41 @@
+/* .perm-line {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: baseline;
+} */
+
+.selector-entry {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+table {
+    /* max-width: 100%; */
+    width: 100%;
+}
+
+td {
+    vertical-align: baseline;
+    text-align: center;
+}
+
+th {
+    text-align: center;
+    font-weight: 500;
+}
+
+td:first-child,th:first-child {
+    width: 100%;
+    text-align: left;
+}
+
+mat-form-field {
+    width: 100%;
+}

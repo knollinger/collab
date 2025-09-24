@@ -34,4 +34,13 @@
                            (permissionChange)="onPermissionChange($event)"
                            [disabled]="!hasOwnership()"></app-files-permissions>
 
+    <app-permission-list></app-permission-list>
+
+    <button mat-flat-button
+            color="primary"
+            (click)="onAddPermission()">
+        <mat-icon class="material-symbols-outlined">add</mat-icon>
+        Add
+    </button>
+
 </form>

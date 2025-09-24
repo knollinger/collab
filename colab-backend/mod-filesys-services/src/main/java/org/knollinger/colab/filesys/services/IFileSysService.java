@@ -94,6 +94,19 @@ public interface IFileSysService
 
     /**
      * 
+     * @param uuid
+     * @param name
+     * @param conn
+     * @throws TechnicalFileSysException
+     * @throws NotFoundException
+     * @throws DuplicateEntryException
+     * @throws AccessDeniedException 
+     */
+    public void rename(UUID uuid, String name, Connection conn)
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
+
+    /**
+     * 
      * @param src
      * @param target
      * @throws TechnicalFileSysException
@@ -102,6 +115,19 @@ public interface IFileSysService
      * @throws AccessDeniedException 
      */
     public void move(List<INode> src, INode target)
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
+
+    /**
+     * 
+     * @param src
+     * @param target
+     * @param conn
+     * @throws TechnicalFileSysException
+     * @throws NotFoundException
+     * @throws DuplicateEntryException
+     * @throws AccessDeniedException 
+     */
+    public void move(List<INode> src, INode target, Connection conn)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
 
     /**
@@ -145,6 +171,21 @@ public interface IFileSysService
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
 
     /**
+     * 
+     * @param parentId
+     * @param name
+     * @param contentType
+     * @param conn
+     * @return
+     * @throws TechnicalFileSysException
+     * @throws NotFoundException
+     * @throws DuplicateEntryException
+     * @throws AccessDeniedException 
+     */
+    public INode createDocument(UUID parentId, String name, String contentType, Connection conn)
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
+
+    /**
      * @param inode
      * @return
      * @throws TechnicalFileSysException
@@ -152,6 +193,16 @@ public interface IFileSysService
      * @throws AccessDeniedException 
      */
     public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
+
+    /**
+     * @param inode
+     * @param conn
+     * @return
+     * @throws TechnicalFileSysException
+     * @throws NotFoundException
+     * @throws AccessDeniedException 
+     */
+    public INode updateINode(INode inode, Connection conn) throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
 
     /**
      * @param parentId
@@ -163,5 +214,18 @@ public interface IFileSysService
      * @throws DuplicateEntryException
      */
     INode getOrCreateFolder(UUID parentId, String name)
+        throws AccessDeniedException, NotFoundException, TechnicalFileSysException, DuplicateEntryException;
+
+    /**
+     * @param parentId
+     * @param name
+     * @param conn
+     * @return
+     * @throws AccessDeniedException
+     * @throws NotFoundException
+     * @throws TechnicalFileSysException
+     * @throws DuplicateEntryException
+     */
+    INode getOrCreateFolder(UUID parentId, String name, Connection conn)
         throws AccessDeniedException, NotFoundException, TechnicalFileSysException, DuplicateEntryException;
 }
