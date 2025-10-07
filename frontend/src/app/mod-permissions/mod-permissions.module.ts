@@ -8,11 +8,13 @@ import { ModMaterialImportModule } from '../mod-material-import/mod-material-imp
 import { EACLEntryType, IACLEntry, ACLEntry, IACL, ACL } from './models/acl';
 export { EACLEntryType, IACLEntry ,ACLEntry, IACL, ACL };
 
-import { PermissionListComponent } from './components/permission-list/permission-list.component';
+import { AclEditorComponent } from './components/acl-editor/acl-editor.component';
+import { AclEntryOwnerSelectorComponent } from './components/aclentry-owner-selector/aclentry-owner-selector.component';
 
 @NgModule({
   declarations: [
-    PermissionListComponent
+    AclEditorComponent,
+    AclEntryOwnerSelectorComponent
   ],
   imports: [
     CommonModule,
@@ -22,7 +24,8 @@ import { PermissionListComponent } from './components/permission-list/permission
     ModMaterialImportModule
   ],
   exports: [
-    PermissionListComponent
+    AclEditorComponent,
+    AclEntryOwnerSelectorComponent
   ]
 })
 export class ModPermissionsModule { }

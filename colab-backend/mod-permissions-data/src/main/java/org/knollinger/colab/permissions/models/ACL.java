@@ -14,21 +14,29 @@ import lombok.Setter;
 @Builder()
 public class ACL
 {
-    public static final int PERM_NONE   = 0b000;
-    public static final int PERM_READ   = 0b100;
-    public static final int PERM_WRITE  = 0b010;
-    public static final int PERM_DELETE = 0b001;
-    public static final int PERM_ALL = ACL.PERM_READ | ACL.PERM_WRITE | ACL.PERM_DELETE;
-    
     private UUID ownerId;
     private UUID groupId;
     private List<ACLEntry> entries;
 
+    /**
+     * Erzeuge eine EmptyACL.
+     * 
+     * Eine EmptyACL kann anstatt eines NullPointers in den verwendenden
+     * Resourcen dienen. Klar, ein Optional wäre da auch eine Lösung, die
+     * mag ich aber nicht :-)
+     * 
+     * @return
+     */
     public static ACL empty()
     {
         return new ACL(null, null, Collections.emptyList());
     }
     
+    /**
+     * handelt es sich um eine EmptyACL?
+     * 
+     * @return
+     */
     public boolean isEmpty() {
         return this.ownerId == null;
     }

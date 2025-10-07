@@ -8,16 +8,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.knollinger.colab.filesys.exceptions.AccessDeniedException;
 import org.knollinger.colab.filesys.exceptions.DuplicateEntryException;
+import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.exceptions.UploadException;
 import org.knollinger.colab.filesys.models.INode;
+import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.filesys.services.IUploadService;
+import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
+import org.knollinger.colab.permissions.models.ACLEntry;
+import org.knollinger.colab.permissions.models.EACLEntryType;
+import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.user.models.User;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.knollinger.colab.utils.services.IDbService;
@@ -44,22 +50,26 @@ public class UploadServiceImpl implements IUploadService
     private IDbService dbSvc;
     
     @Autowired
+    private IFileSysService inodeSvc;
+    
+    @Autowired
+    private IPermissionsService permsSvc;
+    
+    @Autowired
     private ICurrentUserService currUserSvc;
 
     /**
+     * @throws AccessDeniedException 
+     * @throws NotFoundException 
      *
      */
     @Override
     public List<INode> uploadFiles(UUID parentUUID, List<MultipartFile> files)
-        throws UploadException, TechnicalFileSysException, DuplicateEntryException
+        throws UploadException, TechnicalFileSysException, DuplicateEntryException, NotFoundException, AccessDeniedException
     {
-        Connection conn = null;
-
-        try
+        try(Connection conn = this.dbSvc.openConnection())
         {
-            conn = this.dbSvc.openConnection();
             conn.setAutoCommit(false);
-            
             List<INode> result = this.uploadFiles(parentUUID, files, conn);
             conn.commit();
             
@@ -70,30 +80,26 @@ public class UploadServiceImpl implements IUploadService
             String msg = String.format(ERR_UPLOAD_FAILED, parentUUID.toString());
             throw new TechnicalFileSysException(msg, e);
         }
-        finally
-        {
-            this.dbSvc.closeQuitely(conn);
-        }
     }
 
     @Override
     public List<INode> uploadFiles(UUID parentUUID, List<MultipartFile> files, Connection conn)
-        throws UploadException, TechnicalFileSysException, DuplicateEntryException
+        throws UploadException, TechnicalFileSysException, DuplicateEntryException, NotFoundException, AccessDeniedException
     {
         try
         {
-            List<INode> result = new ArrayList<>();
+            List<UUID> resultIds = new ArrayList<>();
             List<INode> duplicates = new ArrayList<>();
             for (MultipartFile file : files)
             {
-                INode node = this.handleOneFile(parentUUID, file, this.currUserSvc.getUser(), conn);
-                if (node != null)
+                UUID newUUID = this.handleOneFile(parentUUID, file, this.currUserSvc.getUser(), conn);
+                if (newUUID != null)
                 {
-                    result.add(node);
+                    resultIds.add(newUUID);
                 }
                 else
                 {
-                    duplicates.add(this.getChildByName(parentUUID, file.getOriginalFilename(), conn));
+                    duplicates.add(this.getChildByName(parentUUID, file.getOriginalFilename(), conn)); // TODO: inodeSvc benutzen!
                 }
             }
 
@@ -103,9 +109,15 @@ public class UploadServiceImpl implements IUploadService
             }
 
             conn.commit();
+            
+            List<INode> result = new ArrayList<>();
+            for (UUID resourceId: resultIds)
+            {
+                result.add(this.inodeSvc.getINode(resourceId, conn));
+            }
             return result;
         }
-        catch (SQLException | NoSuchAlgorithmException | IOException e)
+        catch (SQLException | NoSuchAlgorithmException | IOException | TechnicalPermissionException e)
         {
             e.printStackTrace();
             String msg = String.format(ERR_UPLOAD_FAILED, parentUUID.toString());
@@ -123,19 +135,17 @@ public class UploadServiceImpl implements IUploadService
      * @throws SQLException
      * @throws NoSuchAlgorithmException
      * @throws IOException
+     * @throws TechnicalPermissionException 
      */
-    private INode handleOneFile(UUID parentUUID, MultipartFile file, User user, Connection conn)
-        throws SQLException, NoSuchAlgorithmException, IOException
+    private UUID handleOneFile(UUID parentUUID, MultipartFile file, User user, Connection conn)
+        throws SQLException, NoSuchAlgorithmException, IOException, TechnicalPermissionException
     {
-        INode result = null;
-        PreparedStatement stmt = null;
-
-        try
+        UUID result = null;
+        try(PreparedStatement stmt = conn.prepareStatement(SQL_CREATE_INODE))
         {
-            UUID newUUID = UUID.randomUUID();
 
+            UUID newUUID = UUID.randomUUID();
             UUID userId = user.getUserId();
-            stmt = conn.prepareStatement(SQL_CREATE_INODE);
             stmt.setString(1, newUUID.toString());
             stmt.setString(2, parentUUID.toString());
             stmt.setString(3, userId.toString());
@@ -146,29 +156,16 @@ public class UploadServiceImpl implements IUploadService
             stmt.setString(8, file.getContentType());
             stmt.setString(9, ""); // TODO: Hash muss berechnet werden
             stmt.setBinaryStream(10, new BufferedInputStream(file.getInputStream()));
-
             stmt.executeUpdate();
-
-            Timestamp now = new Timestamp(System.currentTimeMillis());
-            result = INode.builder() //
-                .uuid(newUUID) //
-                .parent(parentUUID) //
-                .name(file.getOriginalFilename()) //
-                .owner(userId) //
-                .group(userId) //
-                .size(file.getSize()) //
-                .type(file.getContentType()) //
-                .created(now) //
-                .modified(now) //
-                .build();
+            
+            this.permsSvc.createACLEntry(newUUID, userId, EACLEntryType.GROUP, ACLEntry.PERM_ALL, conn);
+            this.permsSvc.createACLEntry(newUUID, userId, EACLEntryType.USER, ACLEntry.PERM_ALL, conn);
+            
+            result = newUUID;
         }
         catch (SQLIntegrityConstraintViolationException e)
         {
             // es existiert bereits eine INode mit diesem Namen im Parent!
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(stmt);
         }
         return result;
     }

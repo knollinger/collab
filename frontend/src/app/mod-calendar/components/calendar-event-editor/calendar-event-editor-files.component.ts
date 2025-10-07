@@ -6,6 +6,7 @@ import { FilesDroppedEvent } from '../../../mod-files/directives/drop-target.dir
 import { ContentTypeService } from '../../../mod-files/services/content-type.service';
 import { SessionService } from '../../../mod-session/session.module';
 import { BehaviorSubject } from 'rxjs';
+import { ACL } from '../../../mod-permissions/mod-permissions.module';
 
 /**
  * Zeigt die Attachments eines CalendarEvents an.
@@ -78,7 +79,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
   ngOnInit() {
 
     const user = this.currUserSvc.currentUser.userId;
-    this.attachmentsFolder = new INode('', '', '', null, 'inode/directory', 0, new Date(), new Date(), user, user, 0o777, 0o777);
+    this.attachmentsFolder = new INode('', '', '', null, 'inode/directory', 0, new Date(), new Date(), user, user, 0o777, 0o777, ACL.empty());
 
   }
 
@@ -142,7 +143,7 @@ export class CalendarEventEditorFilesComponent implements OnInit {
 
     const newNodes = new Array<INode>();
     this.files.forEach(file => {
-      const tmpNode = new INode(file.name, '', '', null, file.type, file.size, new Date(), new Date(), 'owner', 'group', 0o777, 0o777);
+      const tmpNode = new INode(file.name, '', '', null, file.type, file.size, new Date(), new Date(), 'owner', 'group', 0o777, 0o777, ACL.empty());
       newNodes.push(tmpNode);
 
     });

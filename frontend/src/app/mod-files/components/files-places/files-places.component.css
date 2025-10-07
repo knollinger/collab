@@ -2,6 +2,7 @@
     overflow: auto;
     border-right: 1px solid #d0d0d0;
     height: 100%;
+    background-color: white;
 }
 
 .item-cnr {

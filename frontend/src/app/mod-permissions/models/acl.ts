@@ -31,13 +31,6 @@ import { SessionService } from '../../mod-session/session.module';
 */
 export class ACL {
 
-    // Es ist evtl ein wenig unkonventionell in ein DataObject einen
-    // Service zu injizieren. Die Zugriffe auf die ACL müssen jedoch
-    // immer zwingend im Kontext des aktuellen Benutzers statt finden,
-    // eine "blau-äugige" übergabe des selben an den Methoden ist dann
-    // doch gar zu dämlich.
-    private sessionSvc: SessionService = inject(SessionService);
-
     /**
      * 
      * @param ownerId 
@@ -45,8 +38,8 @@ export class ACL {
      * @param entries 
      */
     constructor(
-        public readonly ownerId: string,
-        public readonly groupId: string,
+        public ownerId: string,
+        public groupId: string,
         private _entries: ACLEntry[]) {
 
         if (this.findEntryIdx(ownerId) === -1) {
@@ -56,6 +49,14 @@ export class ACL {
         if (this.findEntryIdx(groupId) === -1) {
             this.createOrReplaceEntry(groupId, EACLEntryType.GROUP, ACLEntry.PERM_NONE);
         }
+    }
+
+    public static empty(): ACL {
+        return new ACL('', '', []);
+    }
+
+    public isEmpty(): boolean {
+        return !this.ownerId;
     }
 
     /**
@@ -90,7 +91,7 @@ export class ACL {
      * Die DeepCopy ist notwendig um Modifikationen an den ACL zu verhindern.
      */
     public get entries(): ACLEntry[] {
-        return this._entries.map(entry => Object.assign({}, entry));
+        return this._entries;
     }
 
     /**
@@ -108,26 +109,19 @@ export class ACL {
      */
     public createOrReplaceEntry(uuid: string, type: EACLEntryType, perms: number) {
 
-        if (this.isOwner()) {
-
-            const newEntry = new ACLEntry(uuid, type, perms);
-            const idx = this.findEntryIdx(uuid);
-            if (idx === -1) {
-                this._entries.push(newEntry);
-            }
-            else {
-                this._entries[idx] = newEntry;
-            }
+        const newEntry = new ACLEntry(uuid, type, perms);
+        const idx = this.findEntryIdx(uuid);
+        if (idx === -1) {
+            this._entries.push(newEntry);
+        }
+        else {
+            this._entries[idx] = newEntry;
         }
     }
 
     /**
      * 
      * Entferne einen Eintrag aus der ACL.
-     * 
-     * Diese Operation kann nur durchgeführt werden, wenn der aktuelle Benutzer
-     * der Owner der ACL ist oder der Owning-Group angehört. Anderenfalls
-     * resultiert das ganze in eine NOOP.
      * 
      * @param uuid 
      * @param type 
@@ -136,89 +130,13 @@ export class ACL {
     public deleteEntry(uuid: string): ACLEntry | null {
 
         let result: ACLEntry | null = null;
-        if (this.isOwner()) {
 
-            const idx = this.findEntryIdx(uuid);
-            if (idx !== -1) {
-                result = this._entries.splice(idx, 1)[0];
-            }
+        const idx = this.findEntryIdx(uuid);
+        if (idx !== -1) {
+            result = this._entries.splice(idx, 1)[0];
         }
 
         return result;
-    }
-
-    /**
-     * Liegt in der ACL ein Eintrag mit den gewünschten berechtigungen vor?
-     * 
-     * @param mask 
-     * @returns 
-     */
-    public hasPermissions(mask: number): boolean {
-
-        const allIds = this.getCurrentUserMemberships();
-        const intersection = this._entries.filter(entry => { return allIds.has(entry.uuid) });
-        const permittedEntries = intersection.filter(entry => { return entry.hasPermissions(mask) });
-        return permittedEntries.length !== 0;
-    }
-
-    public get effectivePermissions(): number {
-
-        const allIds = this.getCurrentUserMemberships();
-        const intersection = this._entries.filter(entry => { return allIds.has(entry.uuid) });
-
-        let result: number = 0;
-        intersection.forEach(entry => { result |= entry.permissionMask });
-        return result;
-    }
-
-    /**
-     * Convinience-Methode um zu prüfen ob die ACL für den aktuellen Benutzer 
-     * Lese-Rechte erlaubt
-     * 
-     * @returns true, wenn Lese-Berechtigung vorliegt
-     */
-    public isReadable(): boolean {
-        return this.hasPermissions(ACLEntry.PERM_READ);
-    }
-
-    /**
-     * Convinience-Methode um zu prüfen ob die ACL für den aktuellen Benutzer
-     * Schreib-Rechte erlaubt
-     * 
-     * @returns true, wenn Schreib-Berechtigung vorliegt
-     */
-    public isWritable(): boolean {
-        return this.hasPermissions(ACLEntry.PERM_WRITE);
-    }
-
-    /**
-     * Convinience-Methode um zu prüfen ob die ACL für den aktuellen Benutzer 
-     * Lösch-Rechte erlaubt
-     * 
-     * @returns true, wenn Lösch-Berechtigung vorliegt
-     */
-    public isDeletable(): boolean {
-        return this.hasPermissions(ACLEntry.PERM_DELETE);
-    }
-
-    /**
-     * 
-     * @returns 
-     */
-    public getOwnerPermissions(): number {
-
-        const idx = this.findEntryIdx(this.ownerId);
-        return (idx === -1) ? ACLEntry.PERM_NONE : this._entries[idx].permissionMask;
-    }
-
-    /**
-     * 
-     * @returns 
-     */
-    public getOwnerGroupPermissions(): number {
-
-        const idx = this.findEntryIdx(this.groupId);
-        return (idx === -1) ? ACLEntry.PERM_NONE : this._entries[idx].permissionMask;
     }
 
     /**
@@ -240,29 +158,6 @@ export class ACL {
         }
         return -1;
     }
-
-    /**
-     * Ist der aktuelle Benutzer der Owner oder Mitglied der Owner-Gruppe?
-     * @returns 
-     */
-    private isOwner(): boolean {
-
-        const currMemberShips = this.getCurrentUserMemberships();
-        return currMemberShips.has(this.ownerId) || currMemberShips.has(this.groupId);
-    }
-
-    /**
-     * Liefere ein Set den UUIDs aller Gruppen welchen der aktuelle Benutzer
-     * angehört und seiner eigenen UUID
-     * @returns 
-     */
-    private getCurrentUserMemberships(): Set<string> {
-
-        const groupIds = this.sessionSvc.groups.map(group => { return group.uuid });
-        const userId = this.sessionSvc.currentUser.userId;
-        const allIds: Set<string> = new Set<string>(groupIds);
-        return allIds.add(userId);
-    }
 }
 
 /**
@@ -282,6 +177,7 @@ export interface IACL {
  * in der JSON-Serialisierung verwendet werden
  */
 export enum EACLEntryType {
+    NONE = '',
     USER = 'USER',
     GROUP = 'GROUP'
 }
@@ -289,7 +185,7 @@ export enum EACLEntryType {
 /**
  * Die JSON-Darstellung eines ACLEntry
  */
-export interface IACLEntry {
+export interface IACLEntry  {
     uuid: string,
     type: EACLEntryType,
     perms: number
@@ -303,9 +199,9 @@ export interface IACLEntry {
  */
 export class ACLEntry {
 
-    public static readonly PERM_NONE: number   = 0b000;
-    public static readonly PERM_READ: number   = 0b100;
-    public static readonly PERM_WRITE: number  = 0b010;
+    public static readonly PERM_NONE: number = 0b000;
+    public static readonly PERM_READ: number = 0b100;
+    public static readonly PERM_WRITE: number = 0b010;
     public static readonly PERM_DELETE: number = 0b001;
     public static readonly PERMS_ALL: number = ACLEntry.PERM_READ | ACLEntry.PERM_WRITE | ACLEntry.PERM_DELETE;
 
@@ -318,8 +214,8 @@ export class ACLEntry {
      * @param perms 
      */
     constructor(
-        public readonly uuid: string,
-        public readonly type: EACLEntryType,
+        public uuid: string,
+        public type: EACLEntryType,
         perms: number) {
 
         this._perms = ACLEntry.normalizeMask(perms)
@@ -345,6 +241,10 @@ export class ACLEntry {
             type: this.type,
             perms: this._perms
         }
+    }
+
+    public static empty(): ACLEntry {
+        return new ACLEntry('', EACLEntryType.NONE, 0);
     }
 
     /**
@@ -373,7 +273,7 @@ export class ACLEntry {
      * @param mask 
      */
     public setPermissions(mask: number) {
-        this._perms &= ACLEntry.normalizeMask(mask);
+        this._perms |= ACLEntry.normalizeMask(mask);
     }
 
     /**
@@ -385,6 +285,64 @@ export class ACLEntry {
      */
     public clearPermissions(mask: number) {
         this._perms &= ~ACLEntry.normalizeMask(mask);
+    }
+
+    /**
+     * 
+     */
+    public get readable(): boolean {
+        return (this._perms & ACLEntry.PERM_READ) === ACLEntry.PERM_READ;
+    }
+
+    /**
+     * 
+     */
+    public set readable(val: boolean) {
+        if (val) {
+            this.setPermissions(ACLEntry.PERM_READ);
+        }
+        else {
+            this.clearPermissions(ACLEntry.PERM_READ);
+        }
+    }
+    
+    /**
+     * 
+     */
+    public get writable(): boolean {
+        return (this._perms & ACLEntry.PERM_WRITE) === ACLEntry.PERM_WRITE;
+    }
+
+    /**
+     * 
+     */
+    public set writable(val: boolean) {
+
+        if (val) {
+            this.setPermissions(ACLEntry.PERM_WRITE);
+        }
+        else {
+            this.clearPermissions(ACLEntry.PERM_WRITE);
+        }
+    }
+    
+    /**
+     * 
+     */
+    public get deletable(): boolean {
+        return (this._perms & ACLEntry.PERM_DELETE) === ACLEntry.PERM_DELETE;
+    }
+
+    /**
+     * 
+     */
+    public set deletable(val: boolean) {
+        if (val) {
+            this.setPermissions(ACLEntry.PERM_DELETE);
+        }
+        else {
+            this.clearPermissions(ACLEntry.PERM_DELETE);
+        }
     }
 
     /**

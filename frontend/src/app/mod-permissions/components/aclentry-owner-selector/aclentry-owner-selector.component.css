@@ -1,0 +1,14 @@
+.line-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+.group-icon {
+    width: 32px;
+    text-align: center;
+}

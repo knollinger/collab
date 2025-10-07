@@ -1,5 +1,5 @@
 import { Permissions } from "../../mod-files/models/permissions";
-import { ACL } from "../../mod-permissions/mod-permissions.module";
+import { ACL, IACL } from "../../mod-permissions/mod-permissions.module";
 
 /**
  * 
@@ -16,7 +16,8 @@ export interface IINode {
     owner: string,
     group: string,
     perms: number,
-    effectivePerms: number
+    effectivePerms: number,
+    acl: IACL
 }
 
 /**
@@ -60,7 +61,8 @@ export class INode {
         public readonly owner: string,
         public readonly group: string,
         public readonly perms: number,
-        public readonly effectivePerms: number) {
+        public readonly effectivePerms: number,
+        public readonly acl: ACL) {
     }
 
     /**
@@ -82,7 +84,8 @@ export class INode {
             json.owner,
             json.group,
             json.perms,
-            json.effectivePerms);
+            json.effectivePerms,
+            ACL.fromJSON(json.acl));
     }
 
     /**
@@ -103,7 +106,8 @@ export class INode {
             owner: this.owner,
             group: this.group,
             perms: this.perms,
-            effectivePerms: this.effectivePerms
+            effectivePerms: this.effectivePerms,
+            acl: this.acl.toJSON()
         }
     }
 
@@ -135,7 +139,8 @@ export class INode {
             '',
             '',
             0,
-            0);
+            0,
+            ACL.empty());
     }
 
     /**
@@ -146,18 +151,19 @@ export class INode {
     public static empty(): INode {
 
         const now = new Date();
-        return new INode('', 
-            EINodeUUIDs.INODE_NONE, 
-            EINodeUUIDs.INODE_NONE, 
+        return new INode('',
+            EINodeUUIDs.INODE_NONE,
+            EINodeUUIDs.INODE_NONE,
             null,
-            '', 
-            0, 
-            now, 
-            now, 
-            '', 
-            '', 
-            0, 
-            Permissions.READ | Permissions.WRITE | Permissions.DELETE);
+            '',
+            0,
+            now,
+            now,
+            '',
+            '',
+            0,
+            Permissions.READ | Permissions.WRITE | Permissions.DELETE,
+            ACL.empty());
     }
 
 
@@ -169,18 +175,19 @@ export class INode {
     public static emptyDir(): INode {
 
         const now = new Date();
-        return new INode('', 
-            EINodeUUIDs.INODE_NONE, 
-            EINodeUUIDs.INODE_NONE, 
+        return new INode('',
+            EINodeUUIDs.INODE_NONE,
+            EINodeUUIDs.INODE_NONE,
             null,
-            'inode/directory', 
-            0, 
-            now, 
-            now, 
-            '', 
-            '', 
-            0, 
-            Permissions.READ | Permissions.WRITE | Permissions.DELETE);
+            'inode/directory',
+            0,
+            now,
+            now,
+            '',
+            '',
+            0,
+            Permissions.READ | Permissions.WRITE | Permissions.DELETE,
+            ACL.empty());
     }
 
     /**

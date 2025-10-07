@@ -19,9 +19,8 @@ public interface IFileSysService
      * @return
      * @throws TechnicalFileSysException
      * @throws NotFoundException
-     * @throws AccessDeniedException 
      */
-    public INode getINode(UUID uuid, int reqPerm)
+    public INode getINode(UUID uuid)
         throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
 
     /**
@@ -32,7 +31,7 @@ public interface IFileSysService
      * @throws NotFoundException
      * @throws AccessDeniedException 
      */
-    public INode getINode(UUID uuid, int reqPerm, Connection conn)
+    public INode getINode(UUID uuid, Connection conn)
         throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
 
     /**
@@ -44,7 +43,19 @@ public interface IFileSysService
      * @throws NotFoundException
      * @throws AccessDeniedException 
      */
-    public List<INode> getAllChilds(UUID parentId, int reqPerms, boolean foldersOnly)
+    public List<INode> getAllChilds(UUID parentId, boolean foldersOnly)
+        throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
+
+    /**
+     * 
+     * @param parentId
+     * @param foldersOnly
+     * @return
+     * @throws TechnicalFileSysException
+     * @throws NotFoundException
+     * @throws AccessDeniedException 
+     */
+    public List<INode> getAllChilds(UUID parentId, boolean foldersOnly, Connection conn)
         throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
 
     /**
@@ -56,7 +67,7 @@ public interface IFileSysService
      * @throws TechnicalFileSysException
      * @throws AccessDeniedException 
      */
-    public INode getChildByName(UUID parentId, String name, int reqPerms) throws NotFoundException, TechnicalFileSysException, AccessDeniedException;
+    public INode getChildByName(UUID parentId, String name) throws NotFoundException, TechnicalFileSysException, AccessDeniedException;
 
     /**
      * @param parentId
@@ -68,7 +79,7 @@ public interface IFileSysService
      * @throws NotFoundException
      * @throws TechnicalFileSysException
      */
-    public INode getChildByName(UUID parentId, String name, int reqPerms, Connection conn)
+    public INode getChildByName(UUID parentId, String name, Connection conn)
         throws AccessDeniedException, NotFoundException, TechnicalFileSysException;
 
     /**

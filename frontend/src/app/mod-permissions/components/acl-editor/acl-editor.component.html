@@ -1,0 +1,117 @@
+<div class="outer-cnr">
+
+    <!-- owner-user -->
+    <app-aclentry-owner-selector class="owner-selector"
+                                 [users]="users"
+                                 [value]="ownerACLEntry"
+                                 label="Besitzer">
+    </app-aclentry-owner-selector>
+
+    <!-- owner group -->
+    <app-aclentry-owner-selector class="owner-selector"
+                                 [groups]="groups"
+                                 [value]="groupACLEntry"
+                                 label="Gruppe">
+    </app-aclentry-owner-selector>
+
+    <div class="acl-entry">
+        <span class="acl-entry-label header"></span>
+        <span class="acl-entry-permission header">Lesen</span>
+        <span class="acl-entry-permission header">Schreiben</span>
+        <span class="acl-entry-permission header">Löschen</span>
+    </div>
+
+    <div class="acl-entry-list">
+
+        <!-- Owner permissions -->
+        <div class="acl-entry">
+            <span class="acl-entry-label header">Besitzer:</span>
+            <mat-checkbox class="acl-entry-permission"
+                          color="primary"
+                          [checked]="ownerACLEntry.readable"
+                          (change)="onChangeReadable(ownerACLEntry, $event)">
+            </mat-checkbox>
+
+            <mat-checkbox class="acl-entry-permission"
+                          color="primary"
+                          [checked]="ownerACLEntry.writable"
+                          (change)="onChangeWritable(ownerACLEntry, $event)">
+            </mat-checkbox>
+
+            <mat-checkbox class="acl-entry-permission"
+                          color="primary"
+                          [checked]="ownerACLEntry.deletable"
+                          (change)="onChangeDeletable(ownerACLEntry, $event)">
+            </mat-checkbox>
+
+        </div>
+
+        <!-- Group permissions -->
+        <div class="acl-entry">
+            <span class="acl-entry-label header">Gruppe:</span>
+            <mat-checkbox class="acl-entry-permission"
+                          color="primary"
+                          [checked]="groupACLEntry.readable"
+                          (change)="onChangeReadable(groupACLEntry, $event)">
+            </mat-checkbox>
+
+            <mat-checkbox class="acl-entry-permission"
+                          color="primary"
+                          [checked]="groupACLEntry.writable"
+                          (change)="onChangeWritable(groupACLEntry, $event)">
+            </mat-checkbox>
+
+            <mat-checkbox class="acl-entry-permission"
+                          color="primary"
+                          [checked]="groupACLEntry.deletable"
+                          (change)="onChangeDeletable(groupACLEntry, $event)">
+            </mat-checkbox>
+        </div>
+
+        <div class="acl-entry"
+             *ngFor="let entry of otherACLEntries; let idx=index">
+
+            <app-aclentry-owner-selector class="acl-entry-label"
+                                         [users]="users"
+                                         [groups]="groups"
+                                         [value]="entry"
+                                         label="Benutzer/Gruppe">
+
+            </app-aclentry-owner-selector>
+
+            <mat-checkbox class="acl-entry-permission"
+                          color="primary"
+                          [checked]="entry.readable"
+                          (change)="onChangeReadable(entry, $event)">
+            </mat-checkbox>
+
+            <mat-checkbox class="acl-entry-permission"
+                          color="primary"
+                          [checked]="entry.writable"
+                          (change)="onChangeWritable(entry, $event)">
+            </mat-checkbox>
+
+            <mat-checkbox class="acl-entry-permission"
+                          color="primary"
+                          [checked]="entry.deletable"
+                          (change)="onChangeDeletable(entry, $event)">
+            </mat-checkbox>
+
+            <button mat-icon-button
+                    (click)="onDeleteEntry(idx)">
+                <mat-icon class="material-symbols-outlined">delete</mat-icon>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- ADD-Button -->
+    <div class="actions-row">
+        <button mat-flat-button
+                color="primary"
+                (click)="onAddACLEntry()">
+            <mat-icon class="material-symbols-outlined">group_add</mat-icon>
+            <span>Hinzu fügen</span>
+        </button>
+    </div>
+</div>

@@ -1,0 +1,42 @@
+.outer-cnr {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    height: 100%;
+    /* gap: 0.5rem; */
+}
+
+.owner-selector {
+    flex: 0;
+}
+
+.actions-row {
+    flex: 0;
+}
+
+.acl-entry-list {
+    flex: 1;
+    overflow: auto;
+}
+
+.acl-entry {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.5rem;
+    align-items: baseline;
+}
+
+.acl-entry-label {
+    grid-column: span 3 / span 3;
+}
+
+.acl-entry-permission {
+    text-align: center;
+}
+
+.header {
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}

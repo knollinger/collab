@@ -14,10 +14,9 @@ import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.BlobInfo;
 import org.knollinger.colab.filesys.models.INode;
-import org.knollinger.colab.filesys.models.IPermissions;
-import org.knollinger.colab.filesys.services.ICheckPermsService;
 import org.knollinger.colab.filesys.services.IDownloadService;
 import org.knollinger.colab.filesys.services.IFileSysService;
+import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.user.exceptions.TechnicalLoginException;
 import org.knollinger.colab.user.models.Group;
 import org.knollinger.colab.user.models.TokenCreatorResult;
@@ -92,7 +91,7 @@ public class WOPIControler
     private ITokenService tokenUserSvc;
     
     @Autowired()
-    private ICheckPermsService checkPermsService;
+    private IPermissionsService permsSvc;
 
     @Autowired()
     private IWOPIBlobService wopiBlobSvc;
@@ -117,7 +116,7 @@ public class WOPIControler
             log.info("WOPI::getFileInfo for {}", fileId);
 
             User currentUser = this.currUserSvc.getUser();
-            INode inode = this.fileSysServive.getINode(fileId, IPermissions.READ);
+            INode inode = this.fileSysServive.getINode(fileId);
 
             return WOPIFileInfoDTO.builder() //
                 .baseFileName(inode.getName()) //
@@ -125,7 +124,7 @@ public class WOPIControler
                 .userId(currentUser.getUserId()) //
                 .userFriendlyName(String.format("%1$s %2$s", currentUser.getSurname(), currentUser.getLastname())) //
                 .size(inode.getSize()) //
-                .canWrite(this.checkPermsService.hasEffectivePermissions(inode, IPermissions.WRITE)) //
+                .canWrite(this.permsSvc.canEffectiveRead(inode.getAcl()))
                 .build();
         }
         catch (NotFoundException e)
@@ -221,7 +220,7 @@ public class WOPIControler
     {
         try
         {
-            INode inode = this.fileSysServive.getINode(fileId, IPermissions.READ);
+            INode inode = this.fileSysServive.getINode(fileId);
 
             Map<String, Map<String, String>> discovery = this.wopiDiscoverySvc.discoverWOPI();
             Map<String, String> actionsByMimeType = discovery.get(inode.getType());

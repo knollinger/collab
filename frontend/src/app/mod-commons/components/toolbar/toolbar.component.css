@@ -1,0 +1,8 @@
+.outer-cnr {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    background-color: white;
+}

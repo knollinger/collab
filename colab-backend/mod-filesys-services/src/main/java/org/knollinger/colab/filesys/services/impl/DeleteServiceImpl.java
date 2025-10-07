@@ -11,6 +11,8 @@ import java.util.UUID;
 import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.services.IDeleteService;
+import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
+import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,19 +36,23 @@ public class DeleteServiceImpl implements IDeleteService
     @Autowired
     private IDbService dbSvc;
 
+    @Autowired
+    private IPermissionsService permsSvc;
+
     /**
      *
      */
     @Override
     public void deleteINode(UUID uuid) throws TechnicalFileSysException, NotFoundException
     {
-
         Connection conn = null;
 
         try
         {
             conn = this.dbSvc.openConnection();
+            conn.setAutoCommit(false);
             this.deleteINode(uuid, conn);
+            conn.commit();
         }
         catch (SQLException e)
         {
@@ -74,9 +80,11 @@ public class DeleteServiceImpl implements IDeleteService
                 stmtINode.setString(1, id.toString());
                 stmtINode.setString(2, id.toString());
                 stmtINode.executeUpdate();
+                
+                this.permsSvc.deleteACLEntries(id, conn);
             }
         }
-        catch (SQLException e)
+        catch (SQLException | TechnicalPermissionException e)
         {
             e.printStackTrace();
             throw new TechnicalFileSysException(ERR_DELETE_INODE);
@@ -130,9 +138,11 @@ public class DeleteServiceImpl implements IDeleteService
                 stmtINode.setString(1, id.toString());
                 stmtINode.setString(2, id.toString());
                 stmtINode.executeUpdate();
+                
+                this.permsSvc.deleteACLEntries(id, conn);
             }
         }
-        catch (SQLException e)
+        catch (SQLException | TechnicalPermissionException e)
         {
             throw new TechnicalFileSysException(ERR_DELETE_INODE, e);
         }

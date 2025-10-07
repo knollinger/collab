@@ -1,3 +1,8 @@
-mat-form-field {
-    width: 100%;
+:host {
+    height: 100%;
+    overflow: auto;
+}
+app-acl-editor {
+    height: 100%;
+    overflow: auto;
 }
