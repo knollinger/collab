@@ -23,15 +23,19 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 0.5rem;
-    align-items: baseline;
+    align-items: top;
 }
 
 .acl-entry-label {
     grid-column: span 3 / span 3;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .acl-entry-permission {
     text-align: center;
+    align-self: center;
 }
 
 .header {

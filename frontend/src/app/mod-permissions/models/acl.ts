@@ -42,11 +42,11 @@ export class ACL {
         public groupId: string,
         private _entries: ACLEntry[]) {
 
-        if (this.findEntryIdx(ownerId) === -1) {
+        if (this.findEntryIdx(ownerId, EACLEntryType.USER) === -1) {
             this.createOrReplaceEntry(ownerId, EACLEntryType.USER, ACLEntry.PERM_NONE);
         }
 
-        if (this.findEntryIdx(groupId) === -1) {
+        if (this.findEntryIdx(groupId, EACLEntryType.USER) === -1) {
             this.createOrReplaceEntry(groupId, EACLEntryType.GROUP, ACLEntry.PERM_NONE);
         }
     }
@@ -109,14 +109,15 @@ export class ACL {
      */
     public createOrReplaceEntry(uuid: string, type: EACLEntryType, perms: number) {
 
-        const newEntry = new ACLEntry(uuid, type, perms);
-        const idx = this.findEntryIdx(uuid);
+        let entry = new ACLEntry(uuid, type, perms);
+        const idx = this.findEntryIdx(uuid, type);
         if (idx === -1) {
-            this._entries.push(newEntry);
+            this._entries.push(entry);
         }
         else {
-            this._entries[idx] = newEntry;
+            this._entries[idx] = entry;
         }
+        return entry;
     }
 
     /**
@@ -127,11 +128,11 @@ export class ACL {
      * @param type 
      * @returns null, wenn kein solches Element gefunden wurde. Anderenfalls der entfernte ACLEntry.
      */
-    public deleteEntry(uuid: string): ACLEntry | null {
+    public deleteEntry(uuid: string, type: EACLEntryType): ACLEntry | null {
 
         let result: ACLEntry | null = null;
 
-        const idx = this.findEntryIdx(uuid);
+        const idx = this.findEntryIdx(uuid, type);
         if (idx !== -1) {
             result = this._entries.splice(idx, 1)[0];
         }
@@ -148,11 +149,12 @@ export class ACL {
      * 
      * @returns -1, wenn kein solcher ACLEntry gefunden wurde. Sonst der Index des Entries.
      */
-    private findEntryIdx(uuid: string): number {
+    public findEntryIdx(uuid: string, type: EACLEntryType): number {
 
         for (let i = 0; i < this._entries.length; ++i) {
 
-            if (this._entries[i].uuid === uuid) {
+            const entry = this._entries[i];
+            if (entry.uuid === uuid && entry.type === type) {
                 return i;
             }
         }
@@ -185,7 +187,7 @@ export enum EACLEntryType {
 /**
  * Die JSON-Darstellung eines ACLEntry
  */
-export interface IACLEntry  {
+export interface IACLEntry {
     uuid: string,
     type: EACLEntryType,
     perms: number
@@ -247,6 +249,18 @@ export class ACLEntry {
         return new ACLEntry('', EACLEntryType.NONE, 0);
     }
 
+    public isEmpty(): boolean {
+        return this.type === EACLEntryType.NONE;
+    }
+
+    public isUser(): boolean {
+        return this.type === EACLEntryType.USER;
+    }
+
+    public isGroup(): boolean {
+        return this.type === EACLEntryType.GROUP;
+    }
+
     /**
      * liefere die PermissionMask
      */
@@ -305,7 +319,7 @@ export class ACLEntry {
             this.clearPermissions(ACLEntry.PERM_READ);
         }
     }
-    
+
     /**
      * 
      */
@@ -325,7 +339,7 @@ export class ACLEntry {
             this.clearPermissions(ACLEntry.PERM_WRITE);
         }
     }
-    
+
     /**
      * 
      */

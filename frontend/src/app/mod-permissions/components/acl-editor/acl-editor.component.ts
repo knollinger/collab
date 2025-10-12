@@ -21,6 +21,9 @@ export class AclEditorComponent implements OnInit {
   groupACLEntry: ACLEntry = ACLEntry.empty();
   otherACLEntries: ACLEntry[] = new Array<ACLEntry>();
 
+  unassignedUsers: User[] = new Array<User>();
+  unassignedGroups: Group[] = new Array<Group>();
+
   @Output()
   aclChanged: EventEmitter<ACL> = new EventEmitter<ACL>();
 
@@ -49,6 +52,9 @@ export class AclEditorComponent implements OnInit {
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(groups => {
             this.groups = groups;
+
+            this.filterUsers();
+            this.filterGroups();
           })
       })
   }
@@ -79,16 +85,99 @@ export class AclEditorComponent implements OnInit {
     this.otherACLEntries = otherEntries;
   }
 
+  public getOwnerName(entry: ACLEntry): string {
+
+    let result = '';
+
+    switch (entry.type) {
+      case EACLEntryType.USER:
+        result = this.getUserName(entry.uuid);
+        break;
+
+      case EACLEntryType.GROUP:
+        result = this.getGroupName(entry.uuid);
+        break;
+
+      default:
+        break;
+    }
+    return result;
+  }
+
+  /**
+   * Filtere alle Gruppen ddahingehend, das bereits zugewiesene Gruppen
+   * nicht mehr im ResultSet enthalten sind
+   */
+  private filterUsers() {
+
+    const result = this.users.filter(user => {
+      return this._acl.findEntryIdx(user.userId, EACLEntryType.USER) === -1;
+    });
+    this.unassignedUsers = result;
+  }
+
+  /**
+   * Filtere alle Gruppen ddahingehend, das bereits zugewiesene Gruppen
+   * nicht mehr im ResultSet enthalten sind
+   */
+  private filterGroups() {
+
+    const result = this.groups.filter(group => {
+      return this._acl.findEntryIdx(group.uuid, EACLEntryType.GROUP) === -1;
+    });
+    this.unassignedGroups = result;
+  }
+
+  onACLEntryOwnerChange(entry: ACLEntry) {
+    this.filterUsers();
+    this.filterGroups();
+  }
+
+  private getUserName(uuid: string): string {
+
+    for (let user of this.users) {
+      if (user.userId === uuid) {
+        return user.accountName;
+      }
+    }
+
+    return '';
+  }
+
+  private getGroupName(uuid: string): string {
+
+    for (let group of this.groups) {
+      if (group.uuid === uuid) {
+        return group.name;
+      }
+    }
+    return '';
+  }
+
   onAddACLEntry() {
-    const entry = ACLEntry.empty();
+    const entry = this._acl.createOrReplaceEntry('', EACLEntryType.NONE, 0);
     this.otherACLEntries.push(entry);
-    // this._acl. // TODO: in die ACL einfügen!
     this.aclChanged.next(this._acl);
   }
 
+  containsEmptyEntries(): boolean {
+
+    for (let entry of this._acl.entries) {
+      if(entry.isEmpty()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   onDeleteEntry(idx: number) {
+    const entry = this.otherACLEntries[idx];
     this.otherACLEntries.splice(idx, 1);
-    //    this.aclChanged.next(this._acl); // TODO: die acl updaten
+    this._acl.deleteEntry(entry.uuid, entry.type);
+    this.filterUsers();
+    this.filterGroups();
+    this.aclChanged.next(this._acl);
+
   }
 
   onChangeReadable(entry: ACLEntry, evt: MatCheckboxChange) {

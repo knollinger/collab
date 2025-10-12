@@ -10,9 +10,8 @@
 
             <div class="line-wrapper">
 
-                <img class="avatar"
-                     [src]="userAvatar(currentOwner().uuid)"
-                     *ngIf="currentOwner().isUser()">
+                <mat-icon class="material-symbols-outlined group-icon"
+                          *ngIf="currentOwner().isUser()">person</mat-icon>
 
                 <mat-icon class="material-symbols-outlined group-icon"
                           *ngIf="currentOwner().isGroup()">groups</mat-icon>
@@ -27,10 +26,8 @@
 
             <div class="line-wrapper">
 
-                <img class="avatar"
-                     [src]="userAvatar(record.uuid)"
-                     *ngIf="record.isUser()">
-
+                <mat-icon class="material-symbols-outlined group-icon"
+                          *ngIf="record.isUser()">person</mat-icon>
                 <mat-icon class="material-symbols-outlined group-icon"
                           *ngIf="record.isGroup()">groups</mat-icon>
                 <span>{{record.name}}</span>

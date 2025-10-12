@@ -1,8 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AvatarService, Group, User } from '../../../mod-userdata/mod-userdata.module';
+import { Group, User } from '../../../mod-userdata/mod-userdata.module';
 import { ACLEntry, EACLEntryType } from '../../mod-permissions.module';
 import { MatSelectChange } from '@angular/material/select';
-import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 
 class OwnerRecord {
 
@@ -78,24 +77,8 @@ export class AclEntryOwnerSelectorComponent {
     return this._entry;
   }
 
-
-  /**
-   * 
-   * @param avatarSvc 
-   */
-  constructor(private avatarSvc: AvatarService) {
-
-  }
-
-  /**
-   * 
-   * @param user 
-   * @returns 
-   */
-  userAvatar(uuid: string): string {
-
-    return this.avatarSvc.getAvatarUrl(uuid);
-  }
+  @Output()
+  ownerChange: EventEmitter<ACLEntry> = new EventEmitter<ACLEntry>();
 
   /**
    * 
@@ -108,6 +91,7 @@ export class AclEntryOwnerSelectorComponent {
     this._entry.uuid = this.ownerRecords[idx].uuid;
     this._entry.type = this.ownerRecords[idx].type;
     this.current = idx;
+    this.ownerChange.emit(this._entry);
   }
 
   public currentOwner(): OwnerRecord {

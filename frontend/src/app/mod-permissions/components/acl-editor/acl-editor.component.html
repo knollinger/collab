@@ -1,5 +1,6 @@
 <div class="outer-cnr">
 
+
     <!-- owner-user -->
     <app-aclentry-owner-selector class="owner-selector"
                                  [users]="users"
@@ -25,7 +26,12 @@
 
         <!-- Owner permissions -->
         <div class="acl-entry">
-            <span class="acl-entry-label header">Besitzer:</span>
+
+            <div class="acl-entry-label">
+                <mat-icon class="material-symbols-outlined">person</mat-icon>
+                <span class="header">Besitzer:</span>
+            </div>
+
             <mat-checkbox class="acl-entry-permission"
                           color="primary"
                           [checked]="ownerACLEntry.readable"
@@ -48,7 +54,12 @@
 
         <!-- Group permissions -->
         <div class="acl-entry">
-            <span class="acl-entry-label header">Gruppe:</span>
+
+            <div class="acl-entry-label">
+                <mat-icon class="material-symbols-outlined">groups</mat-icon>
+                <span class="header">Gruppe:</span>
+            </div>
+
             <mat-checkbox class="acl-entry-permission"
                           color="primary"
                           [checked]="groupACLEntry.readable"
@@ -71,13 +82,29 @@
         <div class="acl-entry"
              *ngFor="let entry of otherACLEntries; let idx=index">
 
-            <app-aclentry-owner-selector class="acl-entry-label"
-                                         [users]="users"
-                                         [groups]="groups"
+            <!-- Neue Einträge bekommen einen OwnerSelector spandiert -->
+            <app-aclentry-owner-selector *ngIf="entry.isEmpty()"
+                                         class="acl-entry-label"
+                                         [users]="unassignedUsers"
+                                         [groups]="unassignedGroups"
                                          [value]="entry"
+                                         (ownerChange)="onACLEntryOwnerChange($event)"
                                          label="Benutzer/Gruppe">
 
             </app-aclentry-owner-selector>
+
+            <!-- alle andere anderen Einträge weden nur als Label dar gestellt-->
+            <div *ngIf="!entry.isEmpty()"
+                 class="acl-entry-label">
+
+                <mat-icon class="material-symbols-outlined"
+                          *ngIf="entry.isUser()">person</mat-icon>
+                <mat-icon class="material-symbols-outlined"
+                          *ngIf="entry.isGroup()">groups</mat-icon>
+
+                {{getOwnerName(entry)}}
+
+            </div>
 
             <mat-checkbox class="acl-entry-permission"
                           color="primary"
@@ -98,18 +125,19 @@
             </mat-checkbox>
 
             <button mat-icon-button
+                    class="acl-entry-permission"
                     (click)="onDeleteEntry(idx)">
                 <mat-icon class="material-symbols-outlined">delete</mat-icon>
             </button>
         </div>
-
     </div>
 
     <!-- ADD-Button -->
     <div class="actions-row">
         <button mat-flat-button
                 color="primary"
-                (click)="onAddACLEntry()">
+                (click)="onAddACLEntry()"
+                [disabled]="containsEmptyEntries()">
             <mat-icon class="material-symbols-outlined">group_add</mat-icon>
             <span>Hinzu fügen</span>
         </button>
