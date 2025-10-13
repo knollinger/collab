@@ -2,9 +2,8 @@ import { Directive, HostBinding, HostListener, inject, Input } from '@angular/co
 
 import { IINode, INode } from "../../mod-files-data/mod-files-data.module";
 
-import { CheckPermissionsService } from '../services/check-permissions.service';
-import { Permissions } from '../models/permissions';
 import { ContentTypeService } from '../services/content-type.service';
+import { ACLEntry, CheckPermissionsService } from '../../mod-permissions/mod-permissions.module';
 
 @Directive({
   selector: '[appINodeDragSource]',
@@ -36,7 +35,7 @@ export class INodeDragSourceDirective {
   @HostListener('dragstart', ['$event'])
   onDragStart(evt: DragEvent) {
 
-    if (!evt.dataTransfer || !this.checkPermsSvc.hasPermissions(Permissions.READ, this.appINodeDragSource)) {
+    if (!evt.dataTransfer || !this.checkPermsSvc.hasPermissions(this.appINodeDragSource.acl, ACLEntry.PERM_READ)) {
       evt.stopPropagation();
       evt.preventDefault();
     }

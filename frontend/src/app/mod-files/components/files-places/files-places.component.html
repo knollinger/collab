@@ -1,6 +1,6 @@
 <div class="outer-cnr">
 
-    <mat-action-list class="item-cnr" [appDropTarget]="pseudoNode" (inodesDropped)="onINodesDropped($event)">
+    <mat-action-list class="item-cnr" [appDropTarget]="baseFldr" (inodesDropped)="onINodesDropped($event)">
 
         <mat-list-item *ngFor="let place of places"
                        (click)="onOpen(place)">

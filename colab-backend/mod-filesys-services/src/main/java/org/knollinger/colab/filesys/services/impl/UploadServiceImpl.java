@@ -44,8 +44,6 @@ public class UploadServiceImpl implements IUploadService
 
     private static final String ERR_UPLOAD_FAILED = "Der Upload in den Ordner mit der UUID '%1$s' ist technisch fehl geschlagen.";
 
-    private static final short DEFAULT_PERMISSION = 0770; // read, write, delete für owner und gruppe
-    
     @Autowired
     private IDbService dbSvc;
     
@@ -150,11 +148,10 @@ public class UploadServiceImpl implements IUploadService
             stmt.setString(2, parentUUID.toString());
             stmt.setString(3, userId.toString());
             stmt.setString(4, userId.toString());
-            stmt.setShort(5, UploadServiceImpl.DEFAULT_PERMISSION);
-            stmt.setString(6, file.getOriginalFilename());
-            stmt.setLong(7, file.getSize());
-            stmt.setString(8, file.getContentType());
-            stmt.setString(9, ""); // TODO: Hash muss berechnet werden
+            stmt.setString(5, file.getOriginalFilename());
+            stmt.setLong(6, file.getSize());
+            stmt.setString(7, file.getContentType());
+            stmt.setString(8, ""); // TODO: Hash muss berechnet werden
             stmt.setBinaryStream(10, new BufferedInputStream(file.getInputStream()));
             stmt.executeUpdate();
             
@@ -197,7 +194,6 @@ public class UploadServiceImpl implements IUploadService
                     .parent(parentId) //
                     .owner(UUID.fromString(rs.getString("owner"))) //
                     .group(UUID.fromString(rs.getString("group"))) //
-                    .perms(rs.getShort("perms")) //
                     .size(rs.getLong("size")) //
                     .type(rs.getString("type")) //
                     .created(rs.getTimestamp("created")) //

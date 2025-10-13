@@ -32,7 +32,7 @@ export class FilesPlacesComponent implements OnInit {
   baseFldr: INode = INode.empty();
 
   places: INode[] = new Array<INode>();
-  pseudoNode: INode = INode.emptyDir();
+
   /**
    * 
    * @param placesSvc 
@@ -54,6 +54,8 @@ export class FilesPlacesComponent implements OnInit {
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe(folder => {
 
+      console.log('placesFldr:');
+      console.dir(folder);
       this.baseFldr = folder;
       this.reload();
     })

@@ -1,9 +1,7 @@
 import { Directive, EventEmitter, HostBinding, HostListener, Input, Output } from '@angular/core';
 
 import { IINode, INode } from "../../mod-files-data/mod-files-data.module";
-
-import { CheckPermissionsService } from '../services/check-permissions.service';
-import { Permissions } from '../models/permissions';
+import { ACLEntry, CheckPermissionsService } from '../../mod-permissions/mod-permissions.module';
 
 export class FilesDroppedEvent {
 
@@ -120,6 +118,7 @@ export class DropTargetDirective {
     evt.preventDefault();
     this.clearDropAreaVisualisization();
 
+    console.dir(this.appDropTarget);
     if (this.isDropEnabled(evt)) {
 
       if (this.isFileTransfer(evt)) {
@@ -144,7 +143,7 @@ export class DropTargetDirective {
     if (dataTransfer) {
 
       result = this.appDropTarget.isDirectory() && //
-        this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.appDropTarget) && //
+        this.checkPermsSvc.hasPermissions(this.appDropTarget.acl, ACLEntry.PERM_WRITE) && //
         (this.isFileTransfer(evt) || this.isINodeTransfer(evt));
     }
     return result;

@@ -29,7 +29,5 @@ public class INodeDTO
     private long size;
     private Timestamp created;
     private Timestamp modified;
-    private int perms;
-    private int effectivePerms;
     private ACLDTO acl;
 }

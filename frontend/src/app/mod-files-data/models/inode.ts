@@ -1,4 +1,3 @@
-import { Permissions } from "../../mod-files/models/permissions";
 import { ACL, IACL } from "../../mod-permissions/mod-permissions.module";
 
 /**
@@ -15,8 +14,6 @@ export interface IINode {
     modified: Date,
     owner: string,
     group: string,
-    perms: number,
-    effectivePerms: number,
     acl: IACL
 }
 
@@ -46,8 +43,6 @@ export class INode {
      * @param modified 
      * @param owner 
      * @param group 
-     * @param perms 
-     * @param effectivePerms
      */
     constructor(
         public readonly name: string,
@@ -60,8 +55,6 @@ export class INode {
         public readonly modified: Date,
         public readonly owner: string,
         public readonly group: string,
-        public readonly perms: number,
-        public readonly effectivePerms: number,
         public readonly acl: ACL) {
     }
 
@@ -83,8 +76,6 @@ export class INode {
             json.modified,
             json.owner,
             json.group,
-            json.perms,
-            json.effectivePerms,
             ACL.fromJSON(json.acl));
     }
 
@@ -105,8 +96,6 @@ export class INode {
             modified: this.modified,
             owner: this.owner,
             group: this.group,
-            perms: this.perms,
-            effectivePerms: this.effectivePerms,
             acl: this.acl.toJSON()
         }
     }
@@ -138,8 +127,6 @@ export class INode {
             now,
             '',
             '',
-            0,
-            0,
             ACL.empty());
     }
 
@@ -161,8 +148,6 @@ export class INode {
             now,
             '',
             '',
-            0,
-            Permissions.READ | Permissions.WRITE | Permissions.DELETE,
             ACL.empty());
     }
 
@@ -185,8 +170,6 @@ export class INode {
             now,
             '',
             '',
-            0,
-            Permissions.READ | Permissions.WRITE | Permissions.DELETE,
             ACL.empty());
     }
 

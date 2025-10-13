@@ -25,8 +25,8 @@ import org.springframework.stereotype.Service;
 public class LinkINodeServiceImpl implements ILinkINodeService
 {
     private static final String SQL_LINK_INODE = "" //
-        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `owner`, `group`, `perms`, `name`, `size`, `type`, `data`, `hash`)" //
-        + "  select ? , ?, ?, `owner`, `group`, `perms`, ?, `size`, `type`, `data`, `hash`" //
+        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `owner`, `group`, `name`, `size`, `type`, `data`, `hash`)" //
+        + "  select ? , ?, ?, `owner`, `group`, ?, `size`, `type`, `data`, `hash`" //
         + "    from `inodes`" //
         + "      where `uuid` = ?";
 

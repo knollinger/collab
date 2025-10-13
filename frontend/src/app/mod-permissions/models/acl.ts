@@ -31,6 +31,8 @@ import { SessionService } from '../../mod-session/session.module';
 */
 export class ACL {
 
+    private _effectivePerms: number | undefined = undefined;
+
     /**
      * 
      * @param ownerId 
@@ -83,6 +85,14 @@ export class ACL {
             groupId: this.groupId,
             entries: this._entries.map(entry => { return entry.toJSON() })
         }
+    }
+
+    get effectivePerms(): number | undefined {
+        return this._effectivePerms;
+    }
+
+    set effectivePerms(permMask: number) {
+        this._effectivePerms = ACLEntry.normalizeMask(permMask);
     }
 
     /**
@@ -369,7 +379,7 @@ export class ACLEntry {
      * @param mask 
      * @returns 
      */
-    private static normalizeMask(mask: number): number {
+    public static normalizeMask(mask: number): number {
         return mask & ACLEntry.PERMS_ALL;
     }
 }

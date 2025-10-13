@@ -17,7 +17,6 @@ import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.EWellknownINodeIDs;
 import org.knollinger.colab.filesys.models.INode;
-import org.knollinger.colab.filesys.models.IPermissions;
 import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
 import org.knollinger.colab.permissions.models.ACL;
@@ -33,7 +32,7 @@ import org.springframework.stereotype.Service;
 public class FileSysServiceImpl implements IFileSysService
 {
     private static final String SQL_GET_ALL_CHILDS = "" //
-        + "select `i`.`name`, `i`.`uuid`, `i`.`linkTo`, `i`.`owner`, `i`.`parent`, `i`.`group`, `i`.`perms`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `p`.`ownerId`, `p`.`ownerType`, `p`.`perms`" //
+        + "select `i`.`name`, `i`.`uuid`, `i`.`linkTo`, `i`.`owner`, `i`.`parent`, `i`.`group`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `p`.`ownerId`, `p`.`ownerType`, `p`.`perms`" //
         + "  from `inodes` i " //
         + "  left join `permissions` p" //
         + "    on `i`.`uuid` = `p`.`resourceId`" //
@@ -41,7 +40,7 @@ public class FileSysServiceImpl implements IFileSysService
         + "  order by `i`.`name`, `i`.`uuid` asc";
 
     private static final String SQL_GET_INODE = "" //
-        + "select `i`.`name`, `i`.`parent`, `i`.`linkTo`, `i`.`owner`, `i`.`group`, `i`.`perms`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `p`.`ownerId`, `p`.`ownerType`, `p`.`perms` " //
+        + "select `i`.`name`, `i`.`parent`, `i`.`linkTo`, `i`.`owner`, `i`.`group`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `p`.`ownerId`, `p`.`ownerType`, `p`.`perms` " //
         + "  from `inodes` i " //
         + "  left join `permissions` p" //
         + "    on `i`.`uuid` = `p`.`resourceId`" //
@@ -49,11 +48,11 @@ public class FileSysServiceImpl implements IFileSysService
 
     private static final String SQL_CREATE_DOCUMENT = "" //
         + "insert into `inodes`" // 
-        + "  set `uuid`=?, `parent`=?, `owner`=?, `group`=?, `perms`=?, `name`=?, `size`=?, `type`=?, data=?";
+        + "  set `uuid`=?, `parent`=?, `owner`=?, `group`=?, `name`=?, `size`=?, `type`=?, data=?";
 
     private static final String SQL_UPDATE_INODE = "" //
         + "update `inodes`" //
-        + "  set `owner`=?, `group`=?, `perms`=?" //
+        + "  set `owner`=?, `group`=?" //
         + "  where `uuid`=?";
 
     private static final String SQL_RENAME_INODE = "" //
@@ -132,8 +131,6 @@ public class FileSysServiceImpl implements IFileSysService
                         .linkTo(this.parseNullableUUID(rs.getString("i.linkTo"))) //
                         .owner(UUID.fromString(rs.getString("i.owner"))) //
                         .group(UUID.fromString(rs.getString("i.group")))//
-                        .perms(rs.getShort("i.perms")) //
-                        .effectivePerms(511) //
                         .name(rs.getString("i.name")) //
                         .type(rs.getString("i.type")) //
                         .size(rs.getLong("i.size")) //
@@ -253,8 +250,6 @@ public class FileSysServiceImpl implements IFileSysService
                         .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
                         .owner(UUID.fromString(rs.getString("i.owner"))) //
                         .group(UUID.fromString(rs.getString("i.group"))) //
-                        .perms(rs.getInt("i.perms")) //
-                        .effectivePerms(511) //
                         .name(rs.getString("i.name")) //
                         .type(rs.getString("i.type")) //
                         .size(rs.getLong("i.size")) //
@@ -485,22 +480,14 @@ public class FileSysServiceImpl implements IFileSysService
             UUID uuid = UUID.randomUUID();
             UUID userId = this.currUserSvc.getUser().getUserId();
 
-            int perms = IPermissions.USR_READ | //
-                IPermissions.USR_WRITE | //
-                IPermissions.USR_DELETE | //
-                IPermissions.GRP_READ | //
-                IPermissions.GRP_WRITE | //
-                IPermissions.GRP_DELETE;
-
             stmt.setString(1, uuid.toString());
             stmt.setString(2, parentId.toString());
             stmt.setString(3, userId.toString());
             stmt.setString(4, userId.toString());
-            stmt.setInt(5, perms);
-            stmt.setString(6, name.trim());
-            stmt.setLong(7, 0);
-            stmt.setString(8, contentType);
-            stmt.setBinaryStream(9, in);
+            stmt.setString(5, name.trim());
+            stmt.setLong(6, 0);
+            stmt.setString(7, contentType);
+            stmt.setBinaryStream(8, in);
             stmt.executeUpdate();
 
             this.permsSvc.createACLEntry(uuid, userId, EACLEntryType.USER, ACLEntry.PERM_ALL);
@@ -514,6 +501,7 @@ public class FileSysServiceImpl implements IFileSysService
         }
         catch (SQLException | IOException | TechnicalPermissionException e)
         {
+            e.printStackTrace();
             String msg = String.format("Der Ordner '%1$s' konnte nicht angelegt werden", name, e);
             throw new TechnicalFileSysException(msg, e);
         }
@@ -677,8 +665,7 @@ public class FileSysServiceImpl implements IFileSysService
         {
             stmt.setString(1, inode.getOwner().toString());
             stmt.setString(2, inode.getGroup().toString());
-            stmt.setInt(3, inode.getPerms());
-            stmt.setString(4, inode.getUuid().toString());
+            stmt.setString(3, inode.getUuid().toString());
             stmt.executeUpdate();
 
             this.permsSvc.replaceACLEntries(inode.getUuid(), inode.getAcl().getEntries(), conn);
