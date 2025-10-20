@@ -46,7 +46,6 @@ export class INodeDragSourceDirective {
         return node.toJSON();
       })
 
-      console.log(json);
       evt.dataTransfer.clearData();
       evt.dataTransfer.setData(INode.DATA_TRANSFER_TYPE, JSON.stringify(json));
       evt.dataTransfer.dropEffect = 'move';

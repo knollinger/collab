@@ -11,7 +11,7 @@ import java.util.UUID;
 import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.services.IDeleteService;
-import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
+import org.knollinger.colab.permissions.exceptions.TechnicalACLException;
 import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,14 +77,14 @@ public class DeleteServiceImpl implements IDeleteService
             PreparedStatement stmtINode = conn.prepareStatement(SQL_DELETE_INODE);
             for (UUID id : toDelete)
             {
+                this.permsSvc.deleteACL(uuid, conn);
+
                 stmtINode.setString(1, id.toString());
                 stmtINode.setString(2, id.toString());
                 stmtINode.executeUpdate();
-                
-                this.permsSvc.deleteACLEntries(id, conn);
             }
         }
-        catch (SQLException | TechnicalPermissionException e)
+        catch (SQLException | TechnicalACLException e)
         {
             e.printStackTrace();
             throw new TechnicalFileSysException(ERR_DELETE_INODE);
@@ -135,14 +135,14 @@ public class DeleteServiceImpl implements IDeleteService
             PreparedStatement stmtINode = conn.prepareStatement(SQL_DELETE_INODE);
             for (UUID id : toDelete)
             {
+                this.permsSvc.deleteACL(id, conn);
+
                 stmtINode.setString(1, id.toString());
                 stmtINode.setString(2, id.toString());
                 stmtINode.executeUpdate();
-                
-                this.permsSvc.deleteACLEntries(id, conn);
             }
         }
-        catch (SQLException | TechnicalPermissionException e)
+        catch (SQLException | TechnicalACLException e)
         {
             throw new TechnicalFileSysException(ERR_DELETE_INODE, e);
         }

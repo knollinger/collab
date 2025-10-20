@@ -23,8 +23,6 @@ public class INodeDTO
     private UUID uuid;
     private UUID parent;
     private UUID linkTo;
-    private UUID owner;
-    private UUID group;
     private String type;
     private long size;
     private Timestamp created;

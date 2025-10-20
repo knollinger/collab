@@ -20,9 +20,9 @@ import org.knollinger.colab.filesys.exceptions.UploadException;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.filesys.services.IUploadService;
-import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
-import org.knollinger.colab.permissions.models.ACLEntry;
-import org.knollinger.colab.permissions.models.EACLEntryType;
+import org.knollinger.colab.permissions.exceptions.DuplicateACLException;
+import org.knollinger.colab.permissions.exceptions.TechnicalACLException;
+import org.knollinger.colab.permissions.models.ACL;
 import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.user.models.User;
 import org.knollinger.colab.user.services.ICurrentUserService;
@@ -36,7 +36,7 @@ public class UploadServiceImpl implements IUploadService
 {
     private static final String SQL_CREATE_INODE = "" //
         + "insert into `inodes`" // 
-        + "  set `uuid`=?, `parent`=?, `owner`=?, `group`=?, `perms`=?, `name`=?, `size`=?, `type`=?, `hash`=?, `data`=?";
+        + "  set `uuid`=?, `parent`=?, `name`=?, `size`=?, `type`=?, `hash`=?, `data`=?";
 
     private static final String SQL_GET_CHILD_BY_NAME = "" //
         + "select * from `inodes`" //
@@ -115,7 +115,7 @@ public class UploadServiceImpl implements IUploadService
             }
             return result;
         }
-        catch (SQLException | NoSuchAlgorithmException | IOException | TechnicalPermissionException e)
+        catch (SQLException | NoSuchAlgorithmException | IOException | TechnicalACLException | DuplicateACLException e)
         {
             e.printStackTrace();
             String msg = String.format(ERR_UPLOAD_FAILED, parentUUID.toString());
@@ -133,30 +133,28 @@ public class UploadServiceImpl implements IUploadService
      * @throws SQLException
      * @throws NoSuchAlgorithmException
      * @throws IOException
-     * @throws TechnicalPermissionException 
+     * @throws TechnicalACLException 
+     * @throws DuplicateACLException 
      */
     private UUID handleOneFile(UUID parentUUID, MultipartFile file, User user, Connection conn)
-        throws SQLException, NoSuchAlgorithmException, IOException, TechnicalPermissionException
+        throws SQLException, NoSuchAlgorithmException, IOException, TechnicalACLException, DuplicateACLException
     {
         UUID result = null;
         try(PreparedStatement stmt = conn.prepareStatement(SQL_CREATE_INODE))
         {
-
             UUID newUUID = UUID.randomUUID();
             UUID userId = user.getUserId();
             stmt.setString(1, newUUID.toString());
-            stmt.setString(2, parentUUID.toString());
-            stmt.setString(3, userId.toString());
-            stmt.setString(4, userId.toString());
-            stmt.setString(5, file.getOriginalFilename());
-            stmt.setLong(6, file.getSize());
-            stmt.setString(7, file.getContentType());
-            stmt.setString(8, ""); // TODO: Hash muss berechnet werden
-            stmt.setBinaryStream(10, new BufferedInputStream(file.getInputStream()));
+            stmt.setString(2, userId.toString());
+            stmt.setString(3, file.getOriginalFilename());
+            stmt.setLong(4, file.getSize());
+            stmt.setString(5, file.getContentType());
+            stmt.setString(6, ""); // TODO: Hash muss berechnet werden
+            stmt.setBinaryStream(7, new BufferedInputStream(file.getInputStream()));
             stmt.executeUpdate();
             
-            this.permsSvc.createACLEntry(newUUID, userId, EACLEntryType.GROUP, ACLEntry.PERM_ALL, conn);
-            this.permsSvc.createACLEntry(newUUID, userId, EACLEntryType.USER, ACLEntry.PERM_ALL, conn);
+            ACL acl = ACL.createOwnerACL(userId);
+            this.permsSvc.createACL(newUUID, acl, conn);
             
             result = newUUID;
         }
@@ -192,8 +190,6 @@ public class UploadServiceImpl implements IUploadService
                     .uuid(UUID.fromString(rs.getString("uuid"))) //
                     .name(originalFilename) //
                     .parent(parentId) //
-                    .owner(UUID.fromString(rs.getString("owner"))) //
-                    .group(UUID.fromString(rs.getString("group"))) //
                     .size(rs.getLong("size")) //
                     .type(rs.getString("type")) //
                     .created(rs.getTimestamp("created")) //

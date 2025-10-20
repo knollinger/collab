@@ -19,8 +19,6 @@ public class INode
     private UUID uuid;
     private UUID parent;
     private UUID linkTo;
-    private UUID owner;
-    private UUID group;
     private String type;
     private long size;
     private Timestamp created;
@@ -37,7 +35,6 @@ public class INode
             .uuid(EWellknownINodeIDs.NONE.value()) //
             .parent(EWellknownINodeIDs.NONE.value()) //
             .linkTo(null) //
-            .owner(EWellknownINodeIDs.NONE.value()) //
             .type("") //
             .size(0) //
             .created(new Timestamp(0)) //

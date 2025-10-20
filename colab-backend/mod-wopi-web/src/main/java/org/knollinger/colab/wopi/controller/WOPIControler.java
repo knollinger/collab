@@ -120,7 +120,7 @@ public class WOPIControler
 
             return WOPIFileInfoDTO.builder() //
                 .baseFileName(inode.getName()) //
-                .owner(inode.getOwner()) //
+                .owner(inode.getAcl().getOwnerId()) //
                 .userId(currentUser.getUserId()) //
                 .userFriendlyName(String.format("%1$s %2$s", currentUser.getSurname(), currentUser.getLastname())) //
                 .size(inode.getSize()) //
@@ -279,7 +279,7 @@ public class WOPIControler
         List<Group> groups = new ArrayList<>();
         for (Group g : this.currUserSvc.getGroups())
         {
-            if (g.getUuid().equals(inode.getGroup()))
+            if (g.getUuid().equals(inode.getAcl().getGroupId()))
             {
                 groups.add(g);
                 break;

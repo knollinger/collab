@@ -1,12 +1,12 @@
 package org.knollinger.colab.permissions.services;
 
 import java.sql.Connection;
-import java.util.List;
 import java.util.UUID;
 
-import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
+import org.knollinger.colab.permissions.exceptions.ACLNotFoundException;
+import org.knollinger.colab.permissions.exceptions.DuplicateACLException;
+import org.knollinger.colab.permissions.exceptions.TechnicalACLException;
 import org.knollinger.colab.permissions.models.ACL;
-import org.knollinger.colab.permissions.models.ACLEntry;
 import org.knollinger.colab.permissions.models.EACLEntryType;
 
 /**
@@ -15,17 +15,25 @@ import org.knollinger.colab.permissions.models.EACLEntryType;
 public interface IPermissionsService
 {
     /**
-     * Erzeuge einen ACL-Eintrag 
+     * Erzeuge eine ACL
      * 
-     * @param resId Die UUID der Ziel-Resource
-     * @param ownerId die UUID des Benutzers oder der Gruppe
-     * @param type Der Typ des Owners (Benutzer/Gruppe)
-     * @param perms die gewünschten Permissions, dies muss eine Kombination der
-     *              Bits aus ACLEntry.PERM_* sein
-     * @throws TechnicalPermissionException
+     * @param resId
+     * @param acl
+     * @throws TechnicalACLException
+     * @throws DuplicateACLException
      */
-    public void createACLEntry(UUID resId, UUID ownerId, EACLEntryType type, int perms)
-        throws TechnicalPermissionException;
+    public void createACL(UUID resId, ACL acl) throws TechnicalACLException, DuplicateACLException;
+
+    /**
+     * Erzeuge eine ACL im Rahmen einer DB-Transaktion
+     *
+     * @param resId
+     * @param acl
+     * @param conn
+     * @throws TechnicalACLException
+     * @throws DuplicateACLException
+     */
+    public void createACL(UUID resId, ACL acl, Connection conn) throws TechnicalACLException, DuplicateACLException;
 
     /**
      * Erzeuge einen ACL-Eintrag 
@@ -35,77 +43,65 @@ public interface IPermissionsService
      * @param type Der Typ des Owners (Benutzer/Gruppe)
      * @param perms die gewünschten Permissions, dies muss eine Kombination der
      *              Bits aus ACLEntry.PERM_* sein
-     * @param conn Die Datenbank-Verbindung in deren Transaktions-Klammer der 
-     *             ACL-Eintrag erzeugt werden soll
-     * @throws TechnicalPermissionException
+     * @throws TechnicalACLException
      */
-    public void createACLEntry(UUID resId, UUID ownerId, EACLEntryType type, int perms, Connection conn)
-        throws TechnicalPermissionException;
+    public void createACLEntry(UUID resId, UUID ownerId, EACLEntryType type, int perms) throws TechnicalACLException;
 
     /**
-     * Lösche alle ACL-Einträge für eine gegebene Resource
-     * 
-     * @param resId die UUID der Resource
-     * 
-     * @throws TechnicalPermissionException
+     * @param resourceId
+     * @return
+     * @throws TechnicalACLException
+     * @throws ACLNotFoundException
      */
-    public void deleteACLEntries(UUID resId) throws TechnicalPermissionException;
+    public ACL getACL(UUID resourceId) throws TechnicalACLException, ACLNotFoundException;
 
     /**
-     * Lösche alle ACL-Einträge für eine gegebene Resource
+     * @param resourceId
+     * @param conn
      * 
-     * @param resId die UUID der Resource
-     * @param conn Die Datenbank-Verbindung in deren Transaktions-Klammer die 
-     *             ACL-Einträge gelöscht werden sollen
-     * 
-     * @throws TechnicalPermissionException
+     * @return
+     * @throws TechnicalACLException
+     * @throws ACLNotFoundException
      */
-    public void deleteACLEntries(UUID resId, Connection conn) throws TechnicalPermissionException;
+    public ACL getACL(UUID resourceId, Connection conn) throws TechnicalACLException, ACLNotFoundException;
 
     /**
-     * Ersetze die ACL-Einträge für eine gegebene Resource
+     * Kopiere eine komplette ACL einer gegebenen Resource auf eine ZielResource.
+     * Sollte für die ZielResource bereits eine ACL existieren, so wird diese gelöscht.
      * 
-     * @param resId die UUID der Resource
-     * @param entries die neuen ACL-Einträge
-     * 
-     * @throws TechnicalPermissionException
+     * @param srcResourceId
+     * @param targetResourceId
+     * @throws TechnicalACLException
      */
-    public void replaceACLEntries(UUID resId, List<ACLEntry> entries) throws TechnicalPermissionException;
-    
-    
-    /**
-     * Ersetze die ACL-Einträge für eine gegebene Resource
-     * 
-     * @param resId die UUID der Resource
-     * @param entries die neuen ACL-Einträge
-     * @param conn Die Datenbank-Verbindung in deren Transaktions-Klammer die 
-     *             ACL-Einträge ersetzt werden sollen
-     * 
-     * @throws TechnicalPermissionException
-     */
-    public void replaceACLEntries(UUID resId, List<ACLEntry> entry, Connection conn) throws TechnicalPermissionException;
+    public void copyACL(UUID srcResourceId, UUID targetResourceId) throws TechnicalACLException;
 
     /**
-     * Kopiere die ACL-Einträge einer Resource in eine ACL einer anderen Resource
+     * Kopiere eine komplette ACL einer gegebenen Resource auf eine ZielResource innerhalb
+     * einer DB-Transaktion.
      * 
-     * @param srcResId die UUID der Quell-Resource
-     * @param targetResId die UUID der Ziel-Resource
+     * Sollte für die ZielResource bereits eine ACL existieren, so wird diese gelöscht.
      * 
-     * @throws TechnicalPermissionException
+     * @param srcResourceId
+     * @param targetResourceId
+     * @throws conn
+     * @throws TechnicalACLException
      */
-    public void copyACLEntries(UUID srcResId, UUID targetResId) throws TechnicalPermissionException;
+    public void copyACL(UUID srcResourceId, UUID targetResourceId, Connection conn) throws TechnicalACLException;
 
     /**
-     * Kopiere die ACL-Einträge einer Resource in eine ACL einer anderen Resource
      * 
-     * @param srcResId die UUID der Quell-Resource
-     * @param targetResId die UUID der Ziel-Resource
-     * @param conn Die Datenbank-Verbindung in deren Transaktions-Klammer die 
-     *             ACL-Einträge kopiert werden sollen
-     * 
-     * @throws TechnicalPermissionException
+     * @param resourceId
+     * @throws TechnicalACLException
      */
-    public void copyACLEntries(UUID srcResId, UUID targetResId, Connection conn) throws TechnicalPermissionException;
+    public void deleteACL(UUID resourceId) throws TechnicalACLException;
+
+    /**
+     * 
+     * @param resourceId
+     * @param conn
+     * @throws TechnicalACLException
+     */
+    public void deleteACL(UUID resourceId, Connection conn) throws TechnicalACLException;
 
     /**
      * Berechne die effektiven Verechtigungen des aktuellen Benutzers auf diese ACL
@@ -114,7 +110,7 @@ public interface IPermissionsService
      * @return eine BitMaske, welche sich aus den ACLEntry.PERM_* Bits zusammen setzt
      */
     public int getEffectivePermissions(ACL acl);
-    
+
     /**
      * Kann der aktuelle Benutzer aus der Resource lesen?
      * @param acl

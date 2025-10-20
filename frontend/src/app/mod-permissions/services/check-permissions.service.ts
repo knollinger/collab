@@ -25,7 +25,7 @@ export class CheckPermissionsService {
   public hasPermissions(acl: ACL, reqPerms: number): boolean {
 
     // Falls noch nicht geschehen, berechne die effectivePerms der ACL
-    if(! acl.effectivePerms) {
+    if (!acl.effectivePerms) {
       acl.effectivePerms = this.calcEffectivePerms(acl);
     }
 

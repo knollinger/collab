@@ -1,5 +1,6 @@
 package org.knollinger.colab.permissions.models;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -16,7 +17,9 @@ public class ACL
 {
     private UUID ownerId;
     private UUID groupId;
-    private List<ACLEntry> entries;
+    
+    @Builder.Default()
+    private List<ACLEntry> entries = new ArrayList<>();
 
     /**
      * Erzeuge eine EmptyACL.
@@ -39,5 +42,25 @@ public class ACL
      */
     public boolean isEmpty() {
         return this.ownerId == null;
+    }
+    
+    /**
+     * Erzeuge die Standard-ACL für einen gegebenen User.
+     * 
+     * Da die GruppenId eines Benutzers identisch zu seiner BenutzerId
+     * ist, können wir hier einfach Owner und Group setzen.
+     * 
+     * Für Owner und Group werden ACLEntries mit der Permission 
+     * ACLEntry.PERM_ALL angelegt.
+     * 
+     * @param ownerId
+     * @return
+     */
+    public static ACL createOwnerACL(UUID ownerId) {
+
+        List<ACLEntry> entries = new ArrayList<>();
+        entries.add(new ACLEntry(ownerId, EACLEntryType.USER, ACLEntry.PERM_ALL));
+        entries.add(new ACLEntry(ownerId, EACLEntryType.GROUP, ACLEntry.PERM_ALL));
+        return new ACL(ownerId, ownerId, entries);
     }
 }

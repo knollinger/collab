@@ -2,13 +2,18 @@ package org.knollinger.colab.permissions.services.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
+import org.knollinger.colab.permissions.exceptions.ACLNotFoundException;
+import org.knollinger.colab.permissions.exceptions.DuplicateACLException;
+import org.knollinger.colab.permissions.exceptions.TechnicalACLException;
 import org.knollinger.colab.permissions.models.ACL;
 import org.knollinger.colab.permissions.models.ACLEntry;
 import org.knollinger.colab.permissions.models.EACLEntryType;
@@ -21,18 +26,32 @@ import org.springframework.stereotype.Service;
 @Service
 public class PermissionsServiceImpl implements IPermissionsService
 {
+    private static final String SQL_CREATE_ACL = "" //
+        + "insert into acls set resourceId=?, ownerId=?, groupId=?";
+
     private static final String SQL_CREATE_ACL_ENTRY = "" //
-        + "insert into permissions" //
+        + "insert into acl_entries" //
         + "  set resourceId=?, ownerId=?, ownerType=?, perms=?";
 
-    private static final String SQL_DELETE_ACL = "" //
-        + "delete from permissions" //
-        + "  where resourceId=?";
+    private static final String SQL_GET_ACL = null; // TODO: not yet implemented
+
+    private static final String SQL_COPY_ACL = "" //
+        + "insert into acls (resourceId, ownerId, groupId)" //
+        + "  select ?, ownerId, groupId from acls" //
+        + "    where resourceId=?";
 
     private static final String SQL_COPY_ACL_ENTRIES = "" //
-        + "insert into permissions (resourceId, ownerId, ownerType, perms)" //
-        + "  select ?, ownerId, ownerType, perms from permissions" //
+        + "insert into acl_entries (resourceId, ownerId, ownerType, perms)" //
+        + "  select ?, ownerId, ownerType, perms from acl_entries" //
         + "    where resourceId=?";
+
+    private static final String SQL_DELETE_ACL = "" //
+        + "delete from `acls` " //
+        + "  where resourceId=?";
+
+    private static final String SQL_DELETE_ACL_ENTRIES = "" //
+        + "delete from `acl_entries` " //
+        + "  where resourceId=?";
 
     @Autowired()
     private ICurrentUserService currUserSvc;
@@ -41,11 +60,55 @@ public class PermissionsServiceImpl implements IPermissionsService
     private IDbService dbSvc;
 
     /**
+     * @throws DuplicateACLException 
+     *
+     */
+    @Override
+    public void createACL(UUID resourceId, ACL acl) throws TechnicalACLException, DuplicateACLException
+    {
+        try (Connection conn = this.dbSvc.openConnection())
+        {
+            conn.setAutoCommit(false);
+            this.createACL(resourceId, acl, conn);
+            conn.commit();
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalACLException(resourceId, e);
+        }
+    }
+
+    @Override
+    public void createACL(UUID resourceId, ACL acl, Connection conn) throws TechnicalACLException, DuplicateACLException
+    {
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_CREATE_ACL))
+        {
+            stmt.setString(1, resourceId.toString());
+            stmt.setString(2, acl.getOwnerId().toString());
+            stmt.setString(3, acl.getGroupId().toString());
+            stmt.executeUpdate();
+
+            for (ACLEntry entry : acl.getEntries())
+            {
+                this.createACLEntry(resourceId, entry.getUuid(), entry.getType(), entry.getPerms(), conn);
+            }
+        }
+        catch (SQLIntegrityConstraintViolationException e)
+        {
+            throw new DuplicateACLException(resourceId);
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalACLException(resourceId, e);
+        }
+
+    }
+
+    /**
      * 
      */
     @Override
-    public void createACLEntry(UUID resId, UUID ownerId, EACLEntryType type, int perms)
-        throws TechnicalPermissionException
+    public void createACLEntry(UUID resId, UUID ownerId, EACLEntryType type, int perms) throws TechnicalACLException
     {
         try (Connection conn = this.dbSvc.openConnection())
         {
@@ -53,13 +116,12 @@ public class PermissionsServiceImpl implements IPermissionsService
         }
         catch (SQLException e)
         {
-            throw new TechnicalPermissionException("unable to create acl entry", e);
+            throw new TechnicalACLException(resId, e);
         }
     }
 
-    @Override
-    public void createACLEntry(UUID resId, UUID ownerId, EACLEntryType type, int perms, Connection conn)
-        throws TechnicalPermissionException
+    private void createACLEntry(UUID resId, UUID ownerId, EACLEntryType type, int perms, Connection conn)
+        throws TechnicalACLException
     {
         try (PreparedStatement stmt = conn.prepareStatement(SQL_CREATE_ACL_ENTRY))
         {
@@ -71,81 +133,111 @@ public class PermissionsServiceImpl implements IPermissionsService
         }
         catch (SQLException e)
         {
-            throw new TechnicalPermissionException("unable to create acl entry", e);
+            throw new TechnicalACLException(resId, e);
         }
     }
 
+    /**
+     * @param resourceId
+     * @return
+     * @throws TechnicalACLException
+     * @throws ACLNotFoundException
+     */
     @Override
-    public void deleteACLEntries(UUID resId) throws TechnicalPermissionException
+    public ACL getACL(UUID resourceId) throws TechnicalACLException, ACLNotFoundException
     {
+
         try (Connection conn = this.dbSvc.openConnection())
         {
-            this.deleteACLEntries(resId, conn);
+            return this.getACL(resourceId, conn);
         }
         catch (SQLException e)
         {
-            throw new TechnicalPermissionException("unable to delete acl entries", e);
+            throw new TechnicalACLException(resourceId);
         }
     }
 
+    /**
+     * @param resourceId
+     * @param conn
+     * @return
+     * @throws TechnicalACLException
+     * @throws ACLNotFoundException
+     */
     @Override
-    public void deleteACLEntries(UUID resId, Connection conn) throws TechnicalPermissionException
+    public ACL getACL(UUID resourceId, Connection conn) throws TechnicalACLException, ACLNotFoundException
     {
-        try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_ACL))
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_GET_ACL))
         {
-            stmt.setString(1, resId.toString());
-            stmt.executeUpdate();
+            List<ACLEntry> entries = new ArrayList<>();
+            String ownerId = null;
+            String groupId = null;
+            boolean found = false;
+
+            stmt.setString(1, resourceId.toString());
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next())
+            {
+                ownerId = rs.getString("ownerId");
+                groupId = rs.getString("ownerId");
+                ACLEntry entry = ACLEntry.builder() //
+                    .uuid(UUID.fromString(rs.getString("ownerId"))) //
+                    .type(EACLEntryType.valueOf(rs.getString("ownerType"))) //
+                    .perms(rs.getInt("perms")).build();
+                entries.add(entry);
+                found = true;
+            }
+
+            if (!found)
+            {
+                throw new ACLNotFoundException(resourceId);
+            }
+
+            return ACL.builder() //
+                .ownerId(UUID.fromString(ownerId)) //
+                .groupId(UUID.fromString(groupId)) //
+                .entries(entries) //
+                .build();
         }
         catch (SQLException e)
         {
-            throw new TechnicalPermissionException("unable to delete acl entries", e);
+            throw new TechnicalACLException(resourceId);
         }
     }
 
-    @Override
-    public void replaceACLEntries(UUID resId, List<ACLEntry> entries) throws TechnicalPermissionException
+    public void copyACL(UUID srcUUID, UUID targetUUID) throws TechnicalACLException
     {
         try (Connection conn = this.dbSvc.openConnection())
         {
             conn.setAutoCommit(false);
-            this.replaceACLEntries(resId, entries, conn);
+            this.copyACL(srcUUID, targetUUID, conn);
             conn.commit();
         }
         catch (SQLException e)
         {
-            throw new TechnicalPermissionException("unable to delete acl entries", e);
+            throw new TechnicalACLException(srcUUID, e);
         }
     }
 
-    @Override
-    public void replaceACLEntries(UUID resId, List<ACLEntry> entries, Connection conn)
-        throws TechnicalPermissionException
+    public void copyACL(UUID srcResourceId, UUID targetResourceId, Connection conn) throws TechnicalACLException
     {
-        this.deleteACLEntries(resId, conn);
-
-        for (ACLEntry entry : entries)
+        this.deleteACL(targetResourceId, conn);
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_COPY_ACL))
         {
-            this.createACLEntry(resId, entry.getUuid(), entry.getType(), entry.getPerms(), conn);
-        } ;
-    }
 
+            stmt.setString(1, targetResourceId.toString());
+            stmt.setString(2, srcResourceId.toString());
+            stmt.executeUpdate();
 
-    @Override
-    public void copyACLEntries(UUID srcResourceId, UUID targetResourceId) throws TechnicalPermissionException
-    {
-        try (Connection conn = this.dbSvc.openConnection())
-        {
             this.copyACLEntries(srcResourceId, targetResourceId, conn);
         }
         catch (SQLException e)
         {
-            throw new TechnicalPermissionException("unable to copy acl entries", e);
+            throw new TechnicalACLException(srcResourceId, e);
         }
     }
 
-    @Override
-    public void copyACLEntries(UUID srcResourceId, UUID targetResourceId, Connection conn)
-        throws TechnicalPermissionException
+    public void copyACLEntries(UUID srcResourceId, UUID targetResourceId, Connection conn) throws TechnicalACLException
     {
         try (PreparedStatement stmt = conn.prepareStatement(SQL_COPY_ACL_ENTRIES))
         {
@@ -155,7 +247,51 @@ public class PermissionsServiceImpl implements IPermissionsService
         }
         catch (SQLException e)
         {
-            throw new TechnicalPermissionException("unable to copy acl entries", e);
+            throw new TechnicalACLException(srcResourceId, e);
+        }
+    }
+
+    @Override
+    public void deleteACL(UUID resourceId) throws TechnicalACLException
+    {
+
+        try (Connection conn = this.dbSvc.openConnection())
+        {
+            conn.setAutoCommit(false);
+            this.deleteACL(resourceId, conn);
+            conn.commit();
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalACLException(resourceId, e);
+        }
+    }
+
+    @Override
+    public void deleteACL(UUID resourceId, Connection conn) throws TechnicalACLException
+    {
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_ACL))
+        {
+            this.deleteACLEntries(resourceId, conn);
+            stmt.setString(1, resourceId.toString());
+            stmt.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalACLException(resourceId, e);
+        }
+    }
+
+    private void deleteACLEntries(UUID resourceId, Connection conn) throws TechnicalACLException
+    {
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_ACL_ENTRIES))
+        {
+            stmt.setString(1, resourceId.toString());
+            stmt.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalACLException(resourceId, e);
         }
     }
 

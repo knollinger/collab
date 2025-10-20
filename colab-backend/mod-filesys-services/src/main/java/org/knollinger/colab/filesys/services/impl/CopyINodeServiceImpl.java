@@ -15,7 +15,7 @@ import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.services.ICopyINodeService;
 import org.knollinger.colab.filesys.services.IFileSysService;
-import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
+import org.knollinger.colab.permissions.exceptions.TechnicalACLException;
 import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +34,8 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     private IPermissionsService permissionsSvc;
 
     private static final String SQL_COPY = "" //
-        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `owner`, `group`, `perms`, `name`, `size`, `type`, `data`, `hash`)" //
-        + "  select ? , ?, `linkTo`, `owner`, `group`, `perms`, ?, `size`, `type`, `data`, `hash`" //
+        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `name`, `size`, `type`, `data`, `hash`)" //
+        + "  select ? , ?, `linkTo`, ?, `size`, `type`, `data`, `hash`" //
         + "    from `inodes`" //
         + "      where `uuid` = ?";
 
@@ -112,7 +112,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
                 throw new NotFoundException(inode.getUuid());
             }
 
-            this.permissionsSvc.copyACLEntries(inode.getUuid(), newUUID, conn);
+            this.permissionsSvc.copyACL(inode.getUuid(), newUUID, conn);
             INode newINode = this.inodeSvc.getINode(newUUID, conn);
             if (!this.permissionsSvc.canEffectiveRead(newINode.getAcl()))
             {
@@ -129,8 +129,9 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         {
             return null;
         }
-        catch (SQLException | TechnicalPermissionException e)
+        catch (SQLException | TechnicalACLException e)
         {
+            e.printStackTrace();
             throw new TechnicalFileSysException("???", e);
         }
     }

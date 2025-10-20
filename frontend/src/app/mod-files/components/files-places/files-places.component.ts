@@ -54,8 +54,6 @@ export class FilesPlacesComponent implements OnInit {
     .pipe(takeUntilDestroyed(this.destroyRef))
     .subscribe(folder => {
 
-      console.log('placesFldr:');
-      console.dir(folder);
       this.baseFldr = folder;
       this.reload();
     })

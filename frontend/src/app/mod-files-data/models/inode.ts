@@ -12,8 +12,6 @@ export interface IINode {
     size: number,
     created: Date,
     modified: Date,
-    owner: string,
-    group: string,
     acl: IACL
 }
 
@@ -41,8 +39,6 @@ export class INode {
      * @param size 
      * @param created 
      * @param modified 
-     * @param owner 
-     * @param group 
      */
     constructor(
         public readonly name: string,
@@ -53,8 +49,6 @@ export class INode {
         public readonly size: number,
         public readonly created: Date,
         public readonly modified: Date,
-        public readonly owner: string,
-        public readonly group: string,
         public readonly acl: ACL) {
     }
 
@@ -74,8 +68,6 @@ export class INode {
             json.size,
             json.created,
             json.modified,
-            json.owner,
-            json.group,
             ACL.fromJSON(json.acl));
     }
 
@@ -94,8 +86,6 @@ export class INode {
             size: this.size,
             created: this.created,
             modified: this.modified,
-            owner: this.owner,
-            group: this.group,
             acl: this.acl.toJSON()
         }
     }
@@ -125,8 +115,6 @@ export class INode {
             0,
             now,
             now,
-            '',
-            '',
             ACL.empty());
     }
 
@@ -146,8 +134,6 @@ export class INode {
             0,
             now,
             now,
-            '',
-            '',
             ACL.empty());
     }
 
@@ -168,8 +154,6 @@ export class INode {
             0,
             now,
             now,
-            '',
-            '',
             ACL.empty());
     }
 

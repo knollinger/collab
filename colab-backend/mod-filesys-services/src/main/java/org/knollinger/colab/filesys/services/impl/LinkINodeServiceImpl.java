@@ -15,7 +15,7 @@ import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.filesys.services.ILinkINodeService;
-import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
+import org.knollinger.colab.permissions.exceptions.TechnicalACLException;
 import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +25,8 @@ import org.springframework.stereotype.Service;
 public class LinkINodeServiceImpl implements ILinkINodeService
 {
     private static final String SQL_LINK_INODE = "" //
-        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `owner`, `group`, `name`, `size`, `type`, `data`, `hash`)" //
-        + "  select ? , ?, ?, `owner`, `group`, ?, `size`, `type`, `data`, `hash`" //
+        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `name`, `size`, `type`, `data`, `hash`)" //
+        + "  select ? , ?, ?, ?, `size`, `type`, `data`, `hash`" //
         + "    from `inodes`" //
         + "      where `uuid` = ?";
 
@@ -118,8 +118,7 @@ public class LinkINodeServiceImpl implements ILinkINodeService
             stmt.setString(4, inode.getName());
             stmt.setString(5, inode.getUuid().toString());
             stmt.executeUpdate();
-            
-            this.permsSvc.copyACLEntries(inode.getUuid(), newUUID, conn);
+            this.permsSvc.copyACL(inode.getUuid(), newUUID, conn); 
             
             return this.inodeSvc.getINode(newUUID, conn);
         }
@@ -127,8 +126,9 @@ public class LinkINodeServiceImpl implements ILinkINodeService
         {
             return null;
         }
-        catch (SQLException | TechnicalPermissionException e)
+        catch (SQLException | TechnicalACLException e)
         {
+            e.printStackTrace();
             throw new TechnicalFileSysException("Der Dateisystem-Link konnte nicht angelegt werden.", e);
         }
         finally

@@ -127,7 +127,6 @@ export class AppComponent implements OnInit {
         break;
 
       default:
-        //        console.log(`unexpected search result type ${search.type}`);
         break;
     }
   }

@@ -18,7 +18,8 @@ import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.EWellknownINodeIDs;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.services.IFileSysService;
-import org.knollinger.colab.permissions.exceptions.TechnicalPermissionException;
+import org.knollinger.colab.permissions.exceptions.DuplicateACLException;
+import org.knollinger.colab.permissions.exceptions.TechnicalACLException;
 import org.knollinger.colab.permissions.models.ACL;
 import org.knollinger.colab.permissions.models.ACLEntry;
 import org.knollinger.colab.permissions.models.EACLEntryType;
@@ -32,28 +33,28 @@ import org.springframework.stereotype.Service;
 public class FileSysServiceImpl implements IFileSysService
 {
     private static final String SQL_GET_ALL_CHILDS = "" //
-        + "select `i`.`name`, `i`.`uuid`, `i`.`linkTo`, `i`.`owner`, `i`.`parent`, `i`.`group`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `p`.`ownerId`, `p`.`ownerType`, `p`.`perms`" //
+        + "select `i`.`uuid`, `i`.`name`, `i`.`parent`, `i`.`linkTo`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `a`.`ownerId`, `a`.`groupId`, `e`.`ownerId`, `e`.`ownerType`, `e`.`perms`" //
         + "  from `inodes` i " //
-        + "  left join `permissions` p" //
-        + "    on `i`.`uuid` = `p`.`resourceId`" //
-        + "  where `i`.`parent`=?" //
-        + "  order by `i`.`name`, `i`.`uuid` asc";
+        + "    left join `acls` a" //
+        + "      on `i`.`uuid` = `a`.`resourceId`" //
+        + "    left join `acl_entries` e" //
+        + "      on `a`.`resourceId` = `e`.`resourceId`" //
+        + "    where `i`.`parent`=?" //
+        + "  order by `i`.`name`";
 
     private static final String SQL_GET_INODE = "" //
-        + "select `i`.`name`, `i`.`parent`, `i`.`linkTo`, `i`.`owner`, `i`.`group`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `p`.`ownerId`, `p`.`ownerType`, `p`.`perms` " //
-        + "  from `inodes` i " //
-        + "  left join `permissions` p" //
-        + "    on `i`.`uuid` = `p`.`resourceId`" //
+        + "select `i`.`name`, `i`.`parent`, `i`.`linkTo`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `a`.`ownerId`, `a`.`groupId`, `e`.`ownerId`, `e`.`ownerType`, `e`.`perms`" //
+        + "  from `inodes` i" //
+        + "    left join `acls` a" //
+        + "      on `i`.`uuid` = `a`.`resourceId`" //
+        + "    left join `acl_entries` e" //
+        + "      on `i`.`uuid` = `e`.`resourceId`" //
         + "  where `i`.`uuid`=?";
+
 
     private static final String SQL_CREATE_DOCUMENT = "" //
         + "insert into `inodes`" // 
-        + "  set `uuid`=?, `parent`=?, `owner`=?, `group`=?, `name`=?, `size`=?, `type`=?, data=?";
-
-    private static final String SQL_UPDATE_INODE = "" //
-        + "update `inodes`" //
-        + "  set `owner`=?, `group`=?" //
-        + "  where `uuid`=?";
+        + "  set `uuid`=?, `parent`=?, `name`=?, `size`=?, `type`=?, data=?";
 
     private static final String SQL_RENAME_INODE = "" //
         + "update `inodes` set `name`=?" //
@@ -75,13 +76,12 @@ public class FileSysServiceImpl implements IFileSysService
 
     @Autowired()
     private ICurrentUserService currUserSvc;
-    
+
     /**
      *
      */
     @Override
-    public INode getINode(UUID uuid)
-        throws TechnicalFileSysException, NotFoundException, AccessDeniedException
+    public INode getINode(UUID uuid) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
         try (Connection conn = this.dbService.openConnection())
         {
@@ -129,8 +129,6 @@ public class FileSysServiceImpl implements IFileSysService
                         .uuid(uuid) //
                         .parent(UUID.fromString(rs.getString("i.parent"))) //
                         .linkTo(this.parseNullableUUID(rs.getString("i.linkTo"))) //
-                        .owner(UUID.fromString(rs.getString("i.owner"))) //
-                        .group(UUID.fromString(rs.getString("i.group")))//
                         .name(rs.getString("i.name")) //
                         .type(rs.getString("i.type")) //
                         .size(rs.getLong("i.size")) //
@@ -138,16 +136,16 @@ public class FileSysServiceImpl implements IFileSysService
                         .modified(rs.getTimestamp("i.modified"));
 
                     aclBuilder //
-                        .ownerId(UUID.fromString(rs.getString("i.owner"))) //
-                        .groupId(UUID.fromString(rs.getString("i.group")));
+                        .ownerId(UUID.fromString(rs.getString("a.ownerId"))) //
+                        .groupId(UUID.fromString(rs.getString("a.groupId")));
 
                     found = true;
                 }
 
                 ACLEntry entry = ACLEntry.builder() //
-                    .uuid(UUID.fromString(rs.getString("p.ownerId"))) //
-                    .type(EACLEntryType.valueOf(rs.getString("p.ownerType"))) //
-                    .perms(rs.getInt("p.perms")) //
+                    .uuid(UUID.fromString(rs.getString("e.ownerId"))) //
+                    .type(EACLEntryType.valueOf(rs.getString("e.ownerType"))) //
+                    .perms(rs.getInt("e.perms")) //
                     .build();
                 aclEntries.add(entry);
             }
@@ -169,6 +167,7 @@ public class FileSysServiceImpl implements IFileSysService
         }
         catch (SQLException e)
         {
+            e.printStackTrace();
             String msg = String.format("Die INode mit der UUID '%1$s' konnte nicht geladen werden", uuid);
             throw new TechnicalFileSysException(msg, e);
         }
@@ -190,7 +189,7 @@ public class FileSysServiceImpl implements IFileSysService
     {
         try (Connection conn = this.dbService.openConnection())
         {
-            return this.getAllChilds(parentId,  foldersOnly, conn);
+            return this.getAllChilds(parentId, foldersOnly, conn);
         }
         catch (SQLException e)
         {
@@ -248,8 +247,6 @@ public class FileSysServiceImpl implements IFileSysService
                     currNodeBuilder.uuid(uuid) //
                         .parent(parentId) //
                         .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
-                        .owner(UUID.fromString(rs.getString("i.owner"))) //
-                        .group(UUID.fromString(rs.getString("i.group"))) //
                         .name(rs.getString("i.name")) //
                         .type(rs.getString("i.type")) //
                         .size(rs.getLong("i.size")) //
@@ -257,14 +254,14 @@ public class FileSysServiceImpl implements IFileSysService
                         .modified(rs.getTimestamp("i.modified"));
 
                     currACLBuilder//
-                        .ownerId(UUID.fromString(rs.getString("i.owner"))) //
-                        .groupId(UUID.fromString(rs.getString("i.group")));
+                        .ownerId(UUID.fromString(rs.getString("a.ownerId"))) //
+                        .groupId(UUID.fromString(rs.getString("a.groupId")));
                 }
 
                 ACLEntry entry = ACLEntry.builder() //
-                    .uuid(UUID.fromString(rs.getString("p.ownerId"))) //
-                    .type(EACLEntryType.valueOf(rs.getString("p.ownerType"))) //
-                    .perms(rs.getInt("p.perms")) //
+                    .uuid(UUID.fromString(rs.getString("e.ownerId"))) //
+                    .type(EACLEntryType.valueOf(rs.getString("e.ownerType"))) //
+                    .perms(rs.getInt("e.perms")) //
                     .build();
                 aclEntries.add(entry);
             }
@@ -284,6 +281,7 @@ public class FileSysServiceImpl implements IFileSysService
         }
         catch (SQLException e)
         {
+            e.printStackTrace();
             String msg = String.format("Die Elemente des Ordners mit der UUID '%1$s' konnten nicht geladen werden",
                 parentId);
             throw new TechnicalFileSysException(msg, e);
@@ -373,6 +371,7 @@ public class FileSysServiceImpl implements IFileSysService
     {
         ResultSet rs = null;
 
+        // TODO: ACL und die Entries mit lesen
         try (PreparedStatement stmt = conn.prepareStatement(SQL_GET_CHILD_BY_NAME))
         {
 
@@ -482,16 +481,14 @@ public class FileSysServiceImpl implements IFileSysService
 
             stmt.setString(1, uuid.toString());
             stmt.setString(2, parentId.toString());
-            stmt.setString(3, userId.toString());
-            stmt.setString(4, userId.toString());
-            stmt.setString(5, name.trim());
-            stmt.setLong(6, 0);
-            stmt.setString(7, contentType);
-            stmt.setBinaryStream(8, in);
+            stmt.setString(3, name.trim());
+            stmt.setLong(4, 0);
+            stmt.setString(5, contentType);
+            stmt.setBinaryStream(6, in);
             stmt.executeUpdate();
 
-            this.permsSvc.createACLEntry(uuid, userId, EACLEntryType.USER, ACLEntry.PERM_ALL);
-            this.permsSvc.createACLEntry(uuid, userId, EACLEntryType.GROUP, ACLEntry.PERM_ALL);
+            ACL acl = ACL.createOwnerACL(userId);
+            this.permsSvc.createACL(uuid, acl, conn);
 
             return this.getINode(uuid, conn);
         }
@@ -499,7 +496,7 @@ public class FileSysServiceImpl implements IFileSysService
         {
             throw new DuplicateEntryException(this.getChildByName(parentId, name, conn));
         }
-        catch (SQLException | IOException | TechnicalPermissionException e)
+        catch (SQLException | IOException | TechnicalACLException | DuplicateACLException e)
         {
             e.printStackTrace();
             String msg = String.format("Der Ordner '%1$s' konnte nicht angelegt werden", name, e);
@@ -628,55 +625,6 @@ public class FileSysServiceImpl implements IFileSysService
             {
                 // TODO: throw something
             }
-        }
-    }
-
-    /**
-     *
-     */
-    @Override
-    public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
-    {
-        try (Connection conn = this.dbService.openConnection())
-        {
-            conn.setAutoCommit(false);
-            INode result = this.updateINode(inode, conn);
-            conn.commit();
-            return result;
-        }
-        catch (SQLException e)
-        {
-            String msg = String.format(
-                "Das Dateisystem-Object `%1$s` konnte aufgrund eines technischen Problems nicht aktualisiert werden.",
-                inode.getName());
-            throw new TechnicalFileSysException(msg, e);
-        }
-    }
-
-
-    /**
-     *
-     */
-    @Override
-    public INode updateINode(INode inode, Connection conn)
-        throws TechnicalFileSysException, NotFoundException, AccessDeniedException
-    {
-        try (PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE_INODE);)
-        {
-            stmt.setString(1, inode.getOwner().toString());
-            stmt.setString(2, inode.getGroup().toString());
-            stmt.setString(3, inode.getUuid().toString());
-            stmt.executeUpdate();
-
-            this.permsSvc.replaceACLEntries(inode.getUuid(), inode.getAcl().getEntries(), conn);
-            return this.getINode(inode.getUuid(), conn);
-        }
-        catch (SQLException | TechnicalPermissionException e)
-        {
-            String msg = String.format(
-                "Das Dateisystem-Object `%1$s` konnte aufgrund eines technischen Problems nicht aktualisiert werden.",
-                inode.getName());
-            throw new TechnicalFileSysException(msg, e);
         }
     }
 

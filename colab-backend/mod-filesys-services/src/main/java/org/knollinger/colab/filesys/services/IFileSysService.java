@@ -197,25 +197,6 @@ public interface IFileSysService
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
 
     /**
-     * @param inode
-     * @return
-     * @throws TechnicalFileSysException
-     * @throws NotFoundException
-     * @throws AccessDeniedException 
-     */
-    public INode updateINode(INode inode) throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
-
-    /**
-     * @param inode
-     * @param conn
-     * @return
-     * @throws TechnicalFileSysException
-     * @throws NotFoundException
-     * @throws AccessDeniedException 
-     */
-    public INode updateINode(INode inode, Connection conn) throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
-
-    /**
      * @param parentId
      * @param name
      * @return
