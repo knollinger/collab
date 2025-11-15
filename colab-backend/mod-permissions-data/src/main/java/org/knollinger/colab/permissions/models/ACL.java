@@ -17,7 +17,7 @@ public class ACL
 {
     private UUID ownerId;
     private UUID groupId;
-    
+
     @Builder.Default()
     private List<ACLEntry> entries = new ArrayList<>();
 
@@ -34,16 +34,17 @@ public class ACL
     {
         return new ACL(null, null, Collections.emptyList());
     }
-    
+
     /**
      * handelt es sich um eine EmptyACL?
      * 
      * @return
      */
-    public boolean isEmpty() {
+    public boolean isEmpty()
+    {
         return this.ownerId == null;
     }
-    
+
     /**
      * Erzeuge die Standard-ACL für einen gegebenen User.
      * 
@@ -56,8 +57,8 @@ public class ACL
      * @param ownerId
      * @return
      */
-    public static ACL createOwnerACL(UUID ownerId) {
-
+    public static ACL createOwnerACL(UUID ownerId)
+    {
         List<ACLEntry> entries = new ArrayList<>();
         entries.add(new ACLEntry(ownerId, EACLEntryType.USER, ACLEntry.PERM_ALL));
         entries.add(new ACLEntry(ownerId, EACLEntryType.GROUP, ACLEntry.PERM_ALL));
