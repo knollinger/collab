@@ -117,6 +117,5 @@ export class ViewerQuillComponent implements OnInit {
    */
   public onSave() {
 
-    console.log(this.quill?.getText());
   }
 }

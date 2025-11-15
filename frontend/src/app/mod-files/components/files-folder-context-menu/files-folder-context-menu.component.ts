@@ -4,9 +4,8 @@ import { MatMenuTrigger } from '@angular/material/menu';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 
 import { ClipboardService } from '../../services/clipboard.service';
-import { CheckPermissionsService } from '../../services/check-permissions.service';
-import { Permissions } from '../../models/permissions';
 import { CreateMenuEvent } from '../../components/files-create-menu/files-create-menu.component';
+import { ACLEntry, CheckPermissionsService } from '../../../mod-permissions/mod-permissions.module';
 
 @Component({
   selector: 'app-files-folder-context-menu',
@@ -118,7 +117,7 @@ export class FilesFolderContextMenuComponent implements OnInit {
    */
   get isReadAllowed(): boolean {
 
-    return this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode);
+    return this.checkPermsSvc.hasPermissions(this.inode.acl, ACLEntry.PERM_READ);
   }
 
   /**
@@ -126,6 +125,6 @@ export class FilesFolderContextMenuComponent implements OnInit {
    */
   get isWriteAllowed(): boolean {
 
-    return this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.inode);
+    return this.checkPermsSvc.hasPermissions(this.inode.acl, ACLEntry.PERM_WRITE);
   }
 }

@@ -7,8 +7,8 @@
 	<groupId>org.knollinger</groupId>
 	<artifactId>colab-backend</artifactId>
 	<version>1.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
 
+	<packaging>pom</packaging>
 	<name>colab-backend</name>
 	<url>https://github.com/knollinger/collab</url>
 
@@ -21,6 +21,7 @@
 	</dependencyManagement>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -47,8 +48,10 @@
 	</dependencies>
 
 	<build>
+
 		<pluginManagement>
 			<plugins>
+
 				<plugin>
 					<artifactId>maven-clean-plugin</artifactId>
 					<version>3.4.0</version>
@@ -132,10 +135,13 @@
 					<version>3.6.1</version>
 				</plugin>
 			</plugins>
+
 		</pluginManagement>
+
 	</build>
 
 	<modules>
+
 		<module>main</module>
 		<module>mod-filesys-data</module>
 		<module>mod-filesys-services</module>
@@ -168,5 +174,8 @@
 		<module>mod-openstreetmap-services</module>
 		<module>mod-openstreetmap-data</module>
 		<module>mod-openstreetmap-web</module>
+		<module>mod-permissions-data</module>
+		<module>mod-permissions-services</module>
+		<module>mod-permissions-web</module>
 	</modules>
 </project>

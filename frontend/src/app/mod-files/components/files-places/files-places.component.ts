@@ -32,7 +32,7 @@ export class FilesPlacesComponent implements OnInit {
   baseFldr: INode = INode.empty();
 
   places: INode[] = new Array<INode>();
-  pseudoNode: INode = INode.emptyDir();
+
   /**
    * 
    * @param placesSvc 

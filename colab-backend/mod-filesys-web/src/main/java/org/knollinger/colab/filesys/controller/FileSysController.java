@@ -17,7 +17,6 @@ import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.exceptions.UploadException;
 import org.knollinger.colab.filesys.mapper.IFileSysMapper;
 import org.knollinger.colab.filesys.models.INode;
-import org.knollinger.colab.filesys.models.IPermissions;
 import org.knollinger.colab.filesys.services.ICopyINodeService;
 import org.knollinger.colab.filesys.services.IDeleteService;
 import org.knollinger.colab.filesys.services.IFileSysService;
@@ -69,7 +68,7 @@ public class FileSysController
     {
         try
         {
-            INode inode = this.fileSysService.getINode(uuid, IPermissions.READ);
+            INode inode = this.fileSysService.getINode(uuid);
             if (inode == null)
             {
                 String msg = String.format("Die INode mit der UUID '%1§s' existiert nicht", uuid);
@@ -103,7 +102,7 @@ public class FileSysController
     {
         try
         {
-            List<INode> childs = this.fileSysService.getAllChilds(parentId, IPermissions.READ, foldersOnly);
+            List<INode> childs = this.fileSysService.getAllChilds(parentId, foldersOnly);
             childs.sort(new INodeComparator());
             return this.fileSysMapper.toDTO(childs);
         }
@@ -361,34 +360,6 @@ public class FileSysController
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
     }
-
-    /**
-     * @param parentId
-     * @param name
-     * @return
-     */
-    @PostMapping(path = "/update")
-    public INodeDTO updateINode(//
-        @RequestBody() INodeDTO inode)
-    {
-        try
-        {
-            INode result = this.fileSysService.updateINode(this.fileSysMapper.fromDTO(inode));
-            return this.fileSysMapper.toDTO(result);
-        }
-        catch (NotFoundException e)
-        {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
-        }
-        catch (AccessDeniedException e)
-        {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
-        }
-        catch (TechnicalFileSysException e)
-        {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
-        }
-    }
     
     /**
      * @param parentId
@@ -446,10 +417,13 @@ public class FileSysController
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
         }
-        catch (Exception e)
+        catch (NotFoundException e)
         {
-            e.printStackTrace();
-            throw e;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, e.getMessage(), e);
         }
         return result.build();
     }

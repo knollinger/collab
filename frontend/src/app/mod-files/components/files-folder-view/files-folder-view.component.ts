@@ -11,13 +11,12 @@ import { ContentTypeService } from '../../services/content-type.service';
 import { ClipboardService } from '../../services/clipboard.service';
 import { SessionService } from '../../../mod-session/session.module';
 import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
-import { CheckPermissionsService } from '../../services/check-permissions.service';
-import { Permissions } from '../../models/permissions';
 import { HashTagConstants, HashTagService } from '../../../mod-hashtags/mod-hashtags.module';
 import { MatDialog } from '@angular/material/dialog';
 import { FilesPropertiesDialogComponent } from '../files-properties-dialog/files-properties-dialog.component';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 import { CheckDuplicateEntriesService } from '../../services/check-duplicate-entries.service';
+import { ACLEntry, CheckPermissionsService } from '../../../mod-permissions/mod-permissions.module';
 
 @Component({
   selector: 'app-folder-view',
@@ -151,7 +150,7 @@ export class FilesFolderViewComponent implements OnInit {
    * @returns 
    */
   public isLocked(inode: INode): boolean {
-    return !this.checkPermsSvc.hasPermissions(Permissions.READ, inode);
+    return !this.checkPermsSvc.hasPermissions(inode.acl, ACLEntry.PERM_READ);
   }
 
   /**
@@ -218,7 +217,7 @@ export class FilesFolderViewComponent implements OnInit {
 
     const selectable = new Set<INode>();
     inodes.forEach(inode => {
-      if (this.checkPermsSvc.hasPermissions(Permissions.READ, inode)) {
+      if (this.checkPermsSvc.hasPermissions(inode.acl, ACLEntry.PERM_READ)) {
         selectable.add(inode);
       }
     })

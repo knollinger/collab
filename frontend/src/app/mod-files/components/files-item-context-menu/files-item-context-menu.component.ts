@@ -3,12 +3,10 @@ import { MatMenuTrigger } from '@angular/material/menu';
 
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 
-import { Permissions } from '../../models/permissions';
-
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 
-import { CheckPermissionsService } from '../../services/check-permissions.service';
 import { ClipboardService } from '../../services/clipboard.service';
+import { ACLEntry, CheckPermissionsService } from '../../../mod-permissions/mod-permissions.module';
 
 export class ShowFilesItemContextMenuEvent {
 
@@ -174,17 +172,17 @@ export class FilesItemContextMenuComponent implements OnInit {
 
   get isReadAllowed(): boolean {
 
-    return this.checkPermsSvc.hasPermissions(Permissions.READ, this.inode);
+    return this.checkPermsSvc.hasPermissions(this.inode.acl, ACLEntry.PERM_READ);
   }
 
   get isWriteAllowed(): boolean {
 
-    return this.checkPermsSvc.hasPermissions(Permissions.WRITE, this.inode);
+    return this.checkPermsSvc.hasPermissions(this.inode.acl, ACLEntry.PERM_WRITE);
   }
 
   get isDeleteAllowed(): boolean {
 
-    return this.checkPermsSvc.hasPermissions(Permissions.DELETE, this.inode);
+    return this.checkPermsSvc.hasPermissions(this.inode.acl, ACLEntry.PERM_DELETE);
   }
 
   get isPasteEnabled(): boolean {

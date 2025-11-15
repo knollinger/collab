@@ -8,6 +8,7 @@ import { ModSettingsModule } from '../mod-settings/mod-settings.module';
 
 import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
+import { ModPermissionsModule } from '../mod-permissions/mod-permissions.module';
 
 import { FilesMainViewComponent } from './components/files-main-view/files-main-view.component';
 import { FilesPlacesComponent } from './components/files-places/files-places.component';
@@ -66,6 +67,7 @@ export { WopiService };
     ModHashTagsModule,
     ModSettingsModule,
     ModSessionModule,
+    ModPermissionsModule,
     ModMaterialImportModule,
     FormsModule,
     ReactiveFormsModule,

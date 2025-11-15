@@ -66,6 +66,7 @@
     <!-- Das KontextMenu für den aktuellen Folder -->
     <app-files-folder-context-menu #folderCtxtMenu
                                    [inode]="currentFolder"
+                                   (createDocument)="onCreateDocument($event)"
                                    (paste)="onPaste()"
                                    (showProps)="onShowProps($event)">
     </app-files-folder-context-menu>

@@ -2,7 +2,6 @@ package org.knollinger.colab.filesys.services.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
@@ -14,9 +13,10 @@ import org.knollinger.colab.filesys.exceptions.DuplicateEntryException;
 import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.INode;
-import org.knollinger.colab.filesys.models.IPermissions;
-import org.knollinger.colab.filesys.services.ICheckPermsService;
 import org.knollinger.colab.filesys.services.ICopyINodeService;
+import org.knollinger.colab.filesys.services.IFileSysService;
+import org.knollinger.colab.permissions.exceptions.TechnicalACLException;
+import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,23 +28,17 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     private IDbService dbSvc;
 
     @Autowired()
-    private ICheckPermsService checkPermsSvc;
+    private IFileSysService inodeSvc;
+
+    @Autowired()
+    private IPermissionsService permissionsSvc;
 
     private static final String SQL_COPY = "" //
-        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `owner`, `group`, `perms`, `name`, `size`, `type`, `data`, `hash`)" //
-        + "  select ? , ?, `linkTo`, `owner`, `group`, `perms`, ?, `size`, `type`, `data`, `hash`" //
+        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `name`, `size`, `type`, `data`, `hash`)" //
+        + "  select ? , ?, `linkTo`, ?, `size`, `type`, `data`, `hash`" //
         + "    from `inodes`" //
         + "      where `uuid` = ?";
 
-    private static final String SQL_GET_CHILDS = "" //
-        + "select `uuid`, `name`, `type` from `inodes`" //
-        + "  where `parent`=?";
-
-    private static final String SQL_GET_INODE = "" //
-        + "select `uuid`, `parent`, `linkTo`, `name`, `owner`, `group`, `perms`, `created`, `modified`, `size`, `type`" //
-        + "  from inodes" //
-        + "    where uuid=?";
-    
     /**
      * @throws AccessDeniedException 
      *
@@ -53,16 +47,17 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     public List<INode> copyINodes(List<INode> inodes, INode target)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
-        Connection conn = null;
         List<INode> result = new ArrayList<INode>();
         List<INode> duplicates = new ArrayList<INode>();
 
-        try
+        try(Connection conn = this.dbSvc.openConnection())
         {
-            conn = this.dbSvc.openConnection();
             conn.setAutoCommit(false);
 
-            this.checkPermsSvc.checkPermission(IPermissions.WRITE, target);
+            if (!this.permissionsSvc.canEffectiveWrite(target.getAcl()))
+            {
+                throw new AccessDeniedException(target);
+            }
 
             for (INode inode : inodes)
             {
@@ -90,10 +85,6 @@ public class CopyINodeServiceImpl implements ICopyINodeService
             throw new TechnicalFileSysException(
                 "Der Kopier-Vorgang ist aufgrund eines technischen Problems fehl geschlagen.", e);
         }
-        finally
-        {
-            this.dbSvc.closeQuitely(conn);
-        }
     }
 
     /**
@@ -109,12 +100,9 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     private INode copyOneINode(INode inode, INode target, Connection conn)
         throws NotFoundException, TechnicalFileSysException, AccessDeniedException
     {
-        PreparedStatement stmt = null;
-
-        try
+        try(PreparedStatement stmt = conn.prepareStatement(SQL_COPY))
         {
             UUID newUUID = UUID.randomUUID();
-            stmt = conn.prepareStatement(SQL_COPY);
             stmt.setString(1, newUUID.toString());
             stmt.setString(2, target.getUuid().toString());
             stmt.setString(3, inode.getName());
@@ -124,9 +112,13 @@ public class CopyINodeServiceImpl implements ICopyINodeService
                 throw new NotFoundException(inode.getUuid());
             }
 
-            INode newINode = this.getINode(newUUID, conn);
-            
-            this.checkPermsSvc.checkPermission(IPermissions.READ, newINode);
+            this.permissionsSvc.copyACL(inode.getUuid(), newUUID, conn);
+            INode newINode = this.inodeSvc.getINode(newUUID, conn);
+            if (!this.permissionsSvc.canEffectiveRead(newINode.getAcl()))
+            {
+                throw new AccessDeniedException(newINode);
+            }
+
             if (inode.isDirectory())
             {
                 this.copyChilds(inode, newINode, conn);
@@ -137,14 +129,10 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         {
             return null;
         }
-        catch (SQLException e)
+        catch (SQLException | TechnicalACLException e)
         {
             e.printStackTrace();
             throw new TechnicalFileSysException("???", e);
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(stmt);
         }
     }
 
@@ -160,109 +148,10 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     private void copyChilds(INode parent, INode target, Connection conn)
         throws NotFoundException, TechnicalFileSysException, AccessDeniedException
     {
-        try
+        List<INode> childs = this.inodeSvc.getAllChilds(parent.getUuid(), false, conn);
+        for (INode child : childs)
         {
-            List<INode> childs = this.getChilds(parent, conn);
-            for (INode child : childs)
-            {
-                this.copyOneINode(child, target, conn);
-            }
+            this.copyOneINode(child, target, conn);
         }
-        catch (SQLException e)
-        {
-            throw new TechnicalFileSysException("", e);
-        }
-    }
-
-    /**
-     * @param parent
-     * @param conn
-     * @return
-     * @throws SQLException 
-     */
-    private List<INode> getChilds(INode parent, Connection conn) throws SQLException
-    {
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        List<INode> result = new ArrayList<INode>();
-
-        try
-        {
-            stmt = conn.prepareStatement(SQL_GET_CHILDS);
-            stmt.setString(1, parent.getUuid().toString());
-            rs = stmt.executeQuery();
-            while (rs.next())
-            {
-                INode inode = INode.builder() //
-                    .uuid(UUID.fromString(rs.getString("uuid"))) //
-                    .name(rs.getString("name")) //
-                    .type(rs.getString("type")) //
-                    .build();
-                result.add(inode);
-            }
-            return result;
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(rs);
-            this.dbSvc.closeQuitely(stmt);
-        }
-    }
-
-    /**
-     * @param uuid
-     * @param conn
-     * @return
-     * @throws SQLException
-     */
-    private INode getINode(UUID uuid, Connection conn) throws SQLException
-    {
-
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        INode result = INode.empty();
-
-        try
-        {
-            stmt = conn.prepareStatement(SQL_GET_INODE);
-            stmt.setString(1, uuid.toString());
-            rs = stmt.executeQuery();
-            if (rs.next())
-            {
-                result = INode.builder() //
-                    .uuid(uuid) //
-                    .parent(UUID.fromString(rs.getString("parent"))) //
-                    .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
-                    .name(rs.getString("name")) //
-                    .owner(UUID.fromString(rs.getString("owner"))) //
-                    .group(UUID.fromString(rs.getString("group"))) //
-                    .perms(rs.getInt("perms")) //
-                    .created(rs.getTimestamp("created")) //
-                    .modified(rs.getTimestamp("modified")) //
-                    .size(rs.getInt("size")) //
-                    .type(rs.getString("type")) //                 
-                    .build();
-            }
-            return result;
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(rs);
-            this.dbSvc.closeQuitely(stmt);
-        }
-    }
-
-    /**
-     * @param string
-     * @return
-     */
-    private UUID parseNullableUUID(String val)
-    {
-        UUID result = null;
-        
-        if(val != null) {
-            result = UUID.fromString(val);
-        }
-        return result;
     }
 }

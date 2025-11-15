@@ -3,6 +3,8 @@ package org.knollinger.colab.filesys.models;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+import org.knollinger.colab.permissions.models.ACL;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,14 +19,11 @@ public class INode
     private UUID uuid;
     private UUID parent;
     private UUID linkTo;
-    private UUID owner;
-    private UUID group;
     private String type;
     private long size;
     private Timestamp created;
     private Timestamp modified;
-    private int perms;
-    private int effectivePerms;
+    private ACL acl;
 
     /**
      * @return
@@ -36,11 +35,11 @@ public class INode
             .uuid(EWellknownINodeIDs.NONE.value()) //
             .parent(EWellknownINodeIDs.NONE.value()) //
             .linkTo(null) //
-            .owner(EWellknownINodeIDs.NONE.value()) //
             .type("") //
             .size(0) //
             .created(new Timestamp(0)) //
             .modified(new Timestamp(0)) //
+            .acl(ACL.empty()) //
             .build();
     }
 

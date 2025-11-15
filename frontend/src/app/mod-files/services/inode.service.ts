@@ -237,7 +237,7 @@ export class INodeService {
    */
   public getOrCreateFolder(parentId: string, name: string): Observable<INode> {
     const url = this.backendRouter.getRouteForName('getOrCreateFolder', INodeService.routes, parentId, name);
-    return this.httpClient.get<INode>(url).pipe(
+    return this.httpClient.get<IINode>(url).pipe(
       map(json => {
         return INode.fromJSON(json);
       })

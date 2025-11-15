@@ -14,7 +14,6 @@ import org.knollinger.colab.calendar.services.ICalendarAttachmentsService;
 import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.INode;
-import org.knollinger.colab.filesys.models.IPermissions;
 import org.knollinger.colab.filesys.services.IDeleteService;
 import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.filesys.services.IUploadService;
@@ -78,7 +77,7 @@ public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsServi
             while (rs.next())
             {
                 UUID inodeId = UUID.fromString(rs.getString("inodeId"));
-                INode inode = this.fileSysSvc.getINode(inodeId, IPermissions.NO_PERMS, conn);
+                INode inode = this.fileSysSvc.getINode(inodeId, conn);
                 result.add(inode);
             }
             return result;
@@ -249,7 +248,7 @@ public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsServi
         {
             try
             {
-                result = this.fileSysSvc.getChildByName(parentId, name, IPermissions.WRITE, conn);
+                result = this.fileSysSvc.getChildByName(parentId, name, conn);
                 return result;
             }
             catch (NotFoundException e)

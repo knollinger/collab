@@ -1,0 +1,39 @@
+<mat-form-field>
+
+    <mat-label>{{label}}</mat-label>
+    <mat-select (selectionChange)="onSelectionChange($event)"
+                [value]="current"
+                color="primary"
+                [disabled]="disabled">
+
+        <mat-select-trigger>
+
+            <div class="line-wrapper">
+
+                <mat-icon class="material-symbols-outlined group-icon"
+                          *ngIf="currentOwner().isUser()">person</mat-icon>
+
+                <mat-icon class="material-symbols-outlined group-icon"
+                          *ngIf="currentOwner().isGroup()">groups</mat-icon>
+
+                <span>{{currentOwner().name}}</span>
+            </div>
+
+        </mat-select-trigger>
+
+        <mat-option *ngFor="let record of ownerRecords; let idx = index"
+                    [value]="idx">
+
+            <div class="line-wrapper">
+
+                <mat-icon class="material-symbols-outlined group-icon"
+                          *ngIf="record.isUser()">person</mat-icon>
+                <mat-icon class="material-symbols-outlined group-icon"
+                          *ngIf="record.isGroup()">groups</mat-icon>
+                <span>{{record.name}}</span>
+            </div>
+
+        </mat-option>
+
+    </mat-select>
+</mat-form-field>

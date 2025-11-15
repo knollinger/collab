@@ -8,7 +8,7 @@ import { BackendRoutingService } from '../../mod-commons/mod-commons.module';
 
 import { CalendarEventCore, ICalendarEventCore } from '../models/calendar-event-core';
 import { CalendarEventFull, ICalendarEventFull } from '../models/calendar-event-full';
-import { INode } from '../../mod-files-data/mod-files-data.module';
+import { IINode, INode } from '../../mod-files-data/mod-files-data.module';
 
 /**
  * 
@@ -136,7 +136,7 @@ export class CalendarService {
       form.append('file', file);
     })
 
-    return this.http.put<INode[]>(url, form)
+    return this.http.put<IINode[]>(url, form)
       .pipe(map(inodes => {
         return inodes.map(inode => {
           return INode.fromJSON(inode)

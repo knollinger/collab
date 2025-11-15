@@ -1,4 +1,4 @@
-import { Permissions } from "../../mod-files/models/permissions";
+import { ACL, IACL } from "../../mod-permissions/mod-permissions.module";
 
 /**
  * 
@@ -12,10 +12,7 @@ export interface IINode {
     size: number,
     created: Date,
     modified: Date,
-    owner: string,
-    group: string,
-    perms: number,
-    effectivePerms: number
+    acl: IACL
 }
 
 /**
@@ -42,10 +39,6 @@ export class INode {
      * @param size 
      * @param created 
      * @param modified 
-     * @param owner 
-     * @param group 
-     * @param perms 
-     * @param effectivePerms
      */
     constructor(
         public readonly name: string,
@@ -56,10 +49,7 @@ export class INode {
         public readonly size: number,
         public readonly created: Date,
         public readonly modified: Date,
-        public readonly owner: string,
-        public readonly group: string,
-        public readonly perms: number,
-        public readonly effectivePerms: number) {
+        public readonly acl: ACL) {
     }
 
     /**
@@ -78,10 +68,7 @@ export class INode {
             json.size,
             json.created,
             json.modified,
-            json.owner,
-            json.group,
-            json.perms,
-            json.effectivePerms);
+            ACL.fromJSON(json.acl));
     }
 
     /**
@@ -99,10 +86,7 @@ export class INode {
             size: this.size,
             created: this.created,
             modified: this.modified,
-            owner: this.owner,
-            group: this.group,
-            perms: this.perms,
-            effectivePerms: this.effectivePerms
+            acl: this.acl.toJSON()
         }
     }
 
@@ -131,10 +115,7 @@ export class INode {
             0,
             now,
             now,
-            '',
-            '',
-            0,
-            0);
+            ACL.empty());
     }
 
     /**
@@ -145,18 +126,15 @@ export class INode {
     public static empty(): INode {
 
         const now = new Date();
-        return new INode('', 
-            EINodeUUIDs.INODE_NONE, 
-            EINodeUUIDs.INODE_NONE, 
+        return new INode('',
+            EINodeUUIDs.INODE_NONE,
+            EINodeUUIDs.INODE_NONE,
             null,
-            '', 
-            0, 
-            now, 
-            now, 
-            '', 
-            '', 
-            0, 
-            Permissions.READ | Permissions.WRITE | Permissions.DELETE);
+            '',
+            0,
+            now,
+            now,
+            ACL.empty());
     }
 
 
@@ -168,18 +146,15 @@ export class INode {
     public static emptyDir(): INode {
 
         const now = new Date();
-        return new INode('', 
-            EINodeUUIDs.INODE_NONE, 
-            EINodeUUIDs.INODE_NONE, 
+        return new INode('',
+            EINodeUUIDs.INODE_NONE,
+            EINodeUUIDs.INODE_NONE,
             null,
-            'inode/directory', 
-            0, 
-            now, 
-            now, 
-            '', 
-            '', 
-            0, 
-            Permissions.READ | Permissions.WRITE | Permissions.DELETE);
+            'inode/directory',
+            0,
+            now,
+            now,
+            ACL.empty());
     }
 
     /**
