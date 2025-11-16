@@ -29,7 +29,6 @@ export class INodeService {
       ['linkINode', 'v1/filesys/link'],
       ['createFolder', 'v1/filesys/mkdir/{1}/{2}'],
       ['createDocument', 'v1/filesys/createDocument/{1}/{2}/{3}'],
-      ['updateINode', 'v1/filesys/update'],
       ['getOrCreateFolder', 'v1/filesys/ensureFolder/{1}/{2}'],
       ['getContent', 'v1/filecontent/{1}']
     ]
@@ -170,21 +169,7 @@ export class INodeService {
     return this.httpClient.post<void>(url, req.toJSON());
   }
 
-  /**
-   * 
-   * @param inode 
-   * @returns 
-   */
-  update(inode: INode): Observable<INode> {
-
-    const url = this.backendRouter.getRouteForName('updateINode', INodeService.routes);
-    return this.httpClient.post<IINode>(url, inode.toJSON()).pipe(
-      map(json => {
-        return INode.fromJSON(json);
-      })
-    );
-  }
-
+  
   /**
    * 
    * @param uuid 

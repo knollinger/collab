@@ -16,7 +16,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FilesPropertiesDialogComponent } from '../files-properties-dialog/files-properties-dialog.component';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 import { CheckDuplicateEntriesService } from '../../services/check-duplicate-entries.service';
-import { ACLEntry, CheckPermissionsService } from '../../../mod-permissions/mod-permissions.module';
+import { ACLEntry, CheckPermissionsService, PermissionsService } from '../../../mod-permissions/mod-permissions.module';
 
 @Component({
   selector: 'app-folder-view',
@@ -86,6 +86,7 @@ export class FilesFolderViewComponent implements OnInit {
     private contentTypeSvc: ContentTypeService,
     private hashTagSvc: HashTagService,
     private sessionSvc: SessionService,
+    private permsSvc: PermissionsService,
     private checkPermsSvc: CheckPermissionsService,
     private checkDuplSvc: CheckDuplicateEntriesService,
     private dialog: MatDialog) {
@@ -654,7 +655,9 @@ export class FilesFolderViewComponent implements OnInit {
           .subscribe(result => {
 
             if (result) {
-              this.inodeSvc.update(result.inode) //
+
+              console.log('update ACL');
+              this.permsSvc.updateACL(result.inode.uuid, result.inode.acl) //
                 .pipe(takeUntilDestroyed(this.destroyRef)) //
                 .subscribe(_ => {
 

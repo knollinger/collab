@@ -66,6 +66,28 @@ public interface IPermissionsService
     public ACL getACL(UUID resourceId, Connection conn) throws TechnicalACLException, ACLNotFoundException;
 
     /**
+     * Aktualisiere die ACL für eine gegebene Resource
+     * @param resourceId
+     * @param acl
+     * @return
+     * @throws TechnicalACLException
+     * @throws ACLNotFoundException
+     */
+    public ACL updateACL(UUID resourceId, ACL acl) throws TechnicalACLException, ACLNotFoundException;
+    
+    
+    /**
+     * Aktualisiere die ACL für eine gegebene Resource innerhalb einer Transaktionsklammer.
+     * @param resourceId
+     * @param acl
+     * @param conn
+     * @return
+     * @throws TechnicalACLException
+     * @throws ACLNotFoundException
+     */
+    public ACL updateACL(UUID resourceId, ACL acl, Connection conn) throws TechnicalACLException, ACLNotFoundException;
+    
+    /**
      * Kopiere eine komplette ACL einer gegebenen Resource auf eine ZielResource.
      * Sollte für die ZielResource bereits eine ACL existieren, so wird diese gelöscht.
      * 

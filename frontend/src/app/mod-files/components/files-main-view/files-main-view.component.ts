@@ -50,9 +50,9 @@ export class FilesMainViewComponent implements OnInit {
 
   iconSizes: IconSize[] = [
     new IconSize('64px', "Klein"),
-    new IconSize('128px', "Mittel"),
-    new IconSize('192px', "Groß"),
-    new IconSize('256px', "Sehr groß")
+    new IconSize('96px', "Mittel"),
+    new IconSize('128px', "Groß"),
+    new IconSize('160px', "Sehr groß")
   ]
 
   /**

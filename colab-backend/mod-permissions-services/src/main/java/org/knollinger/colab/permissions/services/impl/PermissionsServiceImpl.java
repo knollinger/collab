@@ -205,6 +205,41 @@ public class PermissionsServiceImpl implements IPermissionsService
         }
     }
 
+    /**
+     *
+     */
+    public ACL updateACL(UUID resourceId, ACL acl) throws TechnicalACLException, ACLNotFoundException
+    {
+        try (Connection conn = this.dbSvc.openConnection())
+        {
+            return this.updateACL(resourceId, acl, conn);
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalACLException(resourceId);
+        }
+    }
+
+    /**
+     *
+     */
+    public ACL updateACL(UUID resourceId, ACL acl, Connection conn) throws TechnicalACLException, ACLNotFoundException
+    {
+        try
+        {
+            this.deleteACL(resourceId, conn);
+            this.createACL(resourceId, acl, conn);
+        }
+        catch (DuplicateACLException e)
+        {
+            // can't occur
+        }
+        return acl;
+    }
+
+    /**
+     *
+     */
     public void copyACL(UUID srcUUID, UUID targetUUID) throws TechnicalACLException
     {
         try (Connection conn = this.dbSvc.openConnection())
@@ -270,9 +305,9 @@ public class PermissionsServiceImpl implements IPermissionsService
     @Override
     public void deleteACL(UUID resourceId, Connection conn) throws TechnicalACLException
     {
+        this.deleteACLEntries(resourceId, conn);
         try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_ACL))
         {
-            this.deleteACLEntries(resourceId, conn);
             stmt.setString(1, resourceId.toString());
             stmt.executeUpdate();
         }
@@ -282,6 +317,11 @@ public class PermissionsServiceImpl implements IPermissionsService
         }
     }
 
+    /**
+     * @param resourceId
+     * @param conn
+     * @throws TechnicalACLException
+     */
     private void deleteACLEntries(UUID resourceId, Connection conn) throws TechnicalACLException
     {
         try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_ACL_ENTRIES))

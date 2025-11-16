@@ -26,7 +26,8 @@
              (filesDropped)="onFilesDropped($event)"
              (inodesDropped)="inodeDropMenu.show($event)"
              (click)="onOpen(inode)"
-             (contextmenu)="itemCtxtMenu.show(inode, $event)">
+             (contextmenu)="itemCtxtMenu.show(inode, $event)"
+             [matTooltip]="inode.name">
 
             <div class="image"
                  [style.backgroundImage]="getINodeImage(inode)"

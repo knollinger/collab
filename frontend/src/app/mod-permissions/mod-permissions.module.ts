@@ -11,6 +11,9 @@ export { EACLEntryType, IACLEntry ,ACLEntry, IACL, ACL };
 import { AclEditorComponent } from './components/acl-editor/acl-editor.component';
 import { AclEntryOwnerSelectorComponent } from './components/aclentry-owner-selector/aclentry-owner-selector.component';
 
+import { PermissionsService } from './services/permissions.service';
+export { PermissionsService }
+
 import { CheckPermissionsService } from './services/check-permissions.service';
 export { CheckPermissionsService }
 
