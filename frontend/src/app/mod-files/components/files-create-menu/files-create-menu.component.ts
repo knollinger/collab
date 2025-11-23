@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatMenu } from '@angular/material/menu';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
+import { ACLEntry, CheckPermissionsService } from '../../../mod-permissions/mod-permissions.module';
 
 export class CreateMenuEvent {
 
@@ -21,7 +22,7 @@ export class CreateMenuEvent {
   styleUrls: ['./files-create-menu.component.css'],
   standalone: false
 })
-export class FilesCreateMenuComponent extends MatMenu {
+export class FilesCreateMenuComponent {
 
   @Input()
   text: string = '';
@@ -31,6 +32,15 @@ export class FilesCreateMenuComponent extends MatMenu {
 
   @Output()
   create: EventEmitter<CreateMenuEvent> = new EventEmitter<CreateMenuEvent>();
+
+  constructor(private checkPermsSvc: CheckPermissionsService) {
+
+  }
+
+  get enabled(): boolean {
+
+    return this.checkPermsSvc.hasPermissions(this.parent.acl, ACLEntry.PERM_WRITE);
+  }
 
   /**
    * 

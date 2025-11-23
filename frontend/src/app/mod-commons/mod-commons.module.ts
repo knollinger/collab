@@ -41,6 +41,7 @@ import { FormsModule } from '@angular/forms';
 import { AutoFocusDirective } from './directives/auto-focus.directive';
 import { HintComponent } from './components/hint/hint.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
+import { BackendErrorComponent } from './components/backend-error/backend-error.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +56,7 @@ import { SearchBarComponent } from './components/search-bar/search-bar.component
     AutoFocusDirective,
     HintComponent,
     SearchBarComponent,
+    BackendErrorComponent,
   ],
   imports: [
     CommonModule,

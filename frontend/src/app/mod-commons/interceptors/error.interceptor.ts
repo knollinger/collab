@@ -44,22 +44,31 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((err: HttpErrorResponse) => {
 
-        if (err.status === 401) {
-
-          if (err.error.message) {
+        switch (err.status) {
+          case 0:
             this.msgService.showErrorBox('Oooops', err.error.message);
-          }
-          this.router.navigateByUrl(`/session/login`); // redirUrl funct hier ned, weil die gerufene URL ans backend ging!
-        }
-        else {
-          const msg = this.extractErrorMessage(err);
-          this.msgService.showErrorBox('Oooops', msg);
+            break;
+
+          case 401:
+            this.router.navigateByUrl(`/session/login`); // redirUrl funct hier ned, weil die gerufene URL ans backend ging!
+            break;
+
+          default:
+            const httpError = {
+              message: err.error.message,
+              method: req.method,
+              path: err.error.path,
+              status: err.error.status,
+              trace: err.error.trace
+            }
+            this.msgService.showBackendError(httpError);
+            break;
         }
         return throwError(err);
       })
     );
   }
-  
+
   /**
    *
    * @param err
@@ -67,8 +76,13 @@ export class ErrorInterceptor implements HttpInterceptor {
    */
   private extractErrorMessage(err: HttpErrorResponse): string {
 
-    if (err.message && err.error.message) {
+    console.log(err);
+    if (err.error.message) {
       return err.error.message;
+    }
+
+    if (err.message) {
+      return err.message;
     }
 
     if (err.status === 0) {

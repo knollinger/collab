@@ -1,0 +1,39 @@
+<h2 mat-dialog-title>Fehler beim Server-Zugriff</h2>
+
+<mat-dialog-content class="mat-typography">
+
+    <mat-icon class="material-symbols-outlined"
+              color="error">error</mat-icon>
+    <div>{{error.message}}</div>
+
+    <div class="grid"
+         *ngIf="showDetails">
+        <div class="label">Method:</div>
+        <div class="value">{{error.method}}</div>
+        <div class="label">Pfad:</div>
+        <div class="value">{{error.path}}</div>
+        <div class="label">Status:</div>
+        <div class="value">{{error.status}}</div>
+        <div class="label">Stack-Trace:</div>
+    </div>
+    <pre class="stacktrace"
+         *ngIf="showDetails">{{error.trace}}</pre>
+
+</mat-dialog-content>
+
+<mat-dialog-actions>
+
+    <button mat-flat-button
+            color="primary"
+            mat-dialog-close>Ok</button>
+
+    <button mat-button
+            *ngIf="!showDetails"
+            (click)="showDetails=true"
+            color="primary">Details anzeigen</button>
+
+    <button mat-button
+            *ngIf="showDetails"
+            (click)="showDetails=false"
+            color="primary">Details verbergen</button>
+</mat-dialog-actions>

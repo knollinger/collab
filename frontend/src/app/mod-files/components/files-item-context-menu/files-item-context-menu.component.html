@@ -13,6 +13,7 @@
 
     <a mat-menu-item
        *ngIf="!inode.isDirectory()"
+        [disabled]="!this.isReadAllowed"
        target="_blank"
        href="viewer/show/{{inode.uuid}}">
         <mat-icon class="material-symbols-outlined">open_in_new</mat-icon>

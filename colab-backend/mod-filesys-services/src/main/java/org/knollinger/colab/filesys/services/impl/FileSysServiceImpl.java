@@ -163,6 +163,7 @@ public class FileSysServiceImpl implements IFileSysService
             {
                 result = this.getINode(result.getLinkTo(), conn);
             }
+
             return result;
         }
         catch (SQLException e)
@@ -211,6 +212,13 @@ public class FileSysServiceImpl implements IFileSysService
         throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
         ResultSet rs = null;
+
+        // lade zuerst die ParentNode um zu prüfen dass die Berechtigungen passen.
+        INode parentNode = this.getINode(parentId, conn);
+        if (!this.permsSvc.canEffectiveRead(parentNode.getAcl()))
+        {
+            throw new AccessDeniedException(parentNode);
+        }
 
         try (PreparedStatement stmt = conn.prepareStatement(SQL_GET_ALL_CHILDS))
         {
