@@ -130,13 +130,19 @@ export class INodeService {
    * @param parent 
    * @returns 
    */
-  copy(src: INode | INode[], parent: INode): Observable<void> {
+  copy(src: INode | INode[], parent: INode): Observable<INode[]> {
 
     const url = this.backendRouter.getRouteForName('copyINode', INodeService.routes);
 
     const toMove = Array.isArray(src) ? src : Array.of(src);
     const req = new MoveINodeRequest(toMove, parent);
-    return this.httpClient.post<void>(url, req.toJSON());
+    return this.httpClient.post<IINode[]>(url, req.toJSON()).pipe(
+      map(inodes => {
+        return inodes.map(inode => {
+          return INode.fromJSON(inode);
+        })
+      })
+    );
   }
 
   /**
@@ -145,13 +151,19 @@ export class INodeService {
    * @param parent 
    * @returns 
    */
-  move(src: INode | INode[], parent: INode): Observable<void> {
+  move(src: INode | INode[], parent: INode): Observable<INode[]> {
 
     const url = this.backendRouter.getRouteForName('moveINode', INodeService.routes);
 
     const toMove = Array.isArray(src) ? src : Array.of(src);
     const req = new MoveINodeRequest(toMove, parent);
-    return this.httpClient.post<void>(url, req.toJSON());
+    return this.httpClient.post<IINode[]>(url, req.toJSON()).pipe(
+      map(inodes => {
+        return inodes.map(inode => {
+          return INode.fromJSON(inode);
+        })
+      })
+    );
   }
 
   /**
@@ -160,16 +172,22 @@ export class INodeService {
    * @param parent 
    * @returns 
    */
-  link(src: INode | INode[], parent: INode): Observable<void> {
+  link(src: INode | INode[], parent: INode): Observable<INode[]> {
 
     const url = this.backendRouter.getRouteForName('linkINode', INodeService.routes);
 
     const toMove = Array.isArray(src) ? src : Array.of(src);
     const req = new MoveINodeRequest(toMove, parent);
-    return this.httpClient.post<void>(url, req.toJSON());
+    return this.httpClient.post<IINode[]>(url, req.toJSON()).pipe(
+      map(inodes => {
+        return inodes.map(inode => {
+          return INode.fromJSON(inode);
+        })
+      })
+    );
   }
 
-  
+
   /**
    * 
    * @param uuid 

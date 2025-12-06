@@ -68,6 +68,7 @@ export class FilesBreadCrumbItemComponent implements OnInit {
    * @param inode 
    */
   onOpen(inode: INode) {
+    console.log('onOpen');
     this.open.emit(inode);
   }
 }

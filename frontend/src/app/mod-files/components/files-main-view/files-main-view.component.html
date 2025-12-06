@@ -13,8 +13,8 @@
             <mat-icon class="material-symbols-outlined">refresh</mat-icon>
         </button>
 
-        <app-files-create-menu [parent]="currentFolder"
-                               (create)="onCreateDocument($event)"></app-files-create-menu>
+        <app-files-create-menu [parent]="currentTab.parent"
+                               (create)="createDocument($event)"></app-files-create-menu>
 
         <!-- Selection/deselectopn -->
         <app-toolbar-separator></app-toolbar-separator>
@@ -83,13 +83,7 @@
                type="file"
                class="hidden"
                multiple="true"
-               (change)="onUpload($event)">
-
-        <input #fileInput
-               type="file"
-               class="hidden"
-               multiple="true"
-               (change)="onUpload($event)">
+               (change)="onToolbarUpload($event)">
 
         <button mat-icon-button
                 matTooltip="Dateien runter laden"
@@ -144,14 +138,6 @@
 
         </mat-menu>
 
-        <!-- SplitView-Toggle -->
-        <mat-button-toggle class="small-right-spacer"
-                           matTooltip="Anzeige aufteilen"
-                           [checked]="showSplit"
-                           (click)="onToggleSplitView()">
-            <mat-icon class="material-symbols-outlined">splitscreen_landscape</mat-icon>
-        </mat-button-toggle>
-
         <mat-button-toggle-group name="viewMode"
                                  [(value)]="viewMode">
 
@@ -172,40 +158,75 @@
     <div class="flex-1 disp-flex full-height scrollable flex-row">
 
         <app-files-places class="places"
-                          (open)="onOpen(0, $event)">
+                          (open)="onOpenInCurrentTab($event)">
         </app-files-places>
 
-        <app-folder-view #leftPane
-                         class="panel"
-                         [class.activePane]="activePane === 0 && showSplit"
-                         (click)="activePane = 0"
-                         [current]="leftPanelFolder"
-                         (open)="onOpen(0, $event)"
-                         [viewMode]="viewMode"
-                         [iconSize]="iconSize"
-                         [showHidden]="showHiddenFiles"
-                         (inodesGrabbed)="rightPane.reloadEntries()">
-        </app-folder-view>
+        <div class="panel">
 
-        <!--
-        Die RightPane wird nur angezeigt, wenn der Benutzer dies via
-        Toggle in der ActionBar angefordert hat.
+            <div class="header">
+                <div class="breadcrumb">
+                    <app-files-bread-crumb-item *ngFor="let inode of currentTab.path"
+                                                [inode]="inode"
+                                                (open)="onOpenInCurrentTab(inode)">
+                    </app-files-bread-crumb-item>
+                </div>
+                <button class="addBtn"
+                        mat-icon-button
+                        class="flex-0"
+                        (click)="newTab()"
+                        matTooltip="Einen neuen Tab öffnen">
+                    <mat-icon class="material-symbols-outlined">new_window</mat-icon>
+                </button>
+            </div>
 
-        Ein einfaches ngIf funktioniert hier leider nicht, da die leftPane
-        in Ihrem inodesGrabbed-Handler eine Referenz auf die rightPane 
-        braucht. Deswegen class.hidden. Die Component bleibt im DOM, wird
-        aber nicht mehr angezeigt.
-        -->
-        <app-folder-view #rightPane
-                         class="panel"
-                         [class.activePane]="activePane === 1 && showSplit"
-                         (click)="activePane = 1"
-                         [class.hidden]="!showSplit"
-                         [current]="rightPanelFolder"
-                         (open)="onOpen(1, $event)"
-                         [viewMode]="viewMode"
-                         [iconSize]="iconSize"
-                         (inodesGrabbed)="leftPane.reloadEntries()">
-        </app-folder-view>
+            <!-- all open tabs-->
+            <mat-tab-group class="tabs"
+                           [mat-stretch-tabs]="false"
+                           (selectedIndexChange)="onTabChange($event)"
+                           [selectedIndex]="currTabIdx"
+                           [fitInkBarToContent]="true"
+                           animationDuration="0ms">
+
+                <mat-tab *ngFor="let tab of tabs; let idx=index">
+
+                    <!-- Das TabLabel sorgt beim DragOver dafür, das der Tab aktiviert wird -->
+                    <ng-template mat-tab-label>
+                        <app-files-main-view-tab-header [label]="tab.parent.name"
+                                                        [closeable]="isCloseable()"
+                                                        [active]="currTabIdx==idx"
+                                                        (dragOver)="currTabIdx=idx"
+                                                        (close)="closeTab(idx)">
+                        </app-files-main-view-tab-header>
+                    </ng-template>
+
+                    <app-folder-view [viewMode]="viewMode"
+                                     [iconSize]="iconSize"
+                                     [parent]="tab.parent"
+                                     [childs]="tab.childs"
+                                     [showHidden]="showHiddenFiles"
+                                     [selection]="tab.selected"
+                                     (open)="openINode(idx, $event)"
+                                     (create)="createDocument($event)"
+                                     (upload)="uploadFiles(tab.parent, $event)"
+                                     (copy)="copyINodes(tab.parent, $event)"
+                                     (move)="moveINodes(tab.parent, $event)"
+                                     (link)="linkINodes(tab.parent, $event)"
+                                     (rename)="renameINode($event)"
+                                     (delete)="deleteINodes($event)"
+                                     (selectionChanged)="onSelectionChange(idx, $event)">
+                    </app-folder-view>
+
+                </mat-tab>
+            </mat-tab-group>
+
+            <app-toolbar class="statusBar">
+                Gesamt: {{nrOfChilds}} Objekte mit {{totalChildSize | fileSize}}
+                <div *ngIf="hasSelection">
+                    <app-toolbar-separator></app-toolbar-separator>
+                    {{nrOfSelectedChilds}} Objekte mit {{selectedChildSize | fileSize}} ausgewählt
+                </div>
+            </app-toolbar>
+
+        </div>
     </div>
 </div>

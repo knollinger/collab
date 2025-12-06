@@ -14,10 +14,13 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.knollinger.colab.filesys.exceptions.AccessDeniedException;
 import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.BlobInfo;
+import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.services.IDownloadService;
+import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.utils.io.FileDeletingInputStream;
 import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,21 +36,43 @@ public class DownloadServiceImpl implements IDownloadService
         + "  where `uuid`=?";
 
     @Autowired
+    private IFileSysService fileSvc;
+
+    @Autowired
     private IDbService dbSvc;
 
+    /**
+     *
+     */
     @Override
-    public BlobInfo getFileContent(UUID uuid) throws TechnicalFileSysException, NotFoundException
+    public BlobInfo getFileContent(UUID uuid) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try
+        try (Connection conn = this.dbSvc.openConnection())
         {
-            conn = this.dbSvc.openConnection();
-            stmt = conn.prepareStatement(SQL_LOAD_FILE);
+            INode inode = this.resolveLink(uuid, conn);
+            return this.getFileContent(inode.getUuid(), conn);
+        }
+        catch (SQLException e)
+        {
+            String msg = String.format(ERR_LOAD_FILE, uuid.toString());
+            throw new TechnicalFileSysException(msg, e);
+        }
+    }
+
+    /**
+     * 
+     * @param uuid
+     * @param conn
+     * @return
+     * @throws TechnicalFileSysException
+     * @throws NotFoundException
+     */
+    private BlobInfo getFileContent(UUID uuid, Connection conn) throws TechnicalFileSysException, NotFoundException
+    {
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_LOAD_FILE))
+        {
             stmt.setString(1, uuid.toString());
-            rs = stmt.executeQuery();
+            ResultSet rs = stmt.executeQuery();
             if (!rs.next())
             {
                 throw new NotFoundException(uuid);
@@ -68,12 +93,6 @@ public class DownloadServiceImpl implements IDownloadService
         {
             String msg = String.format(ERR_LOAD_FILE, uuid.toString());
             throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(rs);
-            this.dbSvc.closeQuitely(stmt);
-            this.dbSvc.closeQuitely(conn);
         }
     }
 
@@ -118,5 +137,24 @@ public class DownloadServiceImpl implements IDownloadService
         {
             IOUtils.closeQuietly(out);
         }
+    }
+
+    /**
+     * @param uuid
+     * @param conn
+     * @return
+     * @throws TechnicalFileSysException
+     * @throws NotFoundException
+     * @throws AccessDeniedException
+     */
+    private INode resolveLink(UUID uuid, Connection conn)
+        throws TechnicalFileSysException, NotFoundException, AccessDeniedException
+    {
+        INode inode = this.fileSvc.getINode(uuid, conn);
+        while (inode.isLink())
+        {
+            inode = this.fileSvc.getINode(inode.getLinkTo(), conn);
+        }
+        return inode;
     }
 }

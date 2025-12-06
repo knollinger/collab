@@ -65,6 +65,9 @@ export class DropTargetDirective {
   @Output()
   inodesDropped: EventEmitter<INodeDroppedEvent> = new EventEmitter<INodeDroppedEvent>();
 
+  @Output()
+  dragOver: EventEmitter<void> = new EventEmitter<void>();
+
   /**
    * 
    * @param evt 
@@ -104,6 +107,7 @@ export class DropTargetDirective {
 
     if (this.isDropEnabled(evt)) {
       this.showDropAreaVisualisization();
+      this.dragOver.next();
     }
   }
 

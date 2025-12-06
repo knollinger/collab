@@ -174,6 +174,11 @@ public class WOPIControler
             log.error("WOPI::getFileContent for {} failed, not found: {}", fileId, e);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
         }
+        catch (AccessDeniedException e)
+        {
+            log.error("WOPI::getFileContent for {} failed, permission denied: {}", fileId, e);
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+        }
     }
 
     /**

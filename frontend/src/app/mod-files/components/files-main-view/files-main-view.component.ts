@@ -2,17 +2,16 @@ import { Component, DestroyRef, inject, OnInit, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { TitlebarService } from '../../../mod-commons/mod-commons.module';
+import { CommonDialogsService, TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SessionService } from '../../../mod-session/session.module';
 import { SettingsService } from '../../../mod-settings/mod-settings.module';
-
-import { FilesFolderViewComponent } from '../files-folder-view/files-folder-view.component';
 
 import { EINodeUUIDs, INode } from '../../../mod-files-data/mod-files-data.module';
 
 import { INodeService } from '../../services/inode.service';
 import { ClipboardService } from '../../services/clipboard.service';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
+import { CheckDuplicateEntriesService } from '../../services/check-duplicate-entries.service';
 
 export class IconSize {
 
@@ -20,6 +19,20 @@ export class IconSize {
     public readonly size: string,
     public readonly text: string) {
 
+  }
+}
+
+export class TabDescriptor {
+
+  constructor(
+    public parent: INode,
+    public path: INode[],
+    public childs: INode[],
+    public selected: Set<INode>) {
+  }
+
+  public static empty() {
+    return new TabDescriptor(INode.empty(), new Array<INode>(), new Array<INode>(), new Set<INode>());
   }
 }
 
@@ -38,15 +51,10 @@ export class FilesMainViewComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  @ViewChild('leftPane')
-  leftPane: FilesFolderViewComponent | null = null;
-
-  @ViewChild('rightPane')
-  rightPane: FilesFolderViewComponent | null = null;
-
   showHiddenFiles: boolean = false;
   private settings: any = {}
 
+  tabs: TabDescriptor[] = new Array<TabDescriptor>();
 
   iconSizes: IconSize[] = [
     new IconSize('64px', "Klein"),
@@ -57,16 +65,23 @@ export class FilesMainViewComponent implements OnInit {
 
   /**
    * 
+   * @param route 
+   * @param router 
    * @param titlebarSvc 
+   * @param inodeSvc 
+   * @param clipboardSvc 
+   * @param sessionSvc 
+   * @param settingsSvc 
    */
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
+    private commonsDlgSvc: CommonDialogsService,
     private titlebarSvc: TitlebarService,
     private inodeSvc: INodeService,
     private clipboardSvc: ClipboardService,
     private sessionSvc: SessionService,
-    private settingsSvc: SettingsService) {
+    private settingsSvc: SettingsService,
+    private checkDuplicatesSvc: CheckDuplicateEntriesService) {
 
   }
 
@@ -76,35 +91,154 @@ export class FilesMainViewComponent implements OnInit {
   ngOnInit(): void {
 
     this.titlebarSvc.subTitle = 'Dateien';
-
     this.loadSettings();
+    this.newTab();
+  }
 
-    this.route.params
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about the statusbar                                                 */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+  get nrOfChilds(): number {
+    return this.currentTab.childs.length;
+  }
+
+  /**
+   * 
+   */
+  get totalChildSize(): number {
+
+    let result = 0;
+    this.currentTab.childs.forEach(child => {
+      result += child.size;
+    })
+    return result;
+  }
+
+  /**
+   * 
+   */
+  get selectedChildSize(): number {
+
+    let result = 0;
+    this.currentTab.selected.forEach(child => {
+      result += child.size;
+    })
+    return result;
+  }
+
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about tabbing                                                       */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+  public currTabIdx: number = 0;
+
+  /**
+   * 
+   */
+  public get currentTab(): TabDescriptor {
+
+    return this.tabs[this.currTabIdx];
+  }
+
+  /**
+   * Erzeuge einen neuen Tab mit dem HomeDirectory des Benutzers
+   */
+  public newTab() {
+
+    const homeDirId = this.sessionSvc.currentUser.userId;
+    this.addTab(homeDirId);
+  }
+
+  /** 
+   * Erzeuge einen neuen Tab für die gegebene UUID
+   * 
+   * Es wird zunächst ein leerer TabDescriptor angelegt und in das Tab-Array
+   * gepushed. Dadurch ist schon mal sicher gestellt, dass ein valider 
+   * TaskDescriptor existiert.
+   * 
+   * Im Anschluss wird der Inhalt des Tabs asynchron geladen und in den 
+   * Descriptor verfrachtet.
+   */
+  public addTab(uuid: string) {
+
+    const desc = TabDescriptor.empty();
+    this.currTabIdx = this.tabs.push(desc) - 1;
+    this.loadTab(uuid, desc);
+  }
+
+  /**
+   * 
+   * @param idx 
+   */
+  public closeTab(idx: number) {
+
+    if (this.tabs.length > 1) {
+      this.tabs.splice(idx, 1);
+      this.currTabIdx = Math.min(this.currTabIdx, this.tabs.length - 1);
+    }
+  }
+
+  /**
+   * Kann der Tab geschlossen werden?
+   * 
+   * Ein Tab kann geschlossen werden, wenn er nicht der letzte offene Tab ist
+   * 
+   * @returns 
+   */
+  public isCloseable(): boolean {
+    return this.tabs.length > 1;
+  }
+
+  /**
+   * 
+   * @param idx 
+   */
+  public onTabChange(idx: number) {
+    if (idx < this.tabs.length) {
+      this.currTabIdx = idx;
+    }
+  }
+
+  public onOpenInCurrentTab(inode: INode) {
+
+    console.log('onOpenInCurrent')
+    this.openFolder(this.currTabIdx, inode);
+  }
+
+
+  /**
+   * Lade einen Tab anhand seiner ParentUUID.
+   * 
+   * Es wird die INode selbst geladen, der Path zur INode und seine Childs. 
+   * Das Set mit den selektierten Childs wird leer angelegt.
+   *  
+   * @param uuid 
+   * @param tabDesc
+   */
+  private loadTab(uuid: string, tabDesc: TabDescriptor) {
+
+    this.inodeSvc.getINode(uuid)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
+      .subscribe(parentINode => {
 
-        const leftPanelUUID = params['leftPanel'] || this.sessionSvc.currentUser.userId;
-        this.inodeSvc.getINode(leftPanelUUID)
+        tabDesc.parent = parentINode;
+        this.inodeSvc.getPath(uuid)
           .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(inode => {
+          .subscribe(path => {
 
-            this.leftPanelFolder = inode;
+            tabDesc.path = path;
+            this.inodeSvc.getAllChilds(uuid)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe(childs => {
 
-            const rightPanelUUID = params['rightPanel'] || EINodeUUIDs.INODE_NONE;
-            if (!rightPanelUUID || rightPanelUUID === EINodeUUIDs.INODE_NONE) {
-              this.rightPanelFolder = INode.empty();
-              this.showSplit = false;
-            }
-            else {
-              this.inodeSvc.getINode(rightPanelUUID)
-                .pipe(takeUntilDestroyed(this.destroyRef))
-                .subscribe(inode => {
-                  this.rightPanelFolder = inode;
-                })
-              this.showSplit = true;
-            }
+                tabDesc.childs = childs;
+              })
           })
-      });
+      })
   }
 
   /*-------------------------------------------------------------------------*/
@@ -114,7 +248,7 @@ export class FilesMainViewComponent implements OnInit {
   /*-------------------------------------------------------------------------*/
 
   /**
-   * 
+   * Lade die Settings
    */
   private loadSettings() {
 
@@ -122,6 +256,8 @@ export class FilesMainViewComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(settings => {
         this.settings = settings;
+
+        // gespeicherte Tabs laden
       })
   }
 
@@ -149,7 +285,7 @@ export class FilesMainViewComponent implements OnInit {
    */
   get iconSize(): string {
 
-     return this.settings['iconSize'] || '128px';
+    return this.settings['iconSize'] || '128px';
   }
 
   /**
@@ -163,22 +299,11 @@ export class FilesMainViewComponent implements OnInit {
     }
   }
 
-  /**
-   * all about view splitting
-   */
-  private _activePaneId: number = 0;
-  public showSplit: boolean = false;
-  public leftPanelFolder: INode = INode.empty();
-  public rightPanelFolder: INode = INode.empty();
-
-  public set activePane(val: number) {
-
-    this._activePaneId = (val !== 0) ? 1 : 0;
-  }
-
-  public get activePane(): number {
-    return this._activePaneId;
-  }
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about the toolbar                                                   */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
 
   /**
    * Callback für den GoHome-Button. Der Pfad des aktiven Panels wird auf das
@@ -187,41 +312,68 @@ export class FilesMainViewComponent implements OnInit {
    */
   onGoHome() {
 
-    this.currentPane.onGoHome();
-
+    const homeDirId = this.sessionSvc.currentUser.userId;
+    this.inodeSvc.getINode(homeDirId).subscribe(homeDir => {
+      this.onOpenInCurrentTab(homeDir);
+    })
   }
-
-  onRefresh() {
-    this.currentPane.refresh();
-  }
-
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* All about selection                                                     */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
 
   /**
-   * ist in einer der SubPanes wenigstens eine INode selektiert?
+   * Den aktuellen Folder neu laden
+   */
+  onRefresh() {
+
+    const tab = this.currentTab;
+    this.onOpenInCurrentTab(tab.parent);
+  }
+
+  /**
+   * Liefere die Anzahl von Selektierten INodes
+   */
+  get nrOfSelectedChilds(): number {
+
+    return this.currentTab.selected.size;
+  }
+
+  /**
+   * ist in im aktuellen Tab wenigstens eine INode selektiert?
    */
   get hasSelection(): boolean {
-
-    const pane = this.currentPane;
-    return pane && pane.selectedINodes.size > 0;
+    return this.nrOfSelectedChilds > 0;
   }
 
   /**
    * Wähle in der aktuellen SubPane alle INodes aus
    */
   onSelectAll() {
-    this.currentPane.onSelectAll();
+
+    const selected = new Set<INode>(this.currentTab.childs.filter(child => {
+
+      let result = this.showHiddenFiles;
+      if (!result) {
+        result = !child.isHidden();
+      }
+      return result;
+    }));
+
+    this.currentTab.selected = selected;
   }
 
   /**
    * hebe die Auswahl in der aktuellen SubPane auf
    */
   onDeselectAll() {
-    this.currentPane.onDeselectAll();
+    this.currentTab.selected.clear();
+  }
+
+  /**
+   * 
+   * @param tabIdx 
+   * @param selections 
+   */
+  onSelectionChange(tabIdx: number, selections: Set<INode>) {
+
+    this.currentTab.selected = selections;
   }
 
   /*-------------------------------------------------------------------------*/
@@ -230,110 +382,106 @@ export class FilesMainViewComponent implements OnInit {
   /*                                                                         */
   /*-------------------------------------------------------------------------*/
 
+  /**
+   * Schneide alle selektierten INodes aus und verfrachte sie in das App-Clipboard
+   */
   onCut() {
-    this.currentPane.onCut();
+
+    const toCut = new Array<INode>(...this.currentTab.selected);
+    this.clipboardSvc.cut(toCut);
   }
 
+  /**
+   * Kopiere alle selektierten INodes in das App-Clipboard
+   */
   onCopy() {
-    this.currentPane.onCopy();
+    const toCopy = new Array<INode>(...this.currentTab.selected);
+    this.clipboardSvc.copy(toCopy);
   }
 
+  /**
+   * Kopiere Links auf alle selektierten INodes in das App-Clipboard
+   */
   onLink() {
-    this.currentPane.onLink();
+    const toLink = new Array<INode>(...this.currentTab.selected);
+    this.clipboardSvc.link(toLink);
   }
 
+  /**
+   * Verarbeit eine Paste-OP. Im Application-Clipboard stehen eine Liste
+   * von INodes und eine Operation. Diese kann folgende Werte annehmen:
+   * 
+   * * OP_COPY Die Inodes werden in den ParentFolder des aktuellen Tabs kopiert.
+   * * OP_MOVE Die INodes werden in den ParentFolder des aktuellen Tabs verschoben
+   * * OP_LINK Im ParentFolder des aktuellen Tabs werden Links auf die INodes angelegt.
+   */
   onPaste() {
-    this.currentPane.onPaste();
+
+    const newParent = this.currentTab.parent;
+
+    switch (this.clipboardSvc.operation) {
+      case ClipboardService.OP_COPY:
+        this.copyINodes(newParent, this.clipboardSvc.inodes);
+        break;
+
+      case ClipboardService.OP_MOVE:
+        this.moveINodes(newParent, this.clipboardSvc.inodes);
+        break;
+
+      case ClipboardService.OP_LINK:
+        this.linkINodes(newParent, this.clipboardSvc.inodes);
+        break;
+
+      default:
+        break;
+    }
   }
 
+  /**
+   * Lösche das AppClipboard. Ggf anstehende CUT-Operatioonen wirden dadurch 
+   * zurück gecancelled.
+   */
   onClearClipboard() {
     this.clipboardSvc.clear();
   }
 
+  /**
+   * Liefere die Anzahl aller Elemente im AppClipboard
+   */
   get nrOfPastables(): number {
     return this.clipboardSvc.inodes.length;
   }
 
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* All about upload/download                                               */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-  onUpload(evt: Event) {
-
-    const input = evt.target as HTMLInputElement;
-    const files = input.files;
-    if (files && files.length) {
-      this.currentPane.onFileUpload(files);
-    }
-  }
-
-  onDownloadFiles() {
-    alert('not yet implemented');
-  }
-
-  onDelete() {
-    this.currentPane.onDelete();
-  }
-
-  onToggleHiddenFiles() {
-    this.showHiddenFiles = !this.showHiddenFiles;
-  }
-
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* all about view splitting                                                */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-
   /**
-   * liefere den aktuellen FolderView
+   * 
+   * @param newNode 
    */
-  get currentPane(): FilesFolderViewComponent {
+  createDocument(evt: CreateMenuEvent) {
 
-    const elemRef = this.activePane === 0 ? this.leftPane : this.rightPane;
-    return elemRef!;
-  }
+    this.commonsDlgSvc.showInputBox('Ein neues Dokument anlegen', 'Name')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(name => {
 
-  get currentFolder(): INode {
+        if (name) {
 
-    return this.activePane === 0 ? this.leftPanelFolder : this.rightPanelFolder;
-  }
+          if (evt.ext) {
+            name = `${name}.${evt.ext}`;
+          }
 
-  /**
-   * Aktiviere/deaktiviere den SplitView
-   * 
-   * Das UI-Control ist ein mat-toggle-button. Im Endeffekt eine Checkbox.
-   * 
-   * Wenn der SplitView aktiviert wird, so wird einfach der neue View neben 
-   * dem bestehenden angezeigt.
-   * 
-   * Wenn der SplitView deaktiviert wird, so wird der activeView wieder auf 
-   * 0 gesetzt
-   */
-  onToggleSplitView() {
+          alert("FilesMainView::createDocument not yet implemented");
 
-    if (this.showSplit) {
-      this.activePane = 0;
-      this.showSplit = false;
-      this.rightPanelFolder = INode.empty();
-      this.onOpen(0, this.leftPanelFolder);
-    }
-    else {
-      this.showSplit = true;
-      this.onOpen(1, this.leftPanelFolder);
-    }
+        }
+      })
   }
 
   /**
    * 
-   * @param panelId 
    * @param inode 
    */
-  onOpen(panelId: number, inode: INode) {
+  openINode(tabIdx: number, inode: INode) {
 
     if (inode.isDirectory()) {
-      this.openFolder(panelId, inode);
+      this.openFolder(tabIdx, inode);
     }
     else {
       this.openDocument(inode);
@@ -341,28 +489,14 @@ export class FilesMainViewComponent implements OnInit {
   }
 
   /**
-   * 
-   * @param panelId 
-   * @param inode 
-   */
-  private openFolder(panelId: number, inode: INode) {
+ * 
+ * @param tabId 
+ * @param inode 
+ */
+  private openFolder(tabId: number, inode: INode) {
 
-    switch (panelId) {
-      case 0:
-        this.leftPanelFolder = inode;
-        break;
-
-      case 1:
-        this.rightPanelFolder = inode;
-        break;
-
-      default:
-        break;
-    }
-
-    // baue die Route und navigiere dorthin
-    const route = `/files/main/${this.leftPanelFolder.uuid}/${this.rightPanelFolder.uuid}`;
-    this.router.navigateByUrl(route);
+    const tabDesc = this.tabs[tabId];
+    this.loadTab(inode.uuid, tabDesc);
   }
 
   /**
@@ -375,8 +509,227 @@ export class FilesMainViewComponent implements OnInit {
 
   }
 
-  onCreateDocument(evt: CreateMenuEvent) {
+  /**
+   * 
+   * @param newParent 
+   * @param inodes 
+   */
+  copyINodes(newParent: INode, inodes: INode[]) {
 
-    this, this.currentPane.onCreateDocument(evt);
+    this.checkDuplicatesSvc.handleDuplicateINodes(newParent.uuid, inodes)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(sourceNodes => {
+
+        this.inodeSvc.copy(sourceNodes, newParent)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(newNodes => {
+
+            this.addToModel(newNodes);
+          })
+      })
+  }
+
+  /**
+   * 
+   * @param newParent 
+   * @param inodes 
+   */
+  moveINodes(newParent: INode, inodes: INode[]) {
+
+    this.checkDuplicatesSvc.handleDuplicateINodes(newParent.uuid, inodes)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(sourceNodes => {
+
+        this.inodeSvc.move(sourceNodes, newParent)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(newNodes => {
+
+            this.deleteFromModel(sourceNodes);
+            this.addToModel(newNodes);
+          })
+      })
+  }
+
+  /**
+   * 
+   * @param newParent 
+   * @param inodes 
+   */
+  linkINodes(newParent: INode, inodes: INode[]) {
+
+    this.checkDuplicatesSvc.handleDuplicateINodes(newParent.uuid, inodes)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(sourceNodes => {
+
+        this.inodeSvc.link(sourceNodes, newParent)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(newNodes => {
+
+            this.addToModel(newNodes);
+          })
+      })
+  }
+
+  /**
+   * 
+   * @param inode
+   */
+  renameINode(inode: INode) {
+
+    alert("FilesMainView::renameINode not yet implemented");
+  }
+
+  onDelete() {
+
+    const toDelete = new Array<INode>();
+    this.currentTab.selected.forEach(inode => {
+      toDelete.push(inode);
+    })
+
+    this.deleteINodes(toDelete);
+  }
+
+  /**
+   * 
+   * @param inode
+   */
+  deleteINodes(inodes: INode[]) {
+
+    const toDelete = inodes.map(inode => {
+      return inode.uuid;
+    })
+
+    this.inodeSvc.delete(toDelete)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.deleteFromModel(inodes);
+      })
+  }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about upload/download                                               */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
+  /**
+   * Der Upload wurde durch die Toolbar getriggert. Dabei kommen die ausgewählten
+   * Files aus einem (hidden) tnput[type=file], also als FileList.
+   * 
+   * Einfach transformieren und als "normalen" Upload für den currentTab
+   * verarbeiten.
+   * 
+   * @param evt 
+   */
+  onToolbarUpload(evt: Event) {
+
+    const input = evt.target as HTMLInputElement;
+    if (input.files) {
+
+      const files: File[] = new Array<File>();
+      for (let i = 0; i < input.files.length; ++i) {
+        const file = input.files.item(i);
+        if (file) {
+          files.push(file);
+        }
+      }
+
+      if (files.length) {
+        this.uploadFiles(this.currentTab.parent, files);
+      }
+    }
+  }
+
+  /**
+   * 
+   * @param parent 
+   * @param files 
+   */
+  uploadFiles(parent: INode, files: File[]) {
+
+    alert("FilesMainView::uploadFiles not yet implemented");
+  }
+
+  /**
+   * 
+   */
+  onDownloadFiles() {
+    alert("FilesMainView::downloadFiles not yet implemented");
+  }
+
+  /**
+   * 
+   */
+  onToggleHiddenFiles() {
+    this.showHiddenFiles = !this.showHiddenFiles;
+  }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about model ops                                                     */
+  /*                                                                         */
+  /* Die Komponente hält ein Model, welches alle Tabs beschreibt. Pro Tab    */
+  /* wird der Parent, die Liste der Childs, und der SelectionState der Childs*/
+  /* verwaltet.                                                              */
+  /*                                                                         */
+  /* Nach den diversen Backend-Operationen muss dementsprechend das Model    */
+  /* angepasst werden. Dabei gilt es zu beachten, das der selbe Folder in    */
+  /* mehreren Tabs geöffnet sein kann!                                       */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
+  /**
+   * Lösche die INodes aus dem Model. Sie werden aus allen im Model verfügbaren
+   * Tabs entfernt.
+   * 
+   * @param toDelete 
+   */
+  private deleteFromModel(inodes: INode[]) {
+
+    inodes.forEach(toDelete => {
+      this.tabs.forEach(tab => {
+        if (tab.parent.uuid === toDelete.parent) {
+          tab.childs = tab.childs.filter(curr => { return curr.uuid !== toDelete.uuid })
+        }
+      })
+    })
+  }
+
+  /**
+   * Füge neue INodes in das Model ein. Die neuen Nodes werden in alle Tabs mit
+   * dem passenden Parent eingefügt.
+   * 
+   * @param inodes 
+   */
+  private addToModel(inodes: INode[]) {
+
+    inodes.forEach(toAdd => {
+      this.tabs.forEach(tab => {
+        if (tab.parent.uuid === toAdd.parent) {
+          tab.childs = tab.childs.concat(toAdd);
+          // TODO: Sortieren
+        }
+      })
+    })
+  }
+
+  /**
+   * 
+   * @param inode 
+   */
+  private updateInModel(inode: INode) {
+
+    this.tabs.forEach(tab => {
+      if (tab.parent.uuid === inode.parent) {
+
+        for (let i = 0; i < tab.childs.length; ++i) {
+          if (tab.childs[i].uuid === inode.uuid) {
+            tab.childs[i] = inode;
+            break;
+          }
+        }
+        // TODO: Sortieren
+      }
+    })
   }
 }

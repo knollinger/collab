@@ -2,6 +2,7 @@ package org.knollinger.colab.filesys.controller;
 
 import java.util.UUID;
 
+import org.knollinger.colab.filesys.exceptions.AccessDeniedException;
 import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.BlobInfo;
@@ -58,6 +59,10 @@ public class FileContentController
         catch (TechnicalFileSysException e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
         }
     }
 }

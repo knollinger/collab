@@ -21,8 +21,7 @@
 
 <mat-dialog-content>
 
-    <app-folder-view [current]="currentFolder"
-                     [showStatusBar]="false"
+    <app-folder-view [parent]="currentFolder"
                      [viewMode]="viewMode"
                      (open)="onOpen($event)"
                      (selectionChanged)="onSelectionChange($event)">
