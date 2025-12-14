@@ -322,25 +322,7 @@ export class FilesFolderViewComponent implements OnInit {
   onDelete(inode?: INode) {
 
     const toDelete = inode ? Array.of(inode) : Array.from(this.selection);
-    if (toDelete.length) {
-
-      const uuids = new Array<string>();
-      let msg = '<p>Möchtest Du folgende Objekte wirklich löschen?</p>'
-      toDelete.forEach(node => {
-        msg += `<div class=\"disp-flex flex-row flex-alignitems-center\">`;
-        msg += `<img class=\"flex-0 small-right-spacer\" src=\"${this.contentTypeSvc.getTypeIconUrl(node.type)}\" width="32px">`;
-        msg += `<span class=\"flex-1\">${node.name}</span>`;
-        msg += `</div>`;
-        uuids.push(node.uuid);
-      })
-      msg += '<p class=\"small-top-spacer\">Diese Operation kann nicht rückgängig gemacht werden!</p>';
-      this.commonsDlgSvc.showQueryBox('Bist Du sicher?', msg).subscribe(rsp => {
-
-        if (rsp) {
-          this.delete.next(toDelete);
-        }
-      })
-    }
+    this.delete.next(toDelete);
   }
 
   /*-------------------------------------------------------------------------*/

@@ -145,7 +145,7 @@ public class UploadServiceImpl implements IUploadService
             UUID newUUID = UUID.randomUUID();
             UUID userId = user.getUserId();
             stmt.setString(1, newUUID.toString());
-            stmt.setString(2, userId.toString());
+            stmt.setString(2, parentUUID.toString());
             stmt.setString(3, file.getOriginalFilename());
             stmt.setLong(4, file.getSize());
             stmt.setString(5, file.getContentType());

@@ -9,12 +9,12 @@ import { ModSettingsModule } from '../mod-settings/mod-settings.module';
 import { ModHashTagsModule } from '../mod-hashtags/mod-hashtags.module';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 import { ModPermissionsModule } from '../mod-permissions/mod-permissions.module';
+import { ModSessionModule } from '../mod-session/session.module';
+import { ModFilesRoutingModule } from './mod-files-routing.module';
 
 import { FilesMainViewComponent } from './components/files-main-view/files-main-view.component';
 import { FilesPlacesComponent } from './components/files-places/files-places.component';
 import { FilePickerComponent } from './components/files-picker/files-picker.component';
-
-import { ModFilesRoutingModule } from './mod-files-routing.module';
 import { FilesPropertiesDialogComponent } from './components/files-properties-dialog/files-properties-dialog.component';
 import { FilesPropertiesCommonsComponent } from './components/files-properties-dialog/files-properties-commons.component';
 import { FilesPropertiesPermissionsComponent } from './components/files-properties-dialog/files-properties-permissions.component';
@@ -29,7 +29,7 @@ import { FilesPermissionsComponent } from './components/files-permissions/files-
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
 import { FilesShowDuplicatesComponent } from './components/files-show-duplicates/files-show-duplicates.component';
-import { ModSessionModule } from '../mod-session/session.module';
+import { FilesMainViewTabHeaderComponent } from './components/files-main-view-tab-header/files-main-view-tab-header.component';
 
 import { INodeService } from './services/inode.service';
 export { INodeService };
@@ -38,8 +38,8 @@ import { FilesPickerService } from './services/files-picker.service';
 export { FilesPickerService }
 
 import { WopiService } from './services/wopi.service';
-import { FilesMainViewTabHeaderComponent } from './components/files-main-view-tab-header/files-main-view-tab-header.component';
 export { WopiService };
+
 
 @NgModule({
   declarations: [

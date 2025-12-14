@@ -25,6 +25,7 @@ export class UploadFilesResponse {
 
         let newINodes: INode[] = new Array<INode>();
 
+        console.log('fromJSON');
         if (json.newINodes) {
 
             newINodes = json.newINodes.map(inode => {

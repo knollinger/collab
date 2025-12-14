@@ -5,13 +5,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonDialogsService, TitlebarService } from '../../../mod-commons/mod-commons.module';
 import { SessionService } from '../../../mod-session/session.module';
 import { SettingsService } from '../../../mod-settings/mod-settings.module';
-
-import { EINodeUUIDs, INode } from '../../../mod-files-data/mod-files-data.module';
+import { UploadService } from '../../services/upload.service';
+import { INode } from '../../../mod-files-data/mod-files-data.module';
 
 import { INodeService } from '../../services/inode.service';
 import { ClipboardService } from '../../services/clipboard.service';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 import { CheckDuplicateEntriesService } from '../../services/check-duplicate-entries.service';
+import { ContentTypeService } from '../../services/content-type.service';
 
 export class IconSize {
 
@@ -81,7 +82,9 @@ export class FilesMainViewComponent implements OnInit {
     private clipboardSvc: ClipboardService,
     private sessionSvc: SessionService,
     private settingsSvc: SettingsService,
-    private checkDuplicatesSvc: CheckDuplicateEntriesService) {
+    private checkDuplicatesSvc: CheckDuplicateEntriesService,
+    private contentTypeSvc: ContentTypeService,
+    private uploadSvc: UploadService) {
 
   }
 
@@ -468,7 +471,12 @@ export class FilesMainViewComponent implements OnInit {
             name = `${name}.${evt.ext}`;
           }
 
-          alert("FilesMainView::createDocument not yet implemented");
+          this.inodeSvc.createDocument(evt.parent.uuid, name, evt.type)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(newNode => {
+
+              this.addToModel([newNode]);
+            })
 
         }
       })
@@ -579,6 +587,9 @@ export class FilesMainViewComponent implements OnInit {
     alert("FilesMainView::renameINode not yet implemented");
   }
 
+  /**
+   * 
+   */
   onDelete() {
 
     const toDelete = new Array<INode>();
@@ -595,15 +606,31 @@ export class FilesMainViewComponent implements OnInit {
    */
   deleteINodes(inodes: INode[]) {
 
-    const toDelete = inodes.map(inode => {
-      return inode.uuid;
+    const uuids = new Array<string>();
+    let msg = '<p>Möchtest Du folgende Objekte wirklich löschen?</p>'
+    inodes.forEach(node => {
+      msg += `<div class=\"disp-flex flex-row flex-alignitems-center\">`;
+      msg += `<img class=\"flex-0 small-right-spacer\" src=\"${this.contentTypeSvc.getTypeIconUrl(node.type)}\" width="32px">`;
+      msg += `<span class=\"flex-1\">${node.name}</span>`;
+      msg += `</div>`;
+      uuids.push(node.uuid);
     })
+    msg += '<p class=\"small-top-spacer\">Diese Operation kann nicht rückgängig gemacht werden!</p>';
+    this.commonsDlgSvc.showQueryBox('Bist Du sicher?', msg).subscribe(rsp => {
 
-    this.inodeSvc.delete(toDelete)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.deleteFromModel(inodes);
-      })
+      if (rsp) {
+
+        const toDelete = inodes.map(inode => {
+          return inode.uuid;
+        })
+
+        this.inodeSvc.delete(toDelete)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(() => {
+            this.deleteFromModel(inodes);
+          })
+      }
+    })
   }
 
   /*-------------------------------------------------------------------------*/
@@ -647,7 +674,17 @@ export class FilesMainViewComponent implements OnInit {
    */
   uploadFiles(parent: INode, files: File[]) {
 
-    alert("FilesMainView::uploadFiles not yet implemented");
+    this.uploadSvc.uploadFiles(parent.uuid, files)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(rsp => {
+
+        if (rsp.duplicateFiles && rsp.duplicateFiles.length) {
+          alert(JSON.stringify(rsp.duplicateFiles));
+        }
+        else {
+          this.addToModel(rsp.newINodes);
+        }
+      })
   }
 
   /**

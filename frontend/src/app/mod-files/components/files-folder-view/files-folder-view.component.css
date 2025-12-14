@@ -52,6 +52,7 @@
     display: inline-block;
     margin: 0 0.5rem 0.5rem 0;
     cursor: pointer;
+    padding: 0.5rem;
 }
 
 .grid-item>.label {
@@ -82,6 +83,7 @@
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
+    padding: 0.5rem;
 }
 
 .list-item>.label {
