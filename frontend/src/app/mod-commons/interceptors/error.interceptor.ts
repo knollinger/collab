@@ -46,7 +46,7 @@ export class ErrorInterceptor implements HttpInterceptor {
 
         switch (err.status) {
           case 0:
-            this.msgService.showErrorBox('Oooops', err.error.message);
+            this.msgService.showErrorBox('Oooops', 'Die Verbindung zum Server ist unterbrochen.');
             break;
 
           case 401:
