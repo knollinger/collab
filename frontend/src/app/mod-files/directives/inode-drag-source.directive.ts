@@ -26,6 +26,9 @@ export class INodeDragSourceDirective {
   @Input()
   appINodeDragSourceSelectedINodes: Set<INode> = new Set<INode>();
 
+  @Input()
+  appINodeDragSourceImage: Element | undefined = undefined;
+
   @HostBinding()
   draggable: string = 'true';
 
@@ -49,6 +52,10 @@ export class INodeDragSourceDirective {
       evt.dataTransfer.clearData();
       evt.dataTransfer.setData(INode.DATA_TRANSFER_TYPE, JSON.stringify(json));
       evt.dataTransfer.dropEffect = 'move';
+
+      if(this.appINodeDragSourceImage) {
+        evt.dataTransfer.setDragImage(this.appINodeDragSourceImage, 0, 0);
+      }
 
       if (allNodes.length > 1 && INodeDragSourceDirective.multiNodeDragImage) {
         evt.dataTransfer.setDragImage(INodeDragSourceDirective.multiNodeDragImage, 0, 0);

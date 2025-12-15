@@ -7,12 +7,11 @@ import { FilesDroppedEvent, INodeDroppedEvent } from '../../directives/drop-targ
 import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 import { ContentTypeService } from '../../services/content-type.service';
 import { ClipboardService } from '../../services/clipboard.service';
-import { FileDropINodeMenuComponent } from "../files-inode-drop-menu/files-inode-drop-menu.component";
 import { HashTagConstants, HashTagService } from '../../../mod-hashtags/mod-hashtags.module';
 import { MatDialog } from '@angular/material/dialog';
 import { FilesPropertiesDialogComponent } from '../files-properties-dialog/files-properties-dialog.component';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
-import { ACL, ACLEntry, CheckPermissionsService, PermissionsService } from '../../../mod-permissions/mod-permissions.module';
+import { ACLEntry, CheckPermissionsService, PermissionsService } from '../../../mod-permissions/mod-permissions.module';
 
 @Component({
   selector: 'app-folder-view',
@@ -23,9 +22,6 @@ import { ACL, ACLEntry, CheckPermissionsService, PermissionsService } from '../.
 export class FilesFolderViewComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
-
-  @ViewChild(FileDropINodeMenuComponent)
-  dropInodesMenu: FileDropINodeMenuComponent | undefined;
 
   @Input()
   parent: INode = INode.empty()
@@ -75,7 +71,7 @@ export class FilesFolderViewComponent implements OnInit {
   create: EventEmitter<CreateMenuEvent> = new EventEmitter<CreateMenuEvent>();
 
   @Output()
-  upload: EventEmitter<File[]> = new EventEmitter<File[]>();
+  upload: EventEmitter<FilesDroppedEvent> = new EventEmitter<FilesDroppedEvent>();
 
   @Output()
   copy: EventEmitter<INode[]> = new EventEmitter<INode[]>();
@@ -92,6 +88,8 @@ export class FilesFolderViewComponent implements OnInit {
   @Output()
   delete: EventEmitter<INode[]> = new EventEmitter<INode[]>();
 
+
+  displayedColumns: string[] = ['selector', 'image', 'name', 'size', 'created', 'modified'];
 
   /**
    * 
@@ -148,7 +146,16 @@ export class FilesFolderViewComponent implements OnInit {
    * @returns 
    */
   getINodeImage(inode: INode): string {
-    return `url(${this.contentTypeSvc.getTypeIconUrl(inode.type)})`;
+    return this.contentTypeSvc.getTypeIconUrl(inode.type);
+  }
+  
+  /**
+   * 
+   * @param inode 
+   * @returns 
+  */
+ getINodeImageAsUrl(inode: INode): string {
+    return `url('${this.contentTypeSvc.getTypeIconUrl(inode.type)}')`;
   }
 
   /**
@@ -220,7 +227,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onFilesDropped(event: FilesDroppedEvent) {
 
-    this.upload.next(event.files);
+    this.upload.next(event);
   }
 
   /*-------------------------------------------------------------------------*/

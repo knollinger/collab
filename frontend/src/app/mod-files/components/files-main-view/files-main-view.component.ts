@@ -13,6 +13,7 @@ import { ClipboardService } from '../../services/clipboard.service';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 import { CheckDuplicateEntriesService } from '../../services/check-duplicate-entries.service';
 import { ContentTypeService } from '../../services/content-type.service';
+import { FilesDroppedEvent } from '../../directives/drop-target.directive';
 
 export class IconSize {
 
@@ -584,7 +585,11 @@ export class FilesMainViewComponent implements OnInit {
    */
   renameINode(inode: INode) {
 
-    alert("FilesMainView::renameINode not yet implemented");
+    this.inodeSvc.rename(inode.uuid, inode.name)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(newNode => {
+        this.updateInModel(inode);
+      })
   }
 
   /**
@@ -651,19 +656,13 @@ export class FilesMainViewComponent implements OnInit {
   onToolbarUpload(evt: Event) {
 
     const input = evt.target as HTMLInputElement;
-    if (input.files) {
+    if (input.files && input.files.length) {
 
-      const files: File[] = new Array<File>();
-      for (let i = 0; i < input.files.length; ++i) {
-        const file = input.files.item(i);
-        if (file) {
-          files.push(file);
-        }
+      const files = new Array<File>();
+      for(let i = 0; i < input.files.length; ++i) {
+        files.push(input.files.item(i)!);
       }
-
-      if (files.length) {
-        this.uploadFiles(this.currentTab.parent, files);
-      }
+      this.uploadFiles(new FilesDroppedEvent(this.currentTab.parent, files));
     }
   }
 
@@ -672,9 +671,9 @@ export class FilesMainViewComponent implements OnInit {
    * @param parent 
    * @param files 
    */
-  uploadFiles(parent: INode, files: File[]) {
+  uploadFiles(event: FilesDroppedEvent) {
 
-    this.uploadSvc.uploadFiles(parent.uuid, files)
+    this.uploadSvc.uploadFiles(event.target.uuid, event.files)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(rsp => {
 
