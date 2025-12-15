@@ -52,6 +52,7 @@
     display: inline-block;
     margin: 0 0.5rem 0.5rem 0;
     cursor: pointer;
+    padding: 0.5rem;
 }
 
 .grid-item>.label {
@@ -82,32 +83,17 @@
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
+    padding: 0.5rem;
 }
 
 .list-item>.label {
     width: 150px !important;
 }
 
-/**
- * Der selector wird oben links im item angezeigt, sobald der
- * Cursor über dem Item steht
- */
 .selector {
     position: absolute;
-    top: 4px;
-    left: 4px;
-    width: 28px;
-    height: 28px;
-    padding: 2px;
-    border-radius: 2px;
-    display: none;
-    background-color: lightgray;
-    color: white;
-}
-
-.grid-item:hover>.selector,
-.list-item:hover>.selector {
-    display: block;
+    top: -4px;
+    left: -4px;
 }
 
 .link-indicator {
@@ -115,4 +101,45 @@
     bottom: 0;
     left: 0;
     width: 32px;
+}
+
+.tableview-name {
+    width: 100%;
+}
+
+table {
+    width: 100%;
+    background-color: unset;
+}
+
+tr {
+    cursor: pointer;
+}
+
+td {
+    border: inherit;
+    border-top-color: inherit;
+    border-bottom-color: inherit;
+    border-left-color: transparent;
+    border-right-color: transparent;
+
+}
+
+td:first-child {
+    border-left-color: inherit !important;
+}
+
+td:last-child {
+    border-right-color: transparent !important;
+}
+
+thead {
+    background-color: white !important;
+}
+th,td {
+    white-space: nowrap;
+}
+
+th {
+    background-color: white !important;
 }

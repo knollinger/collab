@@ -58,6 +58,11 @@ export class AppComponent implements OnInit {
       route: '/pinwall/main'
     },
     {
+      icon: 'jamboard_kiosk',
+      title: 'Whiteboard',
+      route: '/whiteboard/main'
+    },
+    {
       icon: 'person',
       title: 'Benutzer',
       route: '/user/users'

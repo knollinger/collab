@@ -157,14 +157,7 @@ public class FileSysServiceImpl implements IFileSysService
 
             aclBuilder.entries(aclEntries);
             nodeBuilder.acl(aclBuilder.build());
-            INode result = nodeBuilder.build();
-
-            if (result.isLink())
-            {
-                result = this.getINode(result.getLinkTo(), conn);
-            }
-
-            return result;
+            return nodeBuilder.build();
         }
         catch (SQLException e)
         {
@@ -308,7 +301,6 @@ public class FileSysServiceImpl implements IFileSysService
     @Override
     public List<INode> getPath(UUID uuid) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
-
         try (Connection conn = this.dbService.openConnection())
         {
             return this.getPath(uuid, conn);
@@ -563,14 +555,16 @@ public class FileSysServiceImpl implements IFileSysService
      * @throws AccessDeniedException 
      */
     @Override
-    public void move(List<INode> src, INode target)
+    public List<INode> move(List<INode> src, INode target)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
         try (Connection conn = this.dbService.openConnection())
         {
             conn.setAutoCommit(false);
-            this.move(src, target, conn);
+            List<INode> result = this.move(src, target, conn);
             conn.commit();
+            
+            return result;
         }
         catch (SQLException e)
         {
@@ -583,7 +577,7 @@ public class FileSysServiceImpl implements IFileSysService
      * @throws AccessDeniedException 
      */
     @Override
-    public void move(List<INode> src, INode target, Connection conn)
+    public List<INode> move(List<INode> src, INode target, Connection conn)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
         // TODO testen, ob das objekt nicht in eines seiner kinder verschoben werden soll
@@ -591,6 +585,7 @@ public class FileSysServiceImpl implements IFileSysService
 
         try (PreparedStatement stmt = conn.prepareStatement(SQL_MOVE_INODE);)
         {
+            List<INode> result = new ArrayList<>();
             for (INode iNode : src)
             {
                 this.checkMoveAllowed(iNode, target, conn);
@@ -602,7 +597,9 @@ public class FileSysServiceImpl implements IFileSysService
                 {
                     throw new NotFoundException(iNode.getUuid());
                 }
+                result.add(this.getINode(iNode.getUuid(), conn));
             }
+            return result;
         }
         catch (SQLIntegrityConstraintViolationException e)
         {

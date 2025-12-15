@@ -205,13 +205,14 @@ public class FileSysController
      * @param targetId
      */
     @PostMapping(path = "/move")
-    public void move(@RequestBody() MoveINodeRequestDTO req)
+    public List<INodeDTO> move(@RequestBody() MoveINodeRequestDTO req)
     {
         try
         {
             List<INode> source = this.fileSysMapper.fromDTO(req.getSource());
             INode target = this.fileSysMapper.fromDTO(req.getTarget());
-            this.fileSysService.move(source, target);
+            List<INode> result = this.fileSysService.move(source, target);
+            return this.fileSysMapper.toDTO(result);
         }
         catch (TechnicalFileSysException e)
         {
@@ -235,13 +236,14 @@ public class FileSysController
      * Kopiere eine Sequenz von INodes in einen angegebenen Ziel-Ordner
      */
     @PostMapping(path = "/copy")
-    public void copy(@RequestBody() MoveINodeRequestDTO req)
+    public List<INodeDTO> copy(@RequestBody() MoveINodeRequestDTO req)
     {
         try
         {
             List<INode> source = this.fileSysMapper.fromDTO(req.getSource());
             INode target = this.fileSysMapper.fromDTO(req.getTarget());
-            this.copySvc.copyINodes(source, target);
+            List<INode> newNodes = this.copySvc.copyINodes(source, target);
+            return this.fileSysMapper.toDTO(newNodes);
         }
         catch (TechnicalFileSysException e)
         {
@@ -265,13 +267,14 @@ public class FileSysController
      * Erstelle für eine Sequenz von INodes Links im anfǵegebenen Ziel-Ordner
      */
     @PostMapping(path = "/link")
-    public void link(@RequestBody() MoveINodeRequestDTO req)
+    public List<INodeDTO> link(@RequestBody() MoveINodeRequestDTO req)
     {
         try
         {
             List<INode> source = this.fileSysMapper.fromDTO(req.getSource());
             INode target = this.fileSysMapper.fromDTO(req.getTarget());
-            this.linkSvc.linkINodes(source, target);
+            List<INode> result = this.linkSvc.linkINodes(source, target);
+            return this.fileSysMapper.toDTO(result);
         }
         catch (TechnicalFileSysException e)
         {

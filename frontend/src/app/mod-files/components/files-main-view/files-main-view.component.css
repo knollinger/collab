@@ -1,3 +1,5 @@
+@import "../../../../assets/styles/borders.css"
+
 .breadcrumb {
     background-color: white;
 }
@@ -18,17 +20,37 @@
     flex: 1;
     height: 100%;
     border: 3px solid transparent;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
 }
 
-.splitter {
+.statusBar {
     flex: 0;
-    height: 100%;
-    border-width: 0 1px;
-    border-style: solid;
-    border-color: #d0d0d0;
-    padding: 0 8px;
-    margin: 0 4px;
+    border-top: 1px solid #d0d0d0;
 }
-.activePane {
-    border-color: blue;
+
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: white;
+    border-bottom: 1px solid #d0d0d0;
+}
+
+.breadcrumb {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    white-space: nowrap;
+}
+
+.addBtn {
+    flex: 0;
+}
+
+.tabs {
+    flex: 1;
+    overflow: auto;
 }
