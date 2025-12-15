@@ -148,13 +148,13 @@ export class FilesFolderViewComponent implements OnInit {
   getINodeImage(inode: INode): string {
     return this.contentTypeSvc.getTypeIconUrl(inode.type);
   }
-  
+
   /**
    * 
    * @param inode 
    * @returns 
   */
- getINodeImageAsUrl(inode: INode): string {
+  getINodeImageAsUrl(inode: INode): string {
     return `url('${this.contentTypeSvc.getTypeIconUrl(inode.type)}')`;
   }
 
@@ -190,19 +190,13 @@ export class FilesFolderViewComponent implements OnInit {
 
     evt.stopPropagation();
 
-    if (!evt.ctrlKey) {
-      this.selection.clear();
-      this.selection.add(inode);
+    if (this.selection.has(inode)) {
+      this.selection.delete(inode);
     }
     else {
-
-      if (this.selection.has(inode)) {
-        this.selection.delete(inode);
-      }
-      else {
-        this.selection.add(inode);
-      }
+      this.selection.add(inode);
     }
+
     this.selectionChanged.emit(this.selection);
   }
 
