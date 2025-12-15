@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { MatMenu } from '@angular/material/menu';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { ACLEntry, CheckPermissionsService } from '../../../mod-permissions/mod-permissions.module';
 

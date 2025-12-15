@@ -1,6 +1,6 @@
-import { Directive, HostBinding, HostListener, inject, Input } from '@angular/core';
+import { Directive, Host, HostBinding, HostListener, inject, Input } from '@angular/core';
 
-import { IINode, INode } from "../../mod-files-data/mod-files-data.module";
+import { INode } from "../../mod-files-data/mod-files-data.module";
 
 import { ContentTypeService } from '../services/content-type.service';
 import { ACLEntry, CheckPermissionsService } from '../../mod-permissions/mod-permissions.module';
@@ -50,10 +50,36 @@ export class INodeDragSourceDirective {
       evt.dataTransfer.setData(INode.DATA_TRANSFER_TYPE, JSON.stringify(json));
       evt.dataTransfer.dropEffect = 'move';
 
+      /*
+       * Wenn mehrere Nodes gedragged werden sollen, wird das feste MultiNodeImage
+       * angezeigt. Anderenfalls sichen wir nach dem ersten Image innerhalb des 
+       * EventTargets. Wenn auch hier nichts gefunden wurde bleibt es beim default-
+       * Verhalten.
+       */
       if (allNodes.length > 1 && INodeDragSourceDirective.multiNodeDragImage) {
         evt.dataTransfer.setDragImage(INodeDragSourceDirective.multiNodeDragImage, 0, 0);
       }
+      else {
+        const img = this.findDragImage(evt);
+        if (img) {
+          evt.dataTransfer.setDragImage(img, 0, 0);
+        }
+      }
     }
+  }
+
+  private findDragImage(evt: DragEvent): Element | null {
+
+    const src = evt.currentTarget as Element;
+    if (src.tagName === 'IMG') {
+      return src;
+    }
+
+    const childs = src.getElementsByTagName('img');
+    if (childs.length) {
+      return childs.item(0);
+    }
+    return null;
   }
 
   /**

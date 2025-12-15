@@ -125,7 +125,7 @@ public interface IFileSysService
      * @throws DuplicateEntryException
      * @throws AccessDeniedException 
      */
-    public void move(List<INode> src, INode target)
+    public List<INode> move(List<INode> src, INode target)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
 
     /**
@@ -133,12 +133,13 @@ public interface IFileSysService
      * @param src
      * @param target
      * @param conn
+     * @return 
      * @throws TechnicalFileSysException
      * @throws NotFoundException
      * @throws DuplicateEntryException
      * @throws AccessDeniedException 
      */
-    public void move(List<INode> src, INode target, Connection conn)
+    public List<INode> move(List<INode> src, INode target, Connection conn)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException;
 
     /**

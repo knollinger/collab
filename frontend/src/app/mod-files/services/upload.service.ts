@@ -1,5 +1,5 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { Observable, map, tap, last, catchError } from 'rxjs';
+import { Observable, map, tap, last } from 'rxjs';
 
 import { BackendRoutingService, SpinnerService } from '../../mod-commons/mod-commons.module';
 import { HttpClient, HttpEvent, HttpEventType, HttpRequest, HttpResponse } from '@angular/common/http';
@@ -70,7 +70,9 @@ export class UploadService {
       tap(event => this.handleHttpEvents(event as HttpEvent<any>)),
       last(),
       map(rsp => {
-        return UploadFilesResponse.fromJSON(rsp as IUploadFilesResponse);
+        const uploadRsp = rsp as HttpResponse<IUploadFilesResponse>;
+        console.log(uploadRsp);
+        return UploadFilesResponse.fromJSON(uploadRsp.body!);
       })
     );
   }
