@@ -1,0 +1,134 @@
+<div class="outer-cnr mat-app-background">
+    <app-toolbar class="toolbar">
+
+        <!-- All about forms -->
+        <button mat-icon-button
+                [matMenuTriggerFor]="shapesMenu"
+                matTooltip="Eine neue Form hinzu fügen">
+            <mat-icon class="material-symbols-outlined">shapes</mat-icon>
+        </button>
+
+        <mat-menu #shapesMenu="matMenu">
+            <button mat-menu-item
+                    (click)="onCreateRectangle()">
+                <mat-icon class="material-symbols-outlined">rectangle</mat-icon>
+                Box
+            </button>
+
+            <button mat-menu-item
+                    (click)="onCreateRombus()">
+                <mat-icon class="material-symbols-outlined">stat_0</mat-icon>
+                Rombus
+            </button>
+
+            <button mat-menu-item
+                    (click)="onCreateEllipsis()">
+                <mat-icon class="material-symbols-outlined">circle</mat-icon>
+                Kreis/Elipse
+            </button>
+
+            <mat-divider></mat-divider>
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">text_ad</mat-icon>
+                Text-Feld
+            </button>
+
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">comment</mat-icon>
+                Kommentar
+            </button>
+
+        </mat-menu>
+
+        <!-- all about connectors -->
+        <button mat-icon-button
+                [matMenuTriggerFor]="connectorsMenu"
+                matTooltip="Eine Verbindung hinzu fügen">
+            <mat-icon class="material-symbols-outlined">line_end_square</mat-icon>
+        </button>
+
+        <mat-menu #connectorsMenu="matMenu">
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">horizontal_rule</mat-icon>
+                Linie
+            </button>
+
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">line_end_arrow</mat-icon>
+                Linie Pfeil-Ende
+            </button>
+
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">line_end_circle</mat-icon>
+                Linie Kreis-Ende
+            </button>
+
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">line_end_square</mat-icon>
+                Linie quadratisches Ende
+            </button>
+        </mat-menu>
+
+    </app-toolbar>
+
+    <div class="workspace">
+
+        <!-- <svg #svg
+             xmlns="http://www.w3.org/2000/svg"
+             (mousedown)="onDragStart($event)"
+             (mousemove)="onDrag($event)"
+             (mouseup)="onDragEnd($event)"
+             (click)="onClick($event)"
+             (contextmenu)="ctxMenu.show($event)">
+        </svg> -->
+
+        <svg #svg
+             xmlns="http://www.w3.org/2000/svg"
+             (contextmenu)="ctxMenu.show($event)"
+             (mousedown)="onDragStart($event)"
+             (mousemove)="onDrag($event)"
+             (mouseup)="onDragEnd($event)"
+             >
+
+            <style>
+                rect,
+                ellipse,
+                polygon {
+                    cursor: move;
+                }
+                .drag-ne {
+                    cursor: ne-resize;
+                }
+                .drag-n {
+                    cursor: n-resize;
+                }
+                .drag-nw {
+                    cursor: nw-resize;
+                }
+                .drag-w {
+                    cursor: w-resize;
+                }
+                .drag-e {
+                    cursor: e-resize;
+                }
+                .drag-se {
+                    cursor: se-resize;
+                }
+                .drag-s {
+                    cursor: s-resize;
+                }
+                .drag-sw {
+                    cursor: sw-resize;
+                }
+            </style>
+        </svg>
+
+        <app-whiteboard-context-menu #ctxMenu
+                                     (backgroundColorChanged)="onBackgroundColorChange($event)"
+                                     (borderColorChanged)="onBorderColorChange($event)"
+                                     (borderStyleChanged)="onBorderStyleChange($event)"
+                                     (borderWidthChanged)="onBorderWidthChange($event)"
+                                     (zOrderChange)="onChangeZOrder($event)">
+        </app-whiteboard-context-menu>
+    </div>
+</div>

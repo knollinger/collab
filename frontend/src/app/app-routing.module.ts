@@ -38,6 +38,10 @@ const routes: Routes = [
     loadChildren: () => import('./mod-pinwall/mod-pinwall.module').then(mod => mod.ModPinwallModule)
   },
   {
+    path: 'whiteboard',
+    loadChildren: () => import('./mod-whiteboard/mod-whiteboard.module').then(mod => mod.ModWhiteboardModule)
+  },
+  {
     path: 'user',
     loadChildren: () => import('./mod-user/mod-user.module').then(mod => mod.ModUserModule)
   },
