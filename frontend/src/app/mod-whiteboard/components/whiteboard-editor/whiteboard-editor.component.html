@@ -73,21 +73,9 @@
 
     <div class="workspace">
 
-        <!-- <svg #svg
-             xmlns="http://www.w3.org/2000/svg"
-             (mousedown)="onDragStart($event)"
-             (mousemove)="onDrag($event)"
-             (mouseup)="onDragEnd($event)"
-             (click)="onClick($event)"
-             (contextmenu)="ctxMenu.show($event)">
-        </svg> -->
-
         <svg #svg
              xmlns="http://www.w3.org/2000/svg"
-             (contextmenu)="ctxMenu.show($event)"
-             (mousedown)="onDragStart($event)"
-             (mousemove)="onDrag($event)"
-             (mouseup)="onDragEnd($event)"
+             (contextmenu)="onShowContextMenu($event)"
              >
 
             <style>
@@ -95,6 +83,7 @@
                 ellipse,
                 polygon {
                     cursor: move;
+                    outline: none;
                 }
                 .drag-ne {
                     cursor: ne-resize;
@@ -123,12 +112,7 @@
             </style>
         </svg>
 
-        <app-whiteboard-context-menu #ctxMenu
-                                     (backgroundColorChanged)="onBackgroundColorChange($event)"
-                                     (borderColorChanged)="onBorderColorChange($event)"
-                                     (borderStyleChanged)="onBorderStyleChange($event)"
-                                     (borderWidthChanged)="onBorderWidthChange($event)"
-                                     (zOrderChange)="onChangeZOrder($event)">
+        <app-whiteboard-context-menu #ctxMenu>
         </app-whiteboard-context-menu>
     </div>
 </div>

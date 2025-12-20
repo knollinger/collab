@@ -15,22 +15,11 @@ export enum ChangeZOrder {
 })
 export class WhiteboardContextMenuComponent {
 
-  @Output()
-  backgroundColorChanged: EventEmitter<string> = new EventEmitter<string>();
-
-  @Output()
-  borderColorChanged: EventEmitter<string> = new EventEmitter<string>();
-
-  @Output()
-  borderStyleChanged: EventEmitter<string> = new EventEmitter<string>();
-
-  @Output()
-  borderWidthChanged: EventEmitter<number> = new EventEmitter<number>();
 
   @Output()
   zOrderChange: EventEmitter<ChangeZOrder> = new EventEmitter<ChangeZOrder>();
 
-  colors = ['red', 'blue', 'green', 'white', 'black', 'transparent'];
+  colors = ['red', 'blue', 'green', 'white', 'black'];
   borders = ['solid', 'dotted', 'dashed'];
   borderSizes = [1, 2, 3, 4, 5];
 
@@ -39,18 +28,20 @@ export class WhiteboardContextMenuComponent {
   triggerPosX: string = '';
   triggerPosY: string = '';
 
+  svgElement: SVGGraphicsElement | undefined = undefined;
+
   /**
    * 
    * @param evt 
    */
-  show(evt: MouseEvent) {
+  show(evt: MouseEvent, elem: SVGGraphicsElement) {
 
     evt.stopPropagation();
     evt.preventDefault();
 
     if (this.trigger) {
 
-      console.log(evt.target);
+      this.svgElement = elem;
       this.triggerPosX = `${evt.clientX}px`;
       this.triggerPosY = `${evt.clientY}px`;
 
@@ -64,7 +55,10 @@ export class WhiteboardContextMenuComponent {
    */
   onSetBackgroundColor(color: string) {
 
-    this.backgroundColorChanged.next(color);
+    if (this.svgElement) {
+      this.svgElement.setAttribute('fill', color);
+    }
+
   }
 
   /**
@@ -72,7 +66,10 @@ export class WhiteboardContextMenuComponent {
    * @param color 
    */
   onSetBorderColor(color: string) {
-    this.borderColorChanged.next(color);
+
+    if (this.svgElement) {
+      this.svgElement.setAttribute('stroke', color);
+    }
   }
 
   /**
@@ -80,7 +77,24 @@ export class WhiteboardContextMenuComponent {
    */
   onSetBorderStyle(style: string) {
 
-    this.borderStyleChanged.next(style);
+    if (this.svgElement) {
+
+      const width = Number.parseInt(this.svgElement.getAttribute('stroke-width') || '1');
+
+      switch (style) {
+        case 'solid':
+          this.svgElement.removeAttribute('stroke-dasharray');
+          break;
+
+        case 'dotted':
+          this.svgElement.setAttribute('stroke-dasharray', `${width} ${width}`);
+          break;
+
+        case 'dashed':
+          this.svgElement.setAttribute('stroke-dasharray', '8 8');
+          break;
+      }
+    }
   }
 
   /**
@@ -88,7 +102,9 @@ export class WhiteboardContextMenuComponent {
    */
   onSetBorderWidth(width: number) {
 
-    this.borderWidthChanged.next(width);
+    if (this.svgElement) {
+      this.svgElement.setAttribute('stroke-width', width.toString());
+    }
   }
 
   onMoveToBackground() {
