@@ -1,14 +1,25 @@
-import { WhiteboardContextMenuComponent } from "../components/whiteboard-context-menu/whiteboard-context-menu.component";
 
+export interface MouseDownCallback {
+    (evt: MouseEvent, shape: AbstractShape): void;
+}
+
+export interface StartResizeCallback {
+    (evt: MouseEvent, shape: AbstractShape, mode: string): void;
+}
+
+/**
+ * 
+ */
 export abstract class AbstractShape {
 
     public static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
-    private width: number = 100;
-    private height: number = 100;
     private elemCnr: SVGGElement;
     private decorator: SVGGElement | null = null;
-    private isDragging: boolean = false;
+
+    private _onMouseDown: MouseDownCallback = () => { };
+    private _onStartResize: StartResizeCallback = () => { };
+
 
     /**
      * 
@@ -16,23 +27,152 @@ export abstract class AbstractShape {
      */
     constructor(
         protected svgRoot: SVGSVGElement,
-        protected svgElem: SVGGraphicsElement) {
+        public readonly svgElem: SVGGraphicsElement,
+        private x: number,
+        private y: number,
+        private width: number,
+        private height: number) {
 
         this.svgElem.setAttribute('fill', 'white');
         this.svgElem.setAttribute('stroke-width', '1');
         this.svgElem.setAttribute('stroke', 'black');
+        this.svgElem.addEventListener('mousedown', evt => {
+            evt.stopPropagation();
+            this._onMouseDown(evt as MouseEvent, this);
+        });
 
-        this.svgElem.addEventListener('mousedown', this.onMouseDown.bind(this));
-        this.svgElem.addEventListener('mousemove', this.onMouseMove.bind(this));
-        this.svgElem.addEventListener('mouseup', this.onMouseUp.bind(this));
-        this.svgElem.addEventListener('mouseleave', this.onMouseLeave.bind(this));
-        this.svgElem.addEventListener('focus', this.onFocus.bind(this));
-        this.svgElem.addEventListener('blur', this.onBlur.bind(this));
-        this.svgElem.tabIndex = 0;
-
-        this.elemCnr = this.createElementContainer();
+        this.elemCnr = this.createElementContainer(x, y);
         this.elemCnr.appendChild(this.svgElem);
         this.svgRoot.appendChild(this.elemCnr);
+    }
+
+    /**
+     * setze den MouseDown-Callback
+     */
+    public set onMouseDown(callback: MouseDownCallback) {
+        this._onMouseDown = callback;
+    }
+
+
+    /**
+     * setze den MouseDown-Callback
+     */
+    public set onStartResize(callback: StartResizeCallback) {
+        this._onStartResize = callback;
+    }
+
+    /**
+     * 
+     * @param val 
+     */
+    public setSelected(val: boolean) {
+        if (val) {
+            this.createDecoratorFrame();
+        }
+        else {
+            this.removeDecoratorFrame();
+        }
+    }
+
+    /**
+     * Verschiebe den Shape um die angegebenen X/Y-Werte
+     * 
+     * Dazu wird einfach das äußerste Group-Element verschoben
+     * 
+     * @param movementX 
+     * @param movementY 
+     */
+    public translateBy(movementX: number, movementY: number) {
+
+        for (let i = 0; i < this.elemCnr.transform.baseVal.length; ++i) {
+
+            const transform = this.elemCnr.transform.baseVal.getItem(i);
+            if (transform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE) {
+
+                const x = transform.matrix.e + movementX;
+                const y = transform.matrix.f + movementY;
+                transform.setTranslate(x, y);
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param resizeX 
+     * @param resizeY 
+     */
+    public resizeBy(resizeX: number, resizeY: number) {
+
+        const newWidth = this.width + resizeX;
+        const newHeight = this.height + resizeY;
+
+        if (newWidth >= 0 && newHeight >= 0) {
+
+            this.width = newWidth;
+            this.height = newHeight;
+
+            if (this.decorator) {
+                this.removeDecoratorFrame();
+                this.createDecoratorFrame();
+            }
+            this.onResizeImpl(this.width, this.height);
+        }
+    }
+
+    /**
+     * 
+     * @param color 
+     */
+    public setFillColor(color: string) {
+        this.svgElem.setAttribute('fill', color);
+    }
+
+    /**
+     * 
+     * @param color 
+     */
+    public setBorderColor(color: string) {
+
+        if (this.svgElem) {
+            this.svgElem.setAttribute('stroke', color);
+        }
+    }
+
+    /**
+     * 
+     * @param style 
+     */
+    public setBorderStyle(style: string) {
+
+        if (this.svgElem) {
+
+            const width = Number.parseInt(this.svgElem.getAttribute('stroke-width') || '1');
+
+            switch (style) {
+                case 'solid':
+                    this.svgElem.removeAttribute('stroke-dasharray');
+                    break;
+
+                case 'dotted':
+                    this.svgElem.setAttribute('stroke-dasharray', `${width} ${width}`);
+                    break;
+
+                case 'dashed':
+                    this.svgElem.setAttribute('stroke-dasharray', '8 8');
+                    break;
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param width 
+     */
+    public setBorderWidth(width: number) {
+
+        if (this.svgElem) {
+            this.svgElem.setAttribute('stroke-width', width.toString());
+        }
     }
 
     /**
@@ -43,12 +183,12 @@ export abstract class AbstractShape {
      * gemeinsam verschieben zu können.
      * @returns 
      */
-    private createElementContainer(): SVGGElement {
+    private createElementContainer(x: number, y: number): SVGGElement {
 
         const group = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
 
         let transform = this.svgRoot.createSVGTransform();
-        transform.setTranslate(0, 0);
+        transform.setTranslate(x, y);
         group.transform.baseVal.appendItem(transform);
         return group;
     }
@@ -71,8 +211,8 @@ export abstract class AbstractShape {
             const frame = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGGElement;
             frame.setAttribute('x', '-8');
             frame.setAttribute('y', '-8');
-            frame.setAttribute('width', '116');
-            frame.setAttribute('height', '116');
+            frame.setAttribute('width', `${this.width + 16}`);
+            frame.setAttribute('height', `${this.height + 16}`);
             frame.setAttribute('stroke', 'lightgray');
             frame.setAttribute('stroke-width', '2');
             frame.setAttribute('stroke-dasharray', '2 2');
@@ -80,13 +220,13 @@ export abstract class AbstractShape {
             this.decorator.appendChild(frame);
 
             this.decorator.appendChild(this.createResizeAnchor(-12, -12, 'nw'));
-            this.decorator.appendChild(this.createResizeAnchor(-12, 46, 'w'));
-            this.decorator.appendChild(this.createResizeAnchor(-12, 104, 'sw'));
-            this.decorator.appendChild(this.createResizeAnchor(46, -12, 'n'));
-            this.decorator.appendChild(this.createResizeAnchor(46, 104, 's'));
-            this.decorator.appendChild(this.createResizeAnchor(104, -12, 'ne'));
-            this.decorator.appendChild(this.createResizeAnchor(104, 46, 'e'));
-            this.decorator.appendChild(this.createResizeAnchor(104, 104, 'se'));
+            this.decorator.appendChild(this.createResizeAnchor(-12, this.height / 2 - 4, 'w'));
+            this.decorator.appendChild(this.createResizeAnchor(-12, this.height + 4, 'sw'));
+            this.decorator.appendChild(this.createResizeAnchor(this.width / 2 - 4, -12, 'n'));
+            this.decorator.appendChild(this.createResizeAnchor(this.width / 2 - 4, this.height + 4, 's'));
+            this.decorator.appendChild(this.createResizeAnchor(this.width + 4, -12, 'ne'));
+            this.decorator.appendChild(this.createResizeAnchor(this.width + 4, this.height / 2 - 4, 'e'));
+            this.decorator.appendChild(this.createResizeAnchor(this.width + 4, this.height + 4, 'se'));
 
             this.elemCnr.insertBefore(this.decorator, this.elemCnr.firstChild);
         }
@@ -110,13 +250,13 @@ export abstract class AbstractShape {
     * 
     * @param x 
     * @param y 
-    * @param name 
+    * @param type 
     * @returns 
     */
-    private createResizeAnchor(x: number, y: number, name: string): SVGElement {
+    private createResizeAnchor(x: number, y: number, type: string): SVGElement {
 
         const anchor = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGGElement;
-        anchor.setAttribute('name', name);
+        anchor.setAttribute('name', type);
         anchor.setAttribute('x', x.toString());
         anchor.setAttribute('y', y.toString());
         anchor.setAttribute('width', "8");
@@ -124,137 +264,53 @@ export abstract class AbstractShape {
         anchor.setAttribute('stroke', "black");
         anchor.setAttribute('stroke-width', "1");
         anchor.setAttribute('fill', "green");
-        anchor.setAttribute('class', `drag-${name}`)
+        anchor.setAttribute('class', `resize drag-${type}`)
 
         anchor.addEventListener('mousedown', evt => {
-            this.onStartResize(anchor, this.svgElem, evt);
-        });
-        anchor.addEventListener('mousemove', evt => {
-            this.onResize(anchor, this.svgElem, evt)
-        });
-        anchor.addEventListener('mouseup', evt => {
-            this.onStopResize(anchor, this.svgElem, evt)
+            evt.stopPropagation();
+            this._onStartResize(evt, this, type);
         });
         return anchor;
     }
 
     /**
-     * Beginne das draggen eines ResizeAnchors
-     * 
-     * @param anchor 
+     * verschiebe das Element um eine Ebene nach hinten
      */
-    private onStartResize(anchor: SVGElement, svgElem: SVGGraphicsElement, evt: MouseEvent) {
-        evt.stopPropagation();
-        svgElem.focus();
+    changeZOrderBack() {
+        this.svgRoot.insertBefore(this.elemCnr, this.elemCnr.previousSibling);
     }
 
     /**
-     * Ein Resize-Anchor wird gedragged
-     * 
-     * @param anchor 
-     * @param evt 
+     * verschiebe das Element ganz nach hinten
      */
-    private onResize(anchor: SVGElement, svgElem: SVGGraphicsElement, evt: MouseEvent) {
+    changeZOrderBackground() {
+        this.svgRoot.insertBefore(this.elemCnr, this.svgRoot.firstChild);
+    }
 
-        evt.stopPropagation();
-        switch (anchor.getAttribute('name')) {
-            case 'n':
-                break;
-
-            case 'e':
-                break;
-
-            case 'w':
-                break;
-
-            case 's':
-                break;
-
-            case 'nw':
-                break;
-
-            case 'ne':
-                break;
-
-            case 'sw':
-                break;
-
-            case 'se':
-                break;
+    /**
+     * verschiebe das Element um eine Ebene nach vorn
+     */
+    changeZOrderFore() {
+        if (this.elemCnr.nextSibling) {
+            this.svgRoot.insertBefore(this.elemCnr.nextSibling, this.elemCnr);
+        }
+        else {
+            this.svgRoot.appendChild(this.elemCnr);
         }
     }
 
     /**
-     * Das dragging eines ResizeAnchors wurde beendet
-     * 
-     * @param anchor 
-     * @param evt 
+     * verschiebe das Element ganz nach vorn
      */
-    private onStopResize(anchor: SVGElement, svgElem: SVGGraphicsElement, evt: MouseEvent) {
-
-        evt.stopPropagation();
+    changeZOrderForeground() {
+        this.svgRoot.appendChild(this.elemCnr);
     }
 
     /**
-     * 
-     * @param evt 
+     * Lösche das Element
      */
-    private onMouseDown(evt: MouseEvent) {
-        evt.preventDefault();
-        this.svgElem.focus();
-        this.isDragging = true;
-    }
-
-    /**
-     * 
-     * @param evt 
-     */
-    private onMouseMove(evt: MouseEvent) {
-
-        if (this.isDragging) {
-
-            for (let i = 0; i < this.elemCnr.transform.baseVal.length; ++i) {
-
-                const transform = this.elemCnr.transform.baseVal.getItem(i);
-                if (transform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE) {
-
-                    const x = transform.matrix.e + evt.movementX;
-                    const y = transform.matrix.f + evt.movementY;
-                    transform.setTranslate(x, y);
-                }
-            }
-        }
-    }
-
-    /**
-     * 
-     * @param evt 
-     */
-    private onMouseUp(evt: MouseEvent) {
-        this.isDragging = false;
-    }
-
-    /**
-     * 
-     * @param evt 
-     */
-    private onMouseLeave(evt: MouseEvent) {
-        this.isDragging = false;
-    }
-
-    /**
-     * 
-     */
-    private onFocus() {
-        this.createDecoratorFrame();
-    }
-
-    /**
-     * 
-     */
-    private onBlur() {
-        this.removeDecoratorFrame();
-        this.isDragging = false;
+    remove() {
+        this.elemCnr.remove();
     }
 
     /**

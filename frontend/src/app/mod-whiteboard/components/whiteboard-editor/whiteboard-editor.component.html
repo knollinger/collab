@@ -10,19 +10,19 @@
 
         <mat-menu #shapesMenu="matMenu">
             <button mat-menu-item
-                    (click)="onCreateRectangle()">
+                    (click)="onCreateShape('rect')">
                 <mat-icon class="material-symbols-outlined">rectangle</mat-icon>
                 Box
             </button>
 
             <button mat-menu-item
-                    (click)="onCreateRombus()">
+                    (click)="onCreateShape('rombus')">
                 <mat-icon class="material-symbols-outlined">stat_0</mat-icon>
                 Rombus
             </button>
 
             <button mat-menu-item
-                    (click)="onCreateEllipsis()">
+                    (click)="onCreateShape('ellipse')">
                 <mat-icon class="material-symbols-outlined">circle</mat-icon>
                 Kreis/Elipse
             </button>
@@ -75,8 +75,11 @@
 
         <svg #svg
              xmlns="http://www.w3.org/2000/svg"
-             (contextmenu)="onShowContextMenu($event)"
-             >
+             (mousedown)="onMouseDown($event)"
+             (mousemove)="onMouseMove($event)"
+             (mouseup)="onMouseUp($event)"
+             (mouseleave)="onMouseLeave($event)"
+             (contextmenu)="onShowContextMenu($event)">
 
             <style>
                 rect,
@@ -85,34 +88,47 @@
                     cursor: move;
                     outline: none;
                 }
+
                 .drag-ne {
                     cursor: ne-resize;
                 }
+
                 .drag-n {
                     cursor: n-resize;
                 }
+
                 .drag-nw {
                     cursor: nw-resize;
                 }
+
                 .drag-w {
                     cursor: w-resize;
                 }
+
                 .drag-e {
                     cursor: e-resize;
                 }
+
                 .drag-se {
                     cursor: se-resize;
                 }
+
                 .drag-s {
                     cursor: s-resize;
                 }
+
                 .drag-sw {
                     cursor: sw-resize;
                 }
             </style>
         </svg>
 
-        <app-whiteboard-context-menu #ctxMenu>
-        </app-whiteboard-context-menu>
+        <app-whiteboard-shape-context-menu #ctxMenu
+                                     (fillColorChanged)="onChangeFillColor($event)"
+                                     (borderColorChanged)="onChangeBorderColor($event)"
+                                     (borderSizeChanged)="onChangeBorderWidth($event)"
+                                     (borderStyleChanged)="onChangeBorderStyle($event)">
+        </app-whiteboard-shape-context-menu>
+
     </div>
 </div>

@@ -1,9 +1,10 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { ChangeZOrder, WhiteboardContextMenuComponent } from '../whiteboard-context-menu/whiteboard-context-menu.component';
+import { ShapeFactoryService } from '../../services/shape-factory.service';
+import { EDragMode } from '../../models/edrag-mode';
 
-import { RectShape } from '../../shapes/rect-shape';
-import { RombusShape } from '../../shapes/rombus-shape';
-import { EllipsisShape } from '../../shapes/ellipsis-shape';
+import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
+
+import { AbstractShape } from '../../shapes/abstractshape';
 
 @Component({
   selector: 'app-whiteboard-editor',
@@ -19,11 +20,16 @@ export class WhiteboardEditorComponent {
   @ViewChild("svg")
   svg!: ElementRef<HTMLElement>;
 
-  @ViewChild(WhiteboardContextMenuComponent)
-  ctxMenu!: WhiteboardContextMenuComponent;
+  @ViewChild(WhiteboardShapeContextMenuComponent)
+  ctxMenu!: WhiteboardShapeContextMenuComponent;
 
   selectedElement: SVGGraphicsElement | undefined = undefined;
   isInDrag: boolean = false;
+
+  private dragMode: EDragMode = EDragMode.none;
+  private resizeMode: string = '';
+  private svgsToShapes: Map<SVGElement, AbstractShape> = new Map<SVGElement, AbstractShape>();
+  private selectedShapes: Set<AbstractShape> = new Set<AbstractShape>();
 
   /**
    * Liefert das SVG-RootElement
@@ -33,74 +39,283 @@ export class WhiteboardEditorComponent {
     return this.svg.nativeElement as unknown as SVGSVGElement;
   }
 
-
   /**
-   * Erzeuge ein Rectangle
+   * 
+   * @param shapeFactory 
    */
-  onCreateRectangle() {
-    console.log(this.ctxMenu);
-    new RectShape(this.svgRoot, 100, 100);
+  constructor(private shapeFactory: ShapeFactoryService) {
+
   }
 
   /**
-   * Erzeuge einen Rombus
+   * Erzeuge ein Shape
    */
-  onCreateRombus() {
-    new RombusShape(this.svgRoot, 100, 100);
-  }
+  public onCreateShape(type: string) {
 
-
-  /**
-   * Erzeuge einen Kreis/Ellipse
-   */
-  onCreateEllipsis() {
-    new EllipsisShape(this.svgRoot, 100, 100);
+    const shape = this.shapeFactory.createShape(this.svgRoot, type, 0, 0, 100, 100);
+    shape.onMouseDown = this.onStartDragShape.bind(this);
+    shape.onStartResize = this.onStartResizeShape.bind(this);
+    this.svgsToShapes.set(shape.svgElem, shape);
   }
 
   /**
    * 
-   * @param event 
+   * @param evt 
+   * @param shape
    */
-  onShowContextMenu(event: MouseEvent) {
-    const elem = event.target as SVGGraphicsElement;
-    this.ctxMenu.show(event, elem); // AbstractShape übergeben!
+  onStartDragShape(evt: MouseEvent, shape: AbstractShape) {
+
+    this.dragMode = EDragMode.dragShape;
+    if (!evt.ctrlKey) {
+      this.clearAllSelections();
+    }
+
+    if (shape) {
+      this.addSelectedShape(shape);
+    }
   }
 
   /**
-   * Ändere die zOrder des selektierten Elements
    * 
-   * @param delta ein enumValue vom Typ ChangeZOrder
+   * Starte den Resize eines SHapes. Dies wird durch einen ButtonDown auf einen
+   * ResizeAnchor ausgelöst. Der Rest bleibt hier zu tun :-)
+   * 
+   * @param evt 
+   * @param shape 
+   * @param resizeType 
    */
-  onChangeZOrder(delta: ChangeZOrder) {
+  onStartResizeShape(evt: MouseEvent, shape: AbstractShape, resizeType: string) {
 
-    if (this.selectedElement) {
+    this.dragMode = EDragMode.dragResize;
+    this.resizeMode = resizeType;
 
-      const group = this.selectedElement.parentElement;
-      if (group) {
+    if (!evt.ctrlKey) {
+      this.clearAllSelections();
+    }
 
-        switch (delta) {
-          case ChangeZOrder.background:
-            this.svgRoot.insertBefore(group, this.svgRoot.firstChild);
-            break;
+    if (shape) {
+      this.addSelectedShape(shape);
+    }
+  }
 
-          case ChangeZOrder.back:
-            this.svgRoot.insertBefore(group, group.previousSibling);
-            break;
+  /**
+   * Auf das rootSVG wurde ein MouseDown ausgelöst.
+   * 
+   * Shapes, Connection und ResizeHandles fangen das mousedown selber ab 
+   * und stoppen die EventPropagation. Wenn also ein MouseDown hier ankommt, 
+   * dann kann es nur vom rootElement kommen.
+   * 
+   * @param evt 
+   */
+  onMouseDown(evt: MouseEvent) {
+    this.clearAllSelections();
+  }
 
-          case ChangeZOrder.fore:
-            if (group.nextSibling) {
-              this.svgRoot.insertBefore(group.nextSibling, group);
-            }
-            else {
-              this.svgRoot.appendChild(group);
-            }
-            break;
+  /**
+   * 
+   * @param evt 
+   */
+  onMouseMove(evt: MouseEvent) {
 
-          case ChangeZOrder.foreground:
-            this.svgRoot.appendChild(group);
-            break;
-        }
+    const deltaX = evt.movementX;
+    const deltaY = evt.movementY;
+
+    switch (this.dragMode) {
+      case EDragMode.dragShape:
+        this.moveSelectedShapes(deltaX, deltaY);
+        break;
+
+      case EDragMode.dragResize:
+        this.resizeSelectedShapes(deltaX, deltaY)
+        break;
+
+      case EDragMode.dragConnector:
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  /**
+   * 
+   * @param evt 
+   */
+  onMouseUp(evt: MouseEvent) {
+    this.dragMode = EDragMode.none;
+  }
+
+  /**
+   * 
+   * @param evt 
+   */
+  onMouseLeave(evt: MouseEvent) {
+    this.dragMode = EDragMode.none;
+  }
+
+  /**
+   *  
+   * @param evt 
+   */
+  onShowContextMenu(evt: MouseEvent) {
+
+    evt.preventDefault();
+
+    const svg = evt.target as SVGElement;
+    if (svg === this.svgRoot) {
+    }
+    else {
+
+      if (!evt.ctrlKey) {
+        this.clearAllSelections();
+      }
+
+      const shape = this.svgsToShapes.get(svg);
+      if (shape) {
+        this.addSelectedShape(shape);
+        this.ctxMenu.show(evt);
       }
     }
+  }
+
+  /**
+   * Verschiebe alle selektierten Shapes um die angegebenen Werte
+   * 
+   * @param movementX 
+   * @param movementY 
+   */
+  private moveSelectedShapes(movementX: number, movementY: number) {
+
+    this.selectedShapes.forEach(shape => {
+      shape.translateBy(movementX, movementY); // 
+    });
+  }
+
+  /**
+   * 
+   * @param resizeX 
+   * @param resizeY 
+   */
+  private resizeSelectedShapes(resizeX: number, resizeY: number) {
+
+    this.selectedShapes.forEach(shape => {
+
+      switch (this.resizeMode) {
+        case 'n':
+          shape.translateBy(0, resizeY);
+          shape.resizeBy(0, -resizeY);
+          break;
+
+        case 'ne':
+          shape.translateBy(0, resizeY);
+          shape.resizeBy(resizeX, -resizeY);
+          break;
+
+        case 'e':
+          shape.resizeBy(resizeX, 0);
+          break;
+
+        case 'se':
+          shape.resizeBy(resizeX, resizeY);
+          break;
+
+        case 's':
+          shape.resizeBy(0, resizeY);
+          break;
+
+        case 'sw':
+          shape.translateBy(resizeX, 0);
+          shape.resizeBy(-resizeX, resizeY);
+          break;
+
+        case 'w':
+          shape.translateBy(resizeX, 0);
+          shape.resizeBy(-resizeX, 0);
+          break;
+
+        case 'nw':
+          shape.translateBy(resizeX, resizeY);
+          shape.resizeBy(-resizeX, -resizeY);
+          break;
+      }
+    });
+  }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about selection                                                     */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
+  /**
+   * 
+   */
+  private addSelectedShape(shape: AbstractShape) {
+
+    shape.setSelected(true);
+    this.selectedShapes.add(shape);
+  }
+
+  /**
+   * 
+   */
+  private clearAllSelections() {
+
+    this.selectedShapes.forEach(shape => {
+      shape.setSelected(false);
+    })
+    this.selectedShapes.clear();
+  }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about property changes                                              */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
+  /**
+   * Füll-Farbe
+   * 
+   * @param color 
+   */
+  public onChangeFillColor(color: string) {
+
+    this.selectedShapes.forEach(shape => {
+      shape.setFillColor(color);
+    })
+  }
+
+  /**
+   * Rahmen-Farbe
+   * 
+   * @param color 
+   */
+  onChangeBorderColor(color: string) {
+
+    this.selectedShapes.forEach(shape => {
+      shape.setBorderColor(color);
+    })
+  }
+
+  /**
+   * 
+   * @param width 
+   */
+  onChangeBorderWidth(width: number) {
+
+    this.selectedShapes.forEach(shape => {
+      shape.setBorderWidth(width);
+    })
+  }
+
+  /**
+   * 
+   * @param width 
+   */
+  onChangeBorderStyle(style: string) {
+
+    this.selectedShapes.forEach(shape => {
+      shape.setBorderStyle(style);
+    })
   }
 }

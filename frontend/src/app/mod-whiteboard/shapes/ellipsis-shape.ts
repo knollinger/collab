@@ -4,14 +4,14 @@ import { AbstractShape } from "./abstractshape";
  * 
  */
 export class EllipsisShape extends AbstractShape {
-    
+
     /**
      * 
      * @param svgRoot 
      */
-    constructor(svgRoot: SVGSVGElement, width: number, height: number) {
+    constructor(svgRoot: SVGSVGElement, x: number, y: number, width: number, height: number) {
 
-        super(svgRoot, EllipsisShape.createShape(width, height));
+        super(svgRoot, EllipsisShape.createShape(width, height), x, y, width, height);
     }
 
     /**
@@ -20,12 +20,12 @@ export class EllipsisShape extends AbstractShape {
      */
     private static createShape(width: number, height: number): SVGGraphicsElement {
 
-       const elem = document.createElementNS(AbstractShape.SVG_NAMESPACE, 'ellipse') as SVGGraphicsElement;
-       elem.setAttribute('cx', `${width / 2}`);
-       elem.setAttribute('cy', `${height / 2}`);
-       elem.setAttribute('rx', `${width / 2}`);
-       elem.setAttribute('ry', `${height / 2}`);
-       return elem;
+        const elem = document.createElementNS(AbstractShape.SVG_NAMESPACE, 'ellipse') as SVGGraphicsElement;
+        elem.setAttribute('cx', `${width / 2}`);
+        elem.setAttribute('cy', `${height / 2}`);
+        elem.setAttribute('rx', `${width / 2}`);
+        elem.setAttribute('ry', `${height / 2}`);
+        return elem;
     }
 
     /**
@@ -35,9 +35,9 @@ export class EllipsisShape extends AbstractShape {
      */
     onResizeImpl(newWidth: number, newHeight: number): void {
 
-       this.svgElem.setAttribute('cx', `${newWidth / 2}`);
-       this.svgElem.setAttribute('cy', `${newHeight / 2}`);
-       this.svgElem.setAttribute('rx', `${newWidth / 2}`);
-       this.svgElem.setAttribute('ry', `${newHeight / 2}`);
+        this.svgElem.setAttribute('cx', `${newWidth / 2}`);
+        this.svgElem.setAttribute('cy', `${newHeight / 2}`);
+        this.svgElem.setAttribute('rx', `${newWidth / 2}`);
+        this.svgElem.setAttribute('ry', `${newHeight / 2}`);
     }
 }

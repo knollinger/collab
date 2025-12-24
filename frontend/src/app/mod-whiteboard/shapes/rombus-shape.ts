@@ -9,9 +9,9 @@ export class RombusShape extends AbstractShape {
      * 
      * @param svgRoot 
      */
-    constructor(svgRoot: SVGSVGElement, width: number, height: number) {
+    constructor(svgRoot: SVGSVGElement, x: number, y: number,  width: number, height: number) {
 
-        super(svgRoot, RombusShape.createShape(width, height));
+        super(svgRoot, RombusShape.createShape(width, height), x, y, width, height);
     }
 
     /**

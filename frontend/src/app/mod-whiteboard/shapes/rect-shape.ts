@@ -4,14 +4,14 @@ import { AbstractShape } from "./abstractshape";
  * 
  */
 export class RectShape extends AbstractShape {
-    
+
     /**
      * 
      * @param svgRoot 
      */
-    constructor(svgRoot: SVGSVGElement, width: number, height: number) {
+    constructor(svgRoot: SVGSVGElement, x: number, y: number, width: number, height: number) {
 
-        super(svgRoot, RectShape.createShape(width, height));
+        super(svgRoot, RectShape.createShape(width, height), x, y, width, height);
     }
 
     /**
@@ -20,12 +20,12 @@ export class RectShape extends AbstractShape {
      */
     private static createShape(width: number, height: number): SVGGraphicsElement {
 
-       const elem = document.createElementNS(AbstractShape.SVG_NAMESPACE, 'rect') as SVGGraphicsElement;
-       elem.setAttribute('width', width.toString());
-       elem.setAttribute('height', height.toString());
-       return elem;
+        const elem = document.createElementNS(AbstractShape.SVG_NAMESPACE, 'rect') as SVGGraphicsElement;
+        elem.setAttribute('width', width.toString());
+        elem.setAttribute('height', height.toString());
+        return elem;
     }
-    
+
     /**
      * 
      * @param newWidth 
@@ -33,7 +33,8 @@ export class RectShape extends AbstractShape {
      */
     onResizeImpl(newWidth: number, newHeight: number): void {
 
+        
         this.svgElem.setAttribute('width', newWidth.toString());
-        this.svgElem.setAttribute('width', newHeight.toString());
+        this.svgElem.setAttribute('height', newHeight.toString());
     }
 }
