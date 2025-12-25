@@ -8,6 +8,22 @@
             <mat-icon class="material-symbols-outlined">shapes</mat-icon>
         </button>
 
+        <!-- Text-Menu-->
+        <button mat-icon-button
+                [matMenuTriggerFor]="textMenu"
+                matTooltip="Eine Text-Komponente hinzu fügen">
+            <mat-icon class="material-symbols-outlined">text_fields</mat-icon>
+        </button>
+
+
+        <!-- all about connectors -->
+        <button mat-icon-button
+                [matMenuTriggerFor]="connectorsMenu"
+                matTooltip="Eine Verbindung hinzu fügen">
+            <mat-icon class="material-symbols-outlined">line_end_square</mat-icon>
+        </button>
+
+
         <mat-menu #shapesMenu="matMenu">
             <button mat-menu-item
                     (click)="onCreateShape('rect')">
@@ -27,7 +43,11 @@
                 Kreis/Elipse
             </button>
 
-            <mat-divider></mat-divider>
+
+        </mat-menu>
+
+        <mat-menu #textMenu>
+
             <button mat-menu-item>
                 <mat-icon class="material-symbols-outlined">text_ad</mat-icon>
                 Text-Feld
@@ -39,13 +59,6 @@
             </button>
 
         </mat-menu>
-
-        <!-- all about connectors -->
-        <button mat-icon-button
-                [matMenuTriggerFor]="connectorsMenu"
-                matTooltip="Eine Verbindung hinzu fügen">
-            <mat-icon class="material-symbols-outlined">line_end_square</mat-icon>
-        </button>
 
         <mat-menu #connectorsMenu="matMenu">
             <button mat-menu-item>
@@ -89,6 +102,24 @@
                     outline: none;
                 }
 
+                .decorator-frame {
+                    stroke: lightgray;
+                    stroke-width: 2;
+                    stroke-dasharray: 2 2;
+                    fill: transparent;
+                }
+
+                .resize,
+                .connector {
+                    stroke-width: 1;
+                    stroke: lightblue;
+                    fill: cornflowerblue;
+                }
+
+                .north {
+                    x: calc(50% - 4)
+                }
+
                 .drag-ne {
                     cursor: ne-resize;
                 }
@@ -120,14 +151,20 @@
                 .drag-sw {
                     cursor: sw-resize;
                 }
+
+                .selector-frame {
+                    fill: rgba(0, 0, 255, 0.3);
+                    stroke: lightblue';
+                }
             </style>
         </svg>
 
         <app-whiteboard-shape-context-menu #ctxMenu
-                                     (fillColorChanged)="onChangeFillColor($event)"
-                                     (borderColorChanged)="onChangeBorderColor($event)"
-                                     (borderSizeChanged)="onChangeBorderWidth($event)"
-                                     (borderStyleChanged)="onChangeBorderStyle($event)">
+                                           (fillColorChanged)="onChangeFillColor($event)"
+                                           (borderColorChanged)="onChangeBorderColor($event)"
+                                           (borderSizeChanged)="onChangeBorderWidth($event)"
+                                           (borderStyleChanged)="onChangeBorderStyle($event)"
+                                           (zOrderChanged)="onChangeZOrder($event)">
         </app-whiteboard-shape-context-menu>
 
     </div>

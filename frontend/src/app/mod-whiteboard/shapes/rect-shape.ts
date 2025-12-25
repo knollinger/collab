@@ -33,7 +33,6 @@ export class RectShape extends AbstractShape {
      */
     onResizeImpl(newWidth: number, newHeight: number): void {
 
-        
         this.svgElem.setAttribute('width', newWidth.toString());
         this.svgElem.setAttribute('height', newHeight.toString());
     }

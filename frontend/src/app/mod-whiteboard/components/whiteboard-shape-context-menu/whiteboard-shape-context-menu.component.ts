@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { MatMenuTrigger } from '@angular/material/menu';
 
+import { EZOrderMode } from '../../models/ezorder-mode';
+
 @Component({
   selector: 'app-whiteboard-shape-context-menu',
   templateUrl: './whiteboard-shape-context-menu.component.html',
@@ -28,6 +30,9 @@ export class WhiteboardShapeContextMenuComponent {
 
   @Output()
   borderStyleChanged: EventEmitter<string> = new EventEmitter<string>();
+
+  @Output()
+  zOrderChanged: EventEmitter<EZOrderMode> = new EventEmitter<EZOrderMode>();
 
   /**
    * 
@@ -78,17 +83,22 @@ export class WhiteboardShapeContextMenuComponent {
   }
 
   onMoveToBackground() {
+    this.zOrderChanged.next(EZOrderMode.background);
   }
 
   onMoveBack() {
+    this.zOrderChanged.next(EZOrderMode.back);
   }
 
   onMoveFore() {
-  }
+     this.zOrderChanged.next(EZOrderMode.fore);
+ }
 
   onMoveToForeground() {
+    this.zOrderChanged.next(EZOrderMode.foreground);
   }
 
   onDelete() {
+    alert('ShapeCtxMenu::delete not yet implemented');
   }
 }

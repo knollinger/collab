@@ -21,14 +21,4 @@ svg {
     flex: 1;
 }
 
-.textbox {
-    font-family: Roboto, "Helvetica Neue", sans-serif;
-}
 
-.properties {
-    flex: 0;
-}
-
-rect,ellipse,polygon {
-    cursor: move;
-}

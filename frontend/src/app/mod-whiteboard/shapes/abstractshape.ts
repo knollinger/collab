@@ -12,10 +12,16 @@ export interface StartResizeCallback {
  */
 export abstract class AbstractShape {
 
-    public static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+    protected static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+    private static DECORATOR_PADDING = 16;
+    private static RESIZE_ANCHOR_WIDTH = 8;
+    private static RESIZE_ANCHOR_HEIGHT = 8;
+    private static CONNECTOR_ANCHOR_RADIUS = 4;
 
     private elemCnr: SVGGElement;
     private decorator: SVGGElement | null = null;
+    private connectors: SVGGElement | null = null;
+    private textFieldCnr: SVGForeignObjectElement | null = null;
 
     private _onMouseDown: MouseDownCallback = () => { };
     private _onStartResize: StartResizeCallback = () => { };
@@ -31,7 +37,8 @@ export abstract class AbstractShape {
         private x: number,
         private y: number,
         private width: number,
-        private height: number) {
+        private height: number,
+        private text?: string) {
 
         this.svgElem.setAttribute('fill', 'white');
         this.svgElem.setAttribute('stroke-width', '1');
@@ -41,8 +48,10 @@ export abstract class AbstractShape {
             this._onMouseDown(evt as MouseEvent, this);
         });
 
-        this.elemCnr = this.createElementContainer(x, y);
+        this.elemCnr = this.createElementContainer(x, y, width, height);
         this.elemCnr.appendChild(this.svgElem);
+
+        this.createTextField();
         this.svgRoot.appendChild(this.elemCnr);
     }
 
@@ -68,10 +77,47 @@ export abstract class AbstractShape {
     public setSelected(val: boolean) {
         if (val) {
             this.createDecoratorFrame();
+            this.createConnectors();
         }
         else {
             this.removeDecoratorFrame();
+            this.removeConnectors();
         }
+    }
+
+    /**
+     * 
+     * @param x 
+     * @param y 
+     * @param width 
+     * @param height 
+     * @returns 
+     */
+    public intersectsRect(x: number, y: number, width: number, height: number): boolean {
+
+        const minX = Math.min(this.x, x);
+        const maxX = Math.max(this.x + this.width, x + width);
+        const minY = Math.min(this.y, y);
+        const maxY = Math.max(this.y + this.height, y + height);
+
+        return (maxX - minX) <= (this.width + width) &&
+            (maxY - minY) <= (this.height + height);
+    }
+
+    /**
+     * 
+     * @param x 
+     * @param y 
+     * @param width 
+     * @param height 
+     * @returns 
+     */
+    public isInRect(x: number, y: number, width: number, height: number): boolean {
+
+        return this.x >= x &&
+               this.x + this.width <= x + width &&
+               this.y >= y &&
+               this.y + this.height <= y + height;
     }
 
     /**
@@ -92,6 +138,10 @@ export abstract class AbstractShape {
                 const x = transform.matrix.e + movementX;
                 const y = transform.matrix.f + movementY;
                 transform.setTranslate(x, y);
+
+                this.x += movementX;
+                this.y += movementY;
+                
             }
         }
     }
@@ -114,6 +164,11 @@ export abstract class AbstractShape {
             if (this.decorator) {
                 this.removeDecoratorFrame();
                 this.createDecoratorFrame();
+            }
+
+            if (this.connectors) {
+                this.removeConnectors();
+                this.createConnectors();
             }
             this.onResizeImpl(this.width, this.height);
         }
@@ -175,103 +230,6 @@ export abstract class AbstractShape {
         }
     }
 
-    /**
-     * Erzeugt den outer container.
-     * 
-     * Dieser dient in erster Linie dazu, das eigentliche SVGElement,
-     * die Connectoren und ggf den DecoratorFrame zu gruppieren und
-     * gemeinsam verschieben zu können.
-     * @returns 
-     */
-    private createElementContainer(x: number, y: number): SVGGElement {
-
-        const group = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
-
-        let transform = this.svgRoot.createSVGTransform();
-        transform.setTranslate(x, y);
-        group.transform.baseVal.appendItem(transform);
-        return group;
-    }
-
-    /**
-     * Erzeuge den DekoratorFrame, dieser wird zum skalieren benötigt.
-     * 
-     * Der DecoratorFrame zeichnet ein dotted rechtangle um das eigentliche
-     * SVGElement mit 8px Abstand. Auf die Ecken und auf die Mitte der 
-     * Frame-Seiten werden DrawAnchors gesetzt.
-     * 
-     * @param elem 
-     */
-    private createDecoratorFrame() {
-
-        if (!this.decorator) {
-
-            this.decorator = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
-
-            const frame = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGGElement;
-            frame.setAttribute('x', '-8');
-            frame.setAttribute('y', '-8');
-            frame.setAttribute('width', `${this.width + 16}`);
-            frame.setAttribute('height', `${this.height + 16}`);
-            frame.setAttribute('stroke', 'lightgray');
-            frame.setAttribute('stroke-width', '2');
-            frame.setAttribute('stroke-dasharray', '2 2');
-            frame.setAttribute('fill', 'transparent');
-            this.decorator.appendChild(frame);
-
-            this.decorator.appendChild(this.createResizeAnchor(-12, -12, 'nw'));
-            this.decorator.appendChild(this.createResizeAnchor(-12, this.height / 2 - 4, 'w'));
-            this.decorator.appendChild(this.createResizeAnchor(-12, this.height + 4, 'sw'));
-            this.decorator.appendChild(this.createResizeAnchor(this.width / 2 - 4, -12, 'n'));
-            this.decorator.appendChild(this.createResizeAnchor(this.width / 2 - 4, this.height + 4, 's'));
-            this.decorator.appendChild(this.createResizeAnchor(this.width + 4, -12, 'ne'));
-            this.decorator.appendChild(this.createResizeAnchor(this.width + 4, this.height / 2 - 4, 'e'));
-            this.decorator.appendChild(this.createResizeAnchor(this.width + 4, this.height + 4, 'se'));
-
-            this.elemCnr.insertBefore(this.decorator, this.elemCnr.firstChild);
-        }
-    }
-
-    /**
-     * Entferne den DecoratorFrame und alle ResizeAnchors
-     * 
-     * @param elem 
-     */
-    removeDecoratorFrame() {
-
-        if (this.decorator) {
-            this.decorator.remove();
-            this.decorator = null;
-        }
-    }
-
-    /**
-    * Erzeuge einen ResizeAnchor
-    * 
-    * @param x 
-    * @param y 
-    * @param type 
-    * @returns 
-    */
-    private createResizeAnchor(x: number, y: number, type: string): SVGElement {
-
-        const anchor = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGGElement;
-        anchor.setAttribute('name', type);
-        anchor.setAttribute('x', x.toString());
-        anchor.setAttribute('y', y.toString());
-        anchor.setAttribute('width', "8");
-        anchor.setAttribute('height', "8");
-        anchor.setAttribute('stroke', "black");
-        anchor.setAttribute('stroke-width', "1");
-        anchor.setAttribute('fill', "green");
-        anchor.setAttribute('class', `resize drag-${type}`)
-
-        anchor.addEventListener('mousedown', evt => {
-            evt.stopPropagation();
-            this._onStartResize(evt, this, type);
-        });
-        return anchor;
-    }
 
     /**
      * verschiebe das Element um eine Ebene nach hinten
@@ -319,4 +277,192 @@ export abstract class AbstractShape {
      * @param newHeight 
      */
     abstract onResizeImpl(newWidth: number, newHeight: number): void;
+
+    /**
+     * Erzeugt den outer container.
+     * 
+     * Dieser dient in erster Linie dazu, das eigentliche SVGElement,
+     * die Connectoren und ggf den DecoratorFrame zu gruppieren und
+     * gemeinsam verschieben zu können.
+     * @returns 
+     */
+    private createElementContainer(x: number, y: number, width: number, height: number): SVGGElement {
+
+        const group = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
+
+        let transform = this.svgRoot.createSVGTransform();
+        transform.setTranslate(x, y);
+        group.transform.baseVal.appendItem(transform);
+        return group;
+    }
+
+    /**
+     * Erzeuge den DekoratorFrame, dieser wird zum skalieren benötigt.
+     * 
+     * Der DecoratorFrame zeichnet ein dotted rechtangle um das eigentliche
+     * SVGElement mit 8px Abstand. Auf die Ecken und auf die Mitte der 
+     * Frame-Seiten werden DrawAnchors gesetzt.
+     * 
+     * @param elem 
+     */
+    private createDecoratorFrame() {
+
+        if (!this.decorator) {
+
+            this.decorator = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
+
+            const frame = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGGElement;
+            frame.setAttribute('x', `${-AbstractShape.DECORATOR_PADDING}`);
+            frame.setAttribute('y', `${-AbstractShape.DECORATOR_PADDING}`);
+            frame.setAttribute('width', `${this.width + AbstractShape.DECORATOR_PADDING * 2}`);
+            frame.setAttribute('height', `${this.height + AbstractShape.DECORATOR_PADDING * 2}`);
+            frame.setAttribute('class', 'decorator-frame');
+            this.decorator.appendChild(frame);
+
+            this.decorator.appendChild(this.createResizeAnchor(
+                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2),
+                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2),
+                'nw'));
+
+            this.decorator.appendChild(this.createResizeAnchor(
+                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2),
+                this.height / 2 - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2,
+                'w'));
+
+            this.decorator.appendChild(this.createResizeAnchor(
+                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2),
+                this.height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2,
+                'sw'));
+
+            this.decorator.appendChild(this.createResizeAnchor(
+                this.width / 2 - AbstractShape.RESIZE_ANCHOR_WIDTH / 2,
+                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2),
+                'n'));
+
+            this.decorator.appendChild(this.createResizeAnchor(
+                this.width / 2 - AbstractShape.RESIZE_ANCHOR_WIDTH / 2,
+                this.height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2,
+                's'));
+
+            this.decorator.appendChild(this.createResizeAnchor(
+                this.width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2,
+                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2),
+                'ne'));
+
+            this.decorator.appendChild(this.createResizeAnchor(
+                this.width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2,
+                this.height / 2 - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2,
+                'e'));
+
+            this.decorator.appendChild(this.createResizeAnchor(
+                this.width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2,
+                this.height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2,
+                'se'));
+
+            this.elemCnr.insertBefore(this.decorator, this.elemCnr.firstChild);
+        }
+    }
+
+    /**
+     * Entferne den DecoratorFrame und alle ResizeAnchors
+     * 
+     * @param elem 
+     */
+    removeDecoratorFrame() {
+
+        if (this.decorator) {
+            this.decorator.remove();
+            this.decorator = null;
+        }
+    }
+
+    /**
+    * Erzeuge einen ResizeAnchor
+    * 
+    * @param x 
+    * @param y 
+    * @param type 
+    * @returns 
+    */
+    private createResizeAnchor(x: number, y: number, type: string): SVGElement {
+
+        const anchor = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGGElement;
+        anchor.setAttribute('name', type);
+        anchor.setAttribute('x', x.toString());
+        anchor.setAttribute('y', y.toString());
+        anchor.setAttribute('width', "8");
+        anchor.setAttribute('height', "8");
+        anchor.setAttribute('class', `resize drag-${type}`)
+
+        anchor.addEventListener('mousedown', evt => {
+            evt.stopPropagation();
+            this._onStartResize(evt, this, type);
+        });
+        return anchor;
+    }
+
+    /**
+     * 
+     */
+    private createConnectors() {
+
+        if (!this.connectors) {
+
+            this.connectors = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
+
+            this.connectors.appendChild(this.createConnectorAnchor(this.width / 2, 0, 'n'));
+            this.connectors.appendChild(this.createConnectorAnchor(this.width, this.height / 2, 'w'));
+            this.connectors.appendChild(this.createConnectorAnchor(this.width / 2, this.height, 'n'));
+            this.connectors.appendChild(this.createConnectorAnchor(0, this.height / 2, 'e'));
+            this.elemCnr.appendChild(this.connectors);
+        }
+    }
+
+    /**
+     * 
+     */
+    private removeConnectors() {
+
+        if (this.connectors) {
+            this.connectors.remove();
+            this.connectors = null;
+        }
+    }
+
+    private createConnectorAnchor(x: number, y: number, type: string): SVGElement {
+
+        const anchor = document.createElementNS(AbstractShape.SVG_NAMESPACE, "ellipse") as SVGGElement;
+        anchor.setAttribute('cx', `${x}`);
+        anchor.setAttribute('cy', `${y}`);
+        anchor.setAttribute('rx', `${AbstractShape.CONNECTOR_ANCHOR_RADIUS}`);
+        anchor.setAttribute('ry', `${AbstractShape.CONNECTOR_ANCHOR_RADIUS}`);
+        anchor.setAttribute('class', "connector");
+
+        return anchor;
+    }
+
+    /**
+     * 
+     */
+    private createTextField() {
+
+        if (!this.textFieldCnr) {
+
+            this.textFieldCnr = document.createElementNS(AbstractShape.SVG_NAMESPACE, "foreignObject") as SVGForeignObjectElement;
+            this.textFieldCnr.setAttribute('x', '0');
+            this.textFieldCnr.setAttribute('y', '0');
+            this.textFieldCnr.setAttribute('width', `${this.width}`);
+            this.textFieldCnr.setAttribute('height', `${this.height}`);
+
+            const textField = document.createElement('div');
+            textField.setAttribute('contentEditable', 'true');
+            textField.setAttribute('width', `${this.width}`);
+            textField.setAttribute('height', `${this.width}`);
+            textField.setAttribute('class', 'text-field');
+            textField.textContent = 'Test';
+            this.textFieldCnr.appendChild(textField);
+
+            // this.elemCnr.appendChild(this.textFieldCnr);
+        }
+    }
 }
