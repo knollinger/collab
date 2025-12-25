@@ -155,17 +155,23 @@
                 .selector-frame {
                     fill: rgba(0, 0, 255, 0.3);
                     stroke: lightblue';
+
                 }
             </style>
         </svg>
 
-        <app-whiteboard-shape-context-menu #ctxMenu
+        <app-whiteboard-shape-context-menu #shapeCtxMenu
                                            (fillColorChanged)="onChangeFillColor($event)"
                                            (borderColorChanged)="onChangeBorderColor($event)"
                                            (borderSizeChanged)="onChangeBorderWidth($event)"
                                            (borderStyleChanged)="onChangeBorderStyle($event)"
                                            (zOrderChanged)="onChangeZOrder($event)">
         </app-whiteboard-shape-context-menu>
+
+        <app-whiteboard-root-context-menu #rootCtxMenu
+                                          (selectAll)="selectAll()">
+
+        </app-whiteboard-root-context-menu>
 
     </div>
 </div>

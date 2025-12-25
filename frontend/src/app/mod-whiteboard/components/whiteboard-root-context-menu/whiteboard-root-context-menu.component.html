@@ -1,1 +1,12 @@
-<p>whiteboard-root-context-menu works!</p>
+<span class="menu-trigger"
+      [matMenuTriggerFor]="contextMenu"
+      [style.left]="triggerPosX"
+      [style.top]="triggerPosY">
+</span>
+
+<mat-menu #contextMenu="matMenu">
+
+    <button mat-menu-item (click)="onSelectAll()">
+        <mat-icon class="material-symbols-outlined">select_all</mat-icon>Alles auswählen
+    </button>
+</mat-menu>

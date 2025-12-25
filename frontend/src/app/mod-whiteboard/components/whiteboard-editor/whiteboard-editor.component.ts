@@ -2,6 +2,7 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ShapeFactoryService } from '../../services/shape-factory.service';
 import { EDragMode } from '../../models/edrag-mode';
 
+import { WhiteboardRootContextMenuComponent } from '../whiteboard-root-context-menu/whiteboard-root-context-menu.component';
 import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
 
 import { AbstractShape } from '../../shapes/abstractshape';
@@ -21,8 +22,11 @@ export class WhiteboardEditorComponent {
   @ViewChild("svg")
   svg!: ElementRef<HTMLElement>;
 
+  @ViewChild(WhiteboardRootContextMenuComponent)
+  rootCtxMenu!: WhiteboardRootContextMenuComponent;
+
   @ViewChild(WhiteboardShapeContextMenuComponent)
-  ctxMenu!: WhiteboardShapeContextMenuComponent;
+  shapeCtxMenu!: WhiteboardShapeContextMenuComponent;
 
   private dragMode: EDragMode = EDragMode.none;
   private resizeMode: string = '';
@@ -188,6 +192,7 @@ export class WhiteboardEditorComponent {
 
     const svg = evt.target as SVGElement;
     if (svg === this.svgRoot) {
+      this.rootCtxMenu.show(evt);
     }
     else {
 
@@ -198,7 +203,7 @@ export class WhiteboardEditorComponent {
       const shape = this.svgsToShapes.get(svg);
       if (shape) {
         this.addSelectedShape(shape);
-        this.ctxMenu.show(evt);
+        this.shapeCtxMenu.show(evt);
       }
     }
   }
@@ -351,10 +356,19 @@ export class WhiteboardEditorComponent {
     this.selectedShapes.add(shape);
   }
 
+  public selectAll() {
+
+    console.log('selectAll')
+    this.svgsToShapes.forEach( shape => {
+      shape.setSelected(true);
+      this.selectedShapes.add(shape);
+    })
+  }
+
   /**
    * 
    */
-  private clearAllSelections() {
+  public clearAllSelections() {
 
     this.selectedShapes.forEach(shape => {
       shape.setSelected(false);
