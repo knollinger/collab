@@ -211,9 +211,9 @@
                                      (open)="openINode(idx, $event)"
                                      (create)="createDocument($event)"
                                      (upload)="uploadFiles($event)"
-                                     (copy)="copyINodes(tab.parent, $event)"
-                                     (move)="moveINodes(tab.parent, $event)"
-                                     (link)="linkINodes(tab.parent, $event)"
+                                     (copy)="copyINodes($event.target, $event.src)"
+                                     (move)="moveINodes($event.target, $event.src)"
+                                     (link)="linkINodes($event.target, $event.src)"
                                      (rename)="renameINode($event)"
                                      (delete)="deleteINodes($event)"
                                      (selectionChanged)="onSelectionChange(idx, $event)">

@@ -631,8 +631,8 @@ export class FilesMainViewComponent implements OnInit {
 
         this.inodeSvc.delete(toDelete)
           .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(() => {
-            this.deleteFromModel(inodes);
+          .subscribe(deletedUUIDs => {
+            this.deleteFromModelByUUID(deletedUUIDs); // TODO: Das stimmt so nicht, da ggf auch Links gelöscht wurden!
           })
       }
     })
@@ -659,7 +659,7 @@ export class FilesMainViewComponent implements OnInit {
     if (input.files && input.files.length) {
 
       const files = new Array<File>();
-      for(let i = 0; i < input.files.length; ++i) {
+      for (let i = 0; i < input.files.length; ++i) {
         files.push(input.files.item(i)!);
       }
       this.uploadFiles(new FilesDroppedEvent(this.currentTab.parent, files));
@@ -716,17 +716,36 @@ export class FilesMainViewComponent implements OnInit {
 
   /**
    * Lösche die INodes aus dem Model. Sie werden aus allen im Model verfügbaren
-   * Tabs entfernt.
+   * Tabs entfernt, ggf werden auch offene (und nun gelöschte) Tabs geschlossen.
    * 
    * @param toDelete 
    */
   private deleteFromModel(inodes: INode[]) {
 
-    inodes.forEach(toDelete => {
-      this.tabs.forEach(tab => {
-        if (tab.parent.uuid === toDelete.parent) {
-          tab.childs = tab.childs.filter(curr => { return curr.uuid !== toDelete.uuid })
-        }
+    const uuids = inodes.map(inode => inode.uuid);
+    this.deleteFromModelByUUID(uuids);
+  }
+
+
+  /**
+   * Lösche alle angegeben UUIDs aus dem Model. 
+   * 
+   * Eventuell offene Tabs deren Parents gelöscht wurden werden geschlossen. Aus allen
+   * verbleibenden Tabs werden alle INodes mit den gelöschten UUIDs entfernt.
+   *   
+   * @param uuids 
+   */
+  private deleteFromModelByUUID(uuids: string[]) {
+
+    console.log('deleteFromModelByUUID');
+    // Zuerst ggf gelöschte Tabs entfernen
+    this.tabs = this.tabs.filter(tab => {
+      return uuids.indexOf(tab.parent.uuid) === -1;
+    })
+
+    this.tabs.forEach(tab => {
+      tab.childs = tab.childs.filter(child => {
+        return uuids.indexOf(child.uuid) === -1;
       })
     })
   }

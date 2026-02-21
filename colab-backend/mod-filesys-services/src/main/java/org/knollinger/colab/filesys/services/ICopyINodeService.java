@@ -1,5 +1,6 @@
 package org.knollinger.colab.filesys.services;
 
+import java.sql.Connection;
 import java.util.List;
 
 import org.knollinger.colab.filesys.exceptions.AccessDeniedException;
@@ -20,5 +21,18 @@ public interface ICopyINodeService
      * @throws AccessDeniedException 
      */
     public List<INode> copyINodes(List<INode> inodes, INode target)
+        throws TechnicalFileSysException, DuplicateEntryException, NotFoundException, AccessDeniedException;
+
+    /**
+     * @param inodes
+     * @param target
+     * @param conn
+     * @return
+     * @throws TechnicalFileSysException
+     * @throws DuplicateEntryException
+     * @throws NotFoundException
+     * @throws AccessDeniedException
+     */
+    public List<INode> copyINodes(List<INode> inodes, INode target, Connection conn)
         throws TechnicalFileSysException, DuplicateEntryException, NotFoundException, AccessDeniedException;
 }

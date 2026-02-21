@@ -2,6 +2,7 @@ package org.knollinger.colab.filesys.controller;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +22,7 @@ import org.knollinger.colab.filesys.services.ICopyINodeService;
 import org.knollinger.colab.filesys.services.IDeleteService;
 import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.filesys.services.ILinkINodeService;
+import org.knollinger.colab.filesys.services.IListFolderService;
 import org.knollinger.colab.filesys.services.IUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -42,6 +44,9 @@ public class FileSysController
 {
     @Autowired
     private IFileSysService fileSysService;
+
+    @Autowired
+    private IListFolderService listFolderService;
 
     @Autowired
     private IDeleteService deleteSvc;
@@ -102,7 +107,7 @@ public class FileSysController
     {
         try
         {
-            List<INode> childs = this.fileSysService.getAllChilds(parentId, foldersOnly);
+            List<INode> childs = this.listFolderService.getAllChilds(parentId);
             childs.sort(new INodeComparator());
             return this.fileSysMapper.toDTO(childs);
         }
@@ -182,12 +187,12 @@ public class FileSysController
      * @param uuid
      */
     @DeleteMapping(path = "/delete")
-    public void delete(//
+    public Collection<UUID> delete(//
         @RequestBody() List<UUID> uuids)
     {
         try
         {
-            this.deleteSvc.deleteINodes(uuids);
+            return this.deleteSvc.deleteINodes(uuids);
         }
         catch (NotFoundException e)
         {

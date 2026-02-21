@@ -1,0 +1,16 @@
+.menu-trigger {
+    position: fixed;
+}
+
+.color-preview {
+    width: 5rem;
+    height: 1rem;
+    border: 1px solid black;
+}
+
+.border-style-preview {
+
+    width: 5rem;
+    height: 1rem;
+    border: 2px solid black;
+}
