@@ -10,6 +10,17 @@
     border: 1px solid #d0d0d0;
 }
 
+.multi-column-menu {
+    background-color: white;
+    border-radius: 4px;
+}
+
+.multi-column-menu-title {
+    background-color: #f0f0f0;
+    font-weight: 500;
+    padding: 0.5rem;
+}
+
 .workspace {
     flex: 1;
     display: flex;
@@ -17,8 +28,8 @@
     overflow: auto;
 }
 
-svg {
+.svg-scroller {
     flex: 1;
+    overflow: auto;
+    height: 100%;
 }
-
-

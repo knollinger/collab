@@ -15,6 +15,8 @@ import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.services.ICopyINodeService;
 import org.knollinger.colab.filesys.services.IFileSysService;
+import org.knollinger.colab.filesys.services.ILinkINodeService;
+import org.knollinger.colab.filesys.services.IListFolderService;
 import org.knollinger.colab.permissions.exceptions.TechnicalACLException;
 import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.utils.services.IDbService;
@@ -31,8 +33,14 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     private IFileSysService inodeSvc;
 
     @Autowired()
+    private ILinkINodeService linkSvc;
+
+    @Autowired()
     private IPermissionsService permissionsSvc;
 
+    @Autowired()
+    private IListFolderService listFolderSvc;
+    
     private static final String SQL_COPY = "" //
         + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `name`, `size`, `type`, `data`, `hash`)" //
         + "  select ? , ?, `linkTo`, ?, `size`, `type`, `data`, `hash`" //
@@ -47,37 +55,12 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     public List<INode> copyINodes(List<INode> inodes, INode target)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
-        List<INode> result = new ArrayList<INode>();
-        List<INode> duplicates = new ArrayList<INode>();
-
         try(Connection conn = this.dbSvc.openConnection())
         {
             conn.setAutoCommit(false);
-
-            if (!this.permissionsSvc.canEffectiveWrite(target.getAcl()))
-            {
-                throw new AccessDeniedException(target);
-            }
-
-            for (INode inode : inodes)
-            {
-                INode newINode = this.copyOneINode(inode, target, conn);
-                if (newINode == null)
-                {
-                    duplicates.add(inode);
-                }
-                else
-                {
-                    result.add(newINode);
-                }
-            }
-
-            if (duplicates.size() > 0)
-            {
-                throw new DuplicateEntryException(duplicates);
-            }
-
+            List<INode> result = this.copyINodes(inodes, target, conn);
             conn.commit();
+            
             return result;
         }
         catch (SQLException e)
@@ -87,6 +70,49 @@ public class CopyINodeServiceImpl implements ICopyINodeService
         }
     }
 
+    /**
+     * @param inodes
+     * @param target
+     * @param conn
+     * @return
+     * @throws TechnicalFileSysException
+     * @throws NotFoundException
+     * @throws DuplicateEntryException
+     * @throws AccessDeniedException
+     */
+    @Override
+    public List<INode> copyINodes(List<INode> inodes, INode target, Connection conn)
+        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
+    {
+        List<INode> result = new ArrayList<INode>();
+        List<INode> duplicates = new ArrayList<INode>();
+        
+        INode resolvedTarget = this.linkSvc.resolveLink(target, conn);
+        
+        if (!this.permissionsSvc.canEffectiveWrite(resolvedTarget.getAcl()))
+        {
+            throw new AccessDeniedException(resolvedTarget);
+        }
+
+        for (INode inode : inodes)
+        {
+            INode newINode = this.copyOneINode(inode, resolvedTarget, conn);
+            if (newINode == null)
+            {
+                duplicates.add(inode);
+            }
+            else
+            {
+                result.add(newINode);
+            }
+        }
+
+        if (duplicates.size() > 0)
+        {
+            throw new DuplicateEntryException(duplicates);
+        }
+        return result;
+    }
     /**
      * 
      * @param inode
@@ -148,7 +174,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     private void copyChilds(INode parent, INode target, Connection conn)
         throws NotFoundException, TechnicalFileSysException, AccessDeniedException
     {
-        List<INode> childs = this.inodeSvc.getAllChilds(parent.getUuid(), false, conn);
+        List<INode> childs = this.listFolderSvc.getAllChilds(parent.getUuid(), conn);
         for (INode child : childs)
         {
             this.copyOneINode(child, target, conn);

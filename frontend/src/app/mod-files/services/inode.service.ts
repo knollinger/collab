@@ -118,10 +118,10 @@ export class INodeService {
    * 
    * @param uuid 
    */
-  public delete(uuid: string[]): Observable<void> {
+  public delete(uuid: string[]): Observable<string[]> {
 
     const url = this.backendRouter.getRouteForName('deleteINode', INodeService.routes);
-    return this.httpClient.delete<void>(url, { body: uuid });
+    return this.httpClient.delete<string[]>(url, { body: uuid });
   }
 
   /**

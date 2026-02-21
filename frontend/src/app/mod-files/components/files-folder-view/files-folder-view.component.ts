@@ -13,6 +13,12 @@ import { FilesPropertiesDialogComponent } from '../files-properties-dialog/files
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 import { ACLEntry, CheckPermissionsService, PermissionsService } from '../../../mod-permissions/mod-permissions.module';
 
+export class CopyINodeEvent {
+  constructor(public readonly target: INode, public readonly src: INode[]) {
+
+  }
+}
+
 @Component({
   selector: 'app-folder-view',
   templateUrl: './files-folder-view.component.html',
@@ -74,13 +80,13 @@ export class FilesFolderViewComponent implements OnInit {
   upload: EventEmitter<FilesDroppedEvent> = new EventEmitter<FilesDroppedEvent>();
 
   @Output()
-  copy: EventEmitter<INode[]> = new EventEmitter<INode[]>();
+  copy: EventEmitter<CopyINodeEvent> = new EventEmitter<CopyINodeEvent>();
 
   @Output()
-  move: EventEmitter<INode[]> = new EventEmitter<INode[]>();
+  move: EventEmitter<CopyINodeEvent> = new EventEmitter<CopyINodeEvent>();
 
   @Output()
-  link: EventEmitter<INode[]> = new EventEmitter<INode[]>();
+  link: EventEmitter<CopyINodeEvent> = new EventEmitter<CopyINodeEvent>();
 
   @Output()
   rename: EventEmitter<INode> = new EventEmitter<INode>();
@@ -243,7 +249,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onCopyDroppedINodes(event: INodeDroppedEvent) {
 
-    this.copy.next(event.sources);
+    this.copy.next(new CopyINodeEvent(event.target, event.sources));
   }
 
   /**
@@ -252,7 +258,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onMoveDroppedINodes(event: INodeDroppedEvent) {
 
-    this.move.next(event.sources);
+    this.move.next(new CopyINodeEvent(event.target, event.sources));
   }
 
   /**
@@ -262,7 +268,7 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onLinkDroppedINodes(event: INodeDroppedEvent) {
 
-    this.link.next(event.sources);
+    this.link.next(new CopyINodeEvent(event.target, event.sources));
   }
 
   /*-------------------------------------------------------------------------*/
@@ -404,17 +410,17 @@ export class FilesFolderViewComponent implements OnInit {
 
     switch (this.clipboardSvc.operation) {
       case ClipboardService.OP_COPY:
-        this.copy.next(this.clipboardSvc.inodes);
+        this.copy.next(new CopyINodeEvent(this.parent, this.clipboardSvc.inodes));
         break;
 
       case ClipboardService.OP_MOVE:
-        this.move.next(this.clipboardSvc.inodes);
+        this.move.next(new CopyINodeEvent(this.parent, this.clipboardSvc.inodes));
         this.clipboardSvc.clear();
         break;
 
 
       case ClipboardService.OP_LINK:
-        this.link.next(this.clipboardSvc.inodes);
+        this.link.next(new CopyINodeEvent(this.parent, this.clipboardSvc.inodes));
         this.clipboardSvc.clear();
         break;
 

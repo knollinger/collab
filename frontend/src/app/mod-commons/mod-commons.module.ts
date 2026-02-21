@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { OverlayModule } from '@angular/cdk/overlay';
 
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 
@@ -30,7 +31,7 @@ export { ErrorInterceptor }
 import { EnsureCookiesInterceptor } from './interceptors/ensure-cookies.interceptor';
 export { EnsureCookiesInterceptor }
 
-import { ToolbarComponent, ToolbarSeparatorComponent } from './components/toolbar/toolbar.component';
+import { ToolbarComponent, ToolbarSeparatorComponent, ToolbarFillerComponent } from './components/toolbar/toolbar.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { SafePipe } from './pipes/safe.pipe';
 import { FileSizePipe } from './pipes/file-size.pipe';
@@ -42,6 +43,7 @@ import { AutoFocusDirective } from './directives/auto-focus.directive';
 import { HintComponent } from './components/hint/hint.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
 import { BackendErrorComponent } from './components/backend-error/backend-error.component';
+import { MainPageTemplateComponent } from './components/main-page-template/main-page-template.component';
 
 @NgModule({
   declarations: [
@@ -57,16 +59,20 @@ import { BackendErrorComponent } from './components/backend-error/backend-error.
     HintComponent,
     SearchBarComponent,
     BackendErrorComponent,
+    MainPageTemplateComponent,
+    ToolbarFillerComponent,
   ],
   imports: [
     CommonModule,
     ModMaterialImportModule,
     FormsModule,
+    OverlayModule
 
   ],
   exports: [
     ToolbarComponent,
     ToolbarSeparatorComponent,
+    ToolbarFillerComponent,
     FooterComponent,
     SpinnerComponent,
     HintComponent,
@@ -74,6 +80,7 @@ import { BackendErrorComponent } from './components/backend-error/backend-error.
     SafePipe,
     AutoFocusDirective,
     SearchBarComponent,
+    MainPageTemplateComponent,
   ]
 })
 export class ModCommonsModule { }

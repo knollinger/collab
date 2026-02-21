@@ -1,0 +1,140 @@
+<div class="outer-cnr">
+    <h2>Eigenschaften</h2>
+    <mat-accordion multi>
+
+        <!-- Position und Größe -->
+        <mat-expansion-panel *ngIf="showPosSizePanel">
+
+            <mat-expansion-panel-header>
+                <mat-panel-title>Position und Größe</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="grid full-width">
+                <mat-form-field class="dims-pos-entry">
+                    <mat-label>X</mat-label>
+                    <input matInput
+                           type="number"
+                           [(ngModel)]="posX">
+                </mat-form-field>
+                <mat-form-field class="dims-pos-entry">
+                    <mat-label>Y</mat-label>
+                    <input matInput
+                           type="number"
+                           [(ngModel)]="posY">
+                </mat-form-field>
+                <mat-form-field class="dims-pos-entry">
+                    <mat-label>Breite</mat-label>
+                    <input matInput
+                           type="number"
+                           [(ngModel)]="width">
+                </mat-form-field>
+                <mat-form-field class="dims-pos-entry">
+                    <mat-label>Höhe</mat-label>
+                    <input matInput
+                           type="number"
+                           [(ngModel)]="height">
+                </mat-form-field>
+            </div>
+
+
+        </mat-expansion-panel>
+
+        <!-- Hintergrund -->
+        <mat-expansion-panel>
+
+            <mat-expansion-panel-header>
+                <mat-panel-title> Hintergrund</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <mat-form-field>
+                <mat-label>Farbe</mat-label>
+                <input matInput
+                       matInput
+                       type="color"
+                       [(ngModel)]="backgroundColor">
+            </mat-form-field>
+
+        </mat-expansion-panel>
+
+        <!-- Rahmen-Eigenschaften -->
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title> Rahmen</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <div class="panel-body">
+
+                <!-- Rahmen-Farbe -->
+                <mat-form-field>
+                    <mat-label>Rahmen-Farbe</mat-label>
+                    <input matInput
+                           type="color"
+                           [(ngModel)]="frameColor">
+                </mat-form-field>
+
+                <!-- BorderStyle -->
+                <mat-form-field>
+                    <mat-label>Rahmen-Style</mat-label>
+                    <mat-select [(value)]="borderStyle">
+
+                        <mat-select-trigger>
+                            <div class="style-indicator-line">
+                                <div class="style-indicator-value"
+                                     [style.border-style]="borderStyle">
+                                </div>
+
+                                <div class="style-indicator-label">{{borderStyle}}</div>
+                            </div>
+                        </mat-select-trigger>
+
+                        <mat-option *ngFor="let style of borderStyles"
+                                    [value]="style">
+
+                            <div class="style-indicator-line">
+
+                                <div class="style-indicator-value"
+                                     [style.border-style]="style">
+                                </div>
+
+                                <div class="style-indicator-label">{{style}}</div>
+                            </div>
+
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <!-- BorderSize -->
+                <mat-form-field>
+                    <mat-label>Rahmen-Dicke</mat-label>
+                    <mat-select [(value)]="borderSize">
+
+                        <mat-select-trigger>
+                            <div class="style-indicator-line">
+                                <div class="style-indicator-value"
+                                     style.border-width="{{borderSize}}px">
+                                </div>
+
+                                <div class="style-indicator-label">{{borderSize}}</div>
+                            </div>
+                        </mat-select-trigger>
+
+                        <mat-option *ngFor="let size of borderSizes"
+                                    [value]="size">
+
+                            <div class="style-indicator-line">
+
+                                <div class="style-indicator-value"
+                                     style.border-width="{{size}}px">
+                                </div>
+
+                                <div class="style-indicator-label">{{size}}</div>
+                            </div>
+
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+        </mat-expansion-panel>
+
+    </mat-accordion>
+</div>

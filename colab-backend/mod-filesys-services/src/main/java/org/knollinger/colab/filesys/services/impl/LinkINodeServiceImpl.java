@@ -2,6 +2,7 @@ package org.knollinger.colab.filesys.services.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
@@ -24,11 +25,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class LinkINodeServiceImpl implements ILinkINodeService
 {
-    private static final String SQL_LINK_INODE = "" //
-        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `name`, `size`, `type`, `data`, `hash`)" //
-        + "  select ? , ?, ?, ?, `size`, `type`, `data`, `hash`" //
-        + "    from `inodes`" //
-        + "      where `uuid` = ?";
+    private static final String SQL_LINK_INODE = """
+        insert into `inodes` ( `uuid`, `parent`, `linkTo`, `name`, `size`, `type`, `data`, `hash`)
+          select ? , ?, ?, ?, `size`, `type`, `data`, `hash`
+            from `inodes`
+              where `uuid` = ?
+        """;
+
+    private static final String SQL_RESOLVE_LINK = """
+        select `linkTo` from `inodes`
+            where `uuid`=?
+        """;
 
     @Autowired
     private IDbService dbSvc;
@@ -38,7 +45,79 @@ public class LinkINodeServiceImpl implements ILinkINodeService
 
     @Autowired()
     private IPermissionsService permsSvc;
+    
 
+
+    /**
+    *
+    */
+    @Override
+    public INode resolveLink(INode inode) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
+    {
+        return this.resolveLink(inode.getUuid());
+    }
+
+    /**
+    *
+    */
+    @Override
+    public INode resolveLink(INode inode, Connection conn)
+        throws TechnicalFileSysException, NotFoundException, AccessDeniedException
+    {
+        return this.resolveLink(inode.getUuid(), conn);
+    }
+
+    /**
+    *
+    */
+    @Override
+    public INode resolveLink(UUID uuid) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
+    {
+        try (Connection conn = this.dbSvc.openConnection())
+        {
+            return this.resolveLink(uuid, conn);
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalFileSysException("", e);
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    public INode resolveLink(UUID uuid, Connection conn)
+        throws TechnicalFileSysException, NotFoundException, AccessDeniedException
+    {
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_RESOLVE_LINK))
+        {
+            stmt.setString(1, uuid.toString());
+            try (ResultSet rs = stmt.executeQuery())
+            {
+                if (!rs.next())
+                {
+                    throw new NotFoundException(uuid);
+                }
+
+                String linkTo = rs.getString("linkTo");
+                if (linkTo == null)
+                {
+                    return this.inodeSvc.getINode(uuid, conn); // Origin found!
+                }
+                else
+                {
+                    return this.resolveLink(UUID.fromString(linkTo), conn); // Just another Link, follow them
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalFileSysException("Der Dateisystem-Link konnte nicht aufgelöst werden.", e);
+        }
+    }
+
+    /**
     /**
      * @throws AccessDeniedException 
      *
@@ -56,7 +135,7 @@ public class LinkINodeServiceImpl implements ILinkINodeService
             conn = this.dbSvc.openConnection();
             conn.setAutoCommit(false);
 
-            if(!this.permsSvc.canEffectiveWrite(target.getAcl()))
+            if (!this.permsSvc.canEffectiveWrite(target.getAcl()))
             {
                 throw new AccessDeniedException(target);
             }
@@ -118,8 +197,8 @@ public class LinkINodeServiceImpl implements ILinkINodeService
             stmt.setString(4, inode.getName());
             stmt.setString(5, inode.getUuid().toString());
             stmt.executeUpdate();
-            this.permsSvc.copyACL(inode.getUuid(), newUUID, conn); 
-            
+            this.permsSvc.copyACL(inode.getUuid(), newUUID, conn);
+
             return this.inodeSvc.getINode(newUUID, conn);
         }
         catch (SQLIntegrityConstraintViolationException e)

@@ -1,0 +1,18 @@
+{
+    "shapes": [
+        {
+            "uuid": "12345",
+            "type": "elipse",
+            "x": 100,
+            "y": 100,
+            "w": 50,
+            "h": 50,
+            "fill": "#0000ff",
+            "stroke": {
+                "color": "#ff0000",
+                "width": 1,
+                "style": "solid"
+            }
+        }
+    ]
+}

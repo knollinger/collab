@@ -1,0 +1,19 @@
+.outer-cnr {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+    height: 100%;
+}
+
+.toolbar,.footer {
+    flex: 0;
+    padding: 0.5rem;
+    background-color: white;
+}
+
+.body {
+    flex: 1;
+    padding: 0.5rem;
+    overflow: auto;
+    display: flex;
+}

@@ -12,7 +12,6 @@ import org.knollinger.colab.filesys.models.INode;
 
 public interface IFileSysService
 {
-
     /**
      * 
      * @param uuid
@@ -32,30 +31,6 @@ public interface IFileSysService
      * @throws AccessDeniedException 
      */
     public INode getINode(UUID uuid, Connection conn)
-        throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
-
-    /**
-     * 
-     * @param parentId
-     * @param foldersOnly
-     * @return
-     * @throws TechnicalFileSysException
-     * @throws NotFoundException
-     * @throws AccessDeniedException 
-     */
-    public List<INode> getAllChilds(UUID parentId, boolean foldersOnly)
-        throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
-
-    /**
-     * 
-     * @param parentId
-     * @param foldersOnly
-     * @return
-     * @throws TechnicalFileSysException
-     * @throws NotFoundException
-     * @throws AccessDeniedException 
-     */
-    public List<INode> getAllChilds(UUID parentId, boolean foldersOnly, Connection conn)
         throws TechnicalFileSysException, NotFoundException, AccessDeniedException;
 
     /**

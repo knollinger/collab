@@ -13,3 +13,6 @@ npm install --save \
   
 npm install --save leaflet
 
+npm install ngx-color-picker@16 --save --legacy--peer-deps
+
+

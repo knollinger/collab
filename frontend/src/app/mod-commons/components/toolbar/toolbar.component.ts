@@ -6,13 +6,9 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./toolbar.component.css'],
   standalone: false
 })
-export class ToolbarComponent implements OnInit {
+export class ToolbarComponent {
 
   constructor() { }
-
-  ngOnInit(): void {
-  }
-
 }
 
 @Component({
@@ -21,12 +17,19 @@ export class ToolbarComponent implements OnInit {
   styleUrls: ['./toolbar-separator.component.css'],
   standalone: false
 })
-export class ToolbarSeparatorComponent implements OnInit {
+export class ToolbarSeparatorComponent {
 
   constructor() { }
+}
 
-  ngOnInit(): void {
-  }
+@Component({
+  selector: 'app-toolbar-filler',
+  templateUrl: './toolbar-filler.component.html',
+  styleUrls: ['./toolbar-filler.component.css'],
+  standalone: false
+})
+export class ToolbarFillerComponent {
 
+  constructor() { }
 }
 

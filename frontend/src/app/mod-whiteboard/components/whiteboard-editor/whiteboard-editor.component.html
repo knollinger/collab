@@ -1,177 +1,265 @@
 <div class="outer-cnr mat-app-background">
     <app-toolbar class="toolbar">
 
-        <!-- All about forms -->
+        <!-- All about shapes -->
+        <!-- <button mat-icon-button
+                (click)="shapesMenu.show($event)">
+            <mat-icon class="material-symbols-outlined">shapes</mat-icon>
+        </button> -->
+        <!-- <app-grid-menu columns="3"
+                       #shapesMenu>
+
+            <button mat-icon-button
+                    (click)="onCreateShape('rect')"
+                    matTooltip="Rechteck">
+                <mat-icon class="material-symbols-outlined">rectangle</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    (click)="onCreateShape('rombus')"
+                    matTooltip="Rombus">
+                <mat-icon class="material-symbols-outlined">stat_0</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    (click)="onCreateShape('ellipse')"
+                    matTooltip="Kreis/Elipse">
+                <mat-icon class="material-symbols-outlined">circle</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    matTooltip="Text-Feld">
+                <mat-icon class="material-symbols-outlined">text_ad</mat-icon>
+            </button>
+
+            <button mat-icon-button
+                    matTooltip="Kommentar">
+                <mat-icon class="material-symbols-outlined">comment</mat-icon>
+            </button>
+
+        </app-grid-menu> -->
+
         <button mat-icon-button
-                [matMenuTriggerFor]="shapesMenu"
-                matTooltip="Eine neue Form hinzu fügen">
+                cdkOverlayOrigin
+                #shapesMenuTrigger="cdkOverlayOrigin"
+                (click)="showShapesMenu=true">
             <mat-icon class="material-symbols-outlined">shapes</mat-icon>
         </button>
 
-        <!-- Text-Menu-->
+        <ng-template cdkConnectedOverlay
+                     [cdkConnectedOverlayOrigin]="shapesMenuTrigger"
+                     [cdkConnectedOverlayOpen]="showShapesMenu"
+                     [cdkConnectedOverlayHasBackdrop]="true"
+                     cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                     cdkConnectedOverlayPanelClass="menu-overlay-pane"
+                     (backdropClick)="showShapesMenu=false">
+
+            <div class="multi-column-menu mat-elevation-z4"
+                 (click)="showShapesMenu=false">
+
+                <div class="multi-column-menu-title">Formen</div>
+                <button mat-icon-button
+                        (click)="onCreateShape('rect')"
+                        matTooltip="Rechteck">
+                    <mat-icon class="material-symbols-outlined">rectangle</mat-icon>
+                </button>
+
+                <button mat-icon-button
+                        (click)="onCreateShape('rombus')"
+                        matTooltip="Rombus">
+                    <mat-icon class="material-symbols-outlined">stat_0</mat-icon>
+                </button>
+
+                <button mat-icon-button
+                        (click)="onCreateShape('ellipse')"
+                        matTooltip="Kreis/Elipse">
+                    <mat-icon class="material-symbols-outlined">circle</mat-icon>
+                </button>
+
+                <div class="multi-column-menu-title">Text-Bereiche</div>
+                <button mat-icon-button
+                        matTooltip="Text-Feld">
+                    <mat-icon class="material-symbols-outlined">text_ad</mat-icon>
+                </button>
+
+                <button mat-icon-button
+                        matTooltip="Kommentar">
+                    <mat-icon class="material-symbols-outlined">comment</mat-icon>
+                </button>
+
+            </div>
+        </ng-template>
+
+        <!-- Connectors -->
         <button mat-icon-button
-                [matMenuTriggerFor]="textMenu"
-                matTooltip="Eine Text-Komponente hinzu fügen">
-            <mat-icon class="material-symbols-outlined">text_fields</mat-icon>
+                matTooltip="Verbindungen"
+                cdkOverlayOrigin
+                #connectorsMenuTrigger="cdkOverlayOrigin"
+                (click)="showConnectorsMenu=true">
+            <mat-icon class="material-symbols-outlined">line_end</mat-icon>
         </button>
 
+        <ng-template cdkConnectedOverlay
+                     [cdkConnectedOverlayOrigin]="connectorsMenuTrigger"
+                     [cdkConnectedOverlayOpen]="showConnectorsMenu"
+                     [cdkConnectedOverlayHasBackdrop]="true"
+                     cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                     cdkConnectedOverlayPanelClass="menu-overlay-pane"
+                     (backdropClick)="showConnectorsMenu=false">
 
-        <!-- all about connectors -->
+            <div class="multi-column-menu mat-elevation-z4"
+                 (click)="showConnectorsMenu=false">
+
+                <div>
+
+                    <button mat-icon-button>
+                        <mat-icon class="material-symbols-outlined">remove</mat-icon>
+                    </button>
+
+                    <button mat-icon-button>
+                        <mat-icon class="material-symbols-outlined">line_end</mat-icon>
+                    </button>
+
+                    <button mat-icon-button>
+                        <mat-icon class="material-symbols-outlined">line_end_arrow</mat-icon>
+                    </button>
+                </div>
+                <div>
+                    <button mat-icon-button>
+                        <mat-icon class="material-symbols-outlined">line_end_circle</mat-icon>
+                    </button>
+
+                    <button mat-icon-button>
+                        <mat-icon class="material-symbols-outlined">line_end_diamond</mat-icon>
+                    </button>
+
+                    <button mat-icon-button>
+                        <mat-icon class="material-symbols-outlined">line_end_square</mat-icon>
+                    </button>
+                </div>
+
+            </div>
+        </ng-template>
+
+
+        <!-- download -->
+        <app-toolbar-separator></app-toolbar-separator>
         <button mat-icon-button
-                [matMenuTriggerFor]="connectorsMenu"
-                matTooltip="Eine Verbindung hinzu fügen">
-            <mat-icon class="material-symbols-outlined">line_end_square</mat-icon>
+                matTooltip="Als Grafik herunter laden"
+                (click)="onSVGDownload()">
+            <mat-icon class="material-symbols-outlined">download</mat-icon>
         </button>
 
+        <!-- löschen -->
+        <app-toolbar-separator></app-toolbar-separator>
+        <button mat-icon-button
+                [disabled]="!hasSelection"
+                (click)="onDeleteSelectedShapes()">
+            <mat-icon class="material-symbols-outlined">delete</mat-icon>
+        </button>
 
-        <mat-menu #shapesMenu="matMenu">
-            <button mat-menu-item
-                    (click)="onCreateShape('rect')">
-                <mat-icon class="material-symbols-outlined">rectangle</mat-icon>
-                Box
-            </button>
-
-            <button mat-menu-item
-                    (click)="onCreateShape('rombus')">
-                <mat-icon class="material-symbols-outlined">stat_0</mat-icon>
-                Rombus
-            </button>
-
-            <button mat-menu-item
-                    (click)="onCreateShape('ellipse')">
-                <mat-icon class="material-symbols-outlined">circle</mat-icon>
-                Kreis/Elipse
-            </button>
-
-
-        </mat-menu>
-
-        <mat-menu #textMenu>
-
-            <button mat-menu-item>
-                <mat-icon class="material-symbols-outlined">text_ad</mat-icon>
-                Text-Feld
-            </button>
-
-            <button mat-menu-item>
-                <mat-icon class="material-symbols-outlined">comment</mat-icon>
-                Kommentar
-            </button>
-
-        </mat-menu>
-
-        <mat-menu #connectorsMenu="matMenu">
-            <button mat-menu-item>
-                <mat-icon class="material-symbols-outlined">horizontal_rule</mat-icon>
-                Linie
-            </button>
-
-            <button mat-menu-item>
-                <mat-icon class="material-symbols-outlined">line_end_arrow</mat-icon>
-                Linie Pfeil-Ende
-            </button>
-
-            <button mat-menu-item>
-                <mat-icon class="material-symbols-outlined">line_end_circle</mat-icon>
-                Linie Kreis-Ende
-            </button>
-
-            <button mat-menu-item>
-                <mat-icon class="material-symbols-outlined">line_end_square</mat-icon>
-                Linie quadratisches Ende
-            </button>
-        </mat-menu>
-
+        <app-toolbar-filler></app-toolbar-filler>
+        <mat-button-toggle [checked]="showGridLines"
+                           (change)="showGridLines = $event.source.checked">
+            <mat-icon class="material-symbols-outlined">border_clear</mat-icon>
+        </mat-button-toggle>
     </app-toolbar>
 
     <div class="workspace">
 
-        <svg #svg
-             xmlns="http://www.w3.org/2000/svg"
-             (mousedown)="onMouseDown($event)"
-             (mousemove)="onMouseMove($event)"
-             (mouseup)="onMouseUp($event)"
-             (mouseleave)="onMouseLeave($event)"
-             (contextmenu)="onShowContextMenu($event)">
+        <div class="svg-scroller">
+            <svg #svg
+                 xmlns="http://www.w3.org/2000/svg"
+                 [style.width]="imgWidth"
+                 [style.height]="imgHeight"
+                 (mousedown)="onMouseDown($event)"
+                 (mousemove)="onMouseMove($event)"
+                 (mouseup)="onMouseUp($event)"
+                 (mouseleave)="onMouseLeave($event)">
 
-            <style>
-                rect,
-                ellipse,
-                polygon {
-                    cursor: move;
-                    outline: none;
-                }
+                <style>
+                    rect,
+                    ellipse,
+                    polygon {
+                        cursor: move;
+                        outline: none;
+                    }
 
-                .decorator-frame {
-                    stroke: lightgray;
-                    stroke-width: 2;
-                    stroke-dasharray: 2 2;
-                    fill: transparent;
-                }
+                    .decorator-frame {
+                        stroke: lightgray;
+                        stroke-width: 2;
+                        stroke-dasharray: 2 2;
+                        fill: transparent;
+                    }
 
-                .resize,
-                .connector {
-                    stroke-width: 1;
-                    stroke: lightblue;
-                    fill: cornflowerblue;
-                }
+                    .resize,
+                    .connector {
+                        stroke-width: 2;
+                        stroke: cornflowerblue;
+                        fill: lightblue;
+                    }
 
-                .north {
-                    x: calc(50% - 4)
-                }
+                    .connector {
+                        cursor: crosshair;
+                    }
 
-                .drag-ne {
-                    cursor: ne-resize;
-                }
+                    .north {
+                        x: calc(50% - 4)
+                    }
 
-                .drag-n {
-                    cursor: n-resize;
-                }
+                    .drag-ne {
+                        cursor: ne-resize;
+                    }
 
-                .drag-nw {
-                    cursor: nw-resize;
-                }
+                    .drag-n {
+                        cursor: n-resize;
+                    }
 
-                .drag-w {
-                    cursor: w-resize;
-                }
+                    .drag-nw {
+                        cursor: nw-resize;
+                    }
 
-                .drag-e {
-                    cursor: e-resize;
-                }
+                    .drag-w {
+                        cursor: w-resize;
+                    }
 
-                .drag-se {
-                    cursor: se-resize;
-                }
+                    .drag-e {
+                        cursor: e-resize;
+                    }
 
-                .drag-s {
-                    cursor: s-resize;
-                }
+                    .drag-se {
+                        cursor: se-resize;
+                    }
 
-                .drag-sw {
-                    cursor: sw-resize;
-                }
+                    .drag-s {
+                        cursor: s-resize;
+                    }
 
-                .selector-frame {
-                    fill: rgba(0, 0, 255, 0.3);
-                    stroke: lightblue';
+                    .drag-sw {
+                        cursor: sw-resize;
+                    }
 
-                }
-            </style>
-        </svg>
+                    .selector-frame {
+                        fill: rgba(0, 0, 255, 0.3);
+                        stroke: lightblue';
 
-        <app-whiteboard-shape-context-menu #shapeCtxMenu
-                                           (fillColorChanged)="onChangeFillColor($event)"
-                                           (borderColorChanged)="onChangeBorderColor($event)"
-                                           (borderSizeChanged)="onChangeBorderWidth($event)"
-                                           (borderStyleChanged)="onChangeBorderStyle($event)"
-                                           (zOrderChanged)="onChangeZOrder($event)">
-        </app-whiteboard-shape-context-menu>
+                    }
 
-        <app-whiteboard-root-context-menu #rootCtxMenu
-                                          (selectAll)="selectAll()">
+                    svg {
+                        filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
+                    }
+                </style>
+            </svg>
 
-        </app-whiteboard-root-context-menu>
+            <app-whiteboard-shape-context-menu (delete)="onDeleteSelectedShapes()"
+                                               (zOrderChanged)="onChangeZOrder($event)">
+            </app-whiteboard-shape-context-menu>
+        </div>
+
+        <div class="sidebar"
+             *ngIf="hasSelection">
+            <app-whiteboard-siderbar [shapes]="selectedShapes"></app-whiteboard-siderbar>
+        </div>
 
     </div>
 </div>

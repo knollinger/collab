@@ -21,8 +21,6 @@ import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.permissions.exceptions.DuplicateACLException;
 import org.knollinger.colab.permissions.exceptions.TechnicalACLException;
 import org.knollinger.colab.permissions.models.ACL;
-import org.knollinger.colab.permissions.models.ACLEntry;
-import org.knollinger.colab.permissions.models.EACLEntryType;
 import org.knollinger.colab.permissions.services.IPermissionsService;
 import org.knollinger.colab.user.services.ICurrentUserService;
 import org.knollinger.colab.utils.services.IDbService;
@@ -32,26 +30,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class FileSysServiceImpl implements IFileSysService
 {
-    private static final String SQL_GET_ALL_CHILDS = "" //
-        + "select `i`.`uuid`, `i`.`name`, `i`.`parent`, `i`.`linkTo`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `a`.`ownerId`, `a`.`groupId`, `e`.`ownerId`, `e`.`ownerType`, `e`.`perms`" //
-        + "  from `inodes` i " //
-        + "    left join `acls` a" //
-        + "      on `i`.`uuid` = `a`.`resourceId`" //
-        + "    left join `acl_entries` e" //
-        + "      on `a`.`resourceId` = `e`.`resourceId`" //
-        + "    where `i`.`parent`=?" //
-        + "  order by `i`.`name`";
-
-    private static final String SQL_GET_INODE = "" //
-        + "select `i`.`name`, `i`.`parent`, `i`.`linkTo`, `i`.`size`, `i`.`type`, `i`.`created`, `i`.`modified`, `a`.`ownerId`, `a`.`groupId`, `e`.`ownerId`, `e`.`ownerType`, `e`.`perms`" //
-        + "  from `inodes` i" //
-        + "    left join `acls` a" //
-        + "      on `i`.`uuid` = `a`.`resourceId`" //
-        + "    left join `acl_entries` e" //
-        + "      on `i`.`uuid` = `e`.`resourceId`" //
-        + "  where `i`.`uuid`=?";
-
-
     private static final String SQL_CREATE_DOCUMENT = "" //
         + "insert into `inodes`" // 
         + "  set `uuid`=?, `parent`=?, `name`=?, `size`=?, `type`=?, data=?";
@@ -76,6 +54,8 @@ public class FileSysServiceImpl implements IFileSysService
 
     @Autowired()
     private ICurrentUserService currUserSvc;
+    
+    private FileSysUtils fileSysUtils = new FileSysUtils();
 
     /**
      *
@@ -95,8 +75,6 @@ public class FileSysServiceImpl implements IFileSysService
     }
 
     /**
-     * private getINode-Implementierung, um den getter auch innerhalb einer DB-Transaktion 
-     * verwenden zu können.
      * 
      * @param uuid
      * @param reqPermission
@@ -109,188 +87,7 @@ public class FileSysServiceImpl implements IFileSysService
     public INode getINode(UUID uuid, Connection conn)
         throws NotFoundException, AccessDeniedException, TechnicalFileSysException
     {
-        ResultSet rs = null;
-
-        try (PreparedStatement stmt = conn.prepareStatement(SQL_GET_INODE))
-        {
-            boolean found = false;
-            stmt.setString(1, uuid.toString());
-            rs = stmt.executeQuery();
-
-            INode.INodeBuilder nodeBuilder = INode.builder();
-            ACL.ACLBuilder aclBuilder = ACL.builder();
-            List<ACLEntry> aclEntries = new ArrayList<>();
-
-            while (rs.next())
-            {
-                if (!found)
-                {
-                    nodeBuilder //
-                        .uuid(uuid) //
-                        .parent(UUID.fromString(rs.getString("i.parent"))) //
-                        .linkTo(this.parseNullableUUID(rs.getString("i.linkTo"))) //
-                        .name(rs.getString("i.name")) //
-                        .type(rs.getString("i.type")) //
-                        .size(rs.getLong("i.size")) //
-                        .created(rs.getTimestamp("i.created")) //
-                        .modified(rs.getTimestamp("i.modified"));
-
-                    aclBuilder //
-                        .ownerId(UUID.fromString(rs.getString("a.ownerId"))) //
-                        .groupId(UUID.fromString(rs.getString("a.groupId")));
-
-                    found = true;
-                }
-
-                ACLEntry entry = ACLEntry.builder() //
-                    .uuid(UUID.fromString(rs.getString("e.ownerId"))) //
-                    .type(EACLEntryType.valueOf(rs.getString("e.ownerType"))) //
-                    .perms(rs.getInt("e.perms")) //
-                    .build();
-                aclEntries.add(entry);
-            }
-
-            if (!found)
-            {
-                throw new NotFoundException(uuid);
-            }
-
-            aclBuilder.entries(aclEntries);
-            nodeBuilder.acl(aclBuilder.build());
-            return nodeBuilder.build();
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            String msg = String.format("Die INode mit der UUID '%1$s' konnte nicht geladen werden", uuid);
-            throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(rs);
-        }
-    }
-
-    /**
-     * @throws TechnicalFileSysException 
-     * @throws AccessDeniedException 
-     * @throws NotFoundException 
-     *
-     */
-    @Override
-    public List<INode> getAllChilds(UUID parentId, boolean foldersOnly)
-        throws TechnicalFileSysException, NotFoundException, AccessDeniedException
-    {
-        try (Connection conn = this.dbService.openConnection())
-        {
-            return this.getAllChilds(parentId, foldersOnly, conn);
-        }
-        catch (SQLException e)
-        {
-            String msg = String.format("Die Elemente des Ordners mit der UUID '%1$s' konnten nicht geladen werden",
-                parentId);
-            throw new TechnicalFileSysException(msg, e);
-        }
-    }
-
-
-    /**
-     * @throws TechnicalFileSysException 
-     * @throws AccessDeniedException 
-     * @throws NotFoundException 
-     *
-     */
-    @Override
-    public List<INode> getAllChilds(UUID parentId, boolean foldersOnly, Connection conn)
-        throws TechnicalFileSysException, NotFoundException, AccessDeniedException
-    {
-        ResultSet rs = null;
-
-        // lade zuerst die ParentNode um zu prüfen dass die Berechtigungen passen.
-        INode parentNode = this.getINode(parentId, conn);
-        if (!this.permsSvc.canEffectiveRead(parentNode.getAcl()))
-        {
-            throw new AccessDeniedException(parentNode);
-        }
-
-        try (PreparedStatement stmt = conn.prepareStatement(SQL_GET_ALL_CHILDS))
-        {
-
-            List<INode> result = new ArrayList<INode>();
-
-            List<ACLEntry> aclEntries = new ArrayList<>();
-            ACL.ACLBuilder currACLBuilder = null;
-            INode.INodeBuilder currNodeBuilder = null;
-            UUID currUUID = null;
-
-            stmt.setString(1, parentId.toString());
-            rs = stmt.executeQuery();
-            while (rs.next())
-            {
-                UUID uuid = UUID.fromString(rs.getString("i.uuid"));
-                if (currUUID == null || !uuid.equals(currUUID))
-                {
-                    if (currUUID != null)
-                    {
-                        currACLBuilder.entries(aclEntries);
-                        aclEntries = new ArrayList<>();
-                        currNodeBuilder.acl(currACLBuilder.build());
-                        INode node = currNodeBuilder.build();
-                        if (!foldersOnly || node.isDirectory())
-                        {
-                            result.add(currNodeBuilder.build());
-                        }
-                    }
-                    currUUID = uuid;
-                    currNodeBuilder = INode.builder();
-                    currACLBuilder = ACL.builder();
-
-                    currNodeBuilder.uuid(uuid) //
-                        .parent(parentId) //
-                        .linkTo(this.parseNullableUUID(rs.getString("linkTo"))) //
-                        .name(rs.getString("i.name")) //
-                        .type(rs.getString("i.type")) //
-                        .size(rs.getLong("i.size")) //
-                        .created(rs.getTimestamp("i.created")) //
-                        .modified(rs.getTimestamp("i.modified"));
-
-                    currACLBuilder//
-                        .ownerId(UUID.fromString(rs.getString("a.ownerId"))) //
-                        .groupId(UUID.fromString(rs.getString("a.groupId")));
-                }
-
-                ACLEntry entry = ACLEntry.builder() //
-                    .uuid(UUID.fromString(rs.getString("e.ownerId"))) //
-                    .type(EACLEntryType.valueOf(rs.getString("e.ownerType"))) //
-                    .perms(rs.getInt("e.perms")) //
-                    .build();
-                aclEntries.add(entry);
-            }
-
-            if (currNodeBuilder != null)
-            {
-                currACLBuilder.entries(aclEntries);
-                currNodeBuilder.acl(currACLBuilder.build());
-                INode node = currNodeBuilder.build();
-                if (!foldersOnly || node.isDirectory())
-                {
-                    result.add(currNodeBuilder.build());
-                }
-            }
-
-            return result;
-        }
-        catch (SQLException e)
-        {
-            e.printStackTrace();
-            String msg = String.format("Die Elemente des Ordners mit der UUID '%1$s' konnten nicht geladen werden",
-                parentId);
-            throw new TechnicalFileSysException(msg, e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(rs);
-        }
+        return this.fileSysUtils.getINode(uuid, conn);
     }
 
     /**
@@ -426,21 +223,6 @@ public class FileSysServiceImpl implements IFileSysService
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
         return this.createDocument(parentId, name, "inode/directory", conn);
-    }
-
-    /**
-     * @param val
-     * @return
-     */
-    private UUID parseNullableUUID(String val)
-    {
-
-        UUID result = null;
-        if (val != null)
-        {
-            result = UUID.fromString(val);
-        }
-        return result;
     }
 
     /**

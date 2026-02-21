@@ -112,28 +112,18 @@ export class AppComponent implements OnInit {
     return !this.sessSvc.currentUser.isEmpty();
   }
 
+  /**
+   * 
+   */
   get isShowSearch(): boolean {
     return this.isLoggedOn && this._showSearch;
   }
 
-  get isShowDashboard(): boolean {
-    return this.isLoggedOn && this._showDashboard;
-  }
-
-  /** 
+  /**
    * 
    */
-  onSearchResult(search: ISearchResultItem) {
-
-    switch (search.type) {
-      case 'inode':
-        const inode = search as INodeSearchResultItem;
-        this.router.navigateByUrl(`files/${inode.parent}#${inode.uuid}`);
-        break;
-
-      default:
-        break;
-    }
+  get isShowDashboard(): boolean {
+    return this.isLoggedOn && this._showDashboard;
   }
 
   /**
@@ -149,5 +139,13 @@ export class AppComponent implements OnInit {
         this._showDashboard = (url !== '/dashboard');
         
       });
+  }
+
+  /**
+   * 
+   * @param evt 
+   */
+  onSuppressCtxMenu(evt: Event) {
+    evt.preventDefault();
   }
 }

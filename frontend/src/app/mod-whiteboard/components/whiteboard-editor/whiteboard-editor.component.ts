@@ -1,38 +1,69 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+
+import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
+
 import { ShapeFactoryService } from '../../services/shape-factory.service';
 import { EDragMode } from '../../models/edrag-mode';
 
-import { WhiteboardRootContextMenuComponent } from '../whiteboard-root-context-menu/whiteboard-root-context-menu.component';
-import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
-
 import { AbstractShape } from '../../shapes/abstractshape';
 import { EZOrderMode } from '../../models/ezorder-mode';
+import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
 
 @Component({
   selector: 'app-whiteboard-editor',
   templateUrl: './whiteboard-editor.component.html',
   styleUrls: ['./whiteboard-editor.component.css']
 })
-export class WhiteboardEditorComponent {
+export class WhiteboardEditorComponent implements OnInit, OnDestroy {
 
   private static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-  private static DEFAULT_SHAPE_WIDTH = 100;
-  private static DEFAULT_SHAPE_HEIGHT = 100;
 
   @ViewChild("svg")
   svg!: ElementRef<HTMLElement>;
-
-  @ViewChild(WhiteboardRootContextMenuComponent)
-  rootCtxMenu!: WhiteboardRootContextMenuComponent;
+  imgWidth: string = '100%';
+  imgHeight: string = '100%';
 
   @ViewChild(WhiteboardShapeContextMenuComponent)
   shapeCtxMenu!: WhiteboardShapeContextMenuComponent;
 
-  private dragMode: EDragMode = EDragMode.none;
-  private resizeMode: string = '';
-  private svgsToShapes: Map<SVGElement, AbstractShape> = new Map<SVGElement, AbstractShape>();
-  private selectedShapes: Set<AbstractShape> = new Set<AbstractShape>();
-  private selectorFrame: SVGRectElement | null = null;
+  private _dragMode: EDragMode = EDragMode.none;
+  private _resizeMode: string = '';
+  private _shapes: Array<AbstractShape> = new Array<AbstractShape>();
+  private _connector: SVGLineElement | null = null;
+  private _selectorFrame: SVGRectElement | null = null;
+  public selectedShapes: Array<AbstractShape> = new Array<AbstractShape>();
+
+  showShapesMenu: boolean = false;
+  showConnectorsMenu: boolean = false;
+  private _resizeCallback: any = null;
+  private _gridGroup: SVGGElement | null = null;
+
+  /**
+   * 
+   * @param shapeFactory 
+   */
+  constructor(
+    private shapeFactory: ShapeFactoryService,
+    private commonsDlgs: CommonDialogsService) {
+
+  }
+
+  /**
+   * 
+   */
+  ngOnInit() {
+
+    this._resizeCallback = this.onSVGResize.bind(this);
+    window.addEventListener('resize', this._resizeCallback);
+  }
+
+  /**
+   * 
+  */
+  ngOnDestroy(): void {
+
+    window.removeEventListener('resize', this._resizeCallback);
+  }
 
   /**
    * Liefert das SVG-RootElement
@@ -44,10 +75,98 @@ export class WhiteboardEditorComponent {
 
   /**
    * 
-   * @param shapeFactory 
+   * @param evt 
    */
-  constructor(private shapeFactory: ShapeFactoryService) {
+  public onSVGResize(evt: Event) {
 
+    if (this.showGridLines) {
+      this.removeGridLines();
+      this.createGridLines();
+    }
+  }
+
+  /**
+   * 
+   */
+  set showGridLines(val: boolean) {
+
+    if (this._gridGroup) {
+      this.removeGridLines();
+    }
+    else {
+      this.createGridLines();
+    }
+  }
+
+  /**
+   * 
+   */
+  private removeGridLines() {
+
+    if (this._gridGroup) {
+      this._gridGroup.remove();
+      this._gridGroup = null;
+    }
+  }
+
+  /**
+   * 
+   */
+  private createGridLines() {
+
+    this._gridGroup = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, "g") as SVGGElement;
+
+    const width = this.svgRoot.clientWidth;
+    const height = this.svgRoot.clientHeight;
+    for (let i = 0; i < width; i += 32) {
+
+      const elem = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'line') as SVGGraphicsElement;
+      elem.setAttribute('x1', `${i}`);
+      elem.setAttribute('y1', `0`);
+      elem.setAttribute('x2', `${i}`);
+      elem.setAttribute('y2', `${height}`);
+      elem.setAttribute('stroke-dasharray', `2 6`);
+      elem.setAttribute('stroke', `lightgray`);
+      this._gridGroup.appendChild(elem);
+    }
+
+    for (let i = 0; i < height; i += 32) {
+
+      const elem = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'line') as SVGGraphicsElement;
+      elem.setAttribute('x1', `${0}`);
+      elem.setAttribute('y1', `${i}`);
+      elem.setAttribute('x2', `${width}`);
+      elem.setAttribute('y2', `${i}`);
+      elem.setAttribute('stroke-dasharray', `2 6`);
+      elem.setAttribute('stroke', `lightgray`);
+      this._gridGroup.appendChild(elem);
+    }
+    this.svgRoot.insertBefore(this._gridGroup, this.svgRoot.firstChild);
+  }
+
+  /**
+   * 
+   */
+  get showGridLines(): boolean {
+    return this._gridGroup != null;
+  }
+
+  /**
+   * 
+   */
+  onSVGDownload() {
+
+    this.commonsDlgs.showInputBox('Speichern unter', 'Datei-Name').subscribe(name => {
+
+      const blob = new Blob([this.svgRoot.outerHTML], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = name;
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    });
   }
 
   /**
@@ -56,9 +175,11 @@ export class WhiteboardEditorComponent {
   public onCreateShape(type: string) {
 
     const shape = this.shapeFactory.createShape(this.svgRoot, type, 0, 0, 100, 100);
-    shape.onMouseDown = this.onStartDragShape.bind(this);
+    shape.onStartDrag = this.onStartDragShape.bind(this);
     shape.onStartResize = this.onStartResizeShape.bind(this);
-    this.svgsToShapes.set(shape.svgElem, shape);
+    shape.onStartConnect = this.onStartConnect.bind(this);
+    shape.onShowCtxMenu = this.onShowShapesContextMenu.bind(this);
+    this._shapes.push(shape);
   }
 
   /**
@@ -68,13 +189,16 @@ export class WhiteboardEditorComponent {
    */
   onStartDragShape(evt: MouseEvent, shape: AbstractShape) {
 
-    this.dragMode = EDragMode.dragShape;
-    if (!evt.ctrlKey) {
-      this.clearAllSelections();
-    }
+    if (evt.button === 0) {
 
-    if (shape) {
-      this.addSelectedShape(shape);
+      this._dragMode = EDragMode.dragShape;
+      if (!evt.ctrlKey) {
+        this.clearAllSelections();
+      }
+
+      if (shape) {
+        this.addSelectedShape(shape);
+      }
     }
   }
 
@@ -89,8 +213,8 @@ export class WhiteboardEditorComponent {
    */
   onStartResizeShape(evt: MouseEvent, shape: AbstractShape, resizeType: string) {
 
-    this.dragMode = EDragMode.dragResize;
-    this.resizeMode = resizeType;
+    this._dragMode = EDragMode.dragResize;
+    this._resizeMode = resizeType;
 
     if (!evt.ctrlKey) {
       this.clearAllSelections();
@@ -98,6 +222,30 @@ export class WhiteboardEditorComponent {
 
     if (shape) {
       this.addSelectedShape(shape);
+    }
+  }
+
+  /**
+   * 
+   * @param evt 
+   * @param shape 
+   * @param position 
+   */
+  onStartConnect(evt: MouseEvent, shape: AbstractShape, position: string) {
+
+    if (!this._connector) {
+
+      this._dragMode = EDragMode.dragConnector;
+      this._connector = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'line') as SVGLineElement;
+      this._connector.setAttribute('x1', `${evt.offsetX}`);
+      this._connector.setAttribute('y1', `${evt.offsetY}`);
+      this._connector.setAttribute('x2', `${evt.offsetX}`);
+      this._connector.setAttribute('y2', `${evt.offsetY}`);
+      this._connector.setAttribute('stroke', 'black');
+      this._connector.setAttribute('stroke-width', '1');
+
+      this.svgRoot.appendChild(this._connector);
+
     }
   }
 
@@ -127,7 +275,7 @@ export class WhiteboardEditorComponent {
     const deltaX = evt.movementX;
     const deltaY = evt.movementY;
 
-    switch (this.dragMode) {
+    switch (this._dragMode) {
       case EDragMode.dragShape:
         this.moveSelectedShapes(deltaX, deltaY);
         break;
@@ -137,6 +285,12 @@ export class WhiteboardEditorComponent {
         break;
 
       case EDragMode.dragConnector:
+
+        console.log('move connector');
+        this._connector!.setAttribute('x2', `${evt.offsetX}`);
+        this._connector!.setAttribute('y2', `${evt.offsetY}`);
+
+        console.log(this._connector!);
         break;
 
       case EDragMode.dragSelectorFrame:
@@ -154,7 +308,7 @@ export class WhiteboardEditorComponent {
    */
   onMouseUp(evt: MouseEvent) {
 
-    switch (this.dragMode) {
+    switch (this._dragMode) {
       case EDragMode.dragShape:
         break;
 
@@ -171,7 +325,7 @@ export class WhiteboardEditorComponent {
       default:
         break;
     }
-    this.dragMode = EDragMode.none;
+    this._dragMode = EDragMode.none;
   }
 
   /**
@@ -179,33 +333,26 @@ export class WhiteboardEditorComponent {
    * @param evt 
    */
   onMouseLeave(evt: MouseEvent) {
-    this.dragMode = EDragMode.none;
+    this._dragMode = EDragMode.none;
   }
 
   /**
-   *  
+   * 
    * @param evt 
    */
-  onShowContextMenu(evt: MouseEvent) {
+  onShowShapesContextMenu(evt: MouseEvent, shape: AbstractShape) {
 
-    evt.preventDefault();
+    let selection = Array.of(shape);
+    shape.setSelected(true);
 
-    const svg = evt.target as SVGElement;
-    if (svg === this.svgRoot) {
-      this.rootCtxMenu.show(evt);
+    if (!evt.ctrlKey) {
+      this.clearAllSelections();
     }
     else {
-
-      if (!evt.ctrlKey) {
-        this.clearAllSelections();
-      }
-
-      const shape = this.svgsToShapes.get(svg);
-      if (shape) {
-        this.addSelectedShape(shape);
-        this.shapeCtxMenu.show(evt);
-      }
+      selection = selection.concat(this.selectedShapes);
     }
+    this.selectedShapes = selection;
+    this.shapeCtxMenu.show(evt);
   }
 
   /*-------------------------------------------------------------------------*/
@@ -216,23 +363,27 @@ export class WhiteboardEditorComponent {
 
   private startFrameSelection(evt: MouseEvent) {
 
-    if (!this.selectorFrame) {
+    if (!this._selectorFrame) {
 
-      this.selectorFrame = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'rect') as SVGRectElement;
-      this.selectorFrame.setAttribute('x', `${evt.offsetX}`);
-      this.selectorFrame.setAttribute('y', `${evt.offsetY}`);
-      this.selectorFrame.setAttribute('class', 'selector-frame');
-      this.svgRoot.appendChild(this.selectorFrame);
-      this.dragMode = EDragMode.dragSelectorFrame;
+      this._selectorFrame = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'rect') as SVGRectElement;
+      this._selectorFrame.setAttribute('x', `${evt.offsetX}`);
+      this._selectorFrame.setAttribute('y', `${evt.offsetY}`);
+      this._selectorFrame.setAttribute('class', 'selector-frame');
+      this.svgRoot.appendChild(this._selectorFrame);
+      this._dragMode = EDragMode.dragSelectorFrame;
     }
   }
 
+  /**
+   * 
+   * @param evt 
+   */
   private resizeSelectorFrame(evt: MouseEvent) {
 
-    if (this.selectorFrame) {
+    if (this._selectorFrame) {
 
-      const currX = Number.parseInt(this.selectorFrame.getAttribute('x')!);
-      const currY = Number.parseInt(this.selectorFrame.getAttribute('y')!);
+      const currX = Number.parseInt(this._selectorFrame.getAttribute('x')!);
+      const currY = Number.parseInt(this._selectorFrame.getAttribute('y')!);
 
       let newX = currX;
       let width = evt.offsetX - currX;
@@ -247,10 +398,10 @@ export class WhiteboardEditorComponent {
         newY = evt.offsetY;
         height = currY - evt.offsetY;
       }
-      this.selectorFrame.setAttribute('x', `${newX}`);
-      this.selectorFrame.setAttribute('y', `${newY}`);
-      this.selectorFrame.setAttribute('width', `${width}`);
-      this.selectorFrame.setAttribute('height', `${height}`);
+      this._selectorFrame.setAttribute('x', `${newX}`);
+      this._selectorFrame.setAttribute('y', `${newY}`);
+      this._selectorFrame.setAttribute('width', `${width}`);
+      this._selectorFrame.setAttribute('height', `${height}`);
 
       this.selectByFrame(newX, newY, width, height);
     }
@@ -259,22 +410,24 @@ export class WhiteboardEditorComponent {
   private selectByFrame(x: number, y: number, width: number, height: number) {
 
     this.clearAllSelections();
-    this.svgsToShapes.forEach((shape, svg) => {
+    const selected: Array<AbstractShape> = new Array<AbstractShape>();
+    this._shapes.forEach((shape) => {
 
-      if(shape.isInRect(x, y, width, height)) {
+      if (shape.isInRect(x, y, width, height)) {
         shape.setSelected(true);
-        this.selectedShapes.add(shape);
+        selected.push(shape);
       }
+      this.selectedShapes = selected;
     });
   }
 
 
   private stopFrameSelection() {
 
-    if (this.selectorFrame) {
-      this.selectorFrame.remove();
-      this.selectorFrame = null;
-      this.dragMode = EDragMode.none;
+    if (this._selectorFrame) {
+      this._selectorFrame.remove();
+      this._selectorFrame = null;
+      this._dragMode = EDragMode.none;
     }
   }
 
@@ -300,7 +453,7 @@ export class WhiteboardEditorComponent {
 
     this.selectedShapes.forEach(shape => {
 
-      switch (this.resizeMode) {
+      switch (this._resizeMode) {
         case 'n':
           shape.translateBy(0, resizeY);
           shape.resizeBy(0, -resizeY);
@@ -341,6 +494,22 @@ export class WhiteboardEditorComponent {
     });
   }
 
+  /**
+   * Lösche alle Selektierten Shapes
+   */
+  public onDeleteSelectedShapes() {
+
+    this.selectedShapes.forEach(shape => {
+      shape.delete();
+    })
+
+    this._shapes = this._shapes.filter(shape => {
+      return this.selectedShapes.indexOf(shape) !== -1;
+    })
+
+    this.selectedShapes = new Array<AbstractShape>();
+  }
+
   /*-------------------------------------------------------------------------*/
   /*                                                                         */
   /* All about selection                                                     */
@@ -353,16 +522,19 @@ export class WhiteboardEditorComponent {
   private addSelectedShape(shape: AbstractShape) {
 
     shape.setSelected(true);
-    this.selectedShapes.add(shape);
+    const selected: Array<AbstractShape> = new Array<AbstractShape>(...this.selectedShapes);
+    selected.push(shape);
+    this.selectedShapes = selected;
   }
 
   public selectAll() {
 
-    console.log('selectAll')
-    this.svgsToShapes.forEach( shape => {
+    const selected = new Array<AbstractShape>();
+    this._shapes.forEach(shape => {
       shape.setSelected(true);
-      this.selectedShapes.add(shape);
+      selected.push(shape);
     })
+    this.selectedShapes = selected;
   }
 
   /**
@@ -373,7 +545,11 @@ export class WhiteboardEditorComponent {
     this.selectedShapes.forEach(shape => {
       shape.setSelected(false);
     })
-    this.selectedShapes.clear();
+    this.selectedShapes = new Array<AbstractShape>();
+  }
+
+  public get hasSelection(): boolean {
+    return this.selectedShapes.length !== 0;
   }
 
   /*-------------------------------------------------------------------------*/
@@ -381,52 +557,6 @@ export class WhiteboardEditorComponent {
   /* All about property changes                                              */
   /*                                                                         */
   /*-------------------------------------------------------------------------*/
-
-  /**
-   * Füll-Farbe
-   * 
-   * @param color 
-   */
-  public onChangeFillColor(color: string) {
-
-    this.selectedShapes.forEach(shape => {
-      shape.setFillColor(color);
-    })
-  }
-
-  /**
-   * Rahmen-Farbe
-   * 
-   * @param color 
-   */
-  onChangeBorderColor(color: string) {
-
-    this.selectedShapes.forEach(shape => {
-      shape.setBorderColor(color);
-    })
-  }
-
-  /**
-   * 
-   * @param width 
-   */
-  onChangeBorderWidth(width: number) {
-
-    this.selectedShapes.forEach(shape => {
-      shape.setBorderWidth(width);
-    })
-  }
-
-  /**
-   * 
-   * @param width 
-   */
-  onChangeBorderStyle(style: string) {
-
-    this.selectedShapes.forEach(shape => {
-      shape.setBorderStyle(style);
-    })
-  }
 
   onChangeZOrder(zorder: EZOrderMode) {
 
