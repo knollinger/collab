@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
@@ -34,13 +33,10 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class UploadServiceImpl implements IUploadService
 {
-    private static final String SQL_CREATE_INODE = "" //
-        + "insert into `inodes`" // 
-        + "  set `uuid`=?, `parent`=?, `name`=?, `size`=?, `type`=?, `hash`=?, `data`=?";
-
-    private static final String SQL_GET_CHILD_BY_NAME = "" //
-        + "select * from `inodes`" //
-        + "  where `parent`=? and `name`=?";
+    private static final String SQL_CREATE_INODE = """
+        insert into `inodes`
+            set `uuid`=?, `parent`=?, `name`=?, `size`=?, `type`=?, `hash`=?, `data`=?
+        """;
 
     private static final String ERR_UPLOAD_FAILED = "Der Upload in den Ordner mit der UUID '%1$s' ist technisch fehl geschlagen.";
 
@@ -55,6 +51,8 @@ public class UploadServiceImpl implements IUploadService
     
     @Autowired
     private ICurrentUserService currUserSvc;
+    
+    private FileSysUtils fileSysUtils = new FileSysUtils();
 
     /**
      * @throws AccessDeniedException 
@@ -86,18 +84,20 @@ public class UploadServiceImpl implements IUploadService
     {
         try
         {
+            UUID resolvedUUID = this.fileSysUtils.resolveLink(parentUUID, conn);
+            
             List<UUID> resultIds = new ArrayList<>();
             List<INode> duplicates = new ArrayList<>();
             for (MultipartFile file : files)
             {
-                UUID newUUID = this.handleOneFile(parentUUID, file, this.currUserSvc.getUser(), conn);
+                UUID newUUID = this.handleOneFile(resolvedUUID, file, this.currUserSvc.getUser(), conn);
                 if (newUUID != null)
                 {
                     resultIds.add(newUUID);
                 }
                 else
                 {
-                    duplicates.add(this.getChildByName(parentUUID, file.getOriginalFilename(), conn)); // TODO: inodeSvc benutzen!
+                    duplicates.add(this.fileSysUtils.getChildByName(resolvedUUID, file.getOriginalFilename(), conn));
                 }
             }
 
@@ -163,45 +163,5 @@ public class UploadServiceImpl implements IUploadService
             // es existiert bereits eine INode mit diesem Namen im Parent!
         }
         return result;
-    }
-
-    /**
-     * @param parentId
-     * @param originalFilename
-     * @param conn
-     * @return
-     * @throws SQLException
-     */
-    private INode getChildByName(UUID parentId, String originalFilename, Connection conn) throws SQLException
-    {
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        INode result = null;
-
-        try
-        {
-            stmt = conn.prepareStatement(SQL_GET_CHILD_BY_NAME);
-            stmt.setString(1, parentId.toString());
-            stmt.setString(2, originalFilename);
-            rs = stmt.executeQuery();
-            if (rs.next())
-            {
-                result = INode.builder() //
-                    .uuid(UUID.fromString(rs.getString("uuid"))) //
-                    .name(originalFilename) //
-                    .parent(parentId) //
-                    .size(rs.getLong("size")) //
-                    .type(rs.getString("type")) //
-                    .created(rs.getTimestamp("created")) //
-                    .modified(rs.getTimestamp("modified")) //
-                    .build();
-            }
-            return result;
-        }
-        finally
-        {
-            this.dbSvc.closeQuitely(rs);
-            this.dbSvc.closeQuitely(stmt);
-        }
     }
 }

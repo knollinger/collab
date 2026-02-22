@@ -40,27 +40,27 @@ public class CopyINodeServiceImpl implements ICopyINodeService
 
     @Autowired()
     private IListFolderService listFolderSvc;
-    
-    private static final String SQL_COPY = "" //
-        + "insert into `inodes` ( `uuid`, `parent`, `linkTo`, `name`, `size`, `type`, `data`, `hash`)" //
-        + "  select ? , ?, `linkTo`, ?, `size`, `type`, `data`, `hash`" //
-        + "    from `inodes`" //
-        + "      where `uuid` = ?";
 
+    private static final String SQL_COPY = """
+        insert into `inodes` ( `uuid`, `parent`, `linkTo`, `name`, `size`, `type`, `data`, `hash`)
+            select ? , ?, `linkTo`, ?, `size`, `type`, `data`, `hash`
+                from `inodes`
+                    where `uuid` = ?
+        """;
+    
     /**
-     * @throws AccessDeniedException 
      *
      */
     @Override
     public List<INode> copyINodes(List<INode> inodes, INode target)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
-        try(Connection conn = this.dbSvc.openConnection())
+        try (Connection conn = this.dbSvc.openConnection())
         {
             conn.setAutoCommit(false);
             List<INode> result = this.copyINodes(inodes, target, conn);
             conn.commit();
-            
+
             return result;
         }
         catch (SQLException e)
@@ -71,29 +71,20 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     }
 
     /**
-     * @param inodes
-     * @param target
-     * @param conn
-     * @return
-     * @throws TechnicalFileSysException
-     * @throws NotFoundException
-     * @throws DuplicateEntryException
-     * @throws AccessDeniedException
+     *
      */
     @Override
     public List<INode> copyINodes(List<INode> inodes, INode target, Connection conn)
         throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
     {
-        List<INode> result = new ArrayList<INode>();
-        List<INode> duplicates = new ArrayList<INode>();
-        
         INode resolvedTarget = this.linkSvc.resolveLink(target, conn);
-        
         if (!this.permissionsSvc.canEffectiveWrite(resolvedTarget.getAcl()))
         {
             throw new AccessDeniedException(resolvedTarget);
         }
 
+        List<INode> result = new ArrayList<INode>();
+        List<INode> duplicates = new ArrayList<INode>();
         for (INode inode : inodes)
         {
             INode newINode = this.copyOneINode(inode, resolvedTarget, conn);
@@ -126,7 +117,7 @@ public class CopyINodeServiceImpl implements ICopyINodeService
     private INode copyOneINode(INode inode, INode target, Connection conn)
         throws NotFoundException, TechnicalFileSysException, AccessDeniedException
     {
-        try(PreparedStatement stmt = conn.prepareStatement(SQL_COPY))
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_COPY))
         {
             UUID newUUID = UUID.randomUUID();
             stmt.setString(1, newUUID.toString());

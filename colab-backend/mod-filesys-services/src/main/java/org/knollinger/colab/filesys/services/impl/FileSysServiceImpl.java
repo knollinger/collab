@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
@@ -36,14 +35,6 @@ public class FileSysServiceImpl implements IFileSysService
 
     private static final String SQL_RENAME_INODE = "" //
         + "update `inodes` set `name`=?" //
-        + "  where `uuid`=?";
-
-    private static final String SQL_GET_CHILD_BY_NAME = "" //
-        + "select uuid from `inodes`" //
-        + "  where `parent`=? and `name`=?";
-
-    private static final String SQL_MOVE_INODE = "" //
-        + "update `inodes` set `parent`=?, `name`=?" //
         + "  where `uuid`=?";
 
     @Autowired()
@@ -145,51 +136,11 @@ public class FileSysServiceImpl implements IFileSysService
     {
         try (Connection conn = this.dbService.openConnection())
         {
-            return this.getChildByName(parentId, name, conn);
+            return this.fileSysUtils.getChildByName(parentId, name, conn);
         }
         catch (SQLException e)
         {
             throw new TechnicalFileSysException("Das Dateisystem-Objekt konnte nicht geladen werden.", e);
-        }
-    }
-
-    /**
-     * 
-     * @param parentId
-     * @param name
-     * @param conn
-     * @return
-     * @throws AccessDeniedException 
-     * @throws NotFoundException 
-     * @throws TechnicalFileSysException 
-     */
-    public INode getChildByName(UUID parentId, String name, Connection conn)
-        throws AccessDeniedException, NotFoundException, TechnicalFileSysException
-    {
-        ResultSet rs = null;
-
-        // TODO: ACL und die Entries mit lesen
-        try (PreparedStatement stmt = conn.prepareStatement(SQL_GET_CHILD_BY_NAME))
-        {
-
-            stmt.setString(1, parentId.toString());
-            stmt.setString(2, name);
-            rs = stmt.executeQuery();
-            if (!rs.next())
-            {
-                throw new NotFoundException(name);
-            }
-
-            UUID uuid = UUID.fromString(rs.getString("uuid"));
-            return this.getINode(uuid, conn);
-        }
-        catch (SQLException e)
-        {
-            throw new TechnicalFileSysException("Das Dateisystem-Objekt konnte nicht geladen werden.", e);
-        }
-        finally
-        {
-            this.dbService.closeQuitely(rs);
         }
     }
 
@@ -276,7 +227,7 @@ public class FileSysServiceImpl implements IFileSysService
         }
         catch (SQLIntegrityConstraintViolationException e)
         {
-            throw new DuplicateEntryException(this.getChildByName(parentId, name, conn));
+            throw new DuplicateEntryException(this.fileSysUtils.getChildByName(parentId, name, conn));
         }
         catch (SQLException | IOException | TechnicalACLException | DuplicateACLException e)
         {
@@ -322,7 +273,7 @@ public class FileSysServiceImpl implements IFileSysService
         }
         catch (SQLIntegrityConstraintViolationException e)
         {
-            node = this.getChildByName(node.getParent(), name, conn);
+            node = this.fileSysUtils.getChildByName(node.getParent(), name, conn);
             throw new DuplicateEntryException(node);
         }
         catch (SQLException e)
@@ -330,88 +281,6 @@ public class FileSysServiceImpl implements IFileSysService
             String msg = String.format("Das Dateisystem-Objekt mit der UUID '%1$s' konnte nicht umbenannt werden",
                 uuid);
             throw new TechnicalFileSysException(msg, e);
-        }
-    }
-
-    /**
-     * @throws AccessDeniedException 
-     */
-    @Override
-    public List<INode> move(List<INode> src, INode target)
-        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
-    {
-        try (Connection conn = this.dbService.openConnection())
-        {
-            conn.setAutoCommit(false);
-            List<INode> result = this.move(src, target, conn);
-            conn.commit();
-            
-            return result;
-        }
-        catch (SQLException e)
-        {
-            throw new TechnicalFileSysException(
-                "Das verschieben des Objektes konnte aufgrund eines technischen Fehlers nicht durchgeführt werden.", e);
-        }
-    }
-
-    /**
-     * @throws AccessDeniedException 
-     */
-    @Override
-    public List<INode> move(List<INode> src, INode target, Connection conn)
-        throws TechnicalFileSysException, NotFoundException, DuplicateEntryException, AccessDeniedException
-    {
-        // TODO testen, ob das objekt nicht in eines seiner kinder verschoben werden soll
-        // Dazu getPath (target), die src darf nicht darin enthalten sein!
-
-        try (PreparedStatement stmt = conn.prepareStatement(SQL_MOVE_INODE);)
-        {
-            List<INode> result = new ArrayList<>();
-            for (INode iNode : src)
-            {
-                this.checkMoveAllowed(iNode, target, conn);
-
-                stmt.setString(1, target.getUuid().toString());
-                stmt.setString(2, iNode.getName());
-                stmt.setString(3, iNode.getUuid().toString());
-                if (stmt.executeUpdate() == 0)
-                {
-                    throw new NotFoundException(iNode.getUuid());
-                }
-                result.add(this.getINode(iNode.getUuid(), conn));
-            }
-            return result;
-        }
-        catch (SQLIntegrityConstraintViolationException e)
-        {
-            throw new DuplicateEntryException(src);
-        }
-        catch (SQLException e)
-        {
-            throw new TechnicalFileSysException(
-                "Das verschieben des Objektes konnte aufgrund eines technischen Fehlers nicht durchgeführt werden.", e);
-        }
-    }
-
-    /**
-     * @param src
-     * @param target
-     * @param conn
-     * @throws TechnicalFileSysException
-     * @throws NotFoundException
-     * @throws AccessDeniedException 
-     */
-    private void checkMoveAllowed(INode src, INode target, Connection conn)
-        throws TechnicalFileSysException, NotFoundException, AccessDeniedException
-    {
-        List<INode> path = this.getPath(target.getUuid(), conn);
-        for (INode iNode : path)
-        {
-            if (iNode.getUuid().equals(src.getUuid()))
-            {
-                // TODO: throw something
-            }
         }
     }
 
@@ -426,7 +295,7 @@ public class FileSysServiceImpl implements IFileSysService
      */
     @Override
     public INode getOrCreateFolder(UUID parentId, String name)
-        throws AccessDeniedException, NotFoundException, TechnicalFileSysException, DuplicateEntryException
+        throws AccessDeniedException, NotFoundException, TechnicalFileSysException
     {
         try (Connection conn = this.dbService.openConnection())
         {
@@ -451,7 +320,7 @@ public class FileSysServiceImpl implements IFileSysService
      */
     @Override
     public INode getOrCreateFolder(UUID parentId, String name, Connection conn)
-        throws AccessDeniedException, NotFoundException, TechnicalFileSysException, DuplicateEntryException
+        throws AccessDeniedException, NotFoundException, TechnicalFileSysException
     {
         INode result = INode.empty();
         try
@@ -460,10 +329,10 @@ public class FileSysServiceImpl implements IFileSysService
         }
         catch (DuplicateEntryException e)
         {
-            result = this.getChildByName(parentId, name, conn);
+            result = this.fileSysUtils.getChildByName(parentId, name, conn);
             if (!result.isDirectory())
             {
-                throw e;
+                throw new NotFoundException(name);
             }
         }
         return result;

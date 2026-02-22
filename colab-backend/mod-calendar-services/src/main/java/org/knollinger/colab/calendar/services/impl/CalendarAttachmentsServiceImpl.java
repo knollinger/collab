@@ -11,6 +11,7 @@ import java.util.UUID;
 import org.knollinger.colab.calendar.exc.CalEventNotFoundException;
 import org.knollinger.colab.calendar.exc.TechnicalCalendarException;
 import org.knollinger.colab.calendar.services.ICalendarAttachmentsService;
+import org.knollinger.colab.filesys.exceptions.AccessDeniedException;
 import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.INode;
@@ -34,7 +35,7 @@ public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsServi
     private static final String SQL_GET_ALL_ATTACHMENTS = "" //
         + "select inodeId from `calendar_attachments`" //
         + "  where `eventId`=?";
-    
+
     private static final String SQL_CREATE_ATTACHMENT_LINK = "" //
         + "insert into `calendar_attachments`" //
         + "  set `eventId`=?, `inodeId`=?";
@@ -54,7 +55,7 @@ public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsServi
 
     @Autowired()
     private IFileSysService fileSysSvc;
-    
+
     @Autowired()
     private IDeleteService deleteFileSysSvc;
 
@@ -222,44 +223,28 @@ public class CalendarAttachmentsServiceImpl implements ICalendarAttachmentsServi
      */
     private INode getEventAttachmentsBaseFolder(UUID eventId, Connection conn) throws TechnicalCalendarException
     {
-
-        INode base = this.getCalAttachmentsBaseFolder(conn);
-        return this.getOrCreateFolder(base.getUuid(), eventId.toString(), conn);
+        try
+        {
+            INode base = this.getCalAttachmentsBaseFolder(conn);
+            return this.fileSysSvc.getOrCreateFolder(base.getUuid(), eventId.toString(), conn);
+        }
+        catch (TechnicalFileSysException | AccessDeniedException | NotFoundException e)
+        {
+            throw new TechnicalCalendarException("Der Kalender-Basis-Ordner konnte nicht ermittelt werden.", e);
+        }
     }
 
     private INode getCalAttachmentsBaseFolder(Connection conn) throws TechnicalCalendarException
     {
-
-        UUID user = this.currUserSvc.getUser().getUserId();
-        return this.getOrCreateFolder(user, FOLDER_NAME, conn);
-
-    }
-
-    /**
-     * @param parentId
-     * @param name
-     * @return
-     * @throws TechnicalCalendarException
-     */
-    private INode getOrCreateFolder(UUID parentId, String name, Connection conn) throws TechnicalCalendarException
-    {
-        INode result = null;
         try
         {
-            try
-            {
-                result = this.fileSysSvc.getChildByName(parentId, name, conn);
-                return result;
-            }
-            catch (NotFoundException e)
-            {
-                result = this.fileSysSvc.createFolder(parentId, name, conn);
-            }
-            return result;
+            UUID user = this.currUserSvc.getUser().getUserId();
+            return this.fileSysSvc.getOrCreateFolder(user, FOLDER_NAME, conn);
         }
-        catch (Exception e)
+        catch (TechnicalFileSysException | AccessDeniedException | NotFoundException e)
         {
-            throw new TechnicalCalendarException("???", e);
+            throw new TechnicalCalendarException("Der Kalender-Basis-Ordner konnte nicht ermittelt werden.", e);
         }
+
     }
 }

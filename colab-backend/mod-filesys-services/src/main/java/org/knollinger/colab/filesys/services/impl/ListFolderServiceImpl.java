@@ -89,7 +89,6 @@ public class ListFolderServiceImpl implements IListFolderService
     public List<INode> getAllChilds(UUID parentId, Connection conn)
         throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
-        // TODO: parentFolder auflösen!
         UUID resolvedUUID = this.fileSysUtils.resolveLink(parentId, conn);
         INode resolvedParent = this.fileSysUtils.getINode(resolvedUUID, conn);
 

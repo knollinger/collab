@@ -46,11 +46,9 @@ public class LinkINodeServiceImpl implements ILinkINodeService
     @Autowired()
     private IPermissionsService permsSvc;
     
-
-
     /**
-    *
-    */
+     *
+     */
     @Override
     public INode resolveLink(INode inode) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
@@ -58,8 +56,8 @@ public class LinkINodeServiceImpl implements ILinkINodeService
     }
 
     /**
-    *
-    */
+     *
+     */
     @Override
     public INode resolveLink(INode inode, Connection conn)
         throws TechnicalFileSysException, NotFoundException, AccessDeniedException
@@ -68,8 +66,8 @@ public class LinkINodeServiceImpl implements ILinkINodeService
     }
 
     /**
-    *
-    */
+     *
+     */
     @Override
     public INode resolveLink(UUID uuid) throws TechnicalFileSysException, NotFoundException, AccessDeniedException
     {
@@ -118,8 +116,6 @@ public class LinkINodeServiceImpl implements ILinkINodeService
     }
 
     /**
-    /**
-     * @throws AccessDeniedException 
      *
      */
     @Override

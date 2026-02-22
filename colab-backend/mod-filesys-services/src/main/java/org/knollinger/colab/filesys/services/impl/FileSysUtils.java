@@ -33,6 +33,11 @@ class FileSysUtils
             where `uuid`=?
         """;
 
+    private static final String SQL_GET_CHILD_BY_NAME = """
+        select uuid from `inodes`
+          where `parent`=? and `name`=?
+        """;
+
     /**
      * @param uuid
      * @param conn
@@ -134,6 +139,32 @@ class FileSysUtils
         catch (SQLException e)
         {
             throw new TechnicalFileSysException("Der Dateisystem-Link konnte nicht aufgelöst werden.", e);
+        }
+    }
+
+    public INode getChildByName(UUID parentId, String name, Connection conn)
+        throws AccessDeniedException, NotFoundException, TechnicalFileSysException
+    {
+        // TODO: ACL und die Entries mit lesen
+        try (PreparedStatement stmt = conn.prepareStatement(SQL_GET_CHILD_BY_NAME))
+        {
+
+            stmt.setString(1, parentId.toString());
+            stmt.setString(2, name);
+            try (ResultSet rs = stmt.executeQuery())
+            {
+                if (!rs.next())
+                {
+                    throw new NotFoundException(name);
+                }
+
+                UUID uuid = UUID.fromString(rs.getString("uuid"));
+                return this.getINode(uuid, conn);
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new TechnicalFileSysException("Das Dateisystem-Objekt konnte nicht geladen werden.", e);
         }
     }
 

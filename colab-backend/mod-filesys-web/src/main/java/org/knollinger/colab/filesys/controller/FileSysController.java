@@ -23,6 +23,7 @@ import org.knollinger.colab.filesys.services.IDeleteService;
 import org.knollinger.colab.filesys.services.IFileSysService;
 import org.knollinger.colab.filesys.services.ILinkINodeService;
 import org.knollinger.colab.filesys.services.IListFolderService;
+import org.knollinger.colab.filesys.services.IMoveINodeService;
 import org.knollinger.colab.filesys.services.IUploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,6 +60,9 @@ public class FileSysController
 
     @Autowired
     private ILinkINodeService linkSvc;
+
+    @Autowired
+    private IMoveINodeService moveSvc;
 
     @Autowired
     private IFileSysMapper fileSysMapper;
@@ -216,7 +220,7 @@ public class FileSysController
         {
             List<INode> source = this.fileSysMapper.fromDTO(req.getSource());
             INode target = this.fileSysMapper.fromDTO(req.getTarget());
-            List<INode> result = this.fileSysService.move(source, target);
+            List<INode> result = this.moveSvc.moveINodes(source, target);
             return this.fileSysMapper.toDTO(result);
         }
         catch (TechnicalFileSysException e)
@@ -393,10 +397,6 @@ public class FileSysController
         catch (TechnicalFileSysException e)
         {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
-        }
-        catch (DuplicateEntryException e)
-        {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage(), e);
         }
     }
     
