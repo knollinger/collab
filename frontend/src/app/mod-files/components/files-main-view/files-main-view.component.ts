@@ -77,6 +77,7 @@ export class FilesMainViewComponent implements OnInit {
    */
   constructor(
     private router: Router,
+    private currRoute: ActivatedRoute,
     private commonsDlgSvc: CommonDialogsService,
     private titlebarSvc: TitlebarService,
     private inodeSvc: INodeService,
@@ -96,7 +97,17 @@ export class FilesMainViewComponent implements OnInit {
 
     this.titlebarSvc.subTitle = 'Dateien';
     this.loadSettings();
-    this.newTab();
+
+    this.currRoute.paramMap.subscribe(params => {
+
+      const target = params.get('uuid');
+      if (!target) {
+        const url = `files/main/${this.sessionSvc.currentUser.userId}`;
+        this.router.navigateByUrl(url);
+      } else {
+        this.addTab(target);
+      }
+    })
   }
 
   /*-------------------------------------------------------------------------*/
@@ -131,7 +142,6 @@ export class FilesMainViewComponent implements OnInit {
     })
     return result;
   }
-
 
   /*-------------------------------------------------------------------------*/
   /*                                                                         */
@@ -310,7 +320,7 @@ export class FilesMainViewComponent implements OnInit {
   /*-------------------------------------------------------------------------*/
 
   /**
-   * Callback für den GoHome-Button. Der Pfad des aktiven Panels wird auf das
+   * Callback für den GoHome-Button. Der Pfad des aktiven Tabs wird auf das
    * HomeDir des aktuellen Benutzers gesetzt.
    * 
    */

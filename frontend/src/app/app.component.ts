@@ -60,7 +60,7 @@ export class AppComponent implements OnInit {
     {
       icon: 'jamboard_kiosk',
       title: 'Whiteboard',
-      route: '/whiteboard/main'
+      route: '/whiteboard/folderview'
     },
     {
       icon: 'person',

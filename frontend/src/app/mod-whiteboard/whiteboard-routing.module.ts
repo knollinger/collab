@@ -8,13 +8,13 @@ import { WhiteboardEditorComponent } from "./components/whiteboard-editor/whiteb
 
 
 const routes: Routes = [
+  // {
+  //   path: '',
+  //   pathMatch: 'full',
+  //   redirectTo: 'main'
+  // },
   {
-    path: '',
-    pathMatch: 'full',
-    redirectTo: 'main'
-  },
-  {
-    path: 'main',
+    path: 'folderview',
     component: WhiteboardMainComponent,
     canActivate: [SessionRequiredGuard],
   },

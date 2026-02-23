@@ -6,6 +6,7 @@ import { OverlayModule } from '@angular/cdk/overlay';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModSessionModule } from '../mod-session/session.module';
+import { ModFilesModule } from '../mod-files/mod-files.module';
 import { ModWhiteboardRoutingModule } from './whiteboard-routing.module';
 
 import { WhiteboardMainComponent } from './components/whiteboard-main/whiteboard-main.component';
@@ -30,6 +31,7 @@ import { WhiteboardSiderbarComponent } from './components/whiteboard-siderbar/wh
     ModCommonsModule,
     ModMaterialImportModule,
     ModSessionModule,
+    ModFilesModule,
     ModWhiteboardRoutingModule
   ]
 })

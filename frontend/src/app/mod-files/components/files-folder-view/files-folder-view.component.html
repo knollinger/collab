@@ -39,12 +39,6 @@
 
             <div class="label"
                  [style.width]="iconSize">{{inode.name}}</div>
-<!-- 
-            <div class="selector"
-                 (click)="onSelect($event, inode)">
-                <mat-icon class="material-symbols-outlined" *ngIf="isSelected(inode)">remove</mat-icon>
-                <mat-icon class="material-symbols-outlined" *ngIf="!isSelected(inode)">add</mat-icon>
-            </div> -->
             <mat-checkbox class="selector"
                 [checked]="isSelected(inode)"
                 (click)="onSelect($event, inode)"

@@ -12,13 +12,7 @@ const routes: Routes = [
     canActivate: [SessionRequiredGuard],
   },
   {
-    path: 'main/:leftPanel',
-    component: FilesMainViewComponent,
-    canActivate: [SessionRequiredGuard],
-  },
-  
-  {
-    path: 'main/:leftPanel/:rightPanel',
+    path: 'main/:uuid',
     component: FilesMainViewComponent,
     canActivate: [SessionRequiredGuard],
   },
