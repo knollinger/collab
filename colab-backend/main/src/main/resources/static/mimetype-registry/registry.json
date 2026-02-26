@@ -1,0 +1,34 @@
+[
+	{
+		"regexp": "image/.*",
+		"route": "viewer/image"
+	},
+	{
+		"regexp": "video/.*",
+		"route": "viewer/video"
+	},
+	{
+		"regexp": "audio/.*",
+		"route": "viewer/audio"
+	},
+	{
+		"regexp": "text/.*",
+		"route": "viewer/quill"
+	},
+	{
+		"regexp": "application/json",
+		"route": "viewer/quill"
+	},
+	{
+		"regexp": "application/javascript",
+		"route": "viewer/quill"
+	},
+	{
+		"regexp": "application/vnd\\.oasis\\.opendocument.*",
+		"route": "viewer/collabora"
+	},
+	{
+		"regexp": "application/colab-whiteboard",
+		"route": "whiteboard/edit"
+	}
+]

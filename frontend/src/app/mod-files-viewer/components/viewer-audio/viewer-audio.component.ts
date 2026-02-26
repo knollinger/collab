@@ -1,7 +1,9 @@
-import { Component, DestroyRef, inject, Input } from '@angular/core';
+import { Component, DestroyRef, inject, Input, OnInit } from '@angular/core';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { INodeService } from '../../../mod-files/mod-files.module';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
+import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
   selector: 'app-viewer-audio',
@@ -9,31 +11,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styleUrls: ['./viewer-audio.component.css'],
   standalone: false
 })
-export class ViewerAudioComponent {
+export class ViewerAudioComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
-  private _imageINode: INode = INode.empty();
-  private _audioINode: INode = INode.empty();
-
-  @Input()
-  set inode(inode: INode) {
-
-    this._audioINode = inode;
-    this.tryToLoadImage(inode);
-  }
-
-  get inode(): INode {
-    return this._audioINode;
-  }
-
-  getImageUrl(): string {
-
-    let result = '';
-    if (!this._imageINode.isEmpty()) {
-      result = this.inodeSvc.getContentUrl(this._imageINode.uuid);
-    }
-    return result;
-  }
+  private imageINode: INode = INode.empty();
+  private audioINode: INode = INode.empty();
 
   /**
    * 
@@ -41,11 +23,50 @@ export class ViewerAudioComponent {
    * @param inodeSvc 
    */
   constructor(
-    private inodeSvc: INodeService) {
+    private route: ActivatedRoute,
+    private inodeSvc: INodeService,
+    private titleBarSvc: TitlebarService) {
   }
 
-  sourceUrl(): string {
-    return this.inodeSvc.getContentUrl(this.inode.uuid);
+  ngOnInit() {
+
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+
+        const uuid = params.get('uuid') || '';
+        this.inodeSvc.getINode(uuid)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(inode => {
+
+            this.audioINode = inode;
+            this.titleBarSvc.subTitle = inode.name;
+            this.tryToLoadImage(inode);
+          })
+      })
+  }
+
+  get hasINode(): boolean {
+    return !this.audioINode.isEmpty();
+  }
+  get imageUrl(): string {
+
+    let result = '';
+    if (!this.imageINode.isEmpty()) {
+      result = this.inodeSvc.getContentUrl(this.imageINode.uuid);
+    }
+    return result;
+  }
+
+  get sourceUrl(): string {
+
+    const url = this.inodeSvc.getContentUrl(this.audioINode.uuid);
+    console.log(url);
+    return url;
+  }
+
+  get type(): string {
+    return this.audioINode.type;
   }
 
   private tryToLoadImage(audioINode: INode) {
@@ -56,7 +77,7 @@ export class ViewerAudioComponent {
 
         for (let child of childs) {
           if (child.type.startsWith('image/')) {
-            this._imageINode = child;
+            this.imageINode = child;
             break;
           }
         }

@@ -1,11 +1,13 @@
 <div class="outer-cnr">
 
-        <img *ngIf="getImageUrl()"
-             [src]="getImageUrl()">
+        <img *ngIf="imageUrl"
+             [src]="imageUrl">
 
-        <audio controls>
-                <source [src]="sourceUrl() | safe:'resourceUrl'"
-                        [type]="inode.type">
+        <audio controls
+               autoplay
+               *ngIf="hasINode">
+                <source [src]="sourceUrl | safe:'resourceUrl'"
+                        [type]="type">
                 Your browser does not support the audio tag.
         </audio>
 </div>

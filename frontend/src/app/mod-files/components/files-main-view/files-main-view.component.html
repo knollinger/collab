@@ -13,7 +13,7 @@
             <mat-icon class="material-symbols-outlined">refresh</mat-icon>
         </button>
 
-        <app-files-create-menu [parent]="currentTab.parent"
+        <app-files-create-menu [parent]="parent"
                                (create)="createDocument($event)"></app-files-create-menu>
 
         <!-- Selection/deselectopn -->
@@ -161,66 +161,37 @@
     <div class="flex-1 disp-flex full-height scrollable flex-row">
 
         <app-files-places class="places"
-                          (open)="onOpenInCurrentTab($event)">
+                          (open)="openINode($event)">
         </app-files-places>
 
         <div class="panel">
 
             <div class="header">
                 <div class="breadcrumb">
-                    <app-files-bread-crumb-item *ngFor="let inode of currentTab.path"
+                    <app-files-bread-crumb-item *ngFor="let inode of path"
                                                 [inode]="inode"
-                                                (open)="onOpenInCurrentTab(inode)">
+                                                (open)="openINode(inode)">
                     </app-files-bread-crumb-item>
                 </div>
-                <button class="addBtn"
-                        mat-icon-button
-                        class="flex-0"
-                        (click)="newTab()"
-                        matTooltip="Einen neuen Tab öffnen">
-                    <mat-icon class="material-symbols-outlined">new_window</mat-icon>
-                </button>
             </div>
 
-            <!-- all open tabs-->
-            <mat-tab-group class="tabs"
-                           [mat-stretch-tabs]="false"
-                           (selectedIndexChange)="onTabChange($event)"
-                           [selectedIndex]="currTabIdx"
-                           [fitInkBarToContent]="true"
-                           animationDuration="0ms">
-
-                <mat-tab *ngFor="let tab of tabs; let idx=index">
-
-                    <!-- Das TabLabel sorgt beim DragOver dafür, das der Tab aktiviert wird -->
-                    <ng-template mat-tab-label>
-                        <app-files-main-view-tab-header [label]="tab.parent.name"
-                                                        [closeable]="isCloseable()"
-                                                        [active]="currTabIdx==idx"
-                                                        (dragOver)="currTabIdx=idx"
-                                                        (close)="closeTab(idx)">
-                        </app-files-main-view-tab-header>
-                    </ng-template>
-
-                    <app-folder-view [viewMode]="viewMode"
-                                     [iconSize]="iconSize"
-                                     [parent]="tab.parent"
-                                     [childs]="tab.childs"
-                                     [showHidden]="showHiddenFiles"
-                                     [selection]="tab.selected"
-                                     (open)="openINode(idx, $event)"
-                                     (create)="createDocument($event)"
-                                     (upload)="uploadFiles($event)"
-                                     (copy)="copyINodes($event.target, $event.src)"
-                                     (move)="moveINodes($event.target, $event.src)"
-                                     (link)="linkINodes($event.target, $event.src)"
-                                     (rename)="renameINode($event)"
-                                     (delete)="deleteINodes($event)"
-                                     (selectionChanged)="onSelectionChange(idx, $event)">
-                    </app-folder-view>
-
-                </mat-tab>
-            </mat-tab-group>
+            <app-folder-view class="panel"
+                             [viewMode]="viewMode"
+                             [iconSize]="iconSize"
+                             [parent]="parent"
+                             [childs]="childs"
+                             [showHidden]="showHiddenFiles"
+                             [selection]="selected"
+                             (open)="openINode($event)"
+                             (create)="createDocument($event)"
+                             (upload)="uploadFiles($event)"
+                             (copy)="copyINodes($event.target, $event.src)"
+                             (move)="moveINodes($event.target, $event.src)"
+                             (link)="linkINodes($event.target, $event.src)"
+                             (rename)="renameINode($event)"
+                             (delete)="deleteINodes($event)"
+                             (selectionChanged)="onSelectionChange($event)">
+            </app-folder-view>
 
             <app-toolbar class="statusBar">
                 Gesamt: {{nrOfChilds}} Objekte mit {{totalChildSize | fileSize}}

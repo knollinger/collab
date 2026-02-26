@@ -1,7 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 
-import { WopiService } from '../../../mod-files/mod-files.module';
+import { ActivatedRoute } from '@angular/router';
+import { INodeService, WopiService } from '../../../mod-files/mod-files.module';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 @Component({
   selector: 'app-viewer-collabara',
@@ -11,16 +14,18 @@ import { WopiService } from '../../../mod-files/mod-files.module';
 })
 export class ViewerCollabaraComponent implements OnInit {
 
-  @Input()
-  inode: INode = INode.empty();
-
-  launcherFormUrl: string = '';
+  private destroyRef = inject(DestroyRef);
+  private inode: INode = INode.empty();
 
   /**
    * 
    * @param wopiSvc 
    */
-  constructor(private wopiSvc: WopiService) {
+  constructor(
+    private route: ActivatedRoute,
+    private inodeSvc: INodeService,
+    private titleBarSvc: TitlebarService,
+    private wopiSvc: WopiService) {
 
   }
 
@@ -29,6 +34,26 @@ export class ViewerCollabaraComponent implements OnInit {
   */
   ngOnInit(): void {
 
-    this.launcherFormUrl = this.wopiSvc.getLauncherFormUrl(this.inode);
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+
+        const uuid = params.get('uuid') || '';
+        this.inodeSvc.getINode(uuid)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(inode => {
+            this.inode = inode;
+            this.titleBarSvc.subTitle = inode.name;
+          })
+
+      })
+  }
+
+  get launcherFormUrl(): string {
+    return this.wopiSvc.getLauncherFormUrl(this.inode);
+  }
+
+  get hasINode(): boolean {
+    return !this.inode.isEmpty();
   }
 }

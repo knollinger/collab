@@ -9,7 +9,6 @@ import { ModSessionModule } from '../mod-session/session.module';
 import { ModFilesModule } from '../mod-files/mod-files.module';
 import { ModWhiteboardRoutingModule } from './whiteboard-routing.module';
 
-import { WhiteboardMainComponent } from './components/whiteboard-main/whiteboard-main.component';
 import { WhiteboardEditorComponent } from './components/whiteboard-editor/whiteboard-editor.component';
 import { WhiteboardShapeContextMenuComponent } from './components/whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
 import { WhiteboardRootContextMenuComponent } from './components/whiteboard-root-context-menu/whiteboard-root-context-menu.component';
@@ -18,7 +17,6 @@ import { WhiteboardSiderbarComponent } from './components/whiteboard-siderbar/wh
 
 @NgModule({
   declarations: [
-    WhiteboardMainComponent,
     WhiteboardEditorComponent,
     WhiteboardShapeContextMenuComponent,
     WhiteboardRootContextMenuComponent,

@@ -1,15 +1,15 @@
 <div class="outer-cnr">
 
     <div class="current-view">
-        <img class="current-image" [src]="sourceUrl(inode) | safe:'resourceUrl'">
+        <img class="current-image" [src]="sourceUrl(currId) | safe:'resourceUrl'">
     </div>
 
     <div class="gallery">
-        <img *ngFor="let image of allImages"
+        <img *ngFor="let uuid of allSiblings"
              class="preview-img"
-             [class.selected]="isSelected(image)"
-             (click)="inode = image"
-             [id]="inode.uuid"
-             [src]="sourceUrl(image) | safe:'resourceUrl'">
+             [class.selected]="isSelected(uuid)"
+             (click)="currId = uuid"
+             [id]="uuid"
+             [src]="sourceUrl(uuid) | safe:'resourceUrl'">
     </div>
 </div>

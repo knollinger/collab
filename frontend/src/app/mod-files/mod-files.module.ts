@@ -29,7 +29,6 @@ import { FilesPermissionsComponent } from './components/files-permissions/files-
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
 import { FilesShowDuplicatesComponent } from './components/files-show-duplicates/files-show-duplicates.component';
-import { FilesMainViewTabHeaderComponent } from './components/files-main-view-tab-header/files-main-view-tab-header.component';
 
 import { INodeService } from './services/inode.service';
 export { INodeService };
@@ -59,7 +58,6 @@ export { WopiService };
     FilesShowDuplicatesComponent,
     FilesPlacesComponent,
     FilePickerComponent,
-    FilesMainViewTabHeaderComponent,
   ],
   imports: [
     CommonModule,

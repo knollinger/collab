@@ -5,9 +5,7 @@ import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModSessionModule } from '../mod-session/session.module';
 import { ModQuillModule } from '../mod-quill/mod-quill.module';
 
-import { ViewerChooserComponent } from './components/viewer-chooser/viewer-chooser.component';
 import { ModMaterialImportModule } from '../mod-material-import/mod-material-import.module';
-import { FilesViewerComponent } from './components/files-viewer/files-viewer.component';
 import { ViewerCollabaraComponent } from './components/viewer-collabara/viewer-collabara.component';
 import { ModFilesViewerRoutingModule } from './mod-files-viewer-routing.module';
 import { ViewerQuillComponent } from './components/viewer-quill/viewer-quill.component';
@@ -17,8 +15,6 @@ import { ViewerAudioComponent } from './components/viewer-audio/viewer-audio.com
 
 @NgModule({
   declarations: [
-    ViewerChooserComponent,
-    FilesViewerComponent,
     ViewerCollabaraComponent,
     ViewerQuillComponent,
     ViewerImageComponent,
@@ -34,7 +30,6 @@ import { ViewerAudioComponent } from './components/viewer-audio/viewer-audio.com
     ModFilesViewerRoutingModule
   ],
   exports: [
-    ViewerChooserComponent,
     ModFilesViewerRoutingModule
   ],
 })

@@ -7,6 +7,8 @@ import { Delta } from 'quill';
 
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { INodeService } from '../../../mod-files/mod-files.module';
+import { ActivatedRoute } from '@angular/router';
+import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 
 /**
  * 
@@ -20,6 +22,7 @@ import { INodeService } from '../../../mod-files/mod-files.module';
 export class ViewerQuillComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
+  private inode: INode = INode.empty();
   private quill: Quill | null = null;
   textChanged: boolean = false;
 
@@ -28,15 +31,32 @@ export class ViewerQuillComponent implements OnInit {
    * @param inodeSvc 
    */
   constructor(
+    private route: ActivatedRoute,
     private httpClient: HttpClient,
-    private inodeSvc: INodeService) {
+    private inodeSvc: INodeService,
+    private titleBarSvc: TitlebarService) {
   }
 
   /**
    * 
    */
   ngOnInit() {
+
     this.setupEditor();
+
+    this.route.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+
+        const uuid = params.get('uuid') || '';
+        this.inodeSvc.getINode(uuid)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(inode => {
+            this.inode = inode;
+            this.titleBarSvc.subTitle = inode.name;
+            this.loadDocument();
+          })
+      })
   }
 
   /**
@@ -60,29 +80,6 @@ export class ViewerQuillComponent implements OnInit {
         this.textChanged = true;
       }
     })
-  }
-
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* All about the current inode                                             */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-  private _currINode: INode = INode.empty();
-
-  /**
-   * PropSetter löst auch das laden des Dokumentes aus
-   */
-  @Input()
-  set inode(node: INode) {
-    this._currINode = node;
-    this.loadDocument();
-  }
-
-  /**
-   * PropGetter
-   */
-  get inode(): INode {
-    return this._currINode;
   }
 
   /*-------------------------------------------------------------------------*/

@@ -14,6 +14,7 @@ import { CreateMenuEvent } from '../files-create-menu/files-create-menu.componen
 import { CheckDuplicateEntriesService } from '../../services/check-duplicate-entries.service';
 import { ContentTypeService } from '../../services/content-type.service';
 import { FilesDroppedEvent } from '../../directives/drop-target.directive';
+import { FilesMimetypeRegistryService } from '../../services/files-mimetype-registry.service';
 
 export class IconSize {
 
@@ -23,21 +24,6 @@ export class IconSize {
 
   }
 }
-
-export class TabDescriptor {
-
-  constructor(
-    public parent: INode,
-    public path: INode[],
-    public childs: INode[],
-    public selected: Set<INode>) {
-  }
-
-  public static empty() {
-    return new TabDescriptor(INode.empty(), new Array<INode>(), new Array<INode>(), new Set<INode>());
-  }
-}
-
 
 /**
  * Die Haupt-Component der Files-Ansicht
@@ -51,12 +37,28 @@ export class TabDescriptor {
 
 export class FilesMainViewComponent implements OnInit {
 
+  // private static viewerRoutes: Map<RegExp, string> = new Map<RegExp, string>(
+  //   [
+  //     [new RegExp('image/.*', 'g'), 'viewer/image'],
+  //     [new RegExp('video/.*', 'g'), 'viewer/video'],
+  //     [new RegExp('audio/.*', 'g'), 'viewer/audio'],
+  //     [new RegExp('text/.*', 'g'), 'viewer/quill'],
+  //     [new RegExp('application/json', 'g'), 'viewer/quill'],
+  //     [new RegExp('application/javascript', 'g'), 'viewer/quill'],
+  //     [new RegExp('application/vnd\.oasis\.opendocument.*', 'g'), 'viewer/collabora'],
+  //     [new RegExp('application/colab-whiteboard', 'g'), 'whiteboard/edit']
+
+  //   ]
+  // );
   private destroyRef = inject(DestroyRef);
 
   showHiddenFiles: boolean = false;
   private settings: any = {}
 
-  tabs: TabDescriptor[] = new Array<TabDescriptor>();
+  public parent: INode = INode.empty();
+  public path: INode[] = Array<INode>();
+  public childs: INode[] = Array<INode>();
+  public selected: Set<INode> = new Set<INode>();
 
   iconSizes: IconSize[] = [
     new IconSize('64px', "Klein"),
@@ -86,7 +88,8 @@ export class FilesMainViewComponent implements OnInit {
     private settingsSvc: SettingsService,
     private checkDuplicatesSvc: CheckDuplicateEntriesService,
     private contentTypeSvc: ContentTypeService,
-    private uploadSvc: UploadService) {
+    private uploadSvc: UploadService,
+    private mimeTypeRegistry: FilesMimetypeRegistryService) {
 
   }
 
@@ -98,16 +101,22 @@ export class FilesMainViewComponent implements OnInit {
     this.titlebarSvc.subTitle = 'Dateien';
     this.loadSettings();
 
-    this.currRoute.paramMap.subscribe(params => {
+    this.currRoute.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
 
-      const target = params.get('uuid');
-      if (!target) {
-        const url = `files/main/${this.sessionSvc.currentUser.userId}`;
-        this.router.navigateByUrl(url);
-      } else {
-        this.addTab(target);
-      }
-    })
+        const target = params.get('uuid');
+        if (!target) {
+          this.onGoHome();
+        } else {
+          this.inodeSvc.getINode(target)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(inode => {
+              this.parent = inode;
+              this.onRefresh();
+            })
+        }
+      })
   }
 
   /*-------------------------------------------------------------------------*/
@@ -116,7 +125,7 @@ export class FilesMainViewComponent implements OnInit {
   /*                                                                         */
   /*-------------------------------------------------------------------------*/
   get nrOfChilds(): number {
-    return this.currentTab.childs.length;
+    return this.childs.length;
   }
 
   /**
@@ -125,7 +134,7 @@ export class FilesMainViewComponent implements OnInit {
   get totalChildSize(): number {
 
     let result = 0;
-    this.currentTab.childs.forEach(child => {
+    this.childs.forEach(child => {
       result += child.size;
     })
     return result;
@@ -137,122 +146,18 @@ export class FilesMainViewComponent implements OnInit {
   get selectedChildSize(): number {
 
     let result = 0;
-    this.currentTab.selected.forEach(child => {
+    this.selected.forEach(child => {
       result += child.size;
     })
     return result;
   }
 
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* All about tabbing                                                       */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-  public currTabIdx: number = 0;
-
   /**
-   * 
+   * Liefere die Anzahl von Selektierten INodes
    */
-  public get currentTab(): TabDescriptor {
+  get nrOfSelectedChilds(): number {
 
-    return this.tabs[this.currTabIdx];
-  }
-
-  /**
-   * Erzeuge einen neuen Tab mit dem HomeDirectory des Benutzers
-   */
-  public newTab() {
-
-    const homeDirId = this.sessionSvc.currentUser.userId;
-    this.addTab(homeDirId);
-  }
-
-  /** 
-   * Erzeuge einen neuen Tab für die gegebene UUID
-   * 
-   * Es wird zunächst ein leerer TabDescriptor angelegt und in das Tab-Array
-   * gepushed. Dadurch ist schon mal sicher gestellt, dass ein valider 
-   * TaskDescriptor existiert.
-   * 
-   * Im Anschluss wird der Inhalt des Tabs asynchron geladen und in den 
-   * Descriptor verfrachtet.
-   */
-  public addTab(uuid: string) {
-
-    const desc = TabDescriptor.empty();
-    this.currTabIdx = this.tabs.push(desc) - 1;
-    this.loadTab(uuid, desc);
-  }
-
-  /**
-   * 
-   * @param idx 
-   */
-  public closeTab(idx: number) {
-
-    if (this.tabs.length > 1) {
-      this.tabs.splice(idx, 1);
-      this.currTabIdx = Math.min(this.currTabIdx, this.tabs.length - 1);
-    }
-  }
-
-  /**
-   * Kann der Tab geschlossen werden?
-   * 
-   * Ein Tab kann geschlossen werden, wenn er nicht der letzte offene Tab ist
-   * 
-   * @returns 
-   */
-  public isCloseable(): boolean {
-    return this.tabs.length > 1;
-  }
-
-  /**
-   * 
-   * @param idx 
-   */
-  public onTabChange(idx: number) {
-    if (idx < this.tabs.length) {
-      this.currTabIdx = idx;
-    }
-  }
-
-  public onOpenInCurrentTab(inode: INode) {
-
-    console.log('onOpenInCurrent')
-    this.openFolder(this.currTabIdx, inode);
-  }
-
-
-  /**
-   * Lade einen Tab anhand seiner ParentUUID.
-   * 
-   * Es wird die INode selbst geladen, der Path zur INode und seine Childs. 
-   * Das Set mit den selektierten Childs wird leer angelegt.
-   *  
-   * @param uuid 
-   * @param tabDesc
-   */
-  private loadTab(uuid: string, tabDesc: TabDescriptor) {
-
-    this.inodeSvc.getINode(uuid)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(parentINode => {
-
-        tabDesc.parent = parentINode;
-        this.inodeSvc.getPath(uuid)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(path => {
-
-            tabDesc.path = path;
-            this.inodeSvc.getAllChilds(uuid)
-              .pipe(takeUntilDestroyed(this.destroyRef))
-              .subscribe(childs => {
-
-                tabDesc.childs = childs;
-              })
-          })
-      })
+    return this.selected.size;
   }
 
   /*-------------------------------------------------------------------------*/
@@ -271,7 +176,6 @@ export class FilesMainViewComponent implements OnInit {
       .subscribe(settings => {
         this.settings = settings;
 
-        // gespeicherte Tabs laden
       })
   }
 
@@ -327,9 +231,8 @@ export class FilesMainViewComponent implements OnInit {
   onGoHome() {
 
     const homeDirId = this.sessionSvc.currentUser.userId;
-    this.inodeSvc.getINode(homeDirId).subscribe(homeDir => {
-      this.onOpenInCurrentTab(homeDir);
-    })
+    const url = `files/main/${homeDirId}`;
+    this.router.navigateByUrl(url);
   }
 
   /**
@@ -337,16 +240,18 @@ export class FilesMainViewComponent implements OnInit {
    */
   onRefresh() {
 
-    const tab = this.currentTab;
-    this.onOpenInCurrentTab(tab.parent);
-  }
+    this.inodeSvc.getAllChilds(this.parent.uuid)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(childs => {
 
-  /**
-   * Liefere die Anzahl von Selektierten INodes
-   */
-  get nrOfSelectedChilds(): number {
-
-    return this.currentTab.selected.size;
+        this.childs = childs;
+        this.selected = new Set<INode>();
+        this.inodeSvc.getPath(this.parent.uuid)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(path => {
+            this.path = path;
+          })
+      })
   }
 
   /**
@@ -361,7 +266,7 @@ export class FilesMainViewComponent implements OnInit {
    */
   onSelectAll() {
 
-    const selected = new Set<INode>(this.currentTab.childs.filter(child => {
+    const selected = new Set<INode>(this.childs.filter(child => {
 
       let result = this.showHiddenFiles;
       if (!result) {
@@ -370,14 +275,14 @@ export class FilesMainViewComponent implements OnInit {
       return result;
     }));
 
-    this.currentTab.selected = selected;
+    this.selected = selected;
   }
 
   /**
    * hebe die Auswahl in der aktuellen SubPane auf
    */
   onDeselectAll() {
-    this.currentTab.selected.clear();
+    this.selected.clear();
   }
 
   /**
@@ -385,9 +290,9 @@ export class FilesMainViewComponent implements OnInit {
    * @param tabIdx 
    * @param selections 
    */
-  onSelectionChange(tabIdx: number, selections: Set<INode>) {
+  onSelectionChange(selections: Set<INode>) {
 
-    this.currentTab.selected = selections;
+    this.selected = selections;
   }
 
   /*-------------------------------------------------------------------------*/
@@ -401,7 +306,7 @@ export class FilesMainViewComponent implements OnInit {
    */
   onCut() {
 
-    const toCut = new Array<INode>(...this.currentTab.selected);
+    const toCut = new Array<INode>(...this.selected);
     this.clipboardSvc.cut(toCut);
   }
 
@@ -409,7 +314,7 @@ export class FilesMainViewComponent implements OnInit {
    * Kopiere alle selektierten INodes in das App-Clipboard
    */
   onCopy() {
-    const toCopy = new Array<INode>(...this.currentTab.selected);
+    const toCopy = new Array<INode>(...this.selected);
     this.clipboardSvc.copy(toCopy);
   }
 
@@ -417,7 +322,7 @@ export class FilesMainViewComponent implements OnInit {
    * Kopiere Links auf alle selektierten INodes in das App-Clipboard
    */
   onLink() {
-    const toLink = new Array<INode>(...this.currentTab.selected);
+    const toLink = new Array<INode>(...this.selected);
     this.clipboardSvc.link(toLink);
   }
 
@@ -431,7 +336,7 @@ export class FilesMainViewComponent implements OnInit {
    */
   onPaste() {
 
-    const newParent = this.currentTab.parent;
+    const newParent = this.parent;
 
     switch (this.clipboardSvc.operation) {
       case ClipboardService.OP_COPY:
@@ -497,10 +402,10 @@ export class FilesMainViewComponent implements OnInit {
    * 
    * @param inode 
    */
-  openINode(tabIdx: number, inode: INode) {
+  openINode(inode: INode) {
 
     if (inode.isDirectory()) {
-      this.openFolder(tabIdx, inode);
+      this.openFolder(inode);
     }
     else {
       this.openDocument(inode);
@@ -509,13 +414,12 @@ export class FilesMainViewComponent implements OnInit {
 
   /**
  * 
- * @param tabId 
  * @param inode 
  */
-  private openFolder(tabId: number, inode: INode) {
+  private openFolder(inode: INode) {
 
-    const tabDesc = this.tabs[tabId];
-    this.loadTab(inode.uuid, tabDesc);
+    const url = `files/main/${inode.uuid}`;
+    this.router.navigateByUrl(url);
   }
 
   /**
@@ -523,9 +427,26 @@ export class FilesMainViewComponent implements OnInit {
    * @param inode 
    */
   private openDocument(inode: INode) {
-    const url = `/viewer/show/${inode.uuid}`;
-    this.router.navigateByUrl(url);
 
+    // // Viewer auswählen
+    // FilesMainViewComponent.viewerRoutes.forEach((baseUrl: string, regexp: RegExp) => {
+
+    //   if (regexp.test(inode.type)) {
+
+    //     const url = `${baseUrl}/${inode.uuid}`;
+    //     this.router.navigateByUrl(url)
+    //   }
+    // })
+
+    const route = this.mimeTypeRegistry.getRouteForType(inode.type);
+    if(route) {
+
+      const url = `${route}/${inode.uuid}`;
+      this.router.navigateByUrl(url);
+    }
+    else {
+      alert(`no route for mimetype '${inode.type}'`);
+    }
   }
 
   /**
@@ -608,7 +529,7 @@ export class FilesMainViewComponent implements OnInit {
   onDelete() {
 
     const toDelete = new Array<INode>();
-    this.currentTab.selected.forEach(inode => {
+    this.selected.forEach(inode => {
       toDelete.push(inode);
     })
 
@@ -672,7 +593,7 @@ export class FilesMainViewComponent implements OnInit {
       for (let i = 0; i < input.files.length; ++i) {
         files.push(input.files.item(i)!);
       }
-      this.uploadFiles(new FilesDroppedEvent(this.currentTab.parent, files));
+      this.uploadFiles(new FilesDroppedEvent(this.parent, files));
     }
   }
 
@@ -747,16 +668,8 @@ export class FilesMainViewComponent implements OnInit {
    */
   private deleteFromModelByUUID(uuids: string[]) {
 
-    console.log('deleteFromModelByUUID');
-    // Zuerst ggf gelöschte Tabs entfernen
-    this.tabs = this.tabs.filter(tab => {
-      return uuids.indexOf(tab.parent.uuid) === -1;
-    })
-
-    this.tabs.forEach(tab => {
-      tab.childs = tab.childs.filter(child => {
-        return uuids.indexOf(child.uuid) === -1;
-      })
+    this.childs = this.childs.filter(child => {
+      return uuids.indexOf(child.uuid) === -1;
     })
   }
 
@@ -769,12 +682,8 @@ export class FilesMainViewComponent implements OnInit {
   private addToModel(inodes: INode[]) {
 
     inodes.forEach(toAdd => {
-      this.tabs.forEach(tab => {
-        if (tab.parent.uuid === toAdd.parent) {
-          tab.childs = tab.childs.concat(toAdd);
-          // TODO: Sortieren
-        }
-      })
+      this.childs = this.childs.concat(toAdd);
+      // TODO: Sortieren
     })
   }
 
@@ -784,17 +693,5 @@ export class FilesMainViewComponent implements OnInit {
    */
   private updateInModel(inode: INode) {
 
-    this.tabs.forEach(tab => {
-      if (tab.parent.uuid === inode.parent) {
-
-        for (let i = 0; i < tab.childs.length; ++i) {
-          if (tab.childs[i].uuid === inode.uuid) {
-            tab.childs[i] = inode;
-            break;
-          }
-        }
-        // TODO: Sortieren
-      }
-    })
   }
 }
