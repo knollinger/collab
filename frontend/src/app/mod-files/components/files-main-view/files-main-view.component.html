@@ -112,13 +112,20 @@
 
         <span class="flex-1"></span>
 
+        <!-- Preview on/off -->
+        <button mat-icon-button matTooltip="Vorschau ein/aus" (click)="showPreview = !showPreview">
+            <mat-icon class="material-symbols-outlined"
+                      *ngIf="!showPreview">preview</mat-icon>
+            <mat-icon class="material-symbols-outlined"
+                      *ngIf="showPreview">preview_off</mat-icon>
+        </button>
+
         <!-- IconSize-Menu -->
-        <mat-button-toggle class="small-right-spacer"
-                           matTooltip="Icons-Größe auswählen"
-                           [matMenuTriggerFor]="sizeMenu"
-                           [checked]="false">
+        <button mat-icon-button
+                matTooltip="Icons-Größe auswählen"
+                [matMenuTriggerFor]="sizeMenu">
             <mat-icon class="material-symbols-outlined">aspect_ratio</mat-icon>
-        </mat-button-toggle>
+        </button>
 
         <mat-menu #sizeMenu="matMenu">
 
@@ -178,6 +185,7 @@
             <app-folder-view class="panel"
                              [viewMode]="viewMode"
                              [iconSize]="iconSize"
+                             [showPreview]="showPreview"
                              [parent]="parent"
                              [childs]="childs"
                              [showHidden]="showHiddenFiles"
@@ -190,7 +198,8 @@
                              (link)="linkINodes($event.target, $event.src)"
                              (rename)="renameINode($event)"
                              (delete)="deleteINodes($event)"
-                             (selectionChanged)="onSelectionChange($event)">
+                             (selectionChanged)="onSelectionChange($event)"
+                             (sendToDashboard)="onSendToDashboard($event)">
             </app-folder-view>
 
             <app-toolbar class="statusBar">

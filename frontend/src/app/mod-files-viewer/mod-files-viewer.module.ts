@@ -19,7 +19,7 @@ import { ViewerAudioComponent } from './components/viewer-audio/viewer-audio.com
     ViewerQuillComponent,
     ViewerImageComponent,
     ViewerMovieComponent,
-    ViewerAudioComponent
+    ViewerAudioComponent,
   ],
   imports: [
     CommonModule,

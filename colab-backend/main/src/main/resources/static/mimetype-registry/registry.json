@@ -1,34 +1,42 @@
 [
 	{
 		"regexp": "image/.*",
-		"route": "viewer/image"
+		"route": "viewer/image",
+		"appName": "Bild-Betrachter"
 	},
 	{
 		"regexp": "video/.*",
-		"route": "viewer/video"
+		"route": "viewer/video",
+		"appName": "Video-Betrachter"
 	},
 	{
 		"regexp": "audio/.*",
-		"route": "viewer/audio"
+		"route": "viewer/audio",
+		"appName": "Musik-Spieler"
 	},
 	{
 		"regexp": "text/.*",
-		"route": "viewer/quill"
+		"route": "viewer/quill",
+		"appName": "Text-Editor"
 	},
 	{
 		"regexp": "application/json",
-		"route": "viewer/quill"
+		"route": "viewer/quill",
+		"appName": "Text-Editor"
 	},
 	{
 		"regexp": "application/javascript",
-		"route": "viewer/quill"
-	},
-	{
-		"regexp": "application/vnd\\.oasis\\.opendocument.*",
-		"route": "viewer/collabora"
+		"route": "viewer/quill",
+		"appName": "Text-Editor"	
 	},
 	{
 		"regexp": "application/colab-whiteboard",
-		"route": "whiteboard/edit"
+		"route": "whiteboard/edit",
+		"appName": "Whiteboard-Editor"
+	},
+	{
+		"regexp": "inode/directory.*",
+		"route": "files/main",
+		"appName": "Ordner-Anzeige"
 	}
 ]

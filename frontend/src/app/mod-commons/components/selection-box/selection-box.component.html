@@ -1,0 +1,21 @@
+<div matDialogContent>
+    <h2>{{data.title}}</h2>
+
+    <div>{{data.message}}</div>
+
+    <mat-selection-list [multiple]="false"
+                        [hideSingleSelectionIndicator]="true"
+                        (selectionChange)="onSelectionChange($event)">
+
+        <mat-list-option *ngFor="let entry of data.entries"
+                         [value]="entry.key"
+                         (dblclick)="onDoubleClick(entry)">
+            {{entry.text}}
+        </mat-list-option>
+    </mat-selection-list>
+</div>
+
+<div matDialogActions>
+    <button mat-flat-button color="primary" [matDialogClose]="selected">Ok</button>
+    <button mat-flat-button [matDialogClose]="undefined">Abbrechen</button>
+</div>

@@ -146,6 +146,6 @@ export class AppComponent implements OnInit {
    * @param evt 
    */
   onSuppressCtxMenu(evt: Event) {
-    evt.preventDefault();
+    // evt.preventDefault();
   }
 }

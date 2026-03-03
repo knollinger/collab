@@ -14,7 +14,7 @@ import { CreateMenuEvent } from '../files-create-menu/files-create-menu.componen
 import { CheckDuplicateEntriesService } from '../../services/check-duplicate-entries.service';
 import { ContentTypeService } from '../../services/content-type.service';
 import { FilesDroppedEvent } from '../../directives/drop-target.directive';
-import { FilesMimetypeRegistryService } from '../../services/files-mimetype-registry.service';
+import { OpenInodeService } from '../../services/open-inode.service';
 
 export class IconSize {
 
@@ -37,19 +37,6 @@ export class IconSize {
 
 export class FilesMainViewComponent implements OnInit {
 
-  // private static viewerRoutes: Map<RegExp, string> = new Map<RegExp, string>(
-  //   [
-  //     [new RegExp('image/.*', 'g'), 'viewer/image'],
-  //     [new RegExp('video/.*', 'g'), 'viewer/video'],
-  //     [new RegExp('audio/.*', 'g'), 'viewer/audio'],
-  //     [new RegExp('text/.*', 'g'), 'viewer/quill'],
-  //     [new RegExp('application/json', 'g'), 'viewer/quill'],
-  //     [new RegExp('application/javascript', 'g'), 'viewer/quill'],
-  //     [new RegExp('application/vnd\.oasis\.opendocument.*', 'g'), 'viewer/collabora'],
-  //     [new RegExp('application/colab-whiteboard', 'g'), 'whiteboard/edit']
-
-  //   ]
-  // );
   private destroyRef = inject(DestroyRef);
 
   showHiddenFiles: boolean = false;
@@ -89,7 +76,7 @@ export class FilesMainViewComponent implements OnInit {
     private checkDuplicatesSvc: CheckDuplicateEntriesService,
     private contentTypeSvc: ContentTypeService,
     private uploadSvc: UploadService,
-    private mimeTypeRegistry: FilesMimetypeRegistryService) {
+    private openSvc: OpenInodeService) {
 
   }
 
@@ -213,6 +200,25 @@ export class FilesMainViewComponent implements OnInit {
 
     if (size !== this.settings['iconSize']) {
       this.settings['iconSize'] = size;
+      this.settingsSvc.setDomainSettings('files', this.settings);
+    }
+  }
+
+  /**
+   * 
+   */
+  get showPreview(): boolean {
+
+    return this.settings['showPreview'] || false;
+  }
+
+  /**
+   * 
+   */
+  set showPreview(val: boolean) {
+
+    if (val !== this.settings['showPreview']) {
+      this.settings['showPreview'] = val;
       this.settingsSvc.setDomainSettings('files', this.settings);
     }
   }
@@ -403,50 +409,7 @@ export class FilesMainViewComponent implements OnInit {
    * @param inode 
    */
   openINode(inode: INode) {
-
-    if (inode.isDirectory()) {
-      this.openFolder(inode);
-    }
-    else {
-      this.openDocument(inode);
-    }
-  }
-
-  /**
- * 
- * @param inode 
- */
-  private openFolder(inode: INode) {
-
-    const url = `files/main/${inode.uuid}`;
-    this.router.navigateByUrl(url);
-  }
-
-  /**
-   * 
-   * @param inode 
-   */
-  private openDocument(inode: INode) {
-
-    // // Viewer auswählen
-    // FilesMainViewComponent.viewerRoutes.forEach((baseUrl: string, regexp: RegExp) => {
-
-    //   if (regexp.test(inode.type)) {
-
-    //     const url = `${baseUrl}/${inode.uuid}`;
-    //     this.router.navigateByUrl(url)
-    //   }
-    // })
-
-    const route = this.mimeTypeRegistry.getRouteForType(inode.type);
-    if(route) {
-
-      const url = `${route}/${inode.uuid}`;
-      this.router.navigateByUrl(url);
-    }
-    else {
-      alert(`no route for mimetype '${inode.type}'`);
-    }
+    this.openSvc.openINode(inode);
   }
 
   /**
@@ -693,5 +656,19 @@ export class FilesMainViewComponent implements OnInit {
    */
   private updateInModel(inode: INode) {
 
+  }
+
+  onSendToDashboard(inode: INode) {
+
+    this.inodeSvc.getOrCreateFolder(this.sessionSvc.currentUser.userId, '.dashboardLinks')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(baseFolder => {
+
+        this.inodeSvc.link(inode, baseFolder)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(baseFolder => {
+
+          })
+      })
   }
 }

@@ -1,4 +1,4 @@
-import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output, Type, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { INode } from '../../../mod-files-data/mod-files-data.module';
@@ -12,6 +12,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { FilesPropertiesDialogComponent } from '../files-properties-dialog/files-properties-dialog.component';
 import { CreateMenuEvent } from '../files-create-menu/files-create-menu.component';
 import { ACLEntry, CheckPermissionsService, PermissionsService } from '../../../mod-permissions/mod-permissions.module';
+import { ThumbnailFactoryService } from '../../services/thumbnail-factory.service';
+import { IThumbNail } from '../thumbnails/ithumbnail';
+import { DefaultThumbnailComponent } from '../thumbnails/default-thumbnail/default-thumbnail.component';
 
 export class TransferINodeEvent {
   constructor(public readonly target: INode, public readonly src: INode[]) {
@@ -70,6 +73,9 @@ export class FilesFolderViewComponent implements OnInit {
   @Input()
   iconSize: string = '128px';
 
+  @Input()
+  showPreview: boolean = false;
+
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
 
@@ -94,6 +100,10 @@ export class FilesFolderViewComponent implements OnInit {
   @Output()
   delete: EventEmitter<INode[]> = new EventEmitter<INode[]>();
 
+  @Output()
+  sendToDashboard: EventEmitter<INode> = new EventEmitter<INode>();
+
+
   displayedColumns: string[] = ['selector', 'image', 'name', 'size', 'created', 'modified'];
 
   /**
@@ -112,6 +122,7 @@ export class FilesFolderViewComponent implements OnInit {
     private hashTagSvc: HashTagService,
     private permsSvc: PermissionsService,
     private checkPermsSvc: CheckPermissionsService,
+    private thumbnailSvc: ThumbnailFactoryService,
     private dialog: MatDialog) {
 
   }
@@ -121,6 +132,40 @@ export class FilesFolderViewComponent implements OnInit {
    */
   ngOnInit(): void {
 
+  }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about Thumbnails                                                    */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+  
+  /**
+   * Der eigentliche Renderer für das ThumbNail wird dynamisch erzeugt. Dazu
+   * muss der Typ des Renderers ermittelt werden, dies passiert über den
+   * TumbNailFactoryService.
+   *  
+   * @param inode 
+   * @returns 
+   */
+  getThumbnailClass(inode: INode): Type<IThumbNail> {
+    return this.showPreview ? this.thumbnailSvc.getThumbnailFor(inode) : DefaultThumbnailComponent;
+  }
+  
+  /**
+   * In jeden ThumbNailRenderer müssen die inode und die IconSize injected 
+   * werden. Das Interface für einen Renderer definiert getter+setter für die
+   * INode und die IconSize
+   * 
+   * @param inode 
+   * @returns 
+   */
+  getThumbNailInputs(inode: INode): Record<string, unknown> {
+
+    return {
+      inode: inode,
+      iconSize: this.iconSize
+    }
   }
 
   /*-------------------------------------------------------------------------*/
@@ -433,17 +478,7 @@ export class FilesFolderViewComponent implements OnInit {
    * @param inode 
    */
   onSendToDashboard(inode: INode) {
-
-    // this.inodeSvc.getOrCreateFolder(this.sessionSvc.currentUser.userId, '.dashboardLinks')
-    //   .pipe(takeUntilDestroyed(this.destroyRef))
-    //   .subscribe(baseFolder => {
-
-    //     this.inodeSvc.link(inode, baseFolder)
-    //       .pipe(takeUntilDestroyed(this.destroyRef))
-    //       .subscribe(baseFolder => {
-
-    //       })
-    //   })
+    this.sendToDashboard.next(inode);
   }
 
   /**

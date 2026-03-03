@@ -36,7 +36,13 @@ export { INodeService };
 import { FilesPickerService } from './services/files-picker.service';
 export { FilesPickerService }
 
+import { OpenInodeService } from './services/open-inode.service';
+export { OpenInodeService }
+
 import { WopiService } from './services/wopi.service';
+import { DefaultThumbnailComponent } from './components/thumbnails/default-thumbnail/default-thumbnail.component';
+import { ImageThumbnailComponent } from './components/thumbnails/image-thumbnail/image-thumbnail.component';
+import { VideoThumbnailComponent } from './components/thumbnails/video-thumbnail/video-thumbnail.component';
 export { WopiService };
 
 
@@ -58,6 +64,9 @@ export { WopiService };
     FilesShowDuplicatesComponent,
     FilesPlacesComponent,
     FilePickerComponent,
+    DefaultThumbnailComponent,
+    ImageThumbnailComponent,
+    VideoThumbnailComponent,
   ],
   imports: [
     CommonModule,

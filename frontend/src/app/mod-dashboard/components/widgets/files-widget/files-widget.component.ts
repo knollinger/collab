@@ -4,8 +4,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { INode } from '../../../../mod-files-data/mod-files-data.module';
 import { INodeService } from '../../../../mod-files/mod-files.module';
 
-import { Router } from '@angular/router';
 import { SessionService } from '../../../../mod-session/session.module';
+import { OpenInodeService } from '../../../../mod-files/mod-files.module';
 
 @Component({
   selector: 'app-files-widget',
@@ -25,9 +25,9 @@ export class FilesWidgetComponent implements OnInit {
    * @param dashSvc 
    */
   constructor(
-    private router: Router,
     private sessionSvc: SessionService,
-    private inodeSvc: INodeService) {
+    private inodeSvc: INodeService,
+    private openINodeSvc: OpenInodeService) {
 
   }
 
@@ -47,8 +47,17 @@ export class FilesWidgetComponent implements OnInit {
 
   onOpen(inode: INode) {
 
-    const url = inode.isDirectory() ? `/files/main/${inode.uuid}` : `/viewer/show/${inode.uuid}`;
-    this.router.navigateByUrl(url);
+    if (!inode.linkTo) {
+      this.openINodeSvc.openINode(inode);
+    }
+    else {
+      this.inodeSvc.getINode(inode.linkTo)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(target => {
+          this.openINodeSvc.openINode(target);
+        })
+    }
+
   }
 
   onRemove(evt: Event, inode: INode) {

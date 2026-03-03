@@ -27,18 +27,11 @@
              (contextmenu)="itemCtxtMenu.show(inode, $event)"
              [matTooltip]="inode.name">
 
-            <div class="image"
-                 [style.backgroundImage]="getINodeImageAsUrl(inode)"
-                 [style.height]="iconSize"
-                 [style.width]="iconSize">
-
-                <img class="link-indicator"
-                     *ngIf="inode.isLink()"
-                     [src]="linkIcon">
-            </div>
+            <ng-template *ngComponentOutlet="getThumbnailClass(inode); inputs: getThumbNailInputs(inode)"></ng-template>
 
             <div class="label"
                  [style.width]="iconSize">{{inode.name}}</div>
+
             <mat-checkbox class="selector"
                 [checked]="isSelected(inode)"
                 (click)="onSelect($event, inode)"

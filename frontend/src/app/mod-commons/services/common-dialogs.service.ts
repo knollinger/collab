@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { MessageBoxComponent } from '../components/message-box/message-box.component';
 import { InputBoxComponent } from '../components/input-box/input-box.component';
 import { BackendErrorComponent, IBackendError } from '../components/backend-error/backend-error.component';
+import { ISelectionBoxEntry, SelectionBoxComponent } from '../components/selection-box/selection-box.component';
 
 
 @Injectable({
@@ -114,6 +115,20 @@ export class CommonDialogsService {
         title: title,
         placeholder: placeholder,
         value: value || ''
+      }
+    });
+    return dialogRef.afterClosed();
+  }
+
+  public showSelectionBox(title: string, message: string, entries: ISelectionBoxEntry[]) {
+
+    const dialogRef = this.dialog.open(SelectionBoxComponent, {
+      width: '80%',
+      maxWidth: '600px',
+      data: {
+        title: title,
+        message: message,
+        entries: entries
       }
     });
     return dialogRef.afterClosed();

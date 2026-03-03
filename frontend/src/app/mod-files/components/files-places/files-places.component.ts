@@ -51,12 +51,12 @@ export class FilesPlacesComponent implements OnInit {
   ngOnInit(): void {
 
     this.inodeSvc.getOrCreateFolder(this.currUserSvc.currentUser.userId, '.places')
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(folder => {
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(folder => {
 
-      this.baseFldr = folder;
-      this.reload();
-    })
+        this.baseFldr = folder;
+        this.reload();
+      })
   }
 
   /**
@@ -93,7 +93,17 @@ export class FilesPlacesComponent implements OnInit {
    * @param inode 
    */
   onOpen(inode: INode) {
-    this.open.emit(inode);
+
+    if (!inode.linkTo) {
+      this.open.emit(inode);
+    }
+    else {
+      this.inodeSvc.getINode(inode.linkTo)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(target => {
+          this.open.emit(target);
+        })
+    }
   }
 
   /**

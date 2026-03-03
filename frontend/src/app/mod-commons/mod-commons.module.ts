@@ -44,6 +44,7 @@ import { HintComponent } from './components/hint/hint.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
 import { BackendErrorComponent } from './components/backend-error/backend-error.component';
 import { MainPageTemplateComponent } from './components/main-page-template/main-page-template.component';
+import { SelectionBoxComponent } from './components/selection-box/selection-box.component';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { MainPageTemplateComponent } from './components/main-page-template/main-
     BackendErrorComponent,
     MainPageTemplateComponent,
     ToolbarFillerComponent,
+    SelectionBoxComponent,
   ],
   imports: [
     CommonModule,
