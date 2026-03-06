@@ -75,6 +75,7 @@ public class DashboardServiceImpl implements IDashboardService
                     .width(rs.getInt("width")) //
                     .build();
                 result.add(widget);
+                System.out.println(widget.toString());
             }
             return result;
         }

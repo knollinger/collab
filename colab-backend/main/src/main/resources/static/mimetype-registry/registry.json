@@ -1,5 +1,10 @@
 [
 	{
+		"regexp": "inode/directory.*",
+		"route": "files/main",
+		"appName": "Ordner-Anzeige"
+	},
+	{
 		"regexp": "image/.*",
 		"route": "viewer/image",
 		"appName": "Bild-Betrachter"
@@ -27,16 +32,11 @@
 	{
 		"regexp": "application/javascript",
 		"route": "viewer/quill",
-		"appName": "Text-Editor"	
+		"appName": "Text-Editor"
 	},
 	{
 		"regexp": "application/colab-whiteboard",
 		"route": "whiteboard/edit",
 		"appName": "Whiteboard-Editor"
-	},
-	{
-		"regexp": "inode/directory.*",
-		"route": "files/main",
-		"appName": "Ordner-Anzeige"
 	}
 ]

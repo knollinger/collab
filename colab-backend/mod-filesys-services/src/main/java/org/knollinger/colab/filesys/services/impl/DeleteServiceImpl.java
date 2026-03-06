@@ -58,6 +58,10 @@ public class DeleteServiceImpl implements IDeleteService
         + "delete from `inodes`" //
         + "  where `uuid`=?";
 
+    private static final String SQL_DELETE_THUMB = "" //
+        + "delete from `thumbnails`" //
+        + "  where `uuid`=?";
+
     private static final String ERR_DELETE_INODE = "Das Datei-System Objekt konnte aufgrund eines technischen Problems nicht gelöscht werden.";
 
     @Autowired
@@ -106,7 +110,10 @@ public class DeleteServiceImpl implements IDeleteService
     }
 
     /**
-     *
+     * Lösche die INode
+     * 
+     * Dazu muss zuerst die ACL gelöscht werden und ein ggf existierendes Thumbnail da sonst 
+     * foreignkey-constraints verletzt werden.
      */
     @Override
     public Collection<UUID> deleteINodes(List<UUID> uuids, Connection conn) throws TechnicalFileSysException, NotFoundException
@@ -120,14 +127,18 @@ public class DeleteServiceImpl implements IDeleteService
             }
             toDelete.addAll(this.collectLinks(toDelete, conn));
 
-            try (PreparedStatement stmt = conn.prepareStatement(SQL_DELETE_INODE))
+            try (PreparedStatement inodeStmt = conn.prepareStatement(SQL_DELETE_INODE);
+                PreparedStatement thumbsStmt = conn.prepareStatement(SQL_DELETE_THUMB))
             {
                 for (UUID id : toDelete)
                 {
                     this.permsSvc.deleteACL(id, conn);
 
-                    stmt.setString(1, id.toString());
-                    stmt.executeUpdate();
+                    thumbsStmt.setString(1, id.toString());
+                    thumbsStmt.executeUpdate();
+
+                    inodeStmt.setString(1, id.toString());
+                    inodeStmt.executeUpdate();
                 }
             }
             return toDelete;
