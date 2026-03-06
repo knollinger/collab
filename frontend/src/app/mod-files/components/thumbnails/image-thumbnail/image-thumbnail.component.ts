@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
 import { INode } from '../../../../mod-files-data/mod-files-data.module';
-import { INodeService } from '../../../services/inode.service';
 import { IThumbNail } from '../ithumbnail';
 import { BackendRoutingService } from '../../../../mod-commons/mod-commons.module';
 
@@ -26,6 +25,7 @@ export class ImageThumbnailComponent implements IThumbNail {
    * @param contentTypeSvc 
    */
   constructor(private backendRouter: BackendRoutingService) {
+
   }
 
 

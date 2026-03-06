@@ -1,11 +1,17 @@
 package org.knollinger.colab.filesys.services.impl;
 
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,6 +29,14 @@ import org.knollinger.colab.utils.services.IDbService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.exif.ExifIFD0Directory;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
+
 /**
  * Implementiert einen {@link IThumbnailService}
  * <p>
@@ -32,8 +46,9 @@ import org.springframework.stereotype.Service;
  * <p>
  * Bei der Neuanlage werden folgende Parameter eingehalten:
  * <ul>
- * <li> Das Thumbnail ist 128*128 Pixel groß</li>
- * <li> Das entsprechend skalierte Original-Image wird in diesen Bereich zentriert</li>
+ * <li>Das Thumbnail ist 128*128 Pixel groß</li>
+ * <li>Das entsprechend skalierte Original-Image wird in diesen Bereich zentriert</li>
+ * <li>Das Image wird entsprechend ggf vorhandener Exif-Orientation rotiert</li>
  * <li> Der Hintergrund des Thumbnails ist transparent, aus diesem Grund wird PNG als Speicherformat gewählt</li>
  * </ul>
  * </p>
@@ -46,7 +61,7 @@ public class ThumbnailServiceImpl implements IThumbnailService
     private static final String SQL_SAVE_THUMBNAIL = "insert into thumbnails set uuid=?, data=?, type=?";
 
     private static final int THUMB_SIZE = 128;
-    
+
     @Autowired()
     private IDbService dbSvc;
 
@@ -71,7 +86,7 @@ public class ThumbnailServiceImpl implements IThumbnailService
                 return rs.next() ? this.loadThumbnail(uuid, rs) : this.createThumbnail(uuid, conn);
             }
         }
-        catch (SQLException | IOException e)
+        catch (Exception e)
         {
             e.printStackTrace();
             throw new TechnicalFileSysException("thumbnail konnte nicht erzeugt werden", e);
@@ -108,24 +123,118 @@ public class ThumbnailServiceImpl implements IThumbnailService
      * @throws NotFoundException
      * @throws SQLException
      * @throws IOException
+     * @throws MetadataException 
      */
-    private BlobInfo createThumbnail(UUID uuid, Connection conn) throws NotFoundException, SQLException, IOException
+    private BlobInfo createThumbnail(UUID uuid, Connection conn)
+        throws NotFoundException, SQLException, IOException, ImageProcessingException, MetadataException
     {
-        BufferedImage original = this.loadOriginal(uuid, conn);
-        BufferedImage scaled = this.scaleImage(original);
+        File tmpFile = this.loadOriginal(uuid, conn);
+        try (FileInputStream fileIn = new FileInputStream(tmpFile))
+        {
+            BufferedImage original = ImageIO.read(tmpFile);
+            BufferedImage thumb = this.scaleImage(original);
 
-        ByteArrayOutputStream buf = new ByteArrayOutputStream();
-        ImageIO.write(scaled, "png", buf);
+            int rotation = this.getRotationFromExif(tmpFile);
+            if (rotation != 0)
+            {
+                thumb = this.rotateImage(thumb, rotation);
+            }
 
-        ByteArrayInputStream imgSrc = new ByteArrayInputStream(buf.toByteArray());
-        this.saveThumbNail(uuid, imgSrc, conn);
+            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+            ImageIO.write(thumb, "png", buf);
+            ByteArrayInputStream imgSrc = new ByteArrayInputStream(buf.toByteArray());
+            this.saveThumbNail(uuid, imgSrc, conn);
 
-        imgSrc.reset();
-        return BlobInfo.builder() //
-            .contentType("image/png") //
-            .data(imgSrc) //
-            .size(buf.size()) //
-            .eTag(this.createETag(uuid)).build();
+            imgSrc.reset();
+            return BlobInfo.builder() //
+                .contentType("image/png") //
+                .data(imgSrc) //
+                .size(buf.size()) //
+                .eTag(this.createETag(uuid)).build();
+        }
+        finally
+        {
+            tmpFile.delete();
+        }
+    }
+
+    /**
+     * Rotiere das Image um den angegebenen Grad-Wert.
+     * 
+     * @param thumb
+     * @param rotation
+     * @return
+     */
+    private BufferedImage rotateImage(BufferedImage thumb, int rotation)
+    {
+        double radian = Math.toRadians(rotation);
+
+        BufferedImage rotatedImage = new BufferedImage(THUMB_SIZE, THUMB_SIZE, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = rotatedImage.createGraphics();
+
+        graphics.rotate(radian, THUMB_SIZE / 2, THUMB_SIZE / 2);
+
+        graphics.drawImage(thumb, 0, 0, null);
+        graphics.dispose();
+        return rotatedImage;
+    }
+
+    /**
+     * @param origTmpFile
+     * @return
+     * @throws ImageProcessingException
+     * @throws IOException
+     * @throws MetadataException
+     */
+    private int getRotationFromExif(File origTmpFile) throws ImageProcessingException, IOException, MetadataException
+    {
+        int rotation = 0;
+
+        Metadata metadata = ImageMetadataReader.readMetadata(origTmpFile);
+
+        Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+        if (directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION))
+        {
+            int orientation = directory.getInt(ExifSubIFDDirectory.TAG_ORIENTATION);
+            switch (orientation)
+            {
+                case 1 :
+                    break;
+
+                case 2 :
+                    // TODO: flip horizontal
+                    break;
+
+                case 3 :
+                    rotation = 180;
+                    break;
+
+                case 4 :
+                    // TODO: flip vertical
+                    break;
+
+                case 5 :
+                    // then rotate 270deg, then flip vertical
+                    break;
+                    
+                case 6 :
+                    rotation = 90;
+                    break;
+
+                case 7:
+                    // flip horizontal, then rotate 90deg
+                    break;
+                    
+                case 8 :
+                    rotation = 270;
+                    break;
+
+                default :
+                    System.err.println("unknown orientation value " + orientation);
+                    break;
+            }
+        }
+        return rotation;
     }
 
     /**
@@ -135,8 +244,10 @@ public class ThumbnailServiceImpl implements IThumbnailService
      * @throws NotFoundException
      * @throws SQLException
      * @throws IOException
+     * @throws ImageProcessingException 
      */
-    private BufferedImage loadOriginal(UUID uuid, Connection conn) throws NotFoundException, SQLException, IOException
+    private File loadOriginal(UUID uuid, Connection conn)
+        throws NotFoundException, SQLException, IOException, ImageProcessingException
     {
         try (PreparedStatement stmt = conn.prepareStatement(SQL_LOAD_ORIG))
         {
@@ -148,10 +259,12 @@ public class ThumbnailServiceImpl implements IThumbnailService
                     throw new NotFoundException(uuid);
                 }
 
-                try (InputStream in = rs.getBinaryStream("data"))
+                File tmp = File.createTempFile("colab_thumb_", ".tmp");
+                try (InputStream in = rs.getBinaryStream("data"); OutputStream out = new FileOutputStream(tmp))
                 {
-                    return ImageIO.read(in);
+                    IOUtils.copy(in, out);
                 }
+                return tmp;
             }
         }
     }
@@ -165,33 +278,32 @@ public class ThumbnailServiceImpl implements IThumbnailService
         double srcWidth = original.getWidth();
         double srcHeight = original.getHeight();
         double ratio = srcWidth / srcHeight;
-        
-        if(ratio == 0) {
-            System.err.println("???");
-        }
 
         double targetWidth, targetHeight;
         if (srcWidth > srcHeight)
         {
-            targetWidth = 128.0;
-            targetHeight = 128.0 / ratio;
+            targetWidth = (double) THUMB_SIZE;
+            targetHeight = (double) THUMB_SIZE / ratio;
         }
         else
         {
-            targetHeight = 128.0;
-            targetWidth = 128.0 / ratio;
+            targetHeight = (double) THUMB_SIZE;
+            targetWidth = (double) THUMB_SIZE / ratio;
         }
 
-        int height = (int)targetHeight;
-        int width = (int)targetWidth;
-        
-        Image scaled = original.getScaledInstance(width, height, Image.SCALE_SMOOTH);
-        BufferedImage result = new BufferedImage(128, 128, BufferedImage.TYPE_INT_ARGB);
+        int height = (int) targetHeight;
+        int width = (int) targetWidth;
 
-        int x = (128 - width) / 2;
-        int y = (128 - height) / 2;
-        
-        result.getGraphics().drawImage(scaled, x, y, null);
+        Image scaled = original.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        BufferedImage result = new BufferedImage(THUMB_SIZE, THUMB_SIZE, BufferedImage.TYPE_INT_ARGB);
+
+        int x = (THUMB_SIZE - width) / 2;
+        int y = (THUMB_SIZE - height) / 2;
+
+        Graphics g = result.getGraphics();
+        g.drawImage(scaled, x, y, null);
+        g.dispose();
+
         return result;
     }
 
