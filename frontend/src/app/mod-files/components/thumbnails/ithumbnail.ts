@@ -4,4 +4,7 @@ export interface IThumbNail {
 
     set inode(inode: INode);
     get inode(): INode;
+
+    set iconSize(size: string);
+    get iconSize(): string;
 }

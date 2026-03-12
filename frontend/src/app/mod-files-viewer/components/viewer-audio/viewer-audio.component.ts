@@ -61,7 +61,6 @@ export class ViewerAudioComponent implements OnInit {
   get sourceUrl(): string {
 
     const url = this.inodeSvc.getContentUrl(this.audioINode.uuid);
-    console.log(url);
     return url;
   }
 

@@ -19,6 +19,7 @@ export class FilesWidgetComponent implements OnInit {
 
   baseFolder: INode = INode.empty();
   inodes: INode[] = new Array<INode>();
+  iconSize: string = '64px';
 
   /**
    * 
@@ -45,6 +46,10 @@ export class FilesWidgetComponent implements OnInit {
       })
   }
 
+  /**
+   * 
+   * @param inode 
+   */
   onOpen(inode: INode) {
 
     if (!inode.linkTo) {

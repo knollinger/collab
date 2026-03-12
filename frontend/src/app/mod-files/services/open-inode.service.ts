@@ -84,7 +84,6 @@ export class OpenInodeService {
 
     for (let mapping of this.mappings) {
 
-      console.log('check regexp')
       if (mapping.regexp.test(inode.type)) {
         regEntriesFound.push(mapping);
       }

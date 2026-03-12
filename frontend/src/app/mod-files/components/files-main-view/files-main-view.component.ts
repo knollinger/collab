@@ -427,7 +427,11 @@ export class FilesMainViewComponent implements OnInit {
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(newNodes => {
 
-            this.addToModel(newNodes);
+            if (newParent.uuid === this.parent.uuid) {
+
+              newNodes = this.setNewParent(newParent, newNodes);
+              this.addToModel(newNodes);
+            }
           })
       })
   }
@@ -448,6 +452,8 @@ export class FilesMainViewComponent implements OnInit {
           .subscribe(newNodes => {
 
             this.deleteFromModel(sourceNodes);
+
+            // TODO: reparenting!
             this.addToModel(newNodes);
           })
       })
@@ -468,9 +474,19 @@ export class FilesMainViewComponent implements OnInit {
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(newNodes => {
 
+            // TODO: reparenting!
             this.addToModel(newNodes);
           })
       })
+  }
+
+  private setNewParent(parent: INode, childs: INode[]): INode[] {
+
+    const newNodes = childs.map(child => {
+      return new INode(child.name, child.uuid, parent.uuid, child.linkTo, child.type, child.size, child.created, child.modified, child.acl);
+    })
+
+    return newNodes;
   }
 
   /**
@@ -598,20 +614,13 @@ export class FilesMainViewComponent implements OnInit {
   /*                                                                         */
   /* All about model ops                                                     */
   /*                                                                         */
-  /* Die Komponente hält ein Model, welches alle Tabs beschreibt. Pro Tab    */
-  /* wird der Parent, die Liste der Childs, und der SelectionState der Childs*/
-  /* verwaltet.                                                              */
-  /*                                                                         */
   /* Nach den diversen Backend-Operationen muss dementsprechend das Model    */
-  /* angepasst werden. Dabei gilt es zu beachten, das der selbe Folder in    */
-  /* mehreren Tabs geöffnet sein kann!                                       */
-  /*                                                                         */
+  /* angepasst werden.                                                       */
   /*-------------------------------------------------------------------------*/
 
   /**
-   * Lösche die INodes aus dem Model. Sie werden aus allen im Model verfügbaren
-   * Tabs entfernt, ggf werden auch offene (und nun gelöschte) Tabs geschlossen.
-   * 
+   * Lösche die INodes aus dem Model. 
+   *  
    * @param toDelete 
    */
   private deleteFromModel(inodes: INode[]) {
@@ -624,15 +633,15 @@ export class FilesMainViewComponent implements OnInit {
   /**
    * Lösche alle angegeben UUIDs aus dem Model. 
    * 
-   * Eventuell offene Tabs deren Parents gelöscht wurden werden geschlossen. Aus allen
-   * verbleibenden Tabs werden alle INodes mit den gelöschten UUIDs entfernt.
    *   
    * @param uuids 
    */
   private deleteFromModelByUUID(uuids: string[]) {
 
+    const dict = new Set<string>(uuids);
+
     this.childs = this.childs.filter(child => {
-      return uuids.indexOf(child.uuid) === -1;
+      return !dict.has(child.uuid);
     })
   }
 
@@ -645,7 +654,7 @@ export class FilesMainViewComponent implements OnInit {
   private addToModel(inodes: INode[]) {
 
     inodes.forEach(toAdd => {
-      this.childs = this.childs.concat(toAdd);
+      this.childs = this.childs.concat(...inodes);
       // TODO: Sortieren
     })
   }
@@ -656,6 +665,7 @@ export class FilesMainViewComponent implements OnInit {
    */
   private updateInModel(inode: INode) {
 
+    // TODO: not yet implemented
   }
 
   onSendToDashboard(inode: INode) {

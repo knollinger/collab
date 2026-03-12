@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { INodeService } from '../../../mod-files/mod-files.module';
 import { TitlebarService } from '../../../mod-commons/mod-commons.module';
+import { INode } from '../../../mod-files-data/mod-files-data.module';
 
 /**
  * 
@@ -17,9 +18,10 @@ import { TitlebarService } from '../../../mod-commons/mod-commons.module';
 export class ViewerImageComponent {
 
   private destroyRef = inject(DestroyRef);
-
-  currId: string = '';
-  allSiblings: string[] = new Array<string>();
+  private currIdx: number = 0;
+  
+  allImages: INode[] = new Array<INode>();
+  showGallery: boolean = false;
 
 
   /**
@@ -27,26 +29,25 @@ export class ViewerImageComponent {
    * @param inodeSvc 
    */
   constructor(
-    route: ActivatedRoute,
+    private route: ActivatedRoute,
     private inodeSvc: INodeService,
     private titleBarSvc: TitlebarService) {
 
-    route.paramMap
+    this.route.paramMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
 
-        const uuid = params.get('uuid');
-        this.currId = uuid || '';
-        this.loadSiblingImages();
+        const uuid = params.get('uuid') || '';
+        this.loadImages(uuid);
       })
   }
 
   /**
    * Lade alle Image-ChildNodes
    */
-  private loadSiblingImages(): void {
+  private loadImages(refUUID: string): void {
 
-    this.inodeSvc.getINode(this.currId)
+    this.inodeSvc.getINode(refUUID)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(inode => {
 
@@ -56,8 +57,10 @@ export class ViewerImageComponent {
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(childs => {
 
-            const filtered = childs.filter(inode => { return inode.type.startsWith('image/') });
-            this.allSiblings = filtered.map(child => child.uuid);
+            this.allImages = childs.filter(inode => { return inode.type.startsWith('image/') });
+            this.currIdx = this.allImages.findIndex(img => {
+              return img.uuid === refUUID;
+            })
           })
       })
   }
@@ -65,11 +68,53 @@ export class ViewerImageComponent {
   /**
    * 
    */
-  sourceUrl(uuid: string): string {
+  get sourceUrl(): string {
+
+    const uuid = this.allImages[this.currIdx].uuid;
     return this.inodeSvc.getContentUrl(uuid);
   }
 
-  isSelected(uuid: string): boolean {
-    return this.currId === uuid;
+  getGallerySrcUrl(inode: INode): string {
+    return this.inodeSvc.getContentUrl(inode.uuid);
+  }
+
+  /**
+   * 
+   */
+  onGoLeft() {
+
+    if (this.currIdx > 0) {
+      this.currIdx--;
+    }
+    else {
+      this.currIdx = this.allImages.length - 1;
+    }
+    this.titleBarSvc.subTitle = this.allImages[this.currIdx].name;
+  }
+
+  /**
+   * 
+   */
+  onGoRight() {
+
+    if (this.currIdx < this.allImages.length - 1) {
+      this.currIdx++;
+    }
+    else {
+      this.currIdx = 0;
+    }
+    this.titleBarSvc.subTitle = this.allImages[this.currIdx].name;
+  }
+
+  onToggleGallery() {
+    this.showGallery = !this.showGallery;
+  }
+
+  isSelected(idx: number): boolean {
+    return this.currIdx === idx;
+  }
+
+  selectByIdx(idx: number) {
+    this.currIdx = idx;
   }
 }

@@ -76,6 +76,9 @@ export class FilesFolderViewComponent implements OnInit {
   @Input()
   showPreview: boolean = false;
 
+  @Input()
+  showSelectors: boolean = true;
+
   @Output()
   open: EventEmitter<INode> = new EventEmitter<INode>();
 
@@ -136,7 +139,17 @@ export class FilesFolderViewComponent implements OnInit {
 
   /*-------------------------------------------------------------------------*/
   /*                                                                         */
-  /* All about Thumbnails                                                    */
+  /* All about Thumbnails.                                                   */
+  /*                                                                         */
+  /* Für jedes Element in der Anzeige wird eine Instanz von IThumbnail       */
+  /* instanziert. Dies funktioniert via ng-template mit einer                */
+  /* ngComponentOutlet-Direktive.                                            */
+  /*                                                                         */
+  /* Wir brauchen also eine Methode, welche den passenden IThumbNail-        */
+  /* Datentyp liefert. Und eine Methode, welche das InputBinding übernimmt.  */
+  /*                                                                         */
+  /* Das ganze schaut nicht nach "normalem" Angular-Binding aus, geht aber   */
+  /* leider nicht anders.                                                    */
   /*                                                                         */
   /*-------------------------------------------------------------------------*/
   
@@ -450,21 +463,22 @@ export class FilesFolderViewComponent implements OnInit {
    * Je nach angeforderter OP werden unterschiedliche Services gerufen.
    * 
    */
-  onPaste() {
+  onPaste(target: INode) {
 
+    console.log(`paste to: ` + target);
     switch (this.clipboardSvc.operation) {
       case ClipboardService.OP_COPY:
-        this.copy.next(new TransferINodeEvent(this.parent, this.clipboardSvc.inodes));
+        this.copy.next(new TransferINodeEvent(target, this.clipboardSvc.inodes));
         break;
 
       case ClipboardService.OP_MOVE:
-        this.move.next(new TransferINodeEvent(this.parent, this.clipboardSvc.inodes));
+        this.move.next(new TransferINodeEvent(target, this.clipboardSvc.inodes));
         this.clipboardSvc.clear();
         break;
 
 
       case ClipboardService.OP_LINK:
-        this.link.next(new TransferINodeEvent(this.parent, this.clipboardSvc.inodes));
+        this.link.next(new TransferINodeEvent(target, this.clipboardSvc.inodes));
         this.clipboardSvc.clear();
         break;
 

@@ -71,7 +71,12 @@ export class AppComponent implements OnInit {
       icon: 'group',
       title: 'Benutzer-Gruppen',
       route: '/user/groups'
-    }
+    },
+    {
+      icon: 'license',
+      title: 'Opensource Lizenzen',
+      route: '/licences'
+    }    
   ]
 
   /**

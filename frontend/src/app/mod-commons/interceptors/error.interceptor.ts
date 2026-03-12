@@ -45,10 +45,6 @@ export class ErrorInterceptor implements HttpInterceptor {
       catchError((err: HttpErrorResponse) => {
 
         switch (err.status) {
-          case 0:
-            this.msgService.showErrorBox('Oooops', 'Die Verbindung zum Server ist unterbrochen.');
-            break;
-
           case 401:
             this.router.navigateByUrl(`/session/login`); // redirUrl funct hier ned, weil die gerufene URL ans backend ging!
             break;
@@ -61,33 +57,12 @@ export class ErrorInterceptor implements HttpInterceptor {
               status: err.error.status,
               trace: err.error.trace
             }
-            this.msgService.showBackendError(httpError);
+            alert(httpError);
+            // this.msgService.showBackendError(httpError);
             break;
         }
         return throwError(err);
       })
     );
-  }
-
-  /**
-   *
-   * @param err
-   * @returns
-   */
-  private extractErrorMessage(err: HttpErrorResponse): string {
-
-    console.log(err);
-    if (err.error.message) {
-      return err.error.message;
-    }
-
-    if (err.message) {
-      return err.message;
-    }
-
-    if (err.status === 0) {
-      return 'Die Verbindung mit dem Server konnte nicht hergestellt werden.';
-    }
-    return `Der Server antwortete mit dem Status-Code ${err.status}\n${err.statusText}`;
   }
 }

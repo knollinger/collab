@@ -2,7 +2,6 @@ import { Component, DestroyRef, EventEmitter, inject, Input, OnInit, Output } fr
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { INode } from '../../../mod-files-data/mod-files-data.module';
-
 import { INodeService } from '../../services/inode.service';
 
 /**
@@ -68,7 +67,6 @@ export class FilesBreadCrumbItemComponent implements OnInit {
    * @param inode 
    */
   onOpen(inode: INode) {
-    console.log('onOpen');
     this.open.emit(inode);
   }
 }

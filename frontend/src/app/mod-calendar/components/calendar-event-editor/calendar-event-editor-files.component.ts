@@ -3,7 +3,7 @@ import { FilesPickerService } from '../../../mod-files/mod-files.module';
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FilesDroppedEvent } from '../../../mod-files/directives/drop-target.directive';
-import { ContentTypeService } from '../../../mod-files/services/content-type.service';
+import { ContentTypeService } from '../../../mod-files/mod-files.module';
 import { SessionService } from '../../../mod-session/session.module';
 import { BehaviorSubject } from 'rxjs';
 import { ACL } from '../../../mod-permissions/mod-permissions.module';

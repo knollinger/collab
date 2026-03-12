@@ -42,7 +42,6 @@ import { FormsModule } from '@angular/forms';
 import { AutoFocusDirective } from './directives/auto-focus.directive';
 import { HintComponent } from './components/hint/hint.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
-import { BackendErrorComponent } from './components/backend-error/backend-error.component';
 import { MainPageTemplateComponent } from './components/main-page-template/main-page-template.component';
 import { SelectionBoxComponent } from './components/selection-box/selection-box.component';
 
@@ -59,7 +58,6 @@ import { SelectionBoxComponent } from './components/selection-box/selection-box.
     AutoFocusDirective,
     HintComponent,
     SearchBarComponent,
-    BackendErrorComponent,
     MainPageTemplateComponent,
     ToolbarFillerComponent,
     SelectionBoxComponent,

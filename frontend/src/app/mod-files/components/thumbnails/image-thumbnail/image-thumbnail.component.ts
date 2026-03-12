@@ -18,7 +18,7 @@ export class ImageThumbnailComponent implements IThumbNail {
   @Input()
   iconSize: string = '64px';
 
-  iconUrl: string = '';
+  imgUrl: string = '';
 
   /**
    * 
@@ -34,7 +34,7 @@ export class ImageThumbnailComponent implements IThumbNail {
    */
   @Input()
   set inode(inode: INode) {
-    this.iconUrl = this.backendRouter.getRouteForName('getThumb', ImageThumbnailComponent.routes, inode.uuid);
+    this.imgUrl = this.backendRouter.getRouteForName('getThumb', ImageThumbnailComponent.routes, inode.uuid);
   }
 
   /**

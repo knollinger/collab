@@ -1,17 +1,17 @@
-<div class="item"> <!-- DropTarget für INodes und Files einbauen -->
+<div class="item">
 
     <mat-icon class="flex-0 material-symbols-outlined"
               [matMenuTriggerFor]="childFolders">folder</mat-icon>
-
 
     <span class="flex-0"
           (click)="onOpen(inode)">{{inode.name}}</span>
     <mat-icon class="flex-0 material-symbols-outlined">chevron_right</mat-icon>
 
+    <!-- Childs-Menu -->
     <mat-menu #childFolders="matMenu">
         <button mat-menu-item
                 *ngFor="let child of childs"
-                (click)="onOpen(child)">  <!-- DropTarget für INodes und Files einbauen -->
+                (click)="onOpen(child)"> <!-- DropTarget für INodes und Files einbauen -->
             <mat-icon class="material-symbols-outlined">folder</mat-icon>
             <span>{{child.name}}</span>
         </button>

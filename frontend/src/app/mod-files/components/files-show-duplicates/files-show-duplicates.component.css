@@ -1,12 +1,8 @@
-.inode-outer-row {
+.inode-row {
+    width: 100%;
     display: flex;
-    flex-direction: column;
-}
-
-.inode-inner-row {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
+    flex-direction: row;
+    gap: 0.5rem;
 }
 
 .field-hidden {
@@ -15,16 +11,10 @@
 }
 
 .field-name {
-    margin-right: 0.25rem;
-    flex: 1 1 auto;
+    flex: 2;
 }
 
 .field-action {
-    margin-left: 0.25rem;
-    flex: 0 0 auto;
-}
-
-.hidden {
-    display: none;
+    flex: 1;
 }
 

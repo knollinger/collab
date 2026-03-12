@@ -10,3 +10,8 @@
 .mat-mdc-tab-header {
     background-color: white;
 }
+
+.mat-mdc-header-cell, .mat-mdc-cell {
+    border: none !important;
+    vertical-align: middle !important;
+}

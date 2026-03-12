@@ -39,10 +39,17 @@ export { FilesPickerService }
 import { OpenInodeService } from './services/open-inode.service';
 export { OpenInodeService }
 
+import { ContentTypeService } from './services/content-type.service';
+export { ContentTypeService }
+
+import { ImageThumnailService } from './services/image-thumnail.service';
+export { ImageThumnailService }
+
 import { WopiService } from './services/wopi.service';
 import { DefaultThumbnailComponent } from './components/thumbnails/default-thumbnail/default-thumbnail.component';
 import { ImageThumbnailComponent } from './components/thumbnails/image-thumbnail/image-thumbnail.component';
 import { VideoThumbnailComponent } from './components/thumbnails/video-thumbnail/video-thumbnail.component';
+import { AudioThumbnailComponent } from './components/thumbnails/audio-thumbnail/audio-thumbnail.component';
 export { WopiService };
 
 
@@ -67,6 +74,7 @@ export { WopiService };
     DefaultThumbnailComponent,
     ImageThumbnailComponent,
     VideoThumbnailComponent,
+    AudioThumbnailComponent,
   ],
   imports: [
     CommonModule,

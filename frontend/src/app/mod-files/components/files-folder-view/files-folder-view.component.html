@@ -1,7 +1,6 @@
 <div class="full-height">
 
     <div class="workspace"
-         *ngIf="viewMode !== 'table'"
          [class.grid-workspace]="viewMode === 'grid'"
          [class.list-workspace]="viewMode === 'list'"
          (click)="selection.clear()"
@@ -33,102 +32,12 @@
                  [style.width]="iconSize">{{inode.name}}</div>
 
             <mat-checkbox class="selector"
-                [checked]="isSelected(inode)"
-                (click)="onSelect($event, inode)"
-                color="primary">
+                          *ngIf="showSelectors"
+                          [checked]="isSelected(inode)"
+                          (click)="onSelect($event, inode)"
+                          color="primary">
             </mat-checkbox>
         </div>
-    </div>
-
-
-    <!--
-        Der TableView ist ein wenig spezieller.
-     -->
-    <div class="full-height"
-         *ngIf="viewMode=='table'"
-         [appDropTarget]="parent"
-         (filesDropped)="onFilesDropped($event)"
-         (inodesDropped)="inodeDropMenu.show($event)"
-         (contextmenu)="folderCtxtMenu.show($event)">
-
-        <table mat-table
-               [dataSource]="visibleChilds">
-
-            <ng-container matColumnDef="selector">
-                <th mat-header-cell
-                    *matHeaderCellDef></th>
-                <td mat-cell
-                    *matCellDef="let inode">
-                    <mat-checkbox color="primary"
-                                  [checked]="isSelected(inode)"
-                                  (click)="onSelect($event, inode)"></mat-checkbox>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="image">
-                <th mat-header-cell
-                    *matHeaderCellDef></th>
-                <td mat-cell
-                    *matCellDef="let inode">
-                    <!-- <img [src]="getINodeImage(inode) | safe:'resourceUrl'"
-                         [style.width]="iconSize"> -->
-                    <div class="image"
-                         [appINodeDragSource]="inode"
-                         [appINodeDragSourceSelectedINodes]="selection"
-                         [style.backgroundImage]="getINodeImageAsUrl(inode)"
-                         [style.height]="iconSize"
-                         [style.width]="iconSize">
-
-                        <img class="link-indicator"
-                             *ngIf="inode.isLink()"
-                             [src]="linkIcon">
-                    </div>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="name">
-                <th mat-header-cell
-                    *matHeaderCellDef>Name</th>
-                <td mat-cell
-                    class="tableview-name"
-                    *matCellDef="let inode"> {{inode.name}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="size">
-                <th mat-header-cell
-                    *matHeaderCellDef>Größe</th>
-                <td mat-cell
-                    *matCellDef="let inode"> {{inode.size | fileSize}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="created">
-                <th mat-header-cell
-                    *matHeaderCellDef>Erzeugt</th>
-                <td mat-cell
-                    *matCellDef="let inode"> {{inode.created | date:"dd.MM.yyyy hh:mm:ss"}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="modified">
-                <th mat-header-cell
-                    *matHeaderCellDef>Verändert</th>
-                <td mat-cell
-                    *matCellDef="let inode"> {{inode.modified | date:"dd.MM.yyyy hh:mm:ss"}} </td>
-            </ng-container>
-
-            <tr mat-header-row
-                *matHeaderRowDef="displayedColumns; sticky:true;"></tr>
-            <!-- <tr mat-header-row
-                *matHeaderRowDef="displayedColumns"></tr> -->
-            <tr mat-row
-                *matRowDef="let row; columns: displayedColumns;; let inode"
-                [class.locked]="isLocked(inode)"
-                [appDropTarget]="inode"
-                (filesDropped)="onFilesDropped($event)"
-                (inodesDropped)="inodeDropMenu.show($event)"
-                (click)="onOpen(inode)"
-                (contextmenu)="itemCtxtMenu.show(inode, $event)">
-            </tr>
-        </table>
     </div>
 
     <!-- Das Kontext-Menu für INodes -->
@@ -140,7 +49,7 @@
                                  (cut)="onCut($event)"
                                  (copy)="onCopy($event)"
                                  (link)="onLink($event)"
-                                 (paste)="onPaste()"
+                                 (paste)="onPaste($event)"
                                  (sendToDashboard)="onSendToDashboard($event)"
                                  (showProps)="onShowProps($event)">
     </app-files-item-context-menu>
@@ -149,7 +58,7 @@
     <app-files-folder-context-menu #folderCtxtMenu
                                    [inode]="parent"
                                    (createDocument)="onCreateDocument($event)"
-                                   (paste)="onPaste()"
+                                   (paste)="onPaste(parent)"
                                    (showProps)="onShowProps($event)">
     </app-files-folder-context-menu>
 

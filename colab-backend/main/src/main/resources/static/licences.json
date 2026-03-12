@@ -1,0 +1,30 @@
+[
+	{
+		"name": "metadata-extractor",
+		"creator": "Drew Noakes",
+		"licence": "Apache 2.0",
+		"licence-url": "",
+		"url": "https://github.com/drewnoakes/metadata-extractor"
+	},
+	{
+		"name": "spring-boot",
+		"creator": "spring.io",
+		"licence": "Apache 2.0",
+		"licence-url": "",
+		"url": "https://spring.io/projects/spring-boot"
+	},
+	{
+		"name": "Angular",
+		"creator": "Google",
+		"licence": "MIT",
+		"licence-url": "",
+		"url": "https://spring.io/projects/spring-boot"
+	},
+	{
+		"name": "MariaDB",
+		"creator": "MariaDB Foundation",
+		"licence": "GPLv2",
+		"licence-url": "",
+		"url": "https://mariadb.org/"
+	}
+]

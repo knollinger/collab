@@ -6,7 +6,6 @@ import { Observable } from 'rxjs';
 
 import { MessageBoxComponent } from '../components/message-box/message-box.component';
 import { InputBoxComponent } from '../components/input-box/input-box.component';
-import { BackendErrorComponent, IBackendError } from '../components/backend-error/backend-error.component';
 import { ISelectionBoxEntry, SelectionBoxComponent } from '../components/selection-box/selection-box.component';
 
 
@@ -130,21 +129,6 @@ export class CommonDialogsService {
         message: message,
         entries: entries
       }
-    });
-    return dialogRef.afterClosed();
-  }
-
-  /**
-   * 
-   * @param error 
-   * @returns 
-   */
-  public showBackendError(error: IBackendError) {
-
-    const dialogRef = this.dialog.open(BackendErrorComponent, {
-      width: '80%',
-      maxWidth: '800px',
-      data: error
     });
     return dialogRef.afterClosed();
   }

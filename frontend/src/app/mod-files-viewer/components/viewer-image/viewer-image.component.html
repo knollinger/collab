@@ -1,15 +1,40 @@
 <div class="outer-cnr">
 
-    <div class="current-view">
-        <img class="current-image" [src]="sourceUrl(currId) | safe:'resourceUrl'">
+    <app-toolbar>
+        <button mat-icon-button
+                (click)="onToggleGallery()">
+            ?
+        </button>
+    </app-toolbar>
+
+    <div class="image-cnr">
+        <img class="current-image"
+             [src]="sourceUrl | safe:'resourceUrl'">
+
+        <button mat-fab
+                class="btn left-btn"
+                color="primary"
+                (click)="onGoLeft()">
+            <mat-icon class="material-symbols-outlined">chevron_left</mat-icon>
+        </button>
+
+        <button mat-fab
+                class="btn right-btn"
+                color="primary"
+                (click)="onGoRight()">
+            <mat-icon class="material-symbols-outlined">chevron_right</mat-icon>
+        </button>
     </div>
 
-    <div class="gallery">
-        <img *ngFor="let uuid of allSiblings"
-             class="preview-img"
-             [class.selected]="isSelected(uuid)"
-             (click)="currId = uuid"
-             [id]="uuid"
-             [src]="sourceUrl(uuid) | safe:'resourceUrl'">
+    <!-- Die Gallerie wird nur angezeigt, wenn der Benutzer dies ausgewählt hat -->
+    <div class="gallery"
+         *ngIf="showGallery">
+
+
+        <img class="gallery-image"
+             *ngFor="let inode of allImages; let idx = index"
+             [src]="getGallerySrcUrl(inode)"
+             (click)="selectByIdx(idx)"
+             [class.selected]="isSelected(idx)">
     </div>
 </div>

@@ -4,6 +4,7 @@ import { DefaultThumbnailComponent } from '../components/thumbnails/default-thum
 import { IThumbNail } from '../components/thumbnails/ithumbnail';
 import { ImageThumbnailComponent } from '../components/thumbnails/image-thumbnail/image-thumbnail.component';
 import { VideoThumbnailComponent } from '../components/thumbnails/video-thumbnail/video-thumbnail.component';
+import { AudioThumbnailComponent } from '../components/thumbnails/audio-thumbnail/audio-thumbnail.component';
 
 class RegEntry {
 
@@ -30,8 +31,9 @@ class RegEntry {
 export class ThumbnailFactoryService {
 
   private registry: RegEntry[] = [
+    new RegEntry(new RegExp('audio/.*', 'i'), AudioThumbnailComponent),
     new RegEntry(new RegExp('image/.*', 'i'), ImageThumbnailComponent),
-    new RegEntry(new RegExp('video/.*', 'i'), VideoThumbnailComponent)
+    new RegEntry(new RegExp('video/.*', 'i'), VideoThumbnailComponent),
   ]
 
   constructor() { }

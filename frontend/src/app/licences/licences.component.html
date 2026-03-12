@@ -1,38 +1,43 @@
-<div class="small-padding scrollable">
+<div class="small-padding scrollable mat-app-background full-height">
 
-    <h1>Opensource-Lizenzen</h1>
-    <p>
-        Die <i>Working together</i>-Anwendung steht unter der <a
-           href="https://www.gnu.org/licenses/gpl-3.0.en.html#license-text"
-           target="_blank">GPL V3</a>.
-        Es steht Dir (im Rahmen der GPLv3) frei die komplette Anwendung zu verwenden, zu kopieren oder an Deine
-        Anforderungen anzupassen.
-    </p>
+       <h1>Opensource-Lizenzen</h1>
 
-    <h1>Verwendete Opensource-Software</h1>
+       Colab selbst ist OpenSource und steht unter GPLv2. Die folgenden OpenSource-Komponenten werden in Colab verwendet:
 
-    <hr>
-    <h2>Datenbank</h2>
-    <p>Als Datenbank wird MariaDB verwendet. MariaDB steht unter der <a
-           href="https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html#SEC1"
-           target="_blank">GPL V2</a>.</p>
+       <mat-table [dataSource]="licences">
 
-    <hr>
-    <h2>Server</h2>
-    <p>Für die Backend-Server-Software wird Spring-boot verwendet. Spring-boot steht unter der <a
-           href="https://www.apache.org/licenses/LICENSE-2.0"
-           target="_blank">Apache Lizenz V2</a> </p>
+              <ng-container matColumnDef="name">
+                     <th mat-header-cell
+                         *matHeaderCellDef>Name</th>
+                     <td mat-cell
+                         *matCellDef="let element"> {{element.name}} </td>
+              </ng-container>
 
-    <hr>
-    <h2>Frontend</h2>
-    <p>Für die Frontend-Software wird Angular verwendet. Angular steht unter der <a
-           href="https://www.mit.edu/~amini/LICENSE.md"
-           target="_blank">MIT-Lizenz</a></p>
+              <ng-container matColumnDef="creator">
+                     <th mat-header-cell
+                         *matHeaderCellDef>Creator</th>
+                     <td mat-cell
+                         *matCellDef="let element"> {{element.creator}} </td>
+              </ng-container>
 
-    <hr>
-    <h2>Kalender</h2>
-    <p>Als Kalender-Komponente wird DayPilot-lite verwendet. DayPilot-lite steht unter der <a
-        href="https://www.apache.org/licenses/LICENSE-2.0"
-        target="_blank">Apache Lizenz V2</a> </p>
+              <ng-container matColumnDef="licence">
+                     <th mat-header-cell
+                         *matHeaderCellDef>Lizenz</th>
+                     <td mat-cell
+                         *matCellDef="let element"> {{element.licence}} </td>
+              </ng-container>
 
+              <ng-container matColumnDef="repository">
+                     <th mat-header-cell
+                         *matHeaderCellDef>Quelle</th>
+                     <td mat-cell
+                         *matCellDef="let element"><a href={{element.url}} target="_blank">{{element.url}}</a> </td>
+              </ng-container>
+
+
+              <tr mat-header-row
+                  *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row
+                  *matRowDef="let row; columns: displayedColumns;"></tr>
+       </mat-table>
 </div>

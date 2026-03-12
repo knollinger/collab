@@ -100,6 +100,9 @@
             <mat-icon class="material-symbols-outlined">delete</mat-icon>
         </button>
 
+        <span class="flex-1"></span>
+
+        <!-- Versteckte Dateien anzeigen/ausblenden-->
         <button mat-icon-button
                 matTooltip="Versteckte Dateien anzeigen"
                 (click)="onToggleHiddenFiles()">
@@ -109,11 +112,10 @@
                       *ngIf="showHiddenFiles">visibility_off</mat-icon>
         </button>
 
-
-        <span class="flex-1"></span>
-
         <!-- Preview on/off -->
-        <button mat-icon-button matTooltip="Vorschau ein/aus" (click)="showPreview = !showPreview">
+        <button mat-icon-button
+                matTooltip="Vorschau ein/aus"
+                (click)="showPreview = !showPreview">
             <mat-icon class="material-symbols-outlined"
                       *ngIf="!showPreview">preview</mat-icon>
             <mat-icon class="material-symbols-outlined"
@@ -156,11 +158,6 @@
                 <mat-icon class="material-symbols-outlined">list</mat-icon>
             </mat-button-toggle>
 
-            <mat-button-toggle value="table"
-                               matTooltip="Tabellen-Darstellung">
-                <mat-icon class="material-symbols-outlined">table</mat-icon>
-            </mat-button-toggle>
-
         </mat-button-toggle-group>
 
     </app-toolbar>
@@ -177,7 +174,7 @@
                 <div class="breadcrumb">
                     <app-files-bread-crumb-item *ngFor="let inode of path"
                                                 [inode]="inode"
-                                                (open)="openINode(inode)">
+                                                (open)="openINode($event)">
                     </app-files-bread-crumb-item>
                 </div>
             </div>
