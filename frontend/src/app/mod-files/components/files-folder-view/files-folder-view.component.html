@@ -29,7 +29,7 @@
             <ng-template *ngComponentOutlet="getThumbnailClass(inode); inputs: getThumbNailInputs(inode)"></ng-template>
 
             <div class="label"
-                 [style.width]="iconSize">{{inode.name}}</div>
+                 [style.width]="iconSizeAsCSS">{{inode.name}}</div>
 
             <mat-checkbox class="selector"
                           *ngIf="showSelectors"

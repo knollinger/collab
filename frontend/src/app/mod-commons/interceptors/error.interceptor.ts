@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpRequest, HttpHandler, HttpEvent, HttpInterceptor, HttpErrorResponse } from '@angular/common/http';
-import { Observable, catchError, throwError, of } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 
 import { CommonDialogsService } from '../services/common-dialogs.service';
 import { Router } from '@angular/router';
+import { BackendErrorDesc, ShowBackendErrorService } from '../services/show-backend-error.service';
 
 /**
  * Der Error-Interceptor springt bei allen HttpErrorResponses an und zeigt
@@ -31,7 +32,7 @@ export class ErrorInterceptor implements HttpInterceptor {
    */
   constructor(
     private router: Router,
-    private msgService: CommonDialogsService) {
+    private showBackendErrSvc: ShowBackendErrorService) {
   }
 
   /**
@@ -44,21 +45,21 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((err: HttpErrorResponse) => {
 
+        const error = err.error;
+
         switch (err.status) {
+
           case 401:
             this.router.navigateByUrl(`/session/login`); // redirUrl funct hier ned, weil die gerufene URL ans backend ging!
             break;
 
+          case 0:
+            this.showBackendErrSvc.showBackendError(new BackendErrorDesc(error.status, 'conn refused', error.path, 'Server down', ''));
+            break;
+
           default:
-            const httpError = {
-              message: err.error.message,
-              method: req.method,
-              path: err.error.path,
-              status: err.error.status,
-              trace: err.error.trace
-            }
-            alert(httpError);
-            // this.msgService.showBackendError(httpError);
+            const errorDesc = new BackendErrorDesc(error.status, error.error, error.path, error.message, error.trace);
+            this.showBackendErrSvc.showBackendError(errorDesc);
             break;
         }
         return throwError(err);

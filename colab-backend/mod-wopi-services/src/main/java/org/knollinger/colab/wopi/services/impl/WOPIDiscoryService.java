@@ -17,6 +17,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.knollinger.colab.utils.messages.MessageFormatter;
 import org.knollinger.colab.wopi.exceptions.TechnicalWOPIException;
 import org.knollinger.colab.wopi.services.IWOPIDiscoveryService;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +36,7 @@ public class WOPIDiscoryService implements IWOPIDiscoveryService
     private static final String APP_XPATH = "//wopi-discovery/net-zone/app";
     private static final String ACTION_XPATH = "//action";
     private static final Pattern MIMETYPE_PATTERN = Pattern.compile(".*\\/.*");
-    private static final String ERR_LOAD_MIMETYPES = "Die Liste der Datei-Typen konnte nicht geladen werden da der Collabora-Dienst nicht erreichbar ist.";
+//    private static final String ERR_LOAD_MIMETYPES = "Die Liste der Datei-Typen konnte nicht geladen werden da der Collabora-Dienst nicht erreichbar ist.";
     @Value("${collabara.discoveryUrl}")
     private URL discoveryUrl;
 
@@ -62,7 +63,7 @@ public class WOPIDiscoryService implements IWOPIDiscoveryService
         }
         catch (SAXException | ParserConfigurationException | IOException | XPathExpressionException e)
         {
-            throw new TechnicalWOPIException(ERR_LOAD_MIMETYPES, e);
+            throw new TechnicalWOPIException(MessageFormatter.formatMsg(getClass(), "ERR_LOAD_WOPI_BINDINGS"), e);
         }
     }
 

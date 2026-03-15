@@ -10,6 +10,10 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'commons',
+    loadChildren: () => import('./mod-commons/mod-commons.module').then(mod => mod.ModCommonsModule)
+  },
+  {
     path: 'init',
     component: InitComponent,
   },

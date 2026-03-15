@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { OverlayModule } from '@angular/cdk/overlay';
 
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModUserDataModule } from '../mod-userdata/mod-userdata.module';
@@ -50,6 +51,7 @@ import { DefaultThumbnailComponent } from './components/thumbnails/default-thumb
 import { ImageThumbnailComponent } from './components/thumbnails/image-thumbnail/image-thumbnail.component';
 import { VideoThumbnailComponent } from './components/thumbnails/video-thumbnail/video-thumbnail.component';
 import { AudioThumbnailComponent } from './components/thumbnails/audio-thumbnail/audio-thumbnail.component';
+import { FilesIconsizeChooserComponent } from './components/files-iconsize-chooser/files-iconsize-chooser.component';
 export { WopiService };
 
 
@@ -75,6 +77,7 @@ export { WopiService };
     ImageThumbnailComponent,
     VideoThumbnailComponent,
     AudioThumbnailComponent,
+    FilesIconsizeChooserComponent,
   ],
   imports: [
     CommonModule,
@@ -88,6 +91,7 @@ export { WopiService };
     ModMaterialImportModule,
     FormsModule,
     ReactiveFormsModule,
+    OverlayModule,
     ModFilesRoutingModule
   ],
   exports: [

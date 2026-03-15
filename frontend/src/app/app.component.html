@@ -4,6 +4,7 @@
     <div class="toolbar">
 
         <mat-icon class="material-symbols-outlined toolbar-btn"
+                  *ngIf="isLoggedOn"
                   (click)="navMenu.toggle()"
                   matTooltip="Menü">menu</mat-icon>
 

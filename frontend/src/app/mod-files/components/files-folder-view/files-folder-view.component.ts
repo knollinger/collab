@@ -71,7 +71,11 @@ export class FilesFolderViewComponent implements OnInit {
   viewMode: string = 'grid';
 
   @Input()
-  iconSize: string = '128px';
+  iconSize: number = 64;
+
+  get iconSizeAsCSS(): string {
+    return `${this.iconSize}px`;
+  }
 
   @Input()
   showPreview: boolean = false;
@@ -177,7 +181,7 @@ export class FilesFolderViewComponent implements OnInit {
 
     return {
       inode: inode,
-      iconSize: this.iconSize
+      iconSize: this.iconSizeAsCSS
     }
   }
 

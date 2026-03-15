@@ -58,7 +58,7 @@ import lombok.extern.log4j.Log4j2;
  *  <li>PutFile</li>
  * </ul>
  * 
- * Wir implementieren hier noch EndPoints welche nicht von Collabra gerufen werden,
+ * Wir implementieren hier noch EndPoints welche nicht von Collabora gerufen werden,
  * jedoch von den Integrations-Componenten/Services der Angular-App.
  */
 @RestController()
@@ -66,7 +66,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class WOPIControler
 {
-    private static final String LAUNCHER_FORM = "" // ggf von extern mittels JSOUP laden?
+    private static final String LAUNCHER_FORM = "" // ggf von extern laden?
         + "<html>" //
         + "  <body onload=\"document.getElementById('form').submit()\">" //
         + "    <form style=\"display: none;\" id=\"form\" action=\"{baseUrl}?WOPISrc={wopiSrc}&lang={lang}\" enctype=\"multipart/form-data\" method=\"post\">" //

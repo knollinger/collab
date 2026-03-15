@@ -122,29 +122,28 @@
                       *ngIf="showPreview">preview_off</mat-icon>
         </button>
 
-        <!-- IconSize-Menu -->
+        <!-- IconSize overlay -->
         <button mat-icon-button
-                matTooltip="Icons-Größe auswählen"
-                [matMenuTriggerFor]="sizeMenu">
+                matTooltip="Symbol-Größe"
+                cdkOverlayOrigin
+                #iconSizeTrigger="cdkOverlayOrigin"
+                (click)="showIconSizeChooser=true">
             <mat-icon class="material-symbols-outlined">aspect_ratio</mat-icon>
         </button>
 
-        <mat-menu #sizeMenu="matMenu">
+        <ng-template cdkConnectedOverlay
+                     [cdkConnectedOverlayOrigin]="iconSizeTrigger"
+                     [cdkConnectedOverlayOpen]="showIconSizeChooser"
+                     [cdkConnectedOverlayHasBackdrop]="true"
+                     cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+                     cdkConnectedOverlayPanelClass="menu-overlay-pane"
+                     (backdropClick)="showIconSizeChooser=false">
 
-            <mat-radio-group [(ngModel)]="iconSize">
-                <div mat-menu-item
-                     *ngFor="let size of iconSizes"
-                     (click)="iconSize=size.size"
-                     class="disp-flex flex-alignitems-center">
-                    <mat-radio-button color="primary"
-                                      class="flex-0"
-                                      [value]="size.size"></mat-radio-button>
-                    <span class="flex-1">{{size.text}}</span>
-                </div>
-            </mat-radio-group>
+            <app-files-iconsize-chooser [(value)]="iconSize"></app-files-iconsize-chooser>
+        </ng-template>
 
-        </mat-menu>
 
+        <!-- ViewMode -->
         <mat-button-toggle-group name="viewMode"
                                  [(value)]="viewMode">
 

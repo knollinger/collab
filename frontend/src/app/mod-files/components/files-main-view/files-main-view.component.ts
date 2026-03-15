@@ -16,15 +16,6 @@ import { ContentTypeService } from '../../services/content-type.service';
 import { FilesDroppedEvent } from '../../directives/drop-target.directive';
 import { OpenInodeService } from '../../services/open-inode.service';
 
-export class IconSize {
-
-  constructor(
-    public readonly size: string,
-    public readonly text: string) {
-
-  }
-}
-
 /**
  * Die Haupt-Component der Files-Ansicht
  */
@@ -46,13 +37,7 @@ export class FilesMainViewComponent implements OnInit {
   public path: INode[] = Array<INode>();
   public childs: INode[] = Array<INode>();
   public selected: Set<INode> = new Set<INode>();
-
-  iconSizes: IconSize[] = [
-    new IconSize('64px', "Klein"),
-    new IconSize('96px', "Mittel"),
-    new IconSize('128px', "Groß"),
-    new IconSize('160px', "Sehr groß")
-  ]
+  public showIconSizeChooser: boolean = false;
 
   /**
    * 
@@ -96,6 +81,7 @@ export class FilesMainViewComponent implements OnInit {
         if (!target) {
           this.onGoHome();
         } else {
+
           this.inodeSvc.getINode(target)
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(inode => {
@@ -188,15 +174,15 @@ export class FilesMainViewComponent implements OnInit {
   /**
    * 
    */
-  get iconSize(): string {
+  get iconSize(): number {
 
-    return this.settings['iconSize'] || '128px';
+    return this.settings['iconSize'];
   }
 
   /**
    * 
    */
-  set iconSize(size: string) {
+  set iconSize(size: number) {
 
     if (size !== this.settings['iconSize']) {
       this.settings['iconSize'] = size;

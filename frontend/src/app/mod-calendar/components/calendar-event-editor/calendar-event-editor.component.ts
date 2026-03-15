@@ -148,7 +148,6 @@ export class CalendarEventEditorComponent implements OnInit {
       .subscribe(event => {
 
         this.uploadFiles(event.core.uuid);
-        this.onGoBack();
       })
   }
 
@@ -164,12 +163,5 @@ export class CalendarEventEditorComponent implements OnInit {
         .subscribe(result => {
         })
     }
-  }
-
-  /**
-   * 
-   */
-  onGoBack() {
-    this.router.navigateByUrl('/calendar/show');
   }
 }

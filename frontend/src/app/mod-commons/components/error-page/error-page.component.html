@@ -1,0 +1,21 @@
+<div class="outer-cnr mat-app-background">
+
+    <div class="content">
+
+        <mat-card class="message mat-elevation-z4">
+            <h2>HTTP&nbsp;{{statusCode}}&nbsp;{{statusText}}</h2>
+            <div [innerHTML]="message"></div>
+        </mat-card>
+    </div>
+
+    <div class="actions">
+        <button mat-flat-button
+                (click)="onGoBack()"
+                color="primary">Schließen</button>
+
+        <button mat-flat-button
+                (click)="showDetails = !showDetails"
+                color="white">Details</button>
+
+    </div>
+</div>

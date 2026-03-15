@@ -58,7 +58,9 @@ export class FilesBreadCrumbItemComponent implements OnInit {
     this.inodeSvc.getAllChilds(this.inode.uuid, true)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(childs => {
-        this.childs = childs;
+        this.childs = childs.filter(child => {
+          return !child.isHidden();
+        });
       })
   }
 

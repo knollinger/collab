@@ -1,0 +1,29 @@
+.outer-cnr {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1rem;
+    overflow: auto;
+    gap: 1rem;
+}
+
+.content {
+    flex: 1;
+    overflow: auto;
+}
+
+.message {
+    max-width: 50%;
+    width: 600px;
+    overflow: auto;
+    padding: 1rem;
+    background: linear-gradient(to bottom, rgb(30, 87, 153) 0%, rgb(19, 137, 228) 100%);
+    color: white;
+
+}
+
+.actions {
+    flex: 0;
+    display: flex;
+    gap: 0.5rem;
+}

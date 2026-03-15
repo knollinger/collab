@@ -13,6 +13,7 @@ import { WhiteboardEditorComponent } from './components/whiteboard-editor/whiteb
 import { WhiteboardShapeContextMenuComponent } from './components/whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
 import { WhiteboardRootContextMenuComponent } from './components/whiteboard-root-context-menu/whiteboard-root-context-menu.component';
 import { WhiteboardSiderbarComponent } from './components/whiteboard-siderbar/whiteboard-siderbar.component';
+import { WhiteboardOverviewComponent } from './components/whiteboard-overview/whiteboard-overview.component';
 
 
 @NgModule({
@@ -20,7 +21,8 @@ import { WhiteboardSiderbarComponent } from './components/whiteboard-siderbar/wh
     WhiteboardEditorComponent,
     WhiteboardShapeContextMenuComponent,
     WhiteboardRootContextMenuComponent,
-    WhiteboardSiderbarComponent
+    WhiteboardSiderbarComponent,
+    WhiteboardOverviewComponent
   ],
   imports: [
     CommonModule,
@@ -31,6 +33,9 @@ import { WhiteboardSiderbarComponent } from './components/whiteboard-siderbar/wh
     ModSessionModule,
     ModFilesModule,
     ModWhiteboardRoutingModule
+  ],
+  exports: [
+    WhiteboardOverviewComponent
   ]
 })
 export class ModWhiteboardModule { }

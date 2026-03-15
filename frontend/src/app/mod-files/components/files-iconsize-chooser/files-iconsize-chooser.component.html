@@ -1,0 +1,9 @@
+<div class="outer-cnr mat-elevation-z4">
+    <mat-slider [min]="min"
+                [max]="max"
+                [step]="step">
+        <input matSliderThumb
+               [(ngModel)]="value">
+    </mat-slider>
+    <span>{{value}}</span>
+</div>

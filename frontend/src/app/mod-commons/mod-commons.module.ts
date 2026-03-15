@@ -44,6 +44,8 @@ import { HintComponent } from './components/hint/hint.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
 import { MainPageTemplateComponent } from './components/main-page-template/main-page-template.component';
 import { SelectionBoxComponent } from './components/selection-box/selection-box.component';
+import { ErrorPageComponent } from './components/error-page/error-page.component';
+import { ModCommonsRoutingModule } from './mod-commons-routing.module';
 
 @NgModule({
   declarations: [
@@ -61,13 +63,14 @@ import { SelectionBoxComponent } from './components/selection-box/selection-box.
     MainPageTemplateComponent,
     ToolbarFillerComponent,
     SelectionBoxComponent,
+    ErrorPageComponent,
   ],
   imports: [
     CommonModule,
     ModMaterialImportModule,
     FormsModule,
-    OverlayModule
-
+    OverlayModule,
+    ModCommonsRoutingModule
   ],
   exports: [
     ToolbarComponent,
@@ -81,6 +84,7 @@ import { SelectionBoxComponent } from './components/selection-box/selection-box.
     AutoFocusDirective,
     SearchBarComponent,
     MainPageTemplateComponent,
+    ModCommonsRoutingModule,
   ]
 })
 export class ModCommonsModule { }

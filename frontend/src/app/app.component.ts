@@ -60,7 +60,7 @@ export class AppComponent implements OnInit {
     {
       icon: 'jamboard_kiosk',
       title: 'Whiteboard',
-      route: '/whiteboard/folderview'
+      route: '/whiteboard/overview'
     },
     {
       icon: 'person',
@@ -88,6 +88,10 @@ export class AppComponent implements OnInit {
     private titlebarSvc: TitlebarService,
     private sessSvc: SessionService) {
 
+  }
+
+  private createMenuEntries() {
+    
   }
 
   /**

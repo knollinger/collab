@@ -19,7 +19,7 @@ export class FilesWidgetComponent implements OnInit {
 
   baseFolder: INode = INode.empty();
   inodes: INode[] = new Array<INode>();
-  iconSize: string = '64px';
+  iconSize: number = 64;
 
   /**
    * 
