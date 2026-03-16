@@ -11,7 +11,8 @@
     <mat-menu #childFolders="matMenu">
         <button mat-menu-item
                 *ngFor="let child of childs"
-                (click)="onOpen(child)">
+                (click)="onOpen(child)"
+                [disabled]="isLocked(child)">
             <mat-icon class="material-symbols-outlined">folder</mat-icon>
             <span>{{child.name}}</span>
         </button>

@@ -18,6 +18,11 @@ export class PermissionsService {
         ]
     );
 
+    /**
+     * 
+     * @param http 
+     * @param backendRouter 
+     */
     constructor(
         private http: HttpClient,
         private backendRouter: BackendRoutingService) {

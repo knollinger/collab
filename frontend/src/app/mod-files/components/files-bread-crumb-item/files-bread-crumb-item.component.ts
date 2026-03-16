@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { INode } from '../../../mod-files-data/mod-files-data.module';
 import { INodeService } from '../../services/inode.service';
+import { ACLEntry, CheckPermissionsService } from '../../../mod-permissions/mod-permissions.module';
 
 /**
  * Die *FilesBreadCrumbItemComponent* stellt einen Verzeichnis-Eintrag
@@ -46,7 +47,8 @@ export class FilesBreadCrumbItemComponent implements OnInit {
    * @param inodeSvc 
    */
   constructor(
-    private inodeSvc: INodeService) {
+    private inodeSvc: INodeService,
+    private checkPermsSvc: CheckPermissionsService) {
 
   }
 
@@ -67,8 +69,19 @@ export class FilesBreadCrumbItemComponent implements OnInit {
   /**
    * 
    * @param inode 
+   * @returns 
+   */
+  public isLocked(inode: INode): boolean {
+    return !this.checkPermsSvc.hasPermissions(inode.acl, ACLEntry.PERM_READ);
+  }
+
+  /**
+   * 
+   * @param inode 
    */
   onOpen(inode: INode) {
-    this.open.emit(inode);
+    if(!this.isLocked(inode)) {
+      this.open.emit(inode);
+    }
   }
 }

@@ -156,7 +156,7 @@ export class FilesFolderViewComponent implements OnInit {
   /* leider nicht anders.                                                    */
   /*                                                                         */
   /*-------------------------------------------------------------------------*/
-  
+
   /**
    * Der eigentliche Renderer für das ThumbNail wird dynamisch erzeugt. Dazu
    * muss der Typ des Renderers ermittelt werden, dies passiert über den
@@ -168,7 +168,7 @@ export class FilesFolderViewComponent implements OnInit {
   getThumbnailClass(inode: INode): Type<IThumbNail> {
     return this.showPreview ? this.thumbnailSvc.getThumbnailFor(inode) : DefaultThumbnailComponent;
   }
-  
+
   /**
    * In jeden ThumbNailRenderer müssen die inode und die IconSize injected 
    * werden. Das Interface für einen Renderer definiert getter+setter für die
@@ -352,7 +352,9 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onOpen(inode: INode) {
 
-    this.open.emit(inode);
+    if (!this.isLocked(inode)) {
+      this.open.emit(inode);
+    }
   }
 
   /**

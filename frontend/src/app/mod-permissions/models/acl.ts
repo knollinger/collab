@@ -25,13 +25,8 @@ import { SessionService } from '../../mod-session/session.module';
   
   Änderungen an der ACL darf nur der Owner oder ein Mitglied der 
   OwingGroup vornehmen!
-
-  Alle Tests in der ACL (hasPermissions, isReadable, ...) erfolgen gegen
-  den aktuell angemeldeten Benutzer.
 */
 export class ACL {
-
-    private _effectivePerms: number | undefined = undefined;
 
     /**
      * 
@@ -85,14 +80,6 @@ export class ACL {
             groupId: this.groupId,
             entries: this._entries.map(entry => { return entry.toJSON() })
         }
-    }
-
-    get effectivePerms(): number | undefined {
-        return this._effectivePerms;
-    }
-
-    set effectivePerms(permMask: number) {
-        this._effectivePerms = ACLEntry.normalizeMask(permMask);
     }
 
     /**
