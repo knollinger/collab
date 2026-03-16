@@ -1,29 +1,39 @@
 .outer-cnr {
-    display: flex;
-    flex-direction: column;
     height: 100%;
     padding: 1rem;
     overflow: auto;
+    display: flex;
     gap: 1rem;
+    align-items: flex-start;
+    align-content: space-around;
 }
 
-.content {
-    flex: 1;
+.message, .details {
+    max-height: 100%;
     overflow: auto;
 }
 
 .message {
-    max-width: 50%;
-    width: 600px;
-    overflow: auto;
-    padding: 1rem;
-    background: linear-gradient(to bottom, rgb(30, 87, 153) 0%, rgb(19, 137, 228) 100%);
-    color: white;
-
+    flex: 1;
 }
 
-.actions {
-    flex: 0;
+.details {
+    flex: 2;
+    visibility: hidden;
+    background-color: #333;
+    color: white;
+}
+
+.btn-cnr {
     display: flex;
     gap: 0.5rem;
+    width: 100%;
+}
+
+.btn-cnr>button {
+    flex: 0 0 auto;
+}
+
+.filler {
+    flex: 1;
 }

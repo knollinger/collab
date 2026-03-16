@@ -1,21 +1,47 @@
-<div class="outer-cnr mat-app-background">
+<div class="outer-cnr">
 
-    <div class="content">
 
-        <mat-card class="message mat-elevation-z4">
+    <mat-card class="message mat-elevation-z4">
+        <mat-card-header>
             <h2>HTTP&nbsp;{{statusCode}}&nbsp;{{statusText}}</h2>
+        </mat-card-header>
+
+        <mat-card-content>
             <div [innerHTML]="message"></div>
-        </mat-card>
-    </div>
+        </mat-card-content>
 
-    <div class="actions">
-        <button mat-flat-button
-                (click)="onGoBack()"
-                color="primary">Schließen</button>
+        <mat-card-actions>
+            <div class="btn-cnr">
 
-        <button mat-flat-button
-                (click)="showDetails = !showDetails"
-                color="white">Details</button>
+                <button mat-flat-button
+                        (click)="onGoBack()"
+                        color="primary">Schließen</button>
 
-    </div>
+                <button mat-flat-button
+                        (click)="showDetails = !showDetails">
+                    <span *ngIf="!showDetails">Details anzeigen</span>
+                    <span *ngIf="showDetails">Details ausblenden</span>
+                </button>
+
+                <span class="filler"></span>
+                <button mat-icon-button
+                        (click)="onCopy()"
+                        matTooltip="Fehlerbericht kopieren">
+                    <mat-icon class="material-symbols-outlined">content_copy</mat-icon>
+                </button>
+            </div>
+
+        </mat-card-actions>
+    </mat-card>
+
+    <mat-card class="details mat-elevation-z4"
+              [style.visibility]="showDetails ? 'visible' : 'hidden'">
+        <mat-card-header>
+            <h2>Pfad: {{path}}</h2>
+        </mat-card-header>
+
+        <mat-card-content>
+            <pre>{{stackTrace}}</pre>
+        </mat-card-content>
+    </mat-card>
 </div>

@@ -2,7 +2,6 @@ import { RouterModule, Routes } from "@angular/router";
 import { NgModule } from "@angular/core";
 import { ErrorPageComponent } from "./components/error-page/error-page.component";
 
-
 const routes: Routes = [
   {
     path: 'error',

@@ -46,8 +46,13 @@ export class ErrorPageComponent implements OnInit {
     this.statusCode = this.showBackendErrorSvc.errorDesc.httpStatusCode;
     this.statusText = this.showBackendErrorSvc.errorDesc.httpStatusText;
     this.path = this.showBackendErrorSvc.errorDesc.path;
-    this.message = `<p>${this.showBackendErrorSvc.errorDesc.msg.replace('\n', '</p><p>')}</p>`;    
+    this.message = `<p>${this.showBackendErrorSvc.errorDesc.msg.replace('\n', '</p><p>')}</p>`;   
+    this.stackTrace =  this.showBackendErrorSvc.errorDesc.stackTrace;
     this.showBackendErrorSvc.clear();
+  }
+  
+  onCopy() {
+
   }
   
   /**
