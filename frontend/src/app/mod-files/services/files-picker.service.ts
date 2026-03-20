@@ -25,12 +25,13 @@ export class FilesPickerService {
      * @param multiple 
      * @returns 
      */
-    public showFilePicker(multiple: boolean): Observable<INode[]> {
+    public showFilePicker(multiple: boolean, filter?: RegExp): Observable<INode[]> {
 
         const dialogRef = this.dialog.open(FilePickerComponent, {
             width: '60%',
             data: {
-                multiple: multiple
+                multiple: multiple,
+                typeFilter: filter ? filter : new RegExp('.*/.*', 'i')
             }
         });
         return dialogRef.afterClosed();

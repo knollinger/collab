@@ -64,6 +64,9 @@ export class FilesFolderViewComponent implements OnInit {
   @Input()
   selection: Set<INode> = new Set<INode>();
 
+  @Input()
+  multiSelect: boolean = true;
+
   @Output()
   selectionChanged: EventEmitter<Set<INode>> = new EventEmitter<Set<INode>>();
 
@@ -209,24 +212,6 @@ export class FilesFolderViewComponent implements OnInit {
 
   /**
    * 
-   * @param inode 
-   * @returns 
-   */
-  getINodeImage(inode: INode): string {
-    return this.contentTypeSvc.getTypeIconUrl(inode.type);
-  }
-
-  /**
-   * 
-   * @param inode 
-   * @returns 
-  */
-  getINodeImageAsUrl(inode: INode): string {
-    return `url('${this.contentTypeSvc.getTypeIconUrl(inode.type)}')`;
-  }
-
-  /**
-   * 
    * @param contentType 
    */
   public onCreateDocument(evt: CreateMenuEvent) {
@@ -261,11 +246,16 @@ export class FilesFolderViewComponent implements OnInit {
       this.selection.delete(inode);
     }
     else {
+
+      if (!this.multiSelect) {
+        this.selection.clear();
+      }
       this.selection.add(inode);
     }
 
     this.selectionChanged.emit(this.selection);
   }
+
 
   /*-------------------------------------------------------------------------*/
   /*                                                                         */
@@ -471,7 +461,6 @@ export class FilesFolderViewComponent implements OnInit {
    */
   onPaste(target: INode) {
 
-    console.log(`paste to: ` + target);
     switch (this.clipboardSvc.operation) {
       case ClipboardService.OP_COPY:
         this.copy.next(new TransferINodeEvent(target, this.clipboardSvc.inodes));
@@ -481,7 +470,6 @@ export class FilesFolderViewComponent implements OnInit {
         this.move.next(new TransferINodeEvent(target, this.clipboardSvc.inodes));
         this.clipboardSvc.clear();
         break;
-
 
       case ClipboardService.OP_LINK:
         this.link.next(new TransferINodeEvent(target, this.clipboardSvc.inodes));

@@ -1,0 +1,12 @@
+.outer-cnr {
+    display: flex;
+    background-color: white;
+    flex-wrap: wrap;
+    color: black;
+    margin: 0.5rem;
+    gap: 0.5rem;
+}
+
+app-files-bread-crumb-item {
+    flex: 0;
+}

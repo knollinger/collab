@@ -170,12 +170,8 @@
         <div class="panel">
 
             <div class="header">
-                <div class="breadcrumb">
-                    <app-files-bread-crumb-item *ngFor="let inode of path"
-                                                [inode]="inode"
-                                                (open)="openINode($event)">
-                    </app-files-bread-crumb-item>
-                </div>
+                <app-files-breadcrumb [parent]="parent"
+                                      (open)="openINode($event)"></app-files-breadcrumb>
             </div>
 
             <app-folder-view class="panel"

@@ -15,3 +15,10 @@
     border: none !important;
     vertical-align: middle !important;
 }
+
+.mat-dialog-container {
+  /* background-color: transparent !important; */
+  padding: 0px 0px 0px 0px !important;
+  margin: 0;
+  /* overflow: hidden !important; */
+}

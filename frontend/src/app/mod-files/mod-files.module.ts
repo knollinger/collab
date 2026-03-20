@@ -52,6 +52,7 @@ import { ImageThumbnailComponent } from './components/thumbnails/image-thumbnail
 import { VideoThumbnailComponent } from './components/thumbnails/video-thumbnail/video-thumbnail.component';
 import { AudioThumbnailComponent } from './components/thumbnails/audio-thumbnail/audio-thumbnail.component';
 import { FilesIconsizeChooserComponent } from './components/files-iconsize-chooser/files-iconsize-chooser.component';
+import { FilesBreadcrumbComponent } from './components/files-breadcrumb/files-breadcrumb.component';
 export { WopiService };
 
 
@@ -78,6 +79,7 @@ export { WopiService };
     VideoThumbnailComponent,
     AudioThumbnailComponent,
     FilesIconsizeChooserComponent,
+    FilesBreadcrumbComponent,
   ],
   imports: [
     CommonModule,

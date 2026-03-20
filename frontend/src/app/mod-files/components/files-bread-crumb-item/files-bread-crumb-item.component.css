@@ -8,3 +8,7 @@
 .item>mat-icon {
     margin-right: 0.5rem;
 }
+
+.name {
+    white-space: nowrap;
+}

@@ -19,13 +19,6 @@
     padding: 1rem;
 }
 
-.image {
-    position: relative;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-}
-
 .label {
     display: block;
     overflow: hidden;
@@ -90,15 +83,23 @@
     width: 150px !important;
 }
 
-.selector {
-    position: absolute;
-    top: -4px;
-    left: -4px;
-}
-
 .link-indicator {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 32px;
 }
+
+.selector {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    background-color: rgba(1, 1, 1, 0.4);
+    color: white;
+}
+
+.item:hover>.selector {
+    display: block;
+}
+

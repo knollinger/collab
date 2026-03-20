@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 
@@ -8,6 +8,8 @@ import { EDragMode } from '../../models/edrag-mode';
 import { AbstractShape } from '../../shapes/abstractshape';
 import { EZOrderMode } from '../../models/ezorder-mode';
 import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
+import { FilesPickerService } from '../../../mod-files/mod-files.module';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-whiteboard-editor',
@@ -17,6 +19,8 @@ import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context
 export class WhiteboardEditorComponent implements OnInit, OnDestroy {
 
   private static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+
+  private destroyRef: DestroyRef = inject(DestroyRef);
 
   @ViewChild("svg")
   svg!: ElementRef<HTMLElement>;
@@ -44,7 +48,8 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
    */
   constructor(
     private shapeFactory: ShapeFactoryService,
-    private commonsDlgs: CommonDialogsService) {
+    private commonsDlgs: CommonDialogsService,
+    private filePicker: FilesPickerService) {
 
   }
 
@@ -182,6 +187,17 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
     this._shapes.push(shape);
   }
 
+  public onShowFilePicker() {
+
+    this.filePicker.showFilePicker(true, new RegExp('image/.*', 'i'))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(inodes => {
+        if (inodes) {
+          alert('inodes: ' +  inodes);
+        }
+      });
+
+  }
   /**
    * 
    * @param evt 

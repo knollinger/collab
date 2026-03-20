@@ -8,7 +8,8 @@ import { SessionService } from '../../../mod-session/session.module';
 
 export interface IFilePickerData {
   multiple: boolean,
-  current: INode
+  current: INode,
+  typeFilter: RegExp
 }
 
 /**
@@ -23,8 +24,10 @@ export interface IFilePickerData {
 export class FilePickerComponent implements OnInit {
 
   currentFolder: INode = INode.root();
-  viewMode: string = 'list';
+  childs: INode[] = new Array<INode>();
   selected: Set<INode> = new Set<INode>();
+
+  viewMode: string = 'list';
 
   /**
    * 
@@ -49,9 +52,15 @@ export class FilePickerComponent implements OnInit {
       .subscribe(homeDir => {
         this.currentFolder = homeDir;
       })
+
+    this.loadChilds(userId);
   }
 
   /**
+   * "Open" hat in diesem Kontext eine eigene Bedeutung:
+   * 
+   * * Wenn die INode ein Verzeichnis betrifft, so wird dorthin navigiert
+   * * wenn die INode ein "normales" File betrifft, so wir dessen SelectionState getoggelt
    * 
    * @param inode 
    */
@@ -59,6 +68,8 @@ export class FilePickerComponent implements OnInit {
 
     if (inode.isDirectory()) {
       this.currentFolder = inode;
+      this.selected.clear();
+      this.loadChilds(inode.uuid);
     }
   }
 
@@ -75,6 +86,21 @@ export class FilePickerComponent implements OnInit {
    */
   hasSelection(): boolean {
     return this.selected.size > 0;
+  }
+
+  /**
+   * 
+   * @param parentUUID 
+   */
+  private loadChilds(parentUUID: string) {
+
+    this.inodeSvc.getAllChilds(parentUUID)
+      .pipe()
+      .subscribe(childs => {
+        this.childs = childs.filter(child => {
+          return child.isDirectory() || this.data.typeFilter.test(child.type)
+        });
+      })
   }
 }
 

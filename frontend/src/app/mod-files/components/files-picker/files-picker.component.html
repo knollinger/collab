@@ -21,11 +21,20 @@
 
 <mat-dialog-content>
 
-    <app-folder-view [parent]="currentFolder"
-                     [viewMode]="viewMode"
-                     (open)="onOpen($event)"
-                     (selectionChanged)="onSelectionChange($event)">
-    </app-folder-view>
+    <app-files-breadcrumb [parent]="currentFolder"
+                          (open)="onOpen($event)">
+    </app-files-breadcrumb>
+
+    <div class="view">
+        <app-folder-view [parent]="currentFolder"
+                         [childs]="childs"
+                         [viewMode]="viewMode"
+                         [selection]="selected"
+                         [multiSelect]="false"
+                         (open)="onOpen($event)"
+                         (selectionChanged)="onSelectionChange($event)">
+        </app-folder-view>
+    </div>
 
 </mat-dialog-content>
 

@@ -141,6 +141,23 @@
             </div>
         </ng-template>
 
+        <!-- ImageMenu-->
+        <button mat-icon-button
+                [matMenuTriggerFor]="imgMenu">
+            <mat-icon class="material-symbols-outlined">image</mat-icon>
+        </button>
+
+        <mat-menu #imgMenu="matMenu">
+            <button mat-menu-item
+                    (click)="onShowFilePicker()">
+                <mat-icon class="material-symbols-outlined">add_photo_alternate</mat-icon>
+                Bild auswählen
+            </button>
+            <button mat-menu-item>
+                <mat-icon class="material-symbols-outlined">cloud_upload</mat-icon>
+                Bild hoch laden
+            </button>
+        </mat-menu>
 
         <!-- download -->
         <app-toolbar-separator></app-toolbar-separator>
@@ -167,94 +184,92 @@
 
     <div class="workspace">
 
-        <div class="svg-scroller">
-            <svg #svg
-                 xmlns="http://www.w3.org/2000/svg"
-                 [style.width]="imgWidth"
-                 [style.height]="imgHeight"
-                 (mousedown)="onMouseDown($event)"
-                 (mousemove)="onMouseMove($event)"
-                 (mouseup)="onMouseUp($event)"
-                 (mouseleave)="onMouseLeave($event)">
+        <svg #svg
+             xmlns="http://www.w3.org/2000/svg"
+             [style.width]="imgWidth"
+             [style.height]="imgHeight"
+             (mousedown)="onMouseDown($event)"
+             (mousemove)="onMouseMove($event)"
+             (mouseup)="onMouseUp($event)"
+             (mouseleave)="onMouseLeave($event)">
 
-                <style>
-                    rect,
-                    ellipse,
-                    polygon {
-                        cursor: move;
-                        outline: none;
-                    }
+            <style>
+                rect,
+                ellipse,
+                polygon {
+                    cursor: move;
+                    outline: none;
+                }
 
-                    .decorator-frame {
-                        stroke: lightgray;
-                        stroke-width: 2;
-                        stroke-dasharray: 2 2;
-                        fill: transparent;
-                    }
+                .decorator-frame {
+                    stroke: lightgray;
+                    stroke-width: 2;
+                    stroke-dasharray: 2 2;
+                    fill: transparent;
+                }
 
-                    .resize,
-                    .connector {
-                        stroke-width: 2;
-                        stroke: cornflowerblue;
-                        fill: lightblue;
-                    }
+                .resize,
+                .connector {
+                    stroke-width: 2;
+                    stroke: cornflowerblue;
+                    fill: lightblue;
+                }
 
-                    .connector {
-                        cursor: crosshair;
-                    }
+                .connector {
+                    cursor: crosshair;
+                }
 
-                    .north {
-                        x: calc(50% - 4)
-                    }
+                .north {
+                    x: calc(50% - 4)
+                }
 
-                    .drag-ne {
-                        cursor: ne-resize;
-                    }
+                .drag-ne {
+                    cursor: ne-resize;
+                }
 
-                    .drag-n {
-                        cursor: n-resize;
-                    }
+                .drag-n {
+                    cursor: n-resize;
+                }
 
-                    .drag-nw {
-                        cursor: nw-resize;
-                    }
+                .drag-nw {
+                    cursor: nw-resize;
+                }
 
-                    .drag-w {
-                        cursor: w-resize;
-                    }
+                .drag-w {
+                    cursor: w-resize;
+                }
 
-                    .drag-e {
-                        cursor: e-resize;
-                    }
+                .drag-e {
+                    cursor: e-resize;
+                }
 
-                    .drag-se {
-                        cursor: se-resize;
-                    }
+                .drag-se {
+                    cursor: se-resize;
+                }
 
-                    .drag-s {
-                        cursor: s-resize;
-                    }
+                .drag-s {
+                    cursor: s-resize;
+                }
 
-                    .drag-sw {
-                        cursor: sw-resize;
-                    }
+                .drag-sw {
+                    cursor: sw-resize;
+                }
 
-                    .selector-frame {
-                        fill: rgba(0, 0, 255, 0.3);
-                        stroke: lightblue';
+                .selector-frame {
+                    fill: rgba(0, 0, 255, 0.3);
+                    stroke: lightblue';
 
-                    }
+                }
 
-                    svg {
-                        filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
-                    }
-                </style>
-            </svg>
+                svg {
+                    filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
+                }
+            </style>
+        </svg>
 
-            <app-whiteboard-shape-context-menu (delete)="onDeleteSelectedShapes()"
-                                               (zOrderChanged)="onChangeZOrder($event)">
-            </app-whiteboard-shape-context-menu>
-        </div>
+        <app-whiteboard-shape-context-menu (delete)="onDeleteSelectedShapes()"
+                                           (zOrderChanged)="onChangeZOrder($event)">
+        </app-whiteboard-shape-context-menu>
 
         <div class="sidebar"
              *ngIf="hasSelection">

@@ -10,4 +10,17 @@
 
 mat-dialog-content {
     height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+app-files-breadcrumb {
+    flex: 0;
+    border-bottom: 1px solid #d0d0d0;
+}
+
+.view {
+    flex: 1;
+    overflow: auto;
+    color: black;
 }

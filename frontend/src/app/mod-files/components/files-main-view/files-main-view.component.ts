@@ -34,7 +34,6 @@ export class FilesMainViewComponent implements OnInit {
   private settings: any = {}
 
   public parent: INode = INode.empty();
-  public path: INode[] = Array<INode>();
   public childs: INode[] = Array<INode>();
   public selected: Set<INode> = new Set<INode>();
   public showIconSizeChooser: boolean = false;
@@ -238,11 +237,6 @@ export class FilesMainViewComponent implements OnInit {
 
         this.childs = childs;
         this.selected = new Set<INode>();
-        this.inodeSvc.getPath(this.parent.uuid)
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(path => {
-            this.path = path;
-          })
       })
   }
 

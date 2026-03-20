@@ -1,0 +1,6 @@
+<div class="outer-cnr">
+    <app-files-bread-crumb-item *ngFor="let inode of path"
+                                [inode]="inode"
+                                (open)="openINode($event)">
+    </app-files-bread-crumb-item>
+</div>

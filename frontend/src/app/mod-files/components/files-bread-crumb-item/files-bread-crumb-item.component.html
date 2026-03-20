@@ -1,9 +1,9 @@
-<div class="item">
+<div class="item" matRipple>
 
     <mat-icon class="flex-0 material-symbols-outlined"
               [matMenuTriggerFor]="childFolders">folder</mat-icon>
 
-    <span class="flex-0"
+    <span class="flex-0 name"
           (click)="onOpen(inode)">{{inode.name}}</span>
     <mat-icon class="flex-0 material-symbols-outlined">chevron_right</mat-icon>
 
