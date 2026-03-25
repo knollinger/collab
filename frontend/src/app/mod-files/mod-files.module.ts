@@ -26,7 +26,6 @@ import { INodeDragSourceDirective } from './directives/inode-drag-source.directi
 import { DropTargetDirective } from './directives/drop-target.directive';
 import { FilesFolderContextMenuComponent } from './components/files-folder-context-menu/files-folder-context-menu.component';
 import { FileDropINodeMenuComponent } from './components/files-inode-drop-menu/files-inode-drop-menu.component';
-import { FilesPermissionsComponent } from './components/files-permissions/files-permissions.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FilesCreateMenuComponent } from './components/files-create-menu/files-create-menu.component';
 import { FilesShowDuplicatesComponent } from './components/files-show-duplicates/files-show-duplicates.component';
@@ -69,7 +68,6 @@ export { WopiService };
     DropTargetDirective,
     FilesFolderContextMenuComponent,
     FileDropINodeMenuComponent,
-    FilesPermissionsComponent,
     FilesCreateMenuComponent,
     FilesShowDuplicatesComponent,
     FilesPlacesComponent,

@@ -50,7 +50,7 @@ export class ErrorInterceptor implements HttpInterceptor {
         switch (err.status) {
 
           case 401:
-            this.router.navigateByUrl(`/session/login`); // redirUrl funct hier ned, weil die gerufene URL ans backend ging!
+            this.router.navigateByUrl(`/session/login`);
             break;
 
           case 0:

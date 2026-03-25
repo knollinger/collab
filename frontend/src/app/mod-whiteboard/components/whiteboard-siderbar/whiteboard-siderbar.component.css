@@ -35,11 +35,11 @@ mat-panel-title {
 .grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
+    /* grid-template-rows: repeat(2, 1fr); */
     gap: 0.5rem;
 }
 
-.dims-pos-entry {
+.grid-entry {
     width: 8rem;
 }
 
@@ -52,4 +52,33 @@ input::-webkit-inner-spin-button {
 input[type=number] {
     appearance:textfield; /* Firefox */
     -moz-appearance:textfield; /* Firefox */
+}
+
+.image-chooser {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background-image: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.image-chooser>span {
+    position: absolute;
+    left: 0.5rem;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.5);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    font-weight: 500;
+}
+
+.image-chooser>button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
 }

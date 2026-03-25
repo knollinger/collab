@@ -1,3 +1,4 @@
+import { AbstractPattern } from "../patterns/abstract-pattern";
 
 export interface MouseDownCallback {
     (evt: MouseEvent, shape: AbstractShape): void;
@@ -269,6 +270,11 @@ export abstract class AbstractShape {
             this.createConnectors();
         }
         this.onResizeImpl(this._width, this._height);
+
+        if(this._pattern) {
+            this._pattern.width = this._width;
+            this._pattern.height = this._height;
+        }
     }
 
     /**
@@ -282,12 +288,25 @@ export abstract class AbstractShape {
      * 
      * @param color 
      */
+    private _fillColor: string = '#ffffff';
+
     public setFillColor(color: string) {
+        this._fillColor = color;
         this.svgElem.setAttribute('fill', color);
     }
 
     public fillColor(): string {
-        return this.svgElem.getAttribute('fill') || '#ffffff';
+        return this._fillColor;
+    }
+
+    private _pattern: AbstractPattern | undefined;
+
+    public set pattern(pattern: AbstractPattern) {
+        
+        this._pattern = pattern;
+        this._pattern.width = this._width;
+        this._pattern.height = this._height;
+        this.svgElem.setAttribute('fill', `url(#${pattern.id})`);
     }
 
     /**
