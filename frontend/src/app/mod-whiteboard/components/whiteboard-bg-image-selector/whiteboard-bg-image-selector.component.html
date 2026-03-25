@@ -1,0 +1,13 @@
+<div class="outer-cnr">
+
+    <div class="image-chooser  mat-elevation-z4"
+         [style.background-image]="previewUrl"
+         (click)="onShowImageChooser()">
+
+        <span>Hier klicken um ein Bild auszuwählen oder ein Bild hierher ziehen.</span>
+    </div>
+
+    <button mat-flat-button
+            color="primary"
+            (click)="onApply()">Anwenden</button>
+</div>

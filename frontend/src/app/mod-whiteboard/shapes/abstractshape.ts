@@ -1,4 +1,4 @@
-import { AbstractPattern } from "../patterns/abstract-pattern";
+import { AbstractFillEffect } from "../fill-effects/abstract-fill-effect"
 
 export interface MouseDownCallback {
     (evt: MouseEvent, shape: AbstractShape): void;
@@ -39,7 +39,7 @@ export abstract class AbstractShape {
      * @param svgRoot 
      */
     constructor(
-        protected svgRoot: SVGSVGElement,
+        public readonly svgRoot: SVGSVGElement,
         public readonly svgElem: SVGGraphicsElement,
         private _x: number,
         private _y: number,
@@ -271,9 +271,9 @@ export abstract class AbstractShape {
         }
         this.onResizeImpl(this._width, this._height);
 
-        if(this._pattern) {
-            this._pattern.width = this._width;
-            this._pattern.height = this._height;
+        if (this._fillEffect) {
+            this._fillEffect.height = this._height;
+            this._fillEffect.width = this._width;
         }
     }
 
@@ -281,6 +281,10 @@ export abstract class AbstractShape {
      * 
      */
     public delete() {
+
+        if (this._fillEffect) {
+            this._fillEffect.remove();
+        }
         this.elemCnr.remove();
     }
 
@@ -299,14 +303,19 @@ export abstract class AbstractShape {
         return this._fillColor;
     }
 
-    private _pattern: AbstractPattern | undefined;
+    private _fillEffect: AbstractFillEffect | undefined;
 
-    public set pattern(pattern: AbstractPattern) {
-        
-        this._pattern = pattern;
-        this._pattern.width = this._width;
-        this._pattern.height = this._height;
-        this.svgElem.setAttribute('fill', `url(#${pattern.id})`);
+    public set fillEffect(effect: AbstractFillEffect) {
+
+        if (this._fillEffect) {
+            this._fillEffect.remove();
+            this._fillEffect = undefined;
+        }
+
+        this._fillEffect = effect;
+        this._fillEffect.width = this._width;
+        this._fillEffect.height = this._height;
+        this.svgElem.setAttribute('fill', `url(#${effect.id})`);
     }
 
     /**

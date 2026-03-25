@@ -14,6 +14,8 @@ import { WhiteboardShapeContextMenuComponent } from './components/whiteboard-sha
 import { WhiteboardRootContextMenuComponent } from './components/whiteboard-root-context-menu/whiteboard-root-context-menu.component';
 import { WhiteboardSiderbarComponent } from './components/whiteboard-siderbar/whiteboard-siderbar.component';
 import { WhiteboardOverviewComponent } from './components/whiteboard-overview/whiteboard-overview.component';
+import { WhiteboardBgImageSelectorComponent } from './components/whiteboard-bg-image-selector/whiteboard-bg-image-selector.component';
+import { WhiteboardBgGradientSelectorComponent } from './components/whiteboard-bg-gradient-selector/whiteboard-bg-gradient-selector.component';
 
 
 @NgModule({
@@ -22,7 +24,9 @@ import { WhiteboardOverviewComponent } from './components/whiteboard-overview/wh
     WhiteboardShapeContextMenuComponent,
     WhiteboardRootContextMenuComponent,
     WhiteboardSiderbarComponent,
-    WhiteboardOverviewComponent
+    WhiteboardOverviewComponent,
+    WhiteboardBgImageSelectorComponent,
+    WhiteboardBgGradientSelectorComponent
   ],
   imports: [
     CommonModule,

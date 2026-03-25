@@ -3,8 +3,6 @@ import { Component, DestroyRef, inject, Input } from '@angular/core';
 import { FilesPickerService, INodeService } from '../../../mod-files/mod-files.module';
 
 import { AbstractShape } from '../../shapes/abstractshape';
-import { PatternManager } from '../../patterns/pattern-manager';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-whiteboard-siderbar',
@@ -18,9 +16,6 @@ export class WhiteboardSiderbarComponent {
 
   private _shapes: Array<AbstractShape> = new Array<AbstractShape>();
   private destroyRef: DestroyRef = inject(DestroyRef);
-
-  @Input()
-  public patternMgr: PatternManager | undefined;
 
   /**
    * 
@@ -46,6 +41,10 @@ export class WhiteboardSiderbarComponent {
         this._borderSize = firstShape.borderWidth();
       }
     }
+  }
+
+  get shapes(): AbstractShape[] {
+    return this._shapes;
   }
 
   /*-------------------------------------------------------------------------*/
@@ -243,66 +242,4 @@ export class WhiteboardSiderbarComponent {
     })
   }
 
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* All about background images                                             */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-  private _imageUUID: string = '';
-
-  /**
-   * 
-   */
-  get imageUUID(): string {
-    return this._imageUUID;
-  }
-
-  /**
-   * 
-   */
-  set imageUUID(uuid: string) {
-
-    this._imageUUID = uuid;
-    this._shapes.forEach(shape => {
-      const pattern = this.patternMgr!.createPattern('image', this.imageUrl);
-
-      // shape.patt
-      shape.pattern = pattern;
-    });
-  }
-
-  get imageUrl(): string {
-    return this.inodeSvc.getContentUrl(this.imageUUID);
-  }
-
-  get previewUrl(): string {
-    return `url('${this.imageUrl}')`;
-  }
-
-  /**
-   * 
-   */
-  onShowImageChooser() {
-
-    this.fileChooserSvc.showFilePicker(false, new RegExp('image/.*', 'i'))
-    .pipe(takeUntilDestroyed(this.destroyRef))
-    .subscribe(files => {
-
-      if(files) {
-        const inode = [...files][0];
-
-        this.imageUUID = inode.uuid;
-        console.dir(this.imageUrl);
-      }
-    })
-  }
-
-  /**
-   * 
-   * @param evt 
-   */
-  onRemoveBackgroundImage(evt: Event) {
-    evt.stopPropagation();
-    this._imageUUID = '';
-  }
 }

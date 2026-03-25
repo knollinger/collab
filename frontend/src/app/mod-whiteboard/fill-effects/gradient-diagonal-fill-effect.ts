@@ -1,0 +1,40 @@
+import { AbstractFillEffect } from "./abstract-fill-effect";
+
+export class GradientDiagonalFillEffect extends AbstractFillEffect {
+
+
+    constructor(svgRoot: SVGSVGElement, color1: string, color2: string) {
+
+        super(svgRoot, GradientDiagonalFillEffect.createGradient(color1, color2));
+    }
+
+    static createGradient(color1: string, color2: string): SVGLinearGradientElement {
+
+        const startColor = document.createElementNS(AbstractFillEffect.SVG_NAMESPACE, 'stop') as SVGStopElement;
+        startColor.setAttribute('offset', '0%');
+        startColor.setAttribute('stop-color', color1);
+        
+        const endColor = document.createElementNS(AbstractFillEffect.SVG_NAMESPACE, 'stop') as SVGStopElement;
+        endColor.setAttribute('offset', '100%');
+        endColor.setAttribute('stop-color', color2);
+
+        const gradient = document.createElementNS(AbstractFillEffect.SVG_NAMESPACE, 'linearGradient') as SVGLinearGradientElement;
+        gradient.setAttribute('x1', '0');
+        gradient.setAttribute('x2', '100%');
+        gradient.setAttribute('y1', '0');
+        gradient.setAttribute('y2', '100%');
+
+        gradient.appendChild(startColor);
+        gradient.appendChild(endColor);
+
+        return gradient;
+    }
+
+
+    public set width(width: number) {
+        // nothing to do
+    }
+    public set height(height: number) {
+        // nothing to do
+    }
+}

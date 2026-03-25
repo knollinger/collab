@@ -1,0 +1,49 @@
+import { AbstractFillEffect } from "./abstract-fill-effect";
+
+export class ImageFillEffect extends AbstractFillEffect {
+
+    private image: SVGImageElement | undefined;
+    private pattern: SVGPatternElement | undefined;
+
+    constructor(svgRoot: SVGSVGElement, imgUrl: string) {
+
+        super(svgRoot, ImageFillEffect.createElement(imgUrl));
+    }
+
+    private static createElement(imgUrl: string): SVGElement {
+
+        const image = document.createElementNS(AbstractFillEffect.SVG_NAMESPACE, 'image') as SVGImageElement;
+        image.setAttribute('href', imgUrl);
+        image.setAttribute('xlink:href', imgUrl); // just for compatibility with older browsers
+        image.setAttribute('x', '0');
+        image.setAttribute('y', '0');
+        image.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+
+        const pattern = document.createElementNS(AbstractFillEffect.SVG_NAMESPACE, 'pattern') as SVGPatternElement;
+        pattern.setAttribute('x', '0');
+        pattern.setAttribute('y', '0');
+        pattern.setAttribute('patternUnits', 'userSpaceOnUse');
+        pattern.appendChild(image);
+        return pattern;
+    }
+
+    public set width(width: number) {
+        this.imgElem.setAttribute('width', width.toString());
+        this.patternElem.setAttribute('width', width.toString());
+    }
+
+    public set height(height: number) {
+
+        this.imgElem.setAttribute('height', height.toString());
+        this.patternElem.setAttribute('height', height.toString());
+    }
+
+    private get imgElem(): SVGElement {
+        const pattern = this.patternElem; 
+        return pattern.getElementsByTagName('image').item(0)!;
+    }
+
+    private get patternElem(): SVGElement {
+        return this.effectElem;
+    }
+}

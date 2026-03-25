@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 
@@ -10,14 +10,13 @@ import { EZOrderMode } from '../../models/ezorder-mode';
 import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
 import { FilesPickerService, INodeService } from '../../../mod-files/mod-files.module';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PatternManager } from '../../patterns/pattern-manager';
 
 @Component({
   selector: 'app-whiteboard-editor',
   templateUrl: './whiteboard-editor.component.html',
   styleUrls: ['./whiteboard-editor.component.css']
 })
-export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+export class WhiteboardEditorComponent implements OnInit, OnDestroy {
 
   private static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
@@ -40,7 +39,6 @@ export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestr
 
   showShapesMenu: boolean = false;
   showConnectorsMenu: boolean = false;
-  patternMgr: PatternManager | undefined;
   private _resizeCallback: any = null;
   private _gridGroup: SVGGElement | null = null;
 
@@ -63,11 +61,6 @@ export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestr
     this._resizeCallback = this.onSVGResize.bind(this);
     window.addEventListener('resize', this._resizeCallback);
 
-  }
-  
-  ngAfterViewInit(): void {
-    
-    this.patternMgr = new PatternManager(this.svgRoot);
   }
 
   /**

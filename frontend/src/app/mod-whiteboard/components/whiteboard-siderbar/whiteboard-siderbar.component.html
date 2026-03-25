@@ -70,15 +70,14 @@
                 </mat-form-field>
 
                 <!-- Image Selector -->
-                <div *ngSwitchCase="'image'"
-                     class="image-chooser mat-elevation-z4"
-                     [style.background-image]="previewUrl"
-                     (click)="onShowImageChooser()">
-                    <span>Hier klicken um ein Bild auszuwählen oder ein Bild hierher ziehen.</span>
-                    <button mat-mini-fab color="primary" *ngIf="imageUrl" (click)="onRemoveBackgroundImage($event)">
-                        <mat-icon class="material-symbols-outlined">delete</mat-icon>
-                    </button>
-                </div>
+                <app-whiteboard-bg-image-selector *ngSwitchCase="'image'"
+                                                  [shapes]="shapes">
+                </app-whiteboard-bg-image-selector>
+
+                <!-- Gradient selector -->
+                <app-whiteboard-bg-gradient-selector *ngSwitchCase="'gradient'"
+                                                     [shapes]="shapes">
+                </app-whiteboard-bg-gradient-selector>
 
             </div>
 
