@@ -16,6 +16,7 @@ import { WhiteboardSiderbarComponent } from './components/whiteboard-siderbar/wh
 import { WhiteboardOverviewComponent } from './components/whiteboard-overview/whiteboard-overview.component';
 import { WhiteboardBgImageSelectorComponent } from './components/whiteboard-bg-image-selector/whiteboard-bg-image-selector.component';
 import { WhiteboardBgGradientSelectorComponent } from './components/whiteboard-bg-gradient-selector/whiteboard-bg-gradient-selector.component';
+import { WhiteboardBgColorSelectorComponent } from './components/whiteboard-bg-color-selector/whiteboard-bg-color-selector.component';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import { WhiteboardBgGradientSelectorComponent } from './components/whiteboard-b
     WhiteboardSiderbarComponent,
     WhiteboardOverviewComponent,
     WhiteboardBgImageSelectorComponent,
-    WhiteboardBgGradientSelectorComponent
+    WhiteboardBgGradientSelectorComponent,
+    WhiteboardBgColorSelectorComponent
   ],
   imports: [
     CommonModule,

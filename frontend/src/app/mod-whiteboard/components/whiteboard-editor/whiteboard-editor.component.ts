@@ -10,6 +10,7 @@ import { EZOrderMode } from '../../models/ezorder-mode';
 import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
 import { FilesPickerService, INodeService } from '../../../mod-files/mod-files.module';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { WhiteboardExportService } from '../../services/whiteboard-export.service';
 
 @Component({
   selector: 'app-whiteboard-editor',
@@ -49,6 +50,7 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
   constructor(
     private shapeFactory: ShapeFactoryService,
     private commonsDlgs: CommonDialogsService,
+    private exportSvc: WhiteboardExportService,
     private filePicker: FilesPickerService) {
 
   }
@@ -160,18 +162,12 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
   /**
    * 
    */
-  onSVGDownload() {
+  onExport() {
 
     this.commonsDlgs.showInputBox('Speichern unter', 'Datei-Name').subscribe(name => {
-
-      const blob = new Blob([this.svgRoot.outerHTML], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = name;
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
+      if (name) {
+        this.exportSvc.exportImage(name, this.svgRoot);
+      }
     });
   }
 
@@ -194,7 +190,7 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(inodes => {
         if (inodes) {
-          alert('inodes: ' +  inodes);
+          alert('inodes: ' + inodes);
         }
       });
 

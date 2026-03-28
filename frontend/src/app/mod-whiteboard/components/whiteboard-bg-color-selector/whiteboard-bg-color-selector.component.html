@@ -1,0 +1,20 @@
+<div class="outer-cnr">
+
+    <mat-form-field class="color-selector">
+        <mat-label>Farbe</mat-label>
+        <input matInput
+               matInput
+               type="color"
+               [(ngModel)]="color">
+    </mat-form-field>
+
+    <div class="preview mat-elevation-z4"
+         [style.background-color]="color">
+        <span>Vorschau</span>
+    </div>
+
+    <button mat-flat-button
+            color="primary"
+            (click)="onApply()">Anwenden</button>
+
+</div>

@@ -294,14 +294,18 @@ export abstract class AbstractShape {
      */
     private _fillColor: string = '#ffffff';
 
-    public setFillColor(color: string) {
-        this._fillColor = color;
-        this.svgElem.setAttribute('fill', color);
-    }
+    // public setFillColor(color: string) {
 
-    public fillColor(): string {
-        return this._fillColor;
-    }
+    //     if (this._fillEffect) {
+    //         this._fillEffect.remove();
+    //     }
+    //     this._fillColor = color;
+    //     this.svgElem.setAttribute('fill', color);
+    // }
+
+    // public fillColor(): string {
+    //     return this._fillColor;
+    // }
 
     private _fillEffect: AbstractFillEffect | undefined;
 

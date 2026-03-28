@@ -59,22 +59,14 @@
 
             <div [ngSwitch]="fillStyle">
 
-                <!-- Color-Selector -->
-                <mat-form-field *ngSwitchCase="'color'"
-                                class="full-width">
-                    <mat-label>Farbe</mat-label>
-                    <input matInput
-                           matInput
-                           type="color"
-                           [(ngModel)]="backgroundColor">
-                </mat-form-field>
+                <app-whiteboard-bg-color-selector *ngSwitchCase="'color'"
+                                                  [shapes]="shapes">
+                </app-whiteboard-bg-color-selector>
 
-                <!-- Image Selector -->
                 <app-whiteboard-bg-image-selector *ngSwitchCase="'image'"
                                                   [shapes]="shapes">
                 </app-whiteboard-bg-image-selector>
 
-                <!-- Gradient selector -->
                 <app-whiteboard-bg-gradient-selector *ngSwitchCase="'gradient'"
                                                      [shapes]="shapes">
                 </app-whiteboard-bg-gradient-selector>

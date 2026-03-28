@@ -36,7 +36,7 @@ export class WhiteboardSiderbarComponent {
       const firstShape = this._shapes[0];
 
       if (firstShape) {
-        this._backgroundColor = firstShape.fillColor();
+        // this._backgroundColor = firstShape.fillColor();
         this._frameColor = firstShape.borderColor();
         this._borderSize = firstShape.borderWidth();
       }
@@ -215,31 +215,8 @@ export class WhiteboardSiderbarComponent {
 
   set fillStyle(val: string) {
     this._fillStyle = val;
+    if (val === 'none') {
+      // fill löschen
+    }
   }
-
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* All about background colors                                             */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-
-  private _backgroundColor: string = '#ffffff';
-
-  /**
-   * 
-   */
-  get backgroundColor(): string {
-    return this._backgroundColor;
-  }
-
-  /**
-   * 
-   */
-  set backgroundColor(color: string) {
-    this._backgroundColor = color;
-    this._shapes.forEach(shape => {
-      shape.setFillColor(color);
-    })
-  }
-
 }

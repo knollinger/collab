@@ -14,7 +14,6 @@ export class ImageFillEffect extends AbstractFillEffect {
 
         const image = document.createElementNS(AbstractFillEffect.SVG_NAMESPACE, 'image') as SVGImageElement;
         image.setAttribute('href', imgUrl);
-        image.setAttribute('xlink:href', imgUrl); // just for compatibility with older browsers
         image.setAttribute('x', '0');
         image.setAttribute('y', '0');
         image.setAttribute('preserveAspectRatio', 'xMidYMid slice');

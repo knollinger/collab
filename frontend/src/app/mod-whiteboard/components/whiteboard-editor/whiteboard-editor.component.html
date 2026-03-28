@@ -76,6 +76,12 @@
                     <mat-icon class="material-symbols-outlined">circle</mat-icon>
                 </button>
 
+                <button mat-icon-button
+                        (click)="onCreateShape('parallelogram')"
+                        matTooltip="Parallelogram">
+                    <mat-icon class="material-symbols-outlined">rectangle</mat-icon> <!-- TODO: Icon stimmt nicht, ggf SVG embedden -->
+                </button>
+
                 <div class="multi-column-menu-title">Text-Bereiche</div>
                 <button mat-icon-button
                         matTooltip="Text-Feld">
@@ -141,29 +147,11 @@
             </div>
         </ng-template>
 
-        <!-- ImageMenu-->
-        <button mat-icon-button
-                [matMenuTriggerFor]="imgMenu">
-            <mat-icon class="material-symbols-outlined">image</mat-icon>
-        </button>
-
-        <mat-menu #imgMenu="matMenu">
-            <button mat-menu-item
-                    (click)="onShowFilePicker()">
-                <mat-icon class="material-symbols-outlined">add_photo_alternate</mat-icon>
-                Bild auswählen
-            </button>
-            <button mat-menu-item>
-                <mat-icon class="material-symbols-outlined">cloud_upload</mat-icon>
-                Bild hoch laden
-            </button>
-        </mat-menu>
-
-        <!-- download -->
+        <!-- export -->
         <app-toolbar-separator></app-toolbar-separator>
         <button mat-icon-button
                 matTooltip="Als Grafik herunter laden"
-                (click)="onSVGDownload()">
+                (click)="onExport()">
             <mat-icon class="material-symbols-outlined">download</mat-icon>
         </button>
 
