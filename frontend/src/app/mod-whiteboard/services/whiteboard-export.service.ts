@@ -32,6 +32,8 @@ export class WhiteboardExportService {
   }
   /**
    * Transformiere das SVG-Dokument in ein PNG und löse den Download aus.
+   * 
+   * Das Image bekommt einen Rahmen von 10 Pixeln
    */
   public async exportImage(name: string, svg: SVGSVGElement) {
 
@@ -41,11 +43,13 @@ export class WhiteboardExportService {
     const image = new Image();
     image.onload = function () {
 
-      const canvas = new OffscreenCanvas(2560, 2560); // an die echte Breite/Höhe des SVG anpassen!
+      const width = 20 + (Number.parseInt(svg.getAttribute('width') || '256'));
+      const height = 20 + (Number.parseInt(svg.getAttribute('height') || '256'));
+      const canvas = new OffscreenCanvas(width, height); // an die echte Breite/Höhe des SVG anpassen!
       const context = canvas.getContext('2d');
       if (context) {
 
-        context.drawImage(image, 0, 0);
+        context.drawImage(image, 10, 10);
         canvas.convertToBlob().then((blob) => {
 
           const objUrl = URL.createObjectURL(blob);

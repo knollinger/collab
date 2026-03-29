@@ -9,22 +9,9 @@ export class RombusShape extends AbstractShape {
      * 
      * @param svgRoot 
      */
-    constructor(svgRoot: SVGSVGElement, x: number, y: number,  width: number, height: number) {
+    constructor(svgRoot: SVGSVGElement) {
 
-        super(svgRoot, RombusShape.createShape(width, height), x, y, width, height);
-    }
-
-    /**
-     * 
-     * @returns 
-     */
-    private static createShape(width: number, height: number): SVGGraphicsElement {
-
-        const elem = document.createElementNS(AbstractShape.SVG_NAMESPACE, 'polygon') as SVGGraphicsElement;
-
-        const points = `${width / 2},0 ${width}, ${height / 2} ${width / 2},${height} 0,${height / 2}`;
-        elem.setAttribute('points', points);
-        return elem;
+        super(svgRoot, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'polygon') as SVGGraphicsElement);
     }
 
     /**

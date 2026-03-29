@@ -9,21 +9,9 @@ export class RectShape extends AbstractShape {
      * 
      * @param svgRoot 
      */
-    constructor(svgRoot: SVGSVGElement, x: number, y: number, width: number, height: number) {
+    constructor(svgRoot: SVGSVGElement) {
 
-        super(svgRoot, RectShape.createShape(width, height), x, y, width, height);
-    }
-
-    /**
-     * 
-     * @returns 
-     */
-    private static createShape(width: number, height: number): SVGGraphicsElement {
-
-        const elem = document.createElementNS(AbstractShape.SVG_NAMESPACE, 'rect') as SVGGraphicsElement;
-        elem.setAttribute('width', width.toString());
-        elem.setAttribute('height', height.toString());
-        return elem;
+        super(svgRoot, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'rect') as SVGGraphicsElement);
     }
 
     /**

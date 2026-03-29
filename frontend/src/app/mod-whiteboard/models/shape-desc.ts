@@ -6,31 +6,31 @@ export interface IShapeRect {
 }
 
 export interface IShapeBorder {
-        color: string,
-        width: number,
-        style: string
+    color: string,
+    width: number,
+    style: string
 }
 
-export interface IShapeFill {
-        color: string,
+export interface IFillEffect {
+    type: string
+}
+
+export interface IColorFill extends IFillEffect {
+    color: string;
+}
+
+export interface IGradientFill extends IFillEffect {
+    color1: string,
+    color2: string
+}
+
+export interface IImageFill extends IFillEffect {
+    uuid: string
 }
 
 export interface IShapeDesc {
-    uuid: string,
     type: string,
     rect: IShapeRect,
-    fill: IShapeFill,
     border: IShapeBorder
-}
-
-export class ShapeDesc {
-
-    constructor(
-        public readonly uuid: string,
-        public readonly type: string,
-        public readonly shapeRect: IShapeRect,
-        public readonly shapeFill: IShapeFill,
-        public readonly shapeBorder: IShapeBorder) {
-
-    }
+    fill: IColorFill | IGradientFill | IImageFill,
 }

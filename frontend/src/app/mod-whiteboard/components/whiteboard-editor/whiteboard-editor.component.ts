@@ -20,6 +20,7 @@ import { WhiteboardExportService } from '../../services/whiteboard-export.servic
 export class WhiteboardEditorComponent implements OnInit, OnDestroy {
 
   private static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+  private static DEFAULT_SHAPE_SIZE: number = 100;
 
   private destroyRef: DestroyRef = inject(DestroyRef);
 
@@ -166,6 +167,9 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
 
     this.commonsDlgs.showInputBox('Speichern unter', 'Datei-Name').subscribe(name => {
       if (name) {
+
+        this.clearAllSelections();
+        this.showGridLines = false;
         this.exportSvc.exportImage(name, this.svgRoot);
       }
     });
@@ -176,12 +180,15 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
    */
   public onCreateShape(type: string) {
 
-    const shape = this.shapeFactory.createShape(this.svgRoot, type, 0, 0, 100, 100);
+    const shape = this.shapeFactory.createShape(this.svgRoot, type);
+    shape.height = shape.width = WhiteboardEditorComponent.DEFAULT_SHAPE_SIZE;
+
     shape.onStartDrag = this.onStartDragShape.bind(this);
     shape.onStartResize = this.onStartResizeShape.bind(this);
     shape.onStartConnect = this.onStartConnect.bind(this);
     shape.onShowCtxMenu = this.onShowShapesContextMenu.bind(this);
     this._shapes.push(shape);
+    this.normalizeImageDimensions();
   }
 
   public onShowFilePicker() {
@@ -218,7 +225,7 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
   /**
    * 
    * Starte den Resize eines SHapes. Dies wird durch einen ButtonDown auf einen
-   * ResizeAnchor ausgelöst. Der Rest bleibt hier zu tun :-)
+   * ResizeAnchor ausgelöst. Der Rest wird im mouseMove erledigt
    * 
    * @param evt 
    * @param shape 
@@ -291,19 +298,17 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
     switch (this._dragMode) {
       case EDragMode.dragShape:
         this.moveSelectedShapes(deltaX, deltaY);
+        this.normalizeImageDimensions();
         break;
 
       case EDragMode.dragResize:
         this.resizeSelectedShapes(deltaX, deltaY)
+        this.normalizeImageDimensions();
         break;
 
       case EDragMode.dragConnector:
-
-        console.log('move connector');
         this._connector!.setAttribute('x2', `${evt.offsetX}`);
         this._connector!.setAttribute('y2', `${evt.offsetY}`);
-
-        console.log(this._connector!);
         break;
 
       case EDragMode.dragSelectorFrame:
@@ -366,6 +371,52 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
     }
     this.selectedShapes = selection;
     this.shapeCtxMenu.show(evt);
+  }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* all image dimensions                                                    */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
+
+  /**
+   * 
+   */
+  private normalizeImageDimensions() {
+
+    let minX: number = 0;
+    let maxX: number = 0;
+    let minY: number = 0;
+    let maxY: number = 0;
+
+    this._shapes.forEach(shape => {
+      minX = Math.min(minX, shape.posX);
+      maxX = Math.max(maxX, shape.width + shape.posX);
+      minY = Math.min(minY, shape.posY);
+      maxY = Math.max(maxY, shape.height + shape.posY);
+    })
+
+    if (minX < 0 || minY < 0) {
+
+      this._shapes.forEach(shape => {
+
+        if(minX < 0) {
+          shape.posX -= minX;
+        }
+
+        if(minY < 0) {
+          shape.posY -= minY;
+        }
+      });
+    }
+
+    const width = maxX - minX;
+    const height = maxY - minY;
+
+    this.svgRoot.setAttribute('height', height.toString())
+    this.imgHeight = `${height}px`;
+    this.svgRoot.setAttribute('width', width.toString())
+    this.imgWidth = `${width}px`;
   }
 
   /*-------------------------------------------------------------------------*/

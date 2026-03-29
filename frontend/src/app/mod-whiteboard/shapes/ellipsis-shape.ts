@@ -9,23 +9,9 @@ export class EllipsisShape extends AbstractShape {
      * 
      * @param svgRoot 
      */
-    constructor(svgRoot: SVGSVGElement, x: number, y: number, width: number, height: number) {
+    constructor(svgRoot: SVGSVGElement) {
 
-        super(svgRoot, EllipsisShape.createShape(width, height), x, y, width, height);
-    }
-
-    /**
-     * 
-     * @returns 
-     */
-    private static createShape(width: number, height: number): SVGGraphicsElement {
-
-        const elem = document.createElementNS(AbstractShape.SVG_NAMESPACE, 'ellipse') as SVGGraphicsElement;
-        elem.setAttribute('cx', `${width / 2}`);
-        elem.setAttribute('cy', `${height / 2}`);
-        elem.setAttribute('rx', `${width / 2}`);
-        elem.setAttribute('ry', `${height / 2}`);
-        return elem;
+        super(svgRoot, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'ellipse') as SVGGraphicsElement);
     }
 
     /**

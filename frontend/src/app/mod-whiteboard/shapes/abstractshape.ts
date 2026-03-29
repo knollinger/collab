@@ -40,12 +40,7 @@ export abstract class AbstractShape {
      */
     constructor(
         public readonly svgRoot: SVGSVGElement,
-        public readonly svgElem: SVGGraphicsElement,
-        private _x: number,
-        private _y: number,
-        private _width: number,
-        private _height: number,
-        private _text?: string) {
+        public readonly svgElem: SVGGraphicsElement) {
 
         this.svgElem.setAttribute('fill', '#ffffff');
         this.svgElem.setAttribute('stroke-width', '1');
@@ -65,7 +60,7 @@ export abstract class AbstractShape {
 
         this.svgElem.setAttribute('filter', 'drop-shadow(5px 5px 2px rgb(0 0 0 /  0.2)');
 
-        this.elemCnr = this.createElementContainer(_x, _y, _width, _height);
+        this.elemCnr = this.createElementContainer();
         this.elemCnr.appendChild(this.svgElem);
 
         this.createTextField();
@@ -158,6 +153,7 @@ export abstract class AbstractShape {
     /**
      * 
      */
+    private _x: number = 0;
     public get posX(): number {
 
         return this._x;
@@ -175,6 +171,7 @@ export abstract class AbstractShape {
     /**
      * 
      */
+    private _y: number = 0;
     public get posY(): number {
 
         return this._y;
@@ -227,6 +224,7 @@ export abstract class AbstractShape {
         return transform;
     }
 
+    private _width: number = 0;
     public get width(): number {
         return this._width;
     }
@@ -236,6 +234,7 @@ export abstract class AbstractShape {
         this.resize();
     }
 
+    private _height: number = 0;
     public get height(): number {
         return this._height;
     }
@@ -288,27 +287,7 @@ export abstract class AbstractShape {
         this.elemCnr.remove();
     }
 
-    /**
-     * 
-     * @param color 
-     */
-    private _fillColor: string = '#ffffff';
-
-    // public setFillColor(color: string) {
-
-    //     if (this._fillEffect) {
-    //         this._fillEffect.remove();
-    //     }
-    //     this._fillColor = color;
-    //     this.svgElem.setAttribute('fill', color);
-    // }
-
-    // public fillColor(): string {
-    //     return this._fillColor;
-    // }
-
     private _fillEffect: AbstractFillEffect | undefined;
-
     public set fillEffect(effect: AbstractFillEffect) {
 
         if (this._fillEffect) {
@@ -437,12 +416,12 @@ export abstract class AbstractShape {
      * gemeinsam verschieben zu können.
      * @returns 
      */
-    private createElementContainer(x: number, y: number, width: number, height: number): SVGGElement {
+    private createElementContainer(): SVGGElement {
 
         const group = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
 
         let transform = this.svgRoot.createSVGTransform();
-        transform.setTranslate(x, y);
+        transform.setTranslate(0, 0);
         group.transform.baseVal.appendItem(transform);
         return group;
     }

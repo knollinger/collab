@@ -2,42 +2,6 @@
     <app-toolbar class="toolbar">
 
         <!-- All about shapes -->
-        <!-- <button mat-icon-button
-                (click)="shapesMenu.show($event)">
-            <mat-icon class="material-symbols-outlined">shapes</mat-icon>
-        </button> -->
-        <!-- <app-grid-menu columns="3"
-                       #shapesMenu>
-
-            <button mat-icon-button
-                    (click)="onCreateShape('rect')"
-                    matTooltip="Rechteck">
-                <mat-icon class="material-symbols-outlined">rectangle</mat-icon>
-            </button>
-
-            <button mat-icon-button
-                    (click)="onCreateShape('rombus')"
-                    matTooltip="Rombus">
-                <mat-icon class="material-symbols-outlined">stat_0</mat-icon>
-            </button>
-
-            <button mat-icon-button
-                    (click)="onCreateShape('ellipse')"
-                    matTooltip="Kreis/Elipse">
-                <mat-icon class="material-symbols-outlined">circle</mat-icon>
-            </button>
-
-            <button mat-icon-button
-                    matTooltip="Text-Feld">
-                <mat-icon class="material-symbols-outlined">text_ad</mat-icon>
-            </button>
-
-            <button mat-icon-button
-                    matTooltip="Kommentar">
-                <mat-icon class="material-symbols-outlined">comment</mat-icon>
-            </button>
-
-        </app-grid-menu> -->
 
         <button mat-icon-button
                 cdkOverlayOrigin
@@ -79,7 +43,8 @@
                 <button mat-icon-button
                         (click)="onCreateShape('parallelogram')"
                         matTooltip="Parallelogram">
-                    <mat-icon class="material-symbols-outlined">rectangle</mat-icon> <!-- TODO: Icon stimmt nicht, ggf SVG embedden -->
+                    <mat-icon class="material-symbols-outlined">rectangle</mat-icon>
+                    <!-- TODO: Icon stimmt nicht, ggf SVG embedden -->
                 </button>
 
                 <div class="multi-column-menu-title">Text-Bereiche</div>
@@ -172,92 +137,96 @@
 
     <div class="workspace">
 
-        <svg #svg
-             xmlns="http://www.w3.org/2000/svg"
-             [style.width]="imgWidth"
-             [style.height]="imgHeight"
-             (mousedown)="onMouseDown($event)"
-             (mousemove)="onMouseMove($event)"
-             (mouseup)="onMouseUp($event)"
-             (mouseleave)="onMouseLeave($event)">
+        <div class="svg-scroller">
 
-            <style>
-                rect,
-                ellipse,
-                polygon {
-                    cursor: move;
-                    outline: none;
-                }
+            <svg #svg
+                 xmlns="http://www.w3.org/2000/svg"
+                 [style.width]="imgWidth"
+                 [style.height]="imgHeight"
+                 (mousedown)="onMouseDown($event)"
+                 (mousemove)="onMouseMove($event)"
+                 (mouseup)="onMouseUp($event)"
+                 (mouseleave)="onMouseLeave($event)">
 
-                .decorator-frame {
-                    stroke: lightgray;
-                    stroke-width: 2;
-                    stroke-dasharray: 2 2;
-                    fill: transparent;
-                }
+                <style>
+                    rect,
+                    ellipse,
+                    polygon {
+                        cursor: move;
+                        outline: none;
+                    }
 
-                .resize,
-                .connector {
-                    stroke-width: 2;
-                    stroke: cornflowerblue;
-                    fill: lightblue;
-                }
+                    .decorator-frame {
+                        stroke: lightgray;
+                        stroke-width: 2;
+                        stroke-dasharray: 2 2;
+                        fill: transparent;
+                    }
 
-                .connector {
-                    cursor: crosshair;
-                }
+                    .resize,
+                    .connector {
+                        stroke-width: 2;
+                        stroke: cornflowerblue;
+                        fill: lightblue;
+                    }
 
-                .north {
-                    x: calc(50% - 4)
-                }
+                    .connector {
+                        cursor: crosshair;
+                    }
 
-                .drag-ne {
-                    cursor: ne-resize;
-                }
+                    .north {
+                        x: calc(50% - 4)
+                    }
 
-                .drag-n {
-                    cursor: n-resize;
-                }
+                    .drag-ne {
+                        cursor: ne-resize;
+                    }
 
-                .drag-nw {
-                    cursor: nw-resize;
-                }
+                    .drag-n {
+                        cursor: n-resize;
+                    }
 
-                .drag-w {
-                    cursor: w-resize;
-                }
+                    .drag-nw {
+                        cursor: nw-resize;
+                    }
 
-                .drag-e {
-                    cursor: e-resize;
-                }
+                    .drag-w {
+                        cursor: w-resize;
+                    }
 
-                .drag-se {
-                    cursor: se-resize;
-                }
+                    .drag-e {
+                        cursor: e-resize;
+                    }
 
-                .drag-s {
-                    cursor: s-resize;
-                }
+                    .drag-se {
+                        cursor: se-resize;
+                    }
 
-                .drag-sw {
-                    cursor: sw-resize;
-                }
+                    .drag-s {
+                        cursor: s-resize;
+                    }
 
-                .selector-frame {
-                    fill: rgba(0, 0, 255, 0.3);
-                    stroke: lightblue';
+                    .drag-sw {
+                        cursor: sw-resize;
+                    }
 
-                }
+                    .selector-frame {
+                        fill: rgba(0, 0, 255, 0.3);
+                        stroke: lightblue';
 
-                svg {
-                    filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
-                }
-            </style>
-        </svg>
+                    }
 
-        <app-whiteboard-shape-context-menu (delete)="onDeleteSelectedShapes()"
-                                           (zOrderChanged)="onChangeZOrder($event)">
-        </app-whiteboard-shape-context-menu>
+                    svg {
+                        filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
+                    }
+                </style>
+            </svg>
+            
+            <app-whiteboard-shape-context-menu (delete)="onDeleteSelectedShapes()"
+                                               (zOrderChanged)="onChangeZOrder($event)">
+            </app-whiteboard-shape-context-menu>
+        </div>
+
 
         <div class="sidebar"
              *ngIf="hasSelection">

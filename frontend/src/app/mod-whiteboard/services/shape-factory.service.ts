@@ -15,28 +15,24 @@ export class ShapeFactoryService {
   /**
    * @param svgRoot
    * @param type 
-   * @param x 
-   * @param y 
-   * @param w 
-   * @param h 
    */
-  public createShape(svgRoot: SVGSVGElement, type: string, x: number, y: number, w: number, h: number): AbstractShape {
+  public createShape(svgRoot: SVGSVGElement, type: string): AbstractShape {
 
     switch (type) {
       case 'rect':
-        return new RectShape(svgRoot, x, y, w, h);
+        return new RectShape(svgRoot);
         break;
 
       case 'ellipse':
-        return new EllipsisShape(svgRoot, x, y, w, h);
+        return new EllipsisShape(svgRoot);
         break;
 
       case 'rombus':
-        return new RombusShape(svgRoot, x, y, w, h);
+        return new RombusShape(svgRoot);
         break;
 
       case 'parallelogram':
-        return new ParallelogramShape(svgRoot, x, y, w, h);
+        return new ParallelogramShape(svgRoot);
         break;
 
       default:
