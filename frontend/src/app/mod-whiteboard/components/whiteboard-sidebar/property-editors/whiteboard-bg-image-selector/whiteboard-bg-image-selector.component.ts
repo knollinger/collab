@@ -1,9 +1,9 @@
 import { Component, DestroyRef, inject, Input } from '@angular/core';
 
-import { FilesPickerService, INodeService } from '../../../mod-files/mod-files.module';
-import { AbstractShape } from '../../shapes/abstractshape';
+import { FilesPickerService, INodeService } from '../../../../../mod-files/mod-files.module';
+import { AbstractShape } from '../../../../drawables/shapes/abstractshape';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ImageFillEffect } from '../../fill-effects/image-fill-effect';
+import { ImageFillEffect } from '../../../../fill-effects/image-fill-effect';
 
 @Component({
   selector: 'app-whiteboard-bg-image-selector',

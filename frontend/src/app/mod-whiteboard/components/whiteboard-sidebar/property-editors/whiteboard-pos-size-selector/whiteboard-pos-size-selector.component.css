@@ -1,0 +1,11 @@
+.outer-cnr {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+}
+    
+mat-form-field {
+    width: 8rem;
+}

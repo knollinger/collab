@@ -1,0 +1,35 @@
+.outer-cnr {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+mat-form-field {
+    width: 100%;
+}
+
+.style-indicator-line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.style-indicator-value {
+    flex: 0;
+    display: inline-block;
+    min-width: 2rem;
+    min-height: 1rem;
+    border-bottom: 3px solid black;
+    box-sizing: content-box;
+}
+
+.style-indicator-label {
+    flex: 1;
+}
+
+.preview {
+    padding: 1rem;
+    margin: 1rem;
+    text-align: center;
+}

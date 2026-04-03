@@ -1,4 +1,4 @@
-import { AbstractFillEffect } from "../fill-effects/abstract-fill-effect"
+import { AbstractFillEffect } from "../../fill-effects/abstract-fill-effect"
 
 export interface MouseDownCallback {
     (evt: MouseEvent, shape: AbstractShape): void;
@@ -45,6 +45,7 @@ export abstract class AbstractShape {
         this.svgElem.setAttribute('fill', '#ffffff');
         this.svgElem.setAttribute('stroke-width', '1');
         this.svgElem.setAttribute('stroke', '#000000');
+
         this.svgElem.addEventListener('mousedown', evt => {
             evt.stopPropagation();
             this._onStartDrag(evt as MouseEvent, this);
@@ -516,7 +517,7 @@ export abstract class AbstractShape {
     */
     private createResizeAnchor(x: number, y: number, type: string): SVGElement {
 
-        const anchor = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGGElement;
+        const anchor = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGRectElement;
         anchor.setAttribute('name', type);
         anchor.setAttribute('x', x.toString());
         anchor.setAttribute('y', y.toString());

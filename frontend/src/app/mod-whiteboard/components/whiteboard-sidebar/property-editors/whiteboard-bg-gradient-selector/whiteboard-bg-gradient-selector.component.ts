@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { AbstractShape } from '../../shapes/abstractshape';
-import { AbstractFillEffect } from '../../fill-effects/abstract-fill-effect';
-import { GradientTopDownFillEffect } from '../../fill-effects/gradient-top-down-fill-effect';
-import { GradientLeftRightFillEffect } from '../../fill-effects/gradient-left-right-fill-effect';
-import { GradientDiagonalFillEffect } from '../../fill-effects/gradient-diagonal-fill-effect';
-import { GradientRadialFillEffect } from '../../fill-effects/gradient-radial-fill-effect';
+import { AbstractShape } from '../../../../drawables/shapes/abstractshape';
+import { AbstractFillEffect } from '../../../../fill-effects/abstract-fill-effect';
+import { GradientTopDownFillEffect } from '../../../../fill-effects/gradient-top-down-fill-effect';
+import { GradientLeftRightFillEffect } from '../../../../fill-effects/gradient-left-right-fill-effect';
+import { GradientDiagonalFillEffect } from '../../../../fill-effects/gradient-diagonal-fill-effect';
+import { GradientRadialFillEffect } from '../../../../fill-effects/gradient-radial-fill-effect';
 
 @Component({
   selector: 'app-whiteboard-bg-gradient-selector',

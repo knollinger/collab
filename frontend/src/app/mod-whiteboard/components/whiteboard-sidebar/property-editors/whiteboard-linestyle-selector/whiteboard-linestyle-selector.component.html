@@ -1,0 +1,56 @@
+<div class="outer-cnr">
+    <mat-form-field>
+        <mat-label>Linien-Farbe</mat-label>
+        <input matInput
+               type="color"
+               [(ngModel)]="lineColor">
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Linien-Style</mat-label>
+        <mat-select [(value)]="lineStyle">
+
+            <mat-select-trigger>
+                <div class="style-indicator-line">
+                    <div class="style-indicator-value"
+                         [style.border-style]="lineStyle">
+                    </div>
+
+                    <div class="style-indicator-label">{{lineStyle}}</div>
+                </div>
+            </mat-select-trigger>
+
+            <mat-option *ngFor="let style of borderStyles"
+                        [value]="style">
+
+                <div class="style-indicator-line">
+
+                    <div class="style-indicator-value"
+                         [style.border-style]="style">
+                    </div>
+
+                    <div class="style-indicator-label">{{style}}</div>
+                </div>
+
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Linen-Breite</mat-label>
+        <input matInput
+               [(ngModel)]="lineWidth"
+               min="0"
+               type="number">
+    </mat-form-field>
+
+    <div class="mat-elevation-z4">
+        <div class="preview" [style.border]="cssStyle">
+            Vorschau
+        </div>
+    </div>
+
+    <button mat-flat-button
+            color="primary"
+            (click)="onApply()">Anwenden</button>
+</div>

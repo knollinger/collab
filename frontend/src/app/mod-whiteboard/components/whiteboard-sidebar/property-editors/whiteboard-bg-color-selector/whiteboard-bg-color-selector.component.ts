@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { AbstractShape } from '../../shapes/abstractshape';
-import { ColorFillEffect } from '../../fill-effects/color-fill-effect';
+import { AbstractShape } from '../../../../drawables/shapes/abstractshape';
+import { ColorFillEffect } from '../../../../fill-effects/color-fill-effect';
 
 @Component({
   selector: 'app-whiteboard-bg-color-selector',

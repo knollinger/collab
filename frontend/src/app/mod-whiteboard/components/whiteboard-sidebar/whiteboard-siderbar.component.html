@@ -1,0 +1,58 @@
+<div class="outer-cnr">
+    <h2>Eigenschaften</h2>
+    <mat-accordion multi>
+
+        <!-- Position und Größe -->
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>Position und Größe</mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-whiteboard-pos-size-selector [shapes]="shapes"></app-whiteboard-pos-size-selector>
+        </mat-expansion-panel>
+
+        <!-- Linien/Rahmen-Eigenschaften -->
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>Linie/Rahmen</mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-whiteboard-linestyle-selector [shapes]="shapes"></app-whiteboard-linestyle-selector>
+        </mat-expansion-panel>
+
+        <!-- Hintergrund -->
+        <mat-expansion-panel>
+
+            <mat-expansion-panel-header>
+                <mat-panel-title>Hintergrund</mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <!-- Auswahl des Füll-Modus -->
+            <mat-form-field class="full-width">
+                <mat-label>Füllung</mat-label>
+                <mat-select [(ngModel)]="fillStyle">
+                    <mat-option value="none">Keine</mat-option>
+                    <mat-option value="color">Farbe</mat-option>
+                    <mat-option value="image">Bild</mat-option>
+                    <mat-option value="gradient">Farbverlauf</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <div [ngSwitch]="fillStyle">
+
+                <app-whiteboard-bg-color-selector *ngSwitchCase="'color'"
+                                                  [shapes]="shapes">
+                </app-whiteboard-bg-color-selector>
+
+                <app-whiteboard-bg-image-selector *ngSwitchCase="'image'"
+                                                  [shapes]="shapes">
+                </app-whiteboard-bg-image-selector>
+
+                <app-whiteboard-bg-gradient-selector *ngSwitchCase="'gradient'"
+                                                     [shapes]="shapes">
+                </app-whiteboard-bg-gradient-selector>
+
+            </div>
+
+        </mat-expansion-panel>
+
+    </mat-accordion>
+</div>

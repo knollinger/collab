@@ -4,6 +4,7 @@
         <!-- All about shapes -->
 
         <button mat-icon-button
+                matTooltip="Formen"
                 cdkOverlayOrigin
                 #shapesMenuTrigger="cdkOverlayOrigin"
                 (click)="showShapesMenu=true">
@@ -40,11 +41,18 @@
                     <mat-icon class="material-symbols-outlined">circle</mat-icon>
                 </button>
 
-                <button mat-icon-button
-                        (click)="onCreateShape('parallelogram')"
-                        matTooltip="Parallelogram">
-                    <mat-icon class="material-symbols-outlined">rectangle</mat-icon>
-                    <!-- TODO: Icon stimmt nicht, ggf SVG embedden -->
+
+                <div class="multi-column-menu-title">Linien</div>
+                <button mat-icon-button (click)="onCreateLine('direct')">
+                    <mat-icon class="material-symbols-outlined">remove</mat-icon>
+                </button>
+
+                <button mat-icon-button>
+                    <mat-icon class="material-symbols-outlined">line_curve</mat-icon>
+                </button>
+
+                <button mat-icon-button>
+                    <mat-icon class="material-symbols-outlined">timelinecircle</mat-icon>
                 </button>
 
                 <div class="multi-column-menu-title">Text-Bereiche</div>
@@ -61,56 +69,21 @@
             </div>
         </ng-template>
 
-        <!-- Connectors -->
+
+        <!-- -->
+        <app-toolbar-separator></app-toolbar-separator>
         <button mat-icon-button
-                matTooltip="Verbindungen"
-                cdkOverlayOrigin
-                #connectorsMenuTrigger="cdkOverlayOrigin"
-                (click)="showConnectorsMenu=true">
-            <mat-icon class="material-symbols-outlined">line_end</mat-icon>
+                (click)="selectAll()"
+                matTooltip="Alles auswählen">
+            <mat-icon class="material-symbols-outlined">check_box</mat-icon>
         </button>
 
-        <ng-template cdkConnectedOverlay
-                     [cdkConnectedOverlayOrigin]="connectorsMenuTrigger"
-                     [cdkConnectedOverlayOpen]="showConnectorsMenu"
-                     [cdkConnectedOverlayHasBackdrop]="true"
-                     cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-                     cdkConnectedOverlayPanelClass="menu-overlay-pane"
-                     (backdropClick)="showConnectorsMenu=false">
-
-            <div class="multi-column-menu mat-elevation-z4"
-                 (click)="showConnectorsMenu=false">
-
-                <div>
-
-                    <button mat-icon-button>
-                        <mat-icon class="material-symbols-outlined">remove</mat-icon>
-                    </button>
-
-                    <button mat-icon-button>
-                        <mat-icon class="material-symbols-outlined">line_end</mat-icon>
-                    </button>
-
-                    <button mat-icon-button>
-                        <mat-icon class="material-symbols-outlined">line_end_arrow</mat-icon>
-                    </button>
-                </div>
-                <div>
-                    <button mat-icon-button>
-                        <mat-icon class="material-symbols-outlined">line_end_circle</mat-icon>
-                    </button>
-
-                    <button mat-icon-button>
-                        <mat-icon class="material-symbols-outlined">line_end_diamond</mat-icon>
-                    </button>
-
-                    <button mat-icon-button>
-                        <mat-icon class="material-symbols-outlined">line_end_square</mat-icon>
-                    </button>
-                </div>
-
-            </div>
-        </ng-template>
+        <button mat-icon-button
+                (click)="deselectAll()"
+                [disabled]="!hasSelection"
+                matTooltip="Auswahl aufheben">
+            <mat-icon class="material-symbols-outlined">check_box_outline_blank</mat-icon>
+        </button>
 
         <!-- export -->
         <app-toolbar-separator></app-toolbar-separator>
@@ -137,9 +110,10 @@
 
     <div class="workspace">
 
-        <div class="svg-scroller">
+        <div class="svg-scroller" #svgScroller (scroll)="onScroll($event)" >
 
             <svg #svg
+            
                  xmlns="http://www.w3.org/2000/svg"
                  [style.width]="imgWidth"
                  [style.height]="imgHeight"
@@ -210,6 +184,16 @@
                         cursor: sw-resize;
                     }
 
+                    .drag-start {
+                        cursor: move;
+                        
+                    }
+
+                    .drag-end {
+                        cursor: move;
+                        
+                    }
+
                     .selector-frame {
                         fill: rgba(0, 0, 255, 0.3);
                         stroke: lightblue';
@@ -221,7 +205,7 @@
                     }
                 </style>
             </svg>
-            
+
             <app-whiteboard-shape-context-menu (delete)="onDeleteSelectedShapes()"
                                                (zOrderChanged)="onChangeZOrder($event)">
             </app-whiteboard-shape-context-menu>

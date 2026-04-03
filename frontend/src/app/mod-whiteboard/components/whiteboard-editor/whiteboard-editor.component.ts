@@ -1,58 +1,53 @@
-import { Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 
 import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 
-import { ShapeFactoryService } from '../../services/shape-factory.service';
 import { EDragMode } from '../../models/edrag-mode';
 
-import { AbstractShape } from '../../shapes/abstractshape';
 import { EZOrderMode } from '../../models/ezorder-mode';
 import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
-import { FilesPickerService, INodeService } from '../../../mod-files/mod-files.module';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { WhiteboardExportService } from '../../services/whiteboard-export.service';
+import { WhiteboardDocument } from '../../models/whiteboard-document';
+import { AbstractShape } from '../../drawables/shapes/abstractshape';
 
 @Component({
   selector: 'app-whiteboard-editor',
   templateUrl: './whiteboard-editor.component.html',
   styleUrls: ['./whiteboard-editor.component.css']
 })
-export class WhiteboardEditorComponent implements OnInit, OnDestroy {
+export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-  private static DEFAULT_SHAPE_SIZE: number = 100;
 
   private destroyRef: DestroyRef = inject(DestroyRef);
 
   @ViewChild("svg")
-  svg!: ElementRef<HTMLElement>;
-  imgWidth: string = '100%';
-  imgHeight: string = '100%';
+  svg!: ElementRef<SVGSVGElement>;
+
+  @ViewChild("svgScroller")
+  scroller!: ElementRef<HTMLDivElement>;
 
   @ViewChild(WhiteboardShapeContextMenuComponent)
   shapeCtxMenu!: WhiteboardShapeContextMenuComponent;
 
   private _dragMode: EDragMode = EDragMode.none;
   private _resizeMode: string = '';
-  private _shapes: Array<AbstractShape> = new Array<AbstractShape>();
-  private _connector: SVGLineElement | null = null;
   private _selectorFrame: SVGRectElement | null = null;
-  public selectedShapes: Array<AbstractShape> = new Array<AbstractShape>();
 
   showShapesMenu: boolean = false;
   showConnectorsMenu: boolean = false;
   private _resizeCallback: any = null;
   private _gridGroup: SVGGElement | null = null;
 
+  model: WhiteboardDocument = WhiteboardDocument.empty();
+
   /**
    * 
    * @param shapeFactory 
    */
   constructor(
-    private shapeFactory: ShapeFactoryService,
     private commonsDlgs: CommonDialogsService,
-    private exportSvc: WhiteboardExportService,
-    private filePicker: FilesPickerService) {
+    private exportSvc: WhiteboardExportService) {
 
   }
 
@@ -61,9 +56,17 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
    */
   ngOnInit() {
 
-    this._resizeCallback = this.onSVGResize.bind(this);
+    this._resizeCallback = this.onResize.bind(this);
     window.addEventListener('resize', this._resizeCallback);
 
+  }
+
+  /**
+   * Binde das aktuelle SVG an das Whiteboard-Model
+   */
+  ngAfterViewInit() {
+
+    this.model = new WhiteboardDocument(this.svg.nativeElement);
   }
 
   /**
@@ -75,23 +78,32 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Liefert das SVG-RootElement
-   */
-  public get svgRoot(): SVGSVGElement {
-
-    return this.svg.nativeElement as unknown as SVGSVGElement;
-  }
-
-  /**
    * 
    * @param evt 
    */
-  public onSVGResize(evt: Event) {
+  private onResize(evt: Event) {
 
     if (this.showGridLines) {
       this.removeGridLines();
       this.createGridLines();
     }
+  }
+
+  private _scrollX: number = 0;
+  private _scrollY: number = 0;
+  
+  onScroll(evt: Event) {
+    const x = evt.target as HTMLElement;
+    this._scrollX = x.scrollLeft;
+    this._scrollY = x.scrollLeft;
+  }
+
+  get imgWidth(): string {
+    return `${this.model.width}px`;
+  }
+
+  get imgHeight(): string {
+    return `${this.model.height}px`;
   }
 
   /**
@@ -125,8 +137,9 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
 
     this._gridGroup = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, "g") as SVGGElement;
 
-    const width = this.svgRoot.clientWidth;
-    const height = this.svgRoot.clientHeight;
+    const svg = this.svg.nativeElement;
+    const width = svg.clientWidth;
+    const height = svg.clientHeight;
     for (let i = 0; i < width; i += 32) {
 
       const elem = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'line') as SVGGraphicsElement;
@@ -150,7 +163,7 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
       elem.setAttribute('stroke', `lightgray`);
       this._gridGroup.appendChild(elem);
     }
-    this.svgRoot.insertBefore(this._gridGroup, this.svgRoot.firstChild);
+    svg.insertBefore(this._gridGroup, svg.firstChild);
   }
 
   /**
@@ -168,9 +181,9 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
     this.commonsDlgs.showInputBox('Speichern unter', 'Datei-Name').subscribe(name => {
       if (name) {
 
-        this.clearAllSelections();
+        this.deselectAll();
         this.showGridLines = false;
-        this.exportSvc.exportImage(name, this.svgRoot);
+        this.exportSvc.exportImage(name, this.model.svgRoot);
       }
     });
   }
@@ -180,28 +193,28 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
    */
   public onCreateShape(type: string) {
 
-    const shape = this.shapeFactory.createShape(this.svgRoot, type);
-    shape.height = shape.width = WhiteboardEditorComponent.DEFAULT_SHAPE_SIZE;
 
+    const shape = this.model.createShape(type);
     shape.onStartDrag = this.onStartDragShape.bind(this);
     shape.onStartResize = this.onStartResizeShape.bind(this);
-    shape.onStartConnect = this.onStartConnect.bind(this);
     shape.onShowCtxMenu = this.onShowShapesContextMenu.bind(this);
-    this._shapes.push(shape);
-    this.normalizeImageDimensions();
+
+    shape.posX = this.scroller.nativeElement.clientWidth / 2 + this._scrollX - shape.width / 2; // TODO: stimmt so nicht
+    shape.posY = this.scroller.nativeElement.clientHeight / 2 + this._scrollY - shape.height / 2;
+    // this.model.normalizeImageDimensions();
   }
 
-  public onShowFilePicker() {
+  /**
+   * Erzeuge ein Shape
+   */
+  public onCreateLine(type: string) {
 
-    this.filePicker.showFilePicker(true, new RegExp('image/.*', 'i'))
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(inodes => {
-        if (inodes) {
-          alert('inodes: ' + inodes);
-        }
-      });
-
+    const line = this.model.createLine(type);
+    // shape.onStartDrag = this.onStartDragShape.bind(this);
+    // shape.onStartResize = this.onStartResizeShape.bind(this);
+    // shape.onShowCtxMenu = this.onShowShapesContextMenu.bind(this);
   }
+
   /**
    * 
    * @param evt 
@@ -213,11 +226,11 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
 
       this._dragMode = EDragMode.dragShape;
       if (!evt.ctrlKey) {
-        this.clearAllSelections();
+        this.model.deselectAll();
       }
 
       if (shape) {
-        this.addSelectedShape(shape);
+        this.model.selectShape(shape);
       }
     }
   }
@@ -237,37 +250,11 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
     this._resizeMode = resizeType;
 
     if (!evt.ctrlKey) {
-      this.clearAllSelections();
+      this.model.deselectAll();
     }
-
-    if (shape) {
-      this.addSelectedShape(shape);
-    }
+    this.addSelectedShape(shape);
   }
 
-  /**
-   * 
-   * @param evt 
-   * @param shape 
-   * @param position 
-   */
-  onStartConnect(evt: MouseEvent, shape: AbstractShape, position: string) {
-
-    if (!this._connector) {
-
-      this._dragMode = EDragMode.dragConnector;
-      this._connector = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'line') as SVGLineElement;
-      this._connector.setAttribute('x1', `${evt.offsetX}`);
-      this._connector.setAttribute('y1', `${evt.offsetY}`);
-      this._connector.setAttribute('x2', `${evt.offsetX}`);
-      this._connector.setAttribute('y2', `${evt.offsetY}`);
-      this._connector.setAttribute('stroke', 'black');
-      this._connector.setAttribute('stroke-width', '1');
-
-      this.svgRoot.appendChild(this._connector);
-
-    }
-  }
 
   /**
    * Auf das rootSVG wurde ein MouseDown ausgelöst.
@@ -280,10 +267,8 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
    */
   onMouseDown(evt: MouseEvent) {
 
-    this.clearAllSelections();
-    if (evt.target === this.svgRoot && evt.button === 0) {
-      this.startFrameSelection(evt);
-    }
+    this.model.deselectAll();
+    this.startFrameSelection(evt);
   }
 
   /**
@@ -297,18 +282,11 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
 
     switch (this._dragMode) {
       case EDragMode.dragShape:
-        this.moveSelectedShapes(deltaX, deltaY);
-        this.normalizeImageDimensions();
+        this.model.moveSelectedShapes(deltaX, deltaY);
         break;
 
       case EDragMode.dragResize:
-        this.resizeSelectedShapes(deltaX, deltaY)
-        this.normalizeImageDimensions();
-        break;
-
-      case EDragMode.dragConnector:
-        this._connector!.setAttribute('x2', `${evt.offsetX}`);
-        this._connector!.setAttribute('y2', `${evt.offsetY}`);
+        this.model.resizeSelectedShapes(this._resizeMode, deltaX, deltaY)
         break;
 
       case EDragMode.dragSelectorFrame:
@@ -331,9 +309,6 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
         break;
 
       case EDragMode.dragResize:
-        break;
-
-      case EDragMode.dragConnector:
         break;
 
       case EDragMode.dragSelectorFrame:
@@ -360,63 +335,11 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
    */
   onShowShapesContextMenu(evt: MouseEvent, shape: AbstractShape) {
 
-    let selection = Array.of(shape);
-    shape.setSelected(true);
-
     if (!evt.ctrlKey) {
-      this.clearAllSelections();
+      this.model.deselectAll();
     }
-    else {
-      selection = selection.concat(this.selectedShapes);
-    }
-    this.selectedShapes = selection;
+    this.model.selectShape(shape);
     this.shapeCtxMenu.show(evt);
-  }
-
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* all image dimensions                                                    */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-
-  /**
-   * 
-   */
-  private normalizeImageDimensions() {
-
-    let minX: number = 0;
-    let maxX: number = 0;
-    let minY: number = 0;
-    let maxY: number = 0;
-
-    this._shapes.forEach(shape => {
-      minX = Math.min(minX, shape.posX);
-      maxX = Math.max(maxX, shape.width + shape.posX);
-      minY = Math.min(minY, shape.posY);
-      maxY = Math.max(maxY, shape.height + shape.posY);
-    })
-
-    if (minX < 0 || minY < 0) {
-
-      this._shapes.forEach(shape => {
-
-        if(minX < 0) {
-          shape.posX -= minX;
-        }
-
-        if(minY < 0) {
-          shape.posY -= minY;
-        }
-      });
-    }
-
-    const width = maxX - minX;
-    const height = maxY - minY;
-
-    this.svgRoot.setAttribute('height', height.toString())
-    this.imgHeight = `${height}px`;
-    this.svgRoot.setAttribute('width', width.toString())
-    this.imgWidth = `${width}px`;
   }
 
   /*-------------------------------------------------------------------------*/
@@ -433,7 +356,7 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
       this._selectorFrame.setAttribute('x', `${evt.offsetX}`);
       this._selectorFrame.setAttribute('y', `${evt.offsetY}`);
       this._selectorFrame.setAttribute('class', 'selector-frame');
-      this.svgRoot.appendChild(this._selectorFrame);
+      this.model.svgRoot.appendChild(this._selectorFrame);
       this._dragMode = EDragMode.dragSelectorFrame;
     }
   }
@@ -443,6 +366,8 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
    * @param evt 
    */
   private resizeSelectorFrame(evt: MouseEvent) {
+
+    evt.stopPropagation();
 
     if (this._selectorFrame) {
 
@@ -462,27 +387,14 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
         newY = evt.offsetY;
         height = currY - evt.offsetY;
       }
+
       this._selectorFrame.setAttribute('x', `${newX}`);
       this._selectorFrame.setAttribute('y', `${newY}`);
       this._selectorFrame.setAttribute('width', `${width}`);
       this._selectorFrame.setAttribute('height', `${height}`);
 
-      this.selectByFrame(newX, newY, width, height);
+      this.model.selectByFrame(newX, newY, width, height);
     }
-  }
-
-  private selectByFrame(x: number, y: number, width: number, height: number) {
-
-    this.clearAllSelections();
-    const selected: Array<AbstractShape> = new Array<AbstractShape>();
-    this._shapes.forEach((shape) => {
-
-      if (shape.isInRect(x, y, width, height)) {
-        shape.setSelected(true);
-        selected.push(shape);
-      }
-      this.selectedShapes = selected;
-    });
   }
 
 
@@ -495,83 +407,12 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Verschiebe alle selektierten Shapes um die angegebenen Werte
-   * 
-   * @param movementX 
-   * @param movementY 
-   */
-  private moveSelectedShapes(movementX: number, movementY: number) {
-
-    this.selectedShapes.forEach(shape => {
-      shape.translateBy(movementX, movementY); // 
-    });
-  }
-
-  /**
-   * 
-   * @param resizeX 
-   * @param resizeY 
-   */
-  private resizeSelectedShapes(resizeX: number, resizeY: number) {
-
-    this.selectedShapes.forEach(shape => {
-
-      switch (this._resizeMode) {
-        case 'n':
-          shape.translateBy(0, resizeY);
-          shape.resizeBy(0, -resizeY);
-          break;
-
-        case 'ne':
-          shape.translateBy(0, resizeY);
-          shape.resizeBy(resizeX, -resizeY);
-          break;
-
-        case 'e':
-          shape.resizeBy(resizeX, 0);
-          break;
-
-        case 'se':
-          shape.resizeBy(resizeX, resizeY);
-          break;
-
-        case 's':
-          shape.resizeBy(0, resizeY);
-          break;
-
-        case 'sw':
-          shape.translateBy(resizeX, 0);
-          shape.resizeBy(-resizeX, resizeY);
-          break;
-
-        case 'w':
-          shape.translateBy(resizeX, 0);
-          shape.resizeBy(-resizeX, 0);
-          break;
-
-        case 'nw':
-          shape.translateBy(resizeX, resizeY);
-          shape.resizeBy(-resizeX, -resizeY);
-          break;
-      }
-    });
-  }
 
   /**
    * Lösche alle Selektierten Shapes
    */
   public onDeleteSelectedShapes() {
-
-    this.selectedShapes.forEach(shape => {
-      shape.delete();
-    })
-
-    this._shapes = this._shapes.filter(shape => {
-      return this.selectedShapes.indexOf(shape) !== -1;
-    })
-
-    this.selectedShapes = new Array<AbstractShape>();
+    this.model.deleteSelectedShapes();
   }
 
   /*-------------------------------------------------------------------------*/
@@ -584,36 +425,31 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
    * 
    */
   private addSelectedShape(shape: AbstractShape) {
-
-    shape.setSelected(true);
-    const selected: Array<AbstractShape> = new Array<AbstractShape>(...this.selectedShapes);
-    selected.push(shape);
-    this.selectedShapes = selected;
+    this.model.selectShape(shape);
   }
 
   public selectAll() {
-
-    const selected = new Array<AbstractShape>();
-    this._shapes.forEach(shape => {
-      shape.setSelected(true);
-      selected.push(shape);
-    })
-    this.selectedShapes = selected;
+    this.model.selectAll();
   }
 
   /**
    * 
    */
-  public clearAllSelections() {
-
-    this.selectedShapes.forEach(shape => {
-      shape.setSelected(false);
-    })
-    this.selectedShapes = new Array<AbstractShape>();
+  public deselectAll() {
+    this.model.deselectAll();
   }
 
+  /**
+   * 
+   */
   public get hasSelection(): boolean {
-    return this.selectedShapes.length !== 0;
+    return this.model.hasSelection();
+  }
+
+  public get selectedShapes(): Set<AbstractShape> {
+
+    // TODO: Das clonen sollte ins Model verlegt werden. nur wenn nötig
+    return new Set<AbstractShape>(this.model.selectedShapes);
   }
 
   /*-------------------------------------------------------------------------*/
@@ -623,26 +459,6 @@ export class WhiteboardEditorComponent implements OnInit, OnDestroy {
   /*-------------------------------------------------------------------------*/
 
   onChangeZOrder(zorder: EZOrderMode) {
-
-    this.selectedShapes.forEach(shape => {
-
-      switch (zorder) {
-        case EZOrderMode.background:
-          shape.changeZOrderBackground();
-          break;
-
-        case EZOrderMode.back:
-          shape.changeZOrderBack();
-          break;
-
-        case EZOrderMode.fore:
-          shape.changeZOrderFore();
-          break;
-
-        case EZOrderMode.foreground:
-          shape.changeZOrderForeground();
-          break;
-      }
-    })
+    this.model.changeSelectedShapesZOrder(zorder);
   }
 }

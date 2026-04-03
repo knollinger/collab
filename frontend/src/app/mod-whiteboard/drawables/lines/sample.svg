@@ -1,0 +1,55 @@
+<!--
+Siehe auch: https://developer.mozilla.org/de/play?uuid=8d3e6c7a622b38099ce1d30a88cb819c5cfdebc4&state=jVPBbpwwEP2V6VSVWgmCYbNpQiFS20sP6Tmt5It3mV2cBRPZXtg0yr9XtqEbaA%2BVkMzMm7Hfe%2FY8Y23bBnMsTL%2BHXtLwpTuVHBkwWDEGKWMc4dQ2ypQca2sf8yQZhuFiWF10ep9kjLHE9HuOt1wBFBXtjP8DKN7EMXyGVugDabAdbAiOhioQBoQCoXU31CQqiOOpI9SGAEBWJUdfxnHKzRmm7juDmnY%2FSo7rWebnPBOOuJeVrUuOV0vgG8l9bedIpyUplxNH28XGCm1jTT1pQ6NsT%2F5R2Boc5e%2FguN05dmu4CzR%2FcYRkkpmEs4JjyWiZD4JljVQEg7Q1iMm%2B0aPCQWGXU1pyPKt%2FmoenrOR4c0bnobG6O1DJcdOI7WHKhqNiUk7EUTfv33rzP4zUXxHcHnVPFXjFnmdoNX9oOiRsGgxJw02NVsFXSDMGGYsgXY3r5bJgzcDlr8LycQlfj303Yc3Y66fwb3072TQlR9UpWkj2d7oUPato5V%2Bm%2FJdphRuOW64wwq0xmPtxi7jadNVTxJUbume3Ue3fXe7m7d0nrl58x4NrwAhtTS1hjo2rwZff&srcPrefix=%2Fde%2Fdocs%2FWeb%2FSVG%2FReference%2FElement%2Fmarker%2F
+-->
+
+<svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- A marker to be used as an square -->
+    <marker
+      id="arrow"
+      viewBox="0 0 10 10"
+      refX="10"
+      refY="5"
+      markerWidth="5"
+      markerHeight="5"
+      orient="auto-start-reverse">
+      <rect width="10" height="10" fill="#ffff" stroke="#000000" stroke-width="2" />
+    </marker>
+
+    <!-- a circle-marker -->
+    <marker
+      id="circle"
+      viewBox="0 0 10 10"
+      refX="5"
+      refY="5"
+      markerWidth="5"
+      markerHeight="5"
+      orient="auto-start-reverse">
+      <ellipse cx="5" cy="5" rx="3" ry="3" fill="#ffffff" stroke="#000000" stroke-width="1" />
+    </marker>
+
+
+  </defs>
+
+   <ellipse cx="5" cy="5" rx="3" ry="3" fill="#ffffff" stroke="#000000"  />
+  <!-- A line with a marker -->
+  <line
+    x1="10"
+    y1="10"
+    x2="90"
+    y2="90"
+    stroke="black"
+    marker-start="url(#arrow)" />
+
+  <!-- A curved path with markers -->
+  <path
+    d="M 110 10
+       C 120 20, 130 20, 140 10
+       C 150 0, 160 0, 170 10
+       C 180 20, 190 20, 200 10"
+    stroke="black"
+    fill="none"
+    marker-start="url(#circle)"
+    marker-mid="url(#arrow)"
+    marker-end="url(#arrow)" />
+</svg>
