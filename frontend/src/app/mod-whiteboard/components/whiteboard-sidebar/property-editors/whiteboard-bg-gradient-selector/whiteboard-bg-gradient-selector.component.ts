@@ -5,6 +5,7 @@ import { GradientTopDownFillEffect } from '../../../../fill-effects/gradient-top
 import { GradientLeftRightFillEffect } from '../../../../fill-effects/gradient-left-right-fill-effect';
 import { GradientDiagonalFillEffect } from '../../../../fill-effects/gradient-diagonal-fill-effect';
 import { GradientRadialFillEffect } from '../../../../fill-effects/gradient-radial-fill-effect';
+import { WhiteboardDocument } from '../../../../models/whiteboard-document';
 
 @Component({
   selector: 'app-whiteboard-bg-gradient-selector',
@@ -21,6 +22,8 @@ export class WhiteboardBgGradientSelectorComponent {
   @Input()
   public shapes: Array<AbstractShape> = new Array<AbstractShape>();
 
+  @Input()
+  model: WhiteboardDocument = WhiteboardDocument.empty();
 
   constructor() {
     this.calcPreviewStyle();
@@ -88,7 +91,7 @@ export class WhiteboardBgGradientSelectorComponent {
 
     for (let shape of this.shapes) {
 
-      const effect = this.createGradient(shape.svgRoot);
+      const effect = this.createGradient();
       if (effect) {
         shape.fillEffect = effect;
       }
@@ -100,25 +103,25 @@ export class WhiteboardBgGradientSelectorComponent {
    * @param svgRoot 
    * @returns 
    */
-  createGradient(svgRoot: SVGSVGElement): AbstractFillEffect | undefined {
+  createGradient(): AbstractFillEffect | undefined {
 
     let result: AbstractFillEffect | undefined;
 
     switch (this._gardientType) {
       case 'topDown':
-        result = new GradientTopDownFillEffect(svgRoot, this._color1, this._color2);
+        result = new GradientTopDownFillEffect(this.model, this._color1, this._color2);
         break;
 
       case 'leftRight':
-        result = new GradientLeftRightFillEffect(svgRoot, this._color1, this._color2);
+        result = new GradientLeftRightFillEffect(this.model, this._color1, this._color2);
         break;
 
       case 'diagonal':
-        result = new GradientDiagonalFillEffect(svgRoot, this._color1, this._color2);
+        result = new GradientDiagonalFillEffect(this.model, this._color1, this._color2);
         break;
 
       case 'radial':
-        result = new GradientRadialFillEffect(svgRoot, this._color1, this._color2);
+        result = new GradientRadialFillEffect(this.model, this._color1, this._color2);
         break;
 
       default:

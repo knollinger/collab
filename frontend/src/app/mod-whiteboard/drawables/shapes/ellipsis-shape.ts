@@ -1,3 +1,4 @@
+import { WhiteboardDocument } from "../../models/whiteboard-document";
 import { AbstractShape } from "./abstractshape";
 
 /**
@@ -9,9 +10,9 @@ export class EllipsisShape extends AbstractShape {
      * 
      * @param svgRoot 
      */
-    constructor(svgRoot: SVGSVGElement) {
+    constructor(model: WhiteboardDocument) {
 
-        super(svgRoot, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'ellipse') as SVGGraphicsElement);
+        super(model, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'ellipse') as SVGGraphicsElement);
     }
 
     /**

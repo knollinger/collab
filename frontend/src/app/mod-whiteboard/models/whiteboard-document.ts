@@ -2,7 +2,6 @@ import { AbstractLine } from '../drawables/lines/abstract-line';
 import { DirectLine } from '../drawables/lines/direct-line';
 import { AbstractShape } from '../drawables/shapes/abstractshape';
 import { EllipsisShape } from '../drawables/shapes/ellipsis-shape';
-import { ParallelogramShape } from '../drawables/shapes/parallelogram-shape';
 import { RectShape } from '../drawables/shapes/rect-shape';
 import { RombusShape } from '../drawables/shapes/rombus-shape';
 import { EZOrderMode } from './ezorder-mode';
@@ -19,11 +18,23 @@ export interface ShapeVisitor {
  * 
  * Die Operationen auf dem Dokument werden auf dem im ctor übergebenen
  * SVGSVG-Element reflektiert. 
+ * 
+ * Das SVGDokument wird folgendermassen präpariert:
+ * * Ein <style> Element, welches CSS-Styles beinhaltet. Dieses kommt aus dem HTML-Template
+ * * Ein <defs>-Element, welches als Target für href-referenzierte Resourcen dient
+ * * Ein <g id="shapes-group"> Element, welches alle Shapes aufnimmt
+ * * Ein <g id="lines-group"> Element, welches alle Linien und Connectoren aufnimmt
  */
 export class WhiteboardDocument {
 
     private static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
     private static DEFAULT_SHAPE_SIZE: number = 100;
+
+    private _defsElem: SVGDefsElement;
+    private _shapesGroup: SVGGElement;
+    private _linesGroup: SVGGElement;
+    private _gridLines: SVGRectElement;
+
 
     private _shapes: AbstractShape[] = new Array<AbstractShape>();
     private _selectedShapes: Set<AbstractShape> = new Set<AbstractShape>();
@@ -32,8 +43,19 @@ export class WhiteboardDocument {
      * 
      * @param svgRoot 
      */
-    constructor(public readonly svgRoot: SVGSVGElement) {
+    constructor(private _svgRoot: SVGSVGElement) {
 
+        this._defsElem = this.svgRoot.getElementsByTagName('defs').item(0) as SVGDefsElement;
+
+        this._gridLines = this.svgRoot.getElementById('gridLines') as SVGRectElement;
+
+        this._shapesGroup = document.createElementNS(WhiteboardDocument.SVG_NAMESPACE, 'g') as SVGGElement;
+        this._shapesGroup.setAttribute('id', 'shapes-group');
+        this.svgRoot.appendChild(this._shapesGroup);
+
+        this._linesGroup = document.createElementNS(WhiteboardDocument.SVG_NAMESPACE, 'g') as SVGGElement;
+        this._linesGroup.setAttribute('id', 'lines-group');
+        this.svgRoot.appendChild(this._linesGroup);
     }
 
     /**
@@ -44,6 +66,57 @@ export class WhiteboardDocument {
      */
     public static empty(): WhiteboardDocument {
         return new WhiteboardDocument(document.createElementNS(WhiteboardDocument.SVG_NAMESPACE, 'svg') as SVGSVGElement);
+    }
+
+    /**
+     * 
+     */
+    public get defsElem(): SVGDefsElement {
+        return this._defsElem;
+    }
+
+    public get svgRoot(): SVGSVGElement {
+        return this._svgRoot;
+    }
+
+    /**
+     * 
+     */
+    public get shapesGroup(): SVGGElement {
+        return this._shapesGroup;
+    }
+    
+    /**
+     * 
+     */
+    public get linesGroup(): SVGGElement {
+        return this._linesGroup;
+    }
+    
+    /*-----------------------------------------------------------------------*/
+    /*                                                                       */
+    /* All about grid                                                        */
+    /*                                                                       */
+    /*-----------------------------------------------------------------------*/
+
+    /**
+     * 
+     */
+    get gridSize(): number {
+
+        return Number.parseInt(this._gridLines.getAttribute('width') || '30');
+    }
+
+    /**
+     * 
+     */
+    set showGridLines(val: boolean) {
+        if (!val) {
+            this._gridLines.setAttribute('class', 'hidden')
+        }
+        else {
+            this._gridLines.removeAttribute('class')
+        }
     }
 
     /*-----------------------------------------------------------------------*/
@@ -122,19 +195,15 @@ export class WhiteboardDocument {
 
         switch (type) {
             case 'rect':
-                shape = new RectShape(this.svgRoot);
+                shape = new RectShape(this);
                 break;
 
             case 'ellipse':
-                shape = new EllipsisShape(this.svgRoot);
+                shape = new EllipsisShape(this);
                 break;
 
             case 'rombus':
-                shape = new RombusShape(this.svgRoot);
-                break;
-
-            case 'parallelogram':
-                shape = new ParallelogramShape(this.svgRoot);
+                shape = new RombusShape(this);
                 break;
 
             default:
@@ -150,17 +219,20 @@ export class WhiteboardDocument {
             this._selectedShapes.add(shape);
         })
         this._shapes.push(shape);
-        this.normalizeImageDimensions();
         return shape;
     }
 
+    /**
+     * 
+     * @param type 
+     */
     public createLine(type: string) {
 
         let line: AbstractLine;
 
         switch (type) {
             case 'direct':
-                line = new DirectLine(this.svgRoot);
+                line = new DirectLine(this.svgRoot, this._linesGroup);
                 break;
 
             default:
@@ -189,7 +261,6 @@ export class WhiteboardDocument {
             toDelete.delete();
         }
         this._selectedShapes.delete(toDelete);
-        this.normalizeImageDimensions();
     }
 
     /**
@@ -206,7 +277,6 @@ export class WhiteboardDocument {
             return result;
         })
         this._selectedShapes.clear();
-        this.normalizeImageDimensions();
     }
 
     /*-----------------------------------------------------------------------*/
@@ -312,7 +382,6 @@ export class WhiteboardDocument {
         this._selectedShapes.forEach(shape => {
             shape.translateBy(deltaX, deltaY);
         })
-        this.normalizeImageDimensions();
     }
 
     /*-----------------------------------------------------------------------*/
@@ -369,7 +438,6 @@ export class WhiteboardDocument {
                     break;
             }
         })
-        this.normalizeImageDimensions();
     }
 
     /*-----------------------------------------------------------------------*/
@@ -420,7 +488,6 @@ export class WhiteboardDocument {
     public forEachShape(visitor: ShapeVisitor) {
 
         this._shapes.forEach(shape => visitor.invoke(this, shape));
-        this.normalizeImageDimensions();
     }
 
     /**
@@ -431,6 +498,5 @@ export class WhiteboardDocument {
     public forEachSelectedShape(visitor: ShapeVisitor) {
 
         this._selectedShapes.forEach(shape => visitor.invoke(this, shape));
-        this.normalizeImageDimensions();
     }
 }

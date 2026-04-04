@@ -1,13 +1,14 @@
 <div class="outer-cnr">
     <h2>Eigenschaften</h2>
-    <mat-accordion multi>
+    <mat-accordion>
 
         <!-- Position und Größe -->
         <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>Position und Größe</mat-panel-title>
             </mat-expansion-panel-header>
-            <app-whiteboard-pos-size-selector [shapes]="shapes"></app-whiteboard-pos-size-selector>
+            <app-whiteboard-pos-size-selector [shapes]="shapes"
+                                              [model]="model"></app-whiteboard-pos-size-selector>
         </mat-expansion-panel>
 
         <!-- Linien/Rahmen-Eigenschaften -->
@@ -15,7 +16,8 @@
             <mat-expansion-panel-header>
                 <mat-panel-title>Linie/Rahmen</mat-panel-title>
             </mat-expansion-panel-header>
-            <app-whiteboard-linestyle-selector [shapes]="shapes"></app-whiteboard-linestyle-selector>
+            <app-whiteboard-linestyle-selector [shapes]="shapes"
+                                               [model]="model"></app-whiteboard-linestyle-selector>
         </mat-expansion-panel>
 
         <!-- Hintergrund -->
@@ -39,15 +41,18 @@
             <div [ngSwitch]="fillStyle">
 
                 <app-whiteboard-bg-color-selector *ngSwitchCase="'color'"
-                                                  [shapes]="shapes">
+                                                  [shapes]="shapes"
+                                                  [model]="model">
                 </app-whiteboard-bg-color-selector>
 
                 <app-whiteboard-bg-image-selector *ngSwitchCase="'image'"
-                                                  [shapes]="shapes">
+                                                  [shapes]="shapes"
+                                                  [model]="model">
                 </app-whiteboard-bg-image-selector>
 
                 <app-whiteboard-bg-gradient-selector *ngSwitchCase="'gradient'"
-                                                     [shapes]="shapes">
+                                                     [shapes]="shapes"
+                                                     [model]="model">
                 </app-whiteboard-bg-gradient-selector>
 
             </div>

@@ -43,7 +43,8 @@
 
 
                 <div class="multi-column-menu-title">Linien</div>
-                <button mat-icon-button (click)="onCreateLine('direct')">
+                <button mat-icon-button
+                        (click)="onCreateLine('direct')">
                     <mat-icon class="material-symbols-outlined">remove</mat-icon>
                 </button>
 
@@ -102,18 +103,17 @@
         </button>
 
         <app-toolbar-filler></app-toolbar-filler>
-        <mat-button-toggle [checked]="showGridLines"
-                           (change)="showGridLines = $event.source.checked">
+        <mat-button-toggle (change)="showGridLines = $event.source.checked">
             <mat-icon class="material-symbols-outlined">border_clear</mat-icon>
         </mat-button-toggle>
     </app-toolbar>
 
     <div class="workspace">
 
-        <div class="svg-scroller" #svgScroller (scroll)="onScroll($event)" >
+        <div class="svg-scroller"
+             #svgScroller>
 
             <svg #svg
-            
                  xmlns="http://www.w3.org/2000/svg"
                  [style.width]="imgWidth"
                  [style.height]="imgHeight"
@@ -123,11 +123,12 @@
                  (mouseleave)="onMouseLeave($event)">
 
                 <style>
-                    rect,
-                    ellipse,
-                    polygon {
+                    .hidden {
+                        display: none;
+                    }
+
+                    rect, polygone, ellipse {
                         cursor: move;
-                        outline: none;
                     }
 
                     .decorator-frame {
@@ -146,10 +147,6 @@
 
                     .connector {
                         cursor: crosshair;
-                    }
-
-                    .north {
-                        x: calc(50% - 4)
                     }
 
                     .drag-ne {
@@ -186,12 +183,12 @@
 
                     .drag-start {
                         cursor: move;
-                        
+
                     }
 
                     .drag-end {
                         cursor: move;
-                        
+
                     }
 
                     .selector-frame {
@@ -204,6 +201,37 @@
                         filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
                     }
                 </style>
+
+                <defs>
+
+                    <!-- Das Pattern für die GridLines -->
+                    <pattern id="pattern-gridLines"
+                             patternUnits="userSpaceOnUse"
+                             width="30"
+                             height="30">
+                        <line x1="0"
+                              y1="30"
+                              x2="30"
+                              y2="30"
+                              stroke="lightgray"
+                              stroke-width="1"
+                              stroke-dasharray="2 2"></line>
+                        <line x1="30"
+                              y1="30"
+                              x2="30"
+                              y2="0"
+                              stroke="lightgray"
+                              stroke-width="1"
+                              stroke-dasharray="2 2"></line>
+                    </pattern>
+                </defs>
+
+                <!-- das Rect für die GridLines -->
+                <rect id="gridLines"
+                      width="100%"
+                      height="100%"
+                      class="hidden"
+                      fill="url(#pattern-gridLines)" />
             </svg>
 
             <app-whiteboard-shape-context-menu (delete)="onDeleteSelectedShapes()"
@@ -214,7 +242,8 @@
 
         <div class="sidebar"
              *ngIf="hasSelection">
-            <app-whiteboard-siderbar [shapes]="selectedShapes"></app-whiteboard-siderbar>
+            <app-whiteboard-siderbar [shapes]="selectedShapes"
+                                     [model]="model"></app-whiteboard-siderbar>
         </div>
 
     </div>

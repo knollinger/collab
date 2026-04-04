@@ -1,3 +1,5 @@
+import { WhiteboardDocument } from '../models/whiteboard-document';
+
 /**
  * Der AbstactFillEffect dient der Verwaltung von Elementen,
  * welche in den Shapes via "fill=url(#effectId)" referenziert werden.
@@ -37,12 +39,12 @@ export abstract class AbstractFillEffect {
      * @param effectElem 
      */
     constructor(
-        private svgRoot: SVGSVGElement,
+        private model: WhiteboardDocument,
         public readonly effectElem: SVGElement) {
 
         this._id = AbstractFillEffect.calcNextFreeKey();
         effectElem.setAttribute('id', this._id);
-        this.svgDefElement.appendChild(effectElem);
+        this.model.defsElem.appendChild(effectElem);
     }
 
     /**
@@ -57,7 +59,7 @@ export abstract class AbstractFillEffect {
      */
     public remove() {
 
-        const defElems = this.svgDefElement.children;
+        const defElems = this.model.defsElem.children;
 
         for (let i = 0; i < defElems.length; ++i) {
 
@@ -75,19 +77,6 @@ export abstract class AbstractFillEffect {
     private static calcNextFreeKey(): string {
 
         return `fill_effect_${++AbstractFillEffect.nextFreeId}`;
-    }
-
-    /**
-     * liefere das Defs-Element
-     */
-    private get svgDefElement(): SVGDefsElement {
-
-        let defs = this.svgRoot.getElementsByTagName('defs').item(0);
-        if (!defs) {
-            defs = document.createElementNS(AbstractFillEffect.SVG_NAMESPACE, 'defs') as SVGDefsElement;
-            this.svgRoot.appendChild(defs);
-        }
-        return defs;
     }
 
     public abstract set width(width: number);

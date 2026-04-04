@@ -1,4 +1,5 @@
 import { AbstractFillEffect } from "../../fill-effects/abstract-fill-effect"
+import { WhiteboardDocument } from "../../models/whiteboard-document";
 
 export interface MouseDownCallback {
     (evt: MouseEvent, shape: AbstractShape): void;
@@ -39,7 +40,7 @@ export abstract class AbstractShape {
      * @param svgRoot 
      */
     constructor(
-        public readonly svgRoot: SVGSVGElement,
+        private readonly model: WhiteboardDocument,
         public readonly svgElem: SVGGraphicsElement) {
 
         this.svgElem.setAttribute('fill', '#ffffff');
@@ -65,7 +66,7 @@ export abstract class AbstractShape {
         this.elemCnr.appendChild(this.svgElem);
 
         this.createTextField();
-        this.svgRoot.appendChild(this.elemCnr);
+        this.model.shapesGroup.appendChild(this.elemCnr);
     }
 
     /**
@@ -167,6 +168,7 @@ export abstract class AbstractShape {
 
         this._x = val;
         this.findTranslateTransformation().setTranslate(this._x, this._y);
+        this.model.normalizeImageDimensions();
     }
 
     /**
@@ -182,8 +184,10 @@ export abstract class AbstractShape {
      * 
      */
     public set posY(val: number) {
+
         this._y = val;
         this.findTranslateTransformation().setTranslate(this._x, this._y);
+        this.model.normalizeImageDimensions();
     }
 
     /**
@@ -200,6 +204,7 @@ export abstract class AbstractShape {
         this._x += movementX;
         this._y += movementY;
         transform.setTranslate(this._x, this._y);
+        this.model.normalizeImageDimensions();
     }
 
     /**
@@ -219,7 +224,7 @@ export abstract class AbstractShape {
             }
         }
 
-        let transform = this.svgRoot.createSVGTransform();
+        let transform = this.model.svgRoot.createSVGTransform();
         transform.setTranslate(this._x, this._y);
         this.elemCnr.transform.baseVal.appendItem(transform);
         return transform;
@@ -269,12 +274,14 @@ export abstract class AbstractShape {
             this.removeConnectors();
             this.createConnectors();
         }
+
         this.onResizeImpl(this._width, this._height);
 
         if (this._fillEffect) {
             this._fillEffect.height = this._height;
             this._fillEffect.width = this._width;
         }
+        this.model.normalizeImageDimensions();
     }
 
     /**
@@ -286,6 +293,8 @@ export abstract class AbstractShape {
             this._fillEffect.remove();
         }
         this.elemCnr.remove();
+        this.model.normalizeImageDimensions();
+
     }
 
     private _fillEffect: AbstractFillEffect | undefined;
@@ -366,14 +375,14 @@ export abstract class AbstractShape {
      * verschiebe das Element um eine Ebene nach hinten
      */
     changeZOrderBack() {
-        this.svgRoot.insertBefore(this.elemCnr, this.elemCnr.previousSibling);
+        this.model.shapesGroup.insertBefore(this.elemCnr, this.elemCnr.previousSibling);
     }
 
     /**
      * verschiebe das Element ganz nach hinten
      */
     changeZOrderBackground() {
-        this.svgRoot.insertBefore(this.elemCnr, this.svgRoot.firstChild);
+        this.model.shapesGroup.insertBefore(this.elemCnr, this.model.shapesGroup.firstChild);
     }
 
     /**
@@ -381,10 +390,10 @@ export abstract class AbstractShape {
      */
     changeZOrderFore() {
         if (this.elemCnr.nextSibling) {
-            this.svgRoot.insertBefore(this.elemCnr.nextSibling, this.elemCnr);
+            this.model.shapesGroup.insertBefore(this.elemCnr.nextSibling, this.elemCnr);
         }
         else {
-            this.svgRoot.appendChild(this.elemCnr);
+            this.model.shapesGroup.appendChild(this.elemCnr);
         }
     }
 
@@ -392,7 +401,7 @@ export abstract class AbstractShape {
      * verschiebe das Element ganz nach vorn
      */
     changeZOrderForeground() {
-        this.svgRoot.appendChild(this.elemCnr);
+        this.model.shapesGroup.appendChild(this.elemCnr);
     }
 
     /**
@@ -421,7 +430,7 @@ export abstract class AbstractShape {
 
         const group = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
 
-        let transform = this.svgRoot.createSVGTransform();
+        let transform = this.model.svgRoot.createSVGTransform();
         transform.setTranslate(0, 0);
         group.transform.baseVal.appendItem(transform);
         return group;

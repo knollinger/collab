@@ -1,11 +1,12 @@
+import { WhiteboardDocument } from "../models/whiteboard-document";
 import { AbstractFillEffect } from "./abstract-fill-effect";
 
 export class GradientLeftRightFillEffect extends AbstractFillEffect {
 
 
-    constructor(svgRoot: SVGSVGElement, color1: string, color2: string) {
+    constructor(model: WhiteboardDocument, color1: string, color2: string) {
 
-        super(svgRoot, GradientLeftRightFillEffect.createGradient(color1, color2));
+        super(model, GradientLeftRightFillEffect.createGradient(color1, color2));
     }
 
     static createGradient(color1: string, color2: string): SVGElement {
@@ -13,7 +14,7 @@ export class GradientLeftRightFillEffect extends AbstractFillEffect {
         const startColor = document.createElementNS(AbstractFillEffect.SVG_NAMESPACE, 'stop') as SVGStopElement;
         startColor.setAttribute('offset', '0%');
         startColor.setAttribute('stop-color', color1);
-        
+
         const endColor = document.createElementNS(AbstractFillEffect.SVG_NAMESPACE, 'stop') as SVGStopElement;
         endColor.setAttribute('offset', '100%');
         endColor.setAttribute('stop-color', color2);

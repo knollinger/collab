@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 
 import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 
@@ -15,14 +15,12 @@ import { AbstractShape } from '../../drawables/shapes/abstractshape';
   templateUrl: './whiteboard-editor.component.html',
   styleUrls: ['./whiteboard-editor.component.css']
 })
-export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestroy {
+export class WhiteboardEditorComponent implements AfterViewInit {
 
   private static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
-  private destroyRef: DestroyRef = inject(DestroyRef);
-
   @ViewChild("svg")
-  svg!: ElementRef<SVGSVGElement>;
+  svgElem!: ElementRef<SVGSVGElement>;
 
   @ViewChild("svgScroller")
   scroller!: ElementRef<HTMLDivElement>;
@@ -35,10 +33,6 @@ export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestr
   private _selectorFrame: SVGRectElement | null = null;
 
   showShapesMenu: boolean = false;
-  showConnectorsMenu: boolean = false;
-  private _resizeCallback: any = null;
-  private _gridGroup: SVGGElement | null = null;
-
   model: WhiteboardDocument = WhiteboardDocument.empty();
 
   /**
@@ -51,126 +45,61 @@ export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestr
 
   }
 
-  /**
-   * 
-   */
-  ngOnInit() {
-
-    this._resizeCallback = this.onResize.bind(this);
-    window.addEventListener('resize', this._resizeCallback);
-
-  }
 
   /**
    * Binde das aktuelle SVG an das Whiteboard-Model
    */
   ngAfterViewInit() {
 
-    this.model = new WhiteboardDocument(this.svg.nativeElement);
+    this.model = new WhiteboardDocument(this.svgRoot);
   }
 
   /**
    * 
-  */
-  ngOnDestroy(): void {
-
-    window.removeEventListener('resize', this._resizeCallback);
-  }
-
-  /**
-   * 
-   * @param evt 
    */
-  private onResize(evt: Event) {
-
-    if (this.showGridLines) {
-      this.removeGridLines();
-      this.createGridLines();
-    }
+  get svgRoot(): SVGSVGElement {
+    return this.svgElem.nativeElement;
   }
 
-  private _scrollX: number = 0;
-  private _scrollY: number = 0;
-  
-  onScroll(evt: Event) {
-    const x = evt.target as HTMLElement;
-    this._scrollX = x.scrollLeft;
-    this._scrollY = x.scrollLeft;
-  }
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All image dimensions                                                    */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
 
+  /**
+   * 
+   */
   get imgWidth(): string {
     return `${this.model.width}px`;
   }
 
+  /**
+   * 
+   */
   get imgHeight(): string {
     return `${this.model.height}px`;
   }
+
+  /*-------------------------------------------------------------------------*/
+  /*                                                                         */
+  /* All about grid lines                                                    */
+  /*                                                                         */
+  /*-------------------------------------------------------------------------*/
 
   /**
    * 
    */
   set showGridLines(val: boolean) {
 
-    if (this._gridGroup) {
-      this.removeGridLines();
-    }
-    else {
-      this.createGridLines();
-    }
+    this.model.showGridLines = val;
   }
-
+  
   /**
    * 
    */
-  private removeGridLines() {
-
-    if (this._gridGroup) {
-      this._gridGroup.remove();
-      this._gridGroup = null;
-    }
-  }
-
-  /**
-   * 
-   */
-  private createGridLines() {
-
-    this._gridGroup = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, "g") as SVGGElement;
-
-    const svg = this.svg.nativeElement;
-    const width = svg.clientWidth;
-    const height = svg.clientHeight;
-    for (let i = 0; i < width; i += 32) {
-
-      const elem = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'line') as SVGGraphicsElement;
-      elem.setAttribute('x1', `${i}`);
-      elem.setAttribute('y1', `0`);
-      elem.setAttribute('x2', `${i}`);
-      elem.setAttribute('y2', `${height}`);
-      elem.setAttribute('stroke-dasharray', `2 6`);
-      elem.setAttribute('stroke', `lightgray`);
-      this._gridGroup.appendChild(elem);
-    }
-
-    for (let i = 0; i < height; i += 32) {
-
-      const elem = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'line') as SVGGraphicsElement;
-      elem.setAttribute('x1', `${0}`);
-      elem.setAttribute('y1', `${i}`);
-      elem.setAttribute('x2', `${width}`);
-      elem.setAttribute('y2', `${i}`);
-      elem.setAttribute('stroke-dasharray', `2 6`);
-      elem.setAttribute('stroke', `lightgray`);
-      this._gridGroup.appendChild(elem);
-    }
-    svg.insertBefore(this._gridGroup, svg.firstChild);
-  }
-
-  /**
-   * 
-   */
-  get showGridLines(): boolean {
-    return this._gridGroup != null;
+  get gridSize(): number {
+    return this.model.gridSize;
   }
 
   /**
@@ -199,9 +128,7 @@ export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestr
     shape.onStartResize = this.onStartResizeShape.bind(this);
     shape.onShowCtxMenu = this.onShowShapesContextMenu.bind(this);
 
-    shape.posX = this.scroller.nativeElement.clientWidth / 2 + this._scrollX - shape.width / 2; // TODO: stimmt so nicht
-    shape.posY = this.scroller.nativeElement.clientHeight / 2 + this._scrollY - shape.height / 2;
-    // this.model.normalizeImageDimensions();
+    shape.posX = shape.posY = 30;
   }
 
   /**
@@ -210,9 +137,6 @@ export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestr
   public onCreateLine(type: string) {
 
     const line = this.model.createLine(type);
-    // shape.onStartDrag = this.onStartDragShape.bind(this);
-    // shape.onStartResize = this.onStartResizeShape.bind(this);
-    // shape.onShowCtxMenu = this.onShowShapesContextMenu.bind(this);
   }
 
   /**
@@ -267,8 +191,13 @@ export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestr
    */
   onMouseDown(evt: MouseEvent) {
 
-    this.model.deselectAll();
-    this.startFrameSelection(evt);
+    if (evt.button === 0) {
+      evt.stopPropagation();
+      evt.preventDefault();
+
+      this.model.deselectAll();
+      this.startFrameSelection(evt);
+    }
   }
 
   /**
@@ -277,24 +206,30 @@ export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestr
    */
   onMouseMove(evt: MouseEvent) {
 
-    const deltaX = evt.movementX;
-    const deltaY = evt.movementY;
+    if (evt.button === 0) {
 
-    switch (this._dragMode) {
-      case EDragMode.dragShape:
-        this.model.moveSelectedShapes(deltaX, deltaY);
-        break;
+      evt.stopPropagation();
+      evt.preventDefault();
 
-      case EDragMode.dragResize:
-        this.model.resizeSelectedShapes(this._resizeMode, deltaX, deltaY)
-        break;
+      const deltaX = evt.movementX;
+      const deltaY = evt.movementY;
 
-      case EDragMode.dragSelectorFrame:
-        this.resizeSelectorFrame(evt);
-        break;
+      switch (this._dragMode) {
+        case EDragMode.dragShape:
+          this.model.moveSelectedShapes(deltaX, deltaY);
+          break;
 
-      default:
-        break;
+        case EDragMode.dragResize:
+          this.model.resizeSelectedShapes(this._resizeMode, deltaX, deltaY)
+          break;
+
+        case EDragMode.dragSelectorFrame:
+          this.resizeSelectorFrame(evt);
+          break;
+
+        default:
+          break;
+      }
     }
   }
 
@@ -304,21 +239,26 @@ export class WhiteboardEditorComponent implements OnInit, AfterViewInit, OnDestr
    */
   onMouseUp(evt: MouseEvent) {
 
-    switch (this._dragMode) {
-      case EDragMode.dragShape:
-        break;
+    if (evt.button === 0) {
+      evt.stopPropagation();
+      evt.preventDefault();
 
-      case EDragMode.dragResize:
-        break;
+      switch (this._dragMode) {
+        case EDragMode.dragShape:
+          break;
 
-      case EDragMode.dragSelectorFrame:
-        this.stopFrameSelection();
-        break;
+        case EDragMode.dragResize:
+          break;
 
-      default:
-        break;
+        case EDragMode.dragSelectorFrame:
+          this.stopFrameSelection();
+          break;
+
+        default:
+          break;
+      }
+      this._dragMode = EDragMode.none;
     }
-    this._dragMode = EDragMode.none;
   }
 
   /**

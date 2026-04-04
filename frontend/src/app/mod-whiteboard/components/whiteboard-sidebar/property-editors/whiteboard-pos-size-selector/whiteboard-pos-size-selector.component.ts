@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { AbstractShape } from '../../../../drawables/shapes/abstractshape';
+import { WhiteboardDocument } from '../../../../models/whiteboard-document';
 
 @Component({
   selector: 'app-whiteboard-pos-size-selector',
@@ -27,6 +28,9 @@ export class WhiteboardPosSizeSelectorComponent {
       this._h = firstShape.height;
     }
   }
+
+  @Input()
+  model: WhiteboardDocument = WhiteboardDocument.empty();
 
   get x(): number {
     return this._x;

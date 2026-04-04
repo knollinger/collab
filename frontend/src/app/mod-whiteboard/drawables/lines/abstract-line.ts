@@ -38,6 +38,7 @@ export abstract class AbstractLine {
     private x2: number = 0;
     private y2: number = 0;
 
+
     /**
      * 
      * @param svgRoot 
@@ -45,6 +46,7 @@ export abstract class AbstractLine {
      */
     constructor(
         public readonly svgRoot: SVGSVGElement,
+        public readonly svgParent: SVGGElement,
         public readonly svgElem: SVGGraphicsElement) {
 
         this.svgElem.setAttribute('fill', '#ffffff');
@@ -61,7 +63,7 @@ export abstract class AbstractLine {
 
         this.group = document.createElementNS(AbstractLine.SVG_NAMESPACE, 'g') as SVGGElement;
         this.group.appendChild(this.svgElem);
-        this.svgRoot.appendChild(this.group);
+        this.svgParent.appendChild(this.group);
 
         this.color = AbstractLine.DEFAULT_COLOR;
         this.startMarker = ConnectorMarkerType.NONE;

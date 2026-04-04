@@ -4,6 +4,7 @@ import { FilesPickerService, INodeService } from '../../../../../mod-files/mod-f
 import { AbstractShape } from '../../../../drawables/shapes/abstractshape';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ImageFillEffect } from '../../../../fill-effects/image-fill-effect';
+import { WhiteboardDocument } from '../../../../models/whiteboard-document';
 
 @Component({
   selector: 'app-whiteboard-bg-image-selector',
@@ -14,6 +15,9 @@ export class WhiteboardBgImageSelectorComponent {
 
   @Input()
   public shapes: Array<AbstractShape> | undefined = new Array<AbstractShape>();
+
+  @Input()
+  model: WhiteboardDocument = WhiteboardDocument.empty();
 
   private destroyRef: DestroyRef = inject(DestroyRef);
   private imageUrl: string = '';
@@ -49,13 +53,13 @@ export class WhiteboardBgImageSelectorComponent {
 
           }
         })
-      }
     }
-    
-    onApply() {
-      
-      this.shapes!.forEach(shape => {
-        shape.fillEffect = new ImageFillEffect(shape.svgRoot, this.imageUrl);
-      });
+  }
+
+  onApply() {
+
+    this.shapes!.forEach(shape => {
+      shape.fillEffect = new ImageFillEffect(this.model, this.imageUrl);
+    });
   }
 }

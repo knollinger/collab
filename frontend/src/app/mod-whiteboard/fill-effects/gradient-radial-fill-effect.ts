@@ -1,10 +1,11 @@
+import { WhiteboardDocument } from "../models/whiteboard-document";
 import { AbstractFillEffect } from "./abstract-fill-effect";
 
 export class GradientRadialFillEffect extends AbstractFillEffect {
 
-    constructor(svgRoot: SVGSVGElement, color1: string, color2: string) {
+    constructor(model: WhiteboardDocument, color1: string, color2: string) {
 
-        super(svgRoot, GradientRadialFillEffect.createGradient(color1, color2));
+        super(model, GradientRadialFillEffect.createGradient(color1, color2));
 
     }
 
