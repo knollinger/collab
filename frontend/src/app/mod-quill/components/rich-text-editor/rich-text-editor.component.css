@@ -8,6 +8,9 @@
 
 .quill-toolbar {
     flex: 0;
+    display: flex;
+    flex: row;
+    flex-wrap: wrap;
     border-bottom: 1px solid #d0d0d0 !important;
 }
 

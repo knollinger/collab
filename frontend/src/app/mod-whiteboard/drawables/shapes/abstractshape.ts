@@ -46,27 +46,38 @@ export abstract class AbstractShape {
         this.svgElem.setAttribute('fill', '#ffffff');
         this.svgElem.setAttribute('stroke-width', '1');
         this.svgElem.setAttribute('stroke', '#000000');
+        this.svgElem.setAttribute('filter', 'drop-shadow(5px 5px 2px rgb(0 0 0 /  0.2)');
+        this.addEventHandlers(this.svgElem);
 
-        this.svgElem.addEventListener('mousedown', evt => {
+        this.textFieldCnr = this.createTextField();
+        this.addEventHandlers(this.textFieldCnr);
+
+        this.elemCnr = this.createElementContainer();
+        this.elemCnr.appendChild(this.svgElem);
+        this.elemCnr.appendChild(this.textFieldCnr);
+
+        this.model.shapesGroup.appendChild(this.elemCnr);
+    }
+
+    /**
+     * 
+     * @param elem 
+     */
+    private addEventHandlers(elem: SVGElement) {
+
+
+        elem.addEventListener('mousedown', evt => {
             evt.stopPropagation();
             this._onStartDrag(evt as MouseEvent, this);
         });
 
-        this.svgElem.addEventListener('mousemove', evt => this.createConnectors());
-        this.svgElem.addEventListener('mouseleave', evt => this.removeConnectors());
+        elem.addEventListener('mousemove', evt => this.createConnectors());
+        elem.addEventListener('mouseleave', evt => this.removeConnectors());
 
-        this.svgElem.addEventListener('contextmenu', evt => {
+        elem.addEventListener('contextmenu', evt => {
             evt.stopPropagation();
             this._onShowCtxMenu(evt as MouseEvent, this);
         });
-
-        this.svgElem.setAttribute('filter', 'drop-shadow(5px 5px 2px rgb(0 0 0 /  0.2)');
-
-        this.elemCnr = this.createElementContainer();
-        this.elemCnr.appendChild(this.svgElem);
-
-        this.createTextField();
-        this.model.shapesGroup.appendChild(this.elemCnr);
     }
 
     /**
@@ -275,6 +286,9 @@ export abstract class AbstractShape {
             this.createConnectors();
         }
 
+        this.textFieldCnr?.setAttribute('width', this._width.toString());
+        this.textFieldCnr?.setAttribute('height', this._height.toString());
+
         this.onResizeImpl(this._width, this._height);
 
         if (this._fillEffect) {
@@ -409,6 +423,14 @@ export abstract class AbstractShape {
      */
     remove() {
         this.elemCnr.remove();
+    }
+
+    get text(): string {
+        return this.textFieldCnr!.getElementsByTagName('div').item(0)!.innerHTML;
+    }
+
+    set text(text: string) {
+        this.textFieldCnr!.getElementsByTagName('div').item(0)!.innerHTML = text;
     }
 
     /**
@@ -598,25 +620,23 @@ export abstract class AbstractShape {
     /**
      * 
      */
-    private createTextField() {
+    private createTextField(): SVGForeignObjectElement {
 
-        if (!this.textFieldCnr) {
+        const textFieldCnr = document.createElementNS(AbstractShape.SVG_NAMESPACE, "foreignObject") as SVGForeignObjectElement;
+        textFieldCnr.setAttribute('x', '0');
+        textFieldCnr.setAttribute('y', '0');
+        textFieldCnr.setAttribute('width', `${this._width}`);
+        textFieldCnr.setAttribute('height', `${this._height}`);
 
-            this.textFieldCnr = document.createElementNS(AbstractShape.SVG_NAMESPACE, "foreignObject") as SVGForeignObjectElement;
-            this.textFieldCnr.setAttribute('x', '0');
-            this.textFieldCnr.setAttribute('y', '0');
-            this.textFieldCnr.setAttribute('width', `${this._width}`);
-            this.textFieldCnr.setAttribute('height', `${this._height}`);
+        const textField = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
 
-            const textField = document.createElement('div');
-            textField.setAttribute('contentEditable', 'true');
-            textField.setAttribute('width', `${this._width}`);
-            textField.setAttribute('height', `${this._width}`);
-            textField.setAttribute('class', 'text-field');
-            textField.textContent = 'Test';
-            this.textFieldCnr.appendChild(textField);
+        textField.setAttribute('position', "absolute");
+        textField.setAttribute('top', "5px");
+        textField.setAttribute('left', "5px");
 
-            // this.elemCnr.appendChild(this.textFieldCnr);
-        }
+        textField.textContent = 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.';
+        textFieldCnr.appendChild(textField);
+
+        return textFieldCnr;
     }
 }

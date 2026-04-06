@@ -25,6 +25,24 @@ export class RichTextEditorComponent implements AfterViewInit, ControlValueAcces
 
   private quill: Quill | null = null;
 
+  @Input()
+  showHeaderOptions: boolean = true;
+
+  @Input()
+  showFontSizeOptions: boolean = true;
+
+  @Input()
+  showFontStyleOptions: boolean = true;
+
+  @Input()
+  showAlignOptions: boolean = true;
+
+  @Input()
+  showListOptions: boolean = true;
+
+  @Input()
+  showColorOptions: boolean = true;
+
   /**
    * 
    */

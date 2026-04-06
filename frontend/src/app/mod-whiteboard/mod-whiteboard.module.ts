@@ -7,6 +7,7 @@ import { ModMaterialImportModule } from '../mod-material-import/mod-material-imp
 import { ModCommonsModule } from '../mod-commons/mod-commons.module';
 import { ModSessionModule } from '../mod-session/session.module';
 import { ModFilesModule } from '../mod-files/mod-files.module';
+import { ModQuillModule } from '../mod-quill/mod-quill.module';
 import { ModWhiteboardRoutingModule } from './whiteboard-routing.module';
 
 import { WhiteboardEditorComponent } from './components/whiteboard-editor/whiteboard-editor.component';
@@ -19,6 +20,7 @@ import { WhiteboardBgGradientSelectorComponent } from './components/whiteboard-s
 import { WhiteboardBgColorSelectorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-color-selector/whiteboard-bg-color-selector.component';
 import { WhiteboardLinestyleSelectorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-linestyle-selector/whiteboard-linestyle-selector.component';
 import { WhiteboardPosSizeSelectorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-pos-size-selector/whiteboard-pos-size-selector.component';
+import { WhiteboardTextEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-text-editor/whiteboard-text-editor.component';
 
 
 @NgModule({
@@ -32,7 +34,8 @@ import { WhiteboardPosSizeSelectorComponent } from './components/whiteboard-side
     WhiteboardBgGradientSelectorComponent,
     WhiteboardBgColorSelectorComponent,
     WhiteboardLinestyleSelectorComponent,
-    WhiteboardPosSizeSelectorComponent
+    WhiteboardPosSizeSelectorComponent,
+    WhiteboardTextEditorComponent
   ],
   imports: [
     CommonModule,
@@ -42,6 +45,7 @@ import { WhiteboardPosSizeSelectorComponent } from './components/whiteboard-side
     ModMaterialImportModule,
     ModSessionModule,
     ModFilesModule,
+    ModQuillModule,
     ModWhiteboardRoutingModule
   ],
   exports: [

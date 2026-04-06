@@ -3,34 +3,43 @@
     <div class="quill-toolbar"
          id="quillToolbar">
 
-        <span class="ql-formats">
+        <div class="ql-formats" *ngIf="showHeaderOptions">
             <select class="ql-header">
                 <option value="0">Absatz</option>
                 <option value="1">Überschrift 1</option>
                 <option value="2">Überschrift 2</option>
                 <option value="3">Überschrift 3</option>
             </select>
-        </span>
+        </div>
 
-        <span class="ql-formats">
+        <div class="ql-formats" *ngIf="showFontSizeOptions">
+            <select class="ql-size">
+                <option value="small">Klein</option>
+                <option selected value="normal">Normal</option>
+                <option value="large">Groß</option>
+                <option value="huge">Sehr groß</option>                
+            </select>
+        </div>
+
+        <span class="ql-formats" *ngIf="showFontStyleOptions">
             <button class="ql-bold"></button>
             <button class="ql-italic"></button>
             <button class="ql-underline"></button>
             <button class="ql-strike"></button>
         </span>
 
-        <span class="ql-formats">
+        <span class="ql-formats" *ngIf="showAlignOptions">
             <select class="ql-align"></select>
         </span>
 
-        <span class="ql-formats">
+        <span class="ql-formats" *ngIf="showListOptions">
             <button class="ql-list"
                     value="ordered"></button>
             <button class="ql-list"
                     value="bullet"></button>
         </span>
 
-        <span class="ql-formats">
+        <span class="ql-formats" *ngIf="showColorOptions">
             <select class="ql-color"></select>
             <select class="ql-background"></select>
         </span>

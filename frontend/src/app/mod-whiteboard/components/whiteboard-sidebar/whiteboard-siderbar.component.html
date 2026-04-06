@@ -59,5 +59,17 @@
 
         </mat-expansion-panel>
 
+        <!-- Position und Größe -->
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>Text</mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-whiteboard-text-editor [shapes]="shapes"
+                                        [model]="model">
+            </app-whiteboard-text-editor>
+        </mat-expansion-panel>
+
+
+
     </mat-accordion>
 </div>
