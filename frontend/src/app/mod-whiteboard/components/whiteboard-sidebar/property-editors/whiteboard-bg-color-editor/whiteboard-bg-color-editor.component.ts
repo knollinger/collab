@@ -4,13 +4,13 @@ import { ColorFillEffect } from '../../../../fill-effects/color-fill-effect';
 import { WhiteboardModel } from '../../../../models/whiteboard-model';
 
 @Component({
-  selector: 'app-whiteboard-bg-color-selector',
-  templateUrl: './whiteboard-bg-color-selector.component.html',
-  styleUrls: ['./whiteboard-bg-color-selector.component.css']
+  selector: 'app-whiteboard-bg-color-editor',
+  templateUrl: './whiteboard-bg-color-editor.component.html',
+  styleUrls: ['./whiteboard-bg-color-editor.component.css']
 })
-export class WhiteboardBgColorSelectorComponent {
+export class WhiteboardBgColorEditorComponent {
 
-  color: string = '#ffffff';
+  private _color: string = '#ffffff';
 
   @Input()
   model: WhiteboardModel = WhiteboardModel.empty();
@@ -21,10 +21,15 @@ export class WhiteboardBgColorSelectorComponent {
   /**
    * 
    */
-  onApply() {
+  set color(color: string) {
 
+    this._color = color;
     for (let shape of this.shapes) {
-      shape.fillEffect = new ColorFillEffect(this.model, this.color);
+      shape.fillEffect = new ColorFillEffect(this.model, color);
     }
+  }
+
+  get color(): string {
+    return this._color;
   }
 }

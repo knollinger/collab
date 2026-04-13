@@ -1,4 +1,30 @@
 <div class="outer-cnr">
+
+    <fieldset>
+        <legend>Text-Verankerung</legend>
+        <mat-radio-group class="alignment-cnr"
+                         [(ngModel)]="alignment">
+            <mat-radio-button color="primary"
+                              value="textFieldTopLeft"></mat-radio-button>
+            <mat-radio-button color="primary"
+                              value="textFieldTopCenter"></mat-radio-button>
+            <mat-radio-button color="primary"
+                              value="textFieldTopRight"></mat-radio-button>
+            <mat-radio-button color="primary"
+                              value="textFieldCenterLeft"></mat-radio-button>
+            <mat-radio-button color="primary"
+                              value="textFieldCenterCenter"></mat-radio-button>
+            <mat-radio-button color="primary"
+                              value="textFieldCenterRight"></mat-radio-button>
+            <mat-radio-button color="primary"
+                              value="textFieldBottomLeft"></mat-radio-button>
+            <mat-radio-button color="primary"
+                              value="textFieldBottomCenter"></mat-radio-button>
+            <mat-radio-button color="primary"
+                              value="textFieldBottomRight"></mat-radio-button>
+        </mat-radio-group>
+    </fieldset>
+
     <app-rich-text-editor [showHeaderOptions]="false"
-                          [(ngModel)]="text"></app-rich-text-editor>
+                          [(ngModel)]="textContent"></app-rich-text-editor>
 </div>

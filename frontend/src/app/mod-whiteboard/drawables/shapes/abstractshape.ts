@@ -1,5 +1,5 @@
 import { AbstractFillEffect } from "../../fill-effects/abstract-fill-effect"
-import { WhiteboardDocument } from "../../models/whiteboard-document";
+import { WhiteboardModel } from "../../models/whiteboard-model";
 
 export interface MouseDownCallback {
     (evt: MouseEvent, shape: AbstractShape): void;
@@ -25,9 +25,9 @@ export abstract class AbstractShape {
     private static CONNECTOR_ANCHOR_RADIUS = 5;
 
     private elemCnr: SVGGElement;
-    private decorator: SVGGElement | null = null;
-    private connectors: SVGGElement | null = null;
-    private textFieldCnr: SVGForeignObjectElement | null = null;
+    private decorator: SVGGElement;
+    private connectors: SVGGElement;
+    private textFieldCnr: SVGForeignObjectElement;
 
     private _onStartDrag: MouseDownCallback = () => { };
     private _onStartResize: StartResizeCallback = () => { };
@@ -40,8 +40,9 @@ export abstract class AbstractShape {
      * @param svgRoot 
      */
     constructor(
-        private readonly model: WhiteboardDocument,
+        private readonly model: WhiteboardModel,
         public readonly svgElem: SVGGraphicsElement) {
+
 
         this.svgElem.setAttribute('fill', '#ffffff');
         this.svgElem.setAttribute('stroke-width', '1');
@@ -55,6 +56,12 @@ export abstract class AbstractShape {
         this.elemCnr = this.createElementContainer();
         this.elemCnr.appendChild(this.svgElem);
         this.elemCnr.appendChild(this.textFieldCnr);
+
+        this.decorator = this.createDecoratorFrame();
+        this.elemCnr.insertBefore(this.decorator, this.elemCnr.firstChild);
+
+        this.connectors = this.createConnectors();
+        this.elemCnr.appendChild(this.connectors);
 
         this.model.shapesGroup.appendChild(this.elemCnr);
     }
@@ -71,8 +78,8 @@ export abstract class AbstractShape {
             this._onStartDrag(evt as MouseEvent, this);
         });
 
-        elem.addEventListener('mousemove', evt => this.createConnectors());
-        elem.addEventListener('mouseleave', evt => this.removeConnectors());
+        elem.addEventListener('mousemove', evt => this.showConnectors(true));
+        elem.addEventListener('mouseleave', evt => this.showConnectors(false));
 
         elem.addEventListener('contextmenu', evt => {
             evt.stopPropagation();
@@ -112,13 +119,13 @@ export abstract class AbstractShape {
      * 
      * @param val 
      */
-    public setSelected(val: boolean) {
+    public showSelectionFrame(val: boolean) {
 
         if (val) {
-            this.createDecoratorFrame();
+            this.removeClass(this.decorator, 'hidden');
         }
         else {
-            this.removeDecoratorFrame();
+            this.addClass(this.decorator, 'hidden');
         }
     }
 
@@ -276,18 +283,11 @@ export abstract class AbstractShape {
 
     private resize() {
 
-        if (this.decorator) {
-            this.removeDecoratorFrame();
-            this.createDecoratorFrame();
-        }
+        this.resizeDecoratorFrame();
+        this.arrangeConnectors();
 
-        if (this.connectors) {
-            this.removeConnectors();
-            this.createConnectors();
-        }
-
-        this.textFieldCnr?.setAttribute('width', this._width.toString());
-        this.textFieldCnr?.setAttribute('height', this._height.toString());
+        this.textFieldCnr.setAttribute('width', this._width.toString());
+        this.textFieldCnr.setAttribute('height', this._height.toString());
 
         this.onResizeImpl(this._width, this._height);
 
@@ -425,13 +425,102 @@ export abstract class AbstractShape {
         this.elemCnr.remove();
     }
 
-    get text(): string {
-        return this.textFieldCnr!.getElementsByTagName('div').item(0)!.innerHTML;
+    /*-----------------------------------------------------------------------*/
+    /*                                                                       */
+    /* all about the text field                                              */
+    /*                                                                       */
+    /* Das Textfield soll RichText beinhalten. Aus diesem Grund wird ein     */
+    /* foreignObject verwendet, welches ein komplettes HTML-Dokument         */
+    /* beinhaltet.Der Body des Elements wird mit dem Quill-Editor bearbeitet,*/
+    /* dieser verwendet im HTML einige Quill-Spazifischen CSS-Klassen. Um    */
+    /* diese rendern zu können, werden im embedded document die verwendeten  */
+    /* Quill-Styles definiert                                                */
+    /*                                                                       */
+    /*-----------------------------------------------------------------------*/
+
+    private static TEXTFIELD_HTML_TEMPLATE = `
+        <html  xmlns="http://www.w3.org/1999/xhtml">
+          <head>
+            <style>
+               * {box-sizing:border-box;}
+               html,body { background-color: transparent; overflow: auto; max-height: 100%;}
+               p { margin: 0 !important; }
+               .ql-align-center { text-align: center; }
+               .ql-align-right { text-align: right; }
+               .ql-align-justify { text-align: justify; }
+               .ql-size-small { font-size: 12px; }
+               .ql-size-large { font-size: 24px; }
+               .ql-size-huge { font-size: 32px; }
+               
+               .textfield { display: inline-block; padding: 5px; background-color: transparent; position: absolute;}
+               .textFieldTopLeft {top: 0; left: 0 }
+               .textFieldTopCenter {top: 0; left: 50%; transform: translateX(-50% );}
+               .textFieldTopRight {top: 0; right: 0; }
+               .textFieldCenterLeft {top: 50%; transform: translateY(-50%); }
+               .textFieldCenterCenter {top: 50%; left: 50%; transform: translate(-50%, -50%); }
+               .textFieldCenterRight {top: 50%; right: 0; transform: translateY(-50%); }
+               .textFieldBottomLeft {bottom: 0; left: 0 }
+               .textFieldBottomCenter {bottom: 0; left: 50%; transform: translateX(-50% ); }
+               .textFieldBottomRight {bottom: 0; right: 0; }
+            </style>
+          </head>
+          <body>
+              <div class="textfield textFieldCenterCenter"></div>
+          </body>
+        </html>
+    `;
+
+    /**
+     * 
+     */
+    get textContent(): string {
+        return this.textField.innerHTML;
     }
 
-    set text(text: string) {
-        this.textFieldCnr!.getElementsByTagName('div').item(0)!.innerHTML = text;
+    /**
+     * 
+    */
+    set textContent(text: string) {
+
+        this.textField.innerHTML = text;
     }
+
+    set textAlignment(val: string) {
+
+        this.textField.setAttribute('class', 'textfield ' + val);
+    }
+
+    get textAlignment(): string {
+
+        const classes = this.textField.getAttribute('class')!.split(' ');
+        const idx = classes.indexOf('textfield');
+        if (idx !== -1) {
+            classes.splice(idx, 1);
+        }
+        return classes.length ? classes[0] : 'textfieldSenterCenter';
+    }
+
+    private get textField(): Element {
+
+        return this.textFieldCnr.querySelector('.textfield')!;
+    }
+
+    /**
+     * Das TextField besteht aus einem foreignObject, welches ein komplettes HTML-Dokument
+     * beinhaltet. Das ist notwendig, um die Style-Elemente des QuillEditors injizieren zu können.
+     */
+    private createTextField(): SVGForeignObjectElement {
+
+        const textFieldCnr = document.createElementNS(AbstractShape.SVG_NAMESPACE, "foreignObject") as SVGForeignObjectElement;
+        textFieldCnr.setAttribute('x', '0');
+        textFieldCnr.setAttribute('y', '0');
+
+        const dom = new DOMParser().parseFromString(AbstractShape.TEXTFIELD_HTML_TEMPLATE, 'text/html');
+        textFieldCnr.appendChild(dom.documentElement);
+
+        return textFieldCnr;
+    }
+
 
     /**
      * 
@@ -469,73 +558,27 @@ export abstract class AbstractShape {
      */
     private createDecoratorFrame() {
 
-        if (!this.decorator) {
+        const decorator = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
+        decorator.setAttribute('class', 'hidden');
 
-            this.decorator = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
+        const frame = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGRectElement;
+        frame.setAttribute('x', `${-AbstractShape.DECORATOR_PADDING}`);
+        frame.setAttribute('y', `${-AbstractShape.DECORATOR_PADDING}`);
+        frame.setAttribute('width', `${this._width + AbstractShape.DECORATOR_PADDING * 2}`);
+        frame.setAttribute('height', `${this._height + AbstractShape.DECORATOR_PADDING * 2}`);
+        frame.setAttribute('class', 'decorator-frame');
+        decorator.appendChild(frame);
 
-            const frame = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGGElement;
-            frame.setAttribute('x', `${-AbstractShape.DECORATOR_PADDING}`);
-            frame.setAttribute('y', `${-AbstractShape.DECORATOR_PADDING}`);
-            frame.setAttribute('width', `${this._width + AbstractShape.DECORATOR_PADDING * 2}`);
-            frame.setAttribute('height', `${this._height + AbstractShape.DECORATOR_PADDING * 2}`);
-            frame.setAttribute('class', 'decorator-frame');
-            this.decorator.appendChild(frame);
+        decorator.appendChild(this.createResizeAnchor('nw'));
+        decorator.appendChild(this.createResizeAnchor('w'));
+        decorator.appendChild(this.createResizeAnchor('sw'));
+        decorator.appendChild(this.createResizeAnchor('n'));
+        decorator.appendChild(this.createResizeAnchor('s'));
+        decorator.appendChild(this.createResizeAnchor('ne'));
+        decorator.appendChild(this.createResizeAnchor('e'));
+        decorator.appendChild(this.createResizeAnchor('se'));
 
-            this.decorator.appendChild(this.createResizeAnchor(
-                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2),
-                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2),
-                'nw'));
-
-            this.decorator.appendChild(this.createResizeAnchor(
-                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2),
-                this._height / 2 - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2,
-                'w'));
-
-            this.decorator.appendChild(this.createResizeAnchor(
-                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2),
-                this._height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2,
-                'sw'));
-
-            this.decorator.appendChild(this.createResizeAnchor(
-                this._width / 2 - AbstractShape.RESIZE_ANCHOR_WIDTH / 2,
-                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2),
-                'n'));
-
-            this.decorator.appendChild(this.createResizeAnchor(
-                this._width / 2 - AbstractShape.RESIZE_ANCHOR_WIDTH / 2,
-                this._height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2,
-                's'));
-
-            this.decorator.appendChild(this.createResizeAnchor(
-                this._width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2,
-                -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2),
-                'ne'));
-
-            this.decorator.appendChild(this.createResizeAnchor(
-                this._width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2,
-                this._height / 2 - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2,
-                'e'));
-
-            this.decorator.appendChild(this.createResizeAnchor(
-                this._width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2,
-                this._height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2,
-                'se'));
-
-            this.elemCnr.insertBefore(this.decorator, this.elemCnr.firstChild);
-        }
-    }
-
-    /**
-     * Entferne den DecoratorFrame und alle ResizeAnchors
-     * 
-     * @param elem 
-     */
-    removeDecoratorFrame() {
-
-        if (this.decorator) {
-            this.decorator.remove();
-            this.decorator = null;
-        }
+        return decorator;
     }
 
     /**
@@ -546,14 +589,10 @@ export abstract class AbstractShape {
     * @param type 
     * @returns 
     */
-    private createResizeAnchor(x: number, y: number, type: string): SVGElement {
+    private createResizeAnchor(type: string): SVGElement {
 
         const anchor = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGRectElement;
         anchor.setAttribute('name', type);
-        anchor.setAttribute('x', x.toString());
-        anchor.setAttribute('y', y.toString());
-        anchor.setAttribute('width', "8");
-        anchor.setAttribute('height', "8");
         anchor.setAttribute('class', `resize drag-${type}`)
 
         anchor.addEventListener('mousedown', evt => {
@@ -563,80 +602,202 @@ export abstract class AbstractShape {
         return anchor;
     }
 
+    private resizeDecoratorFrame() {
+
+        const regexp = /drag-.*|decorator-frame/g;
+
+        for (let i = 0; i < this.decorator.children.length; ++i) {
+
+            const elem = this.decorator.children.item(i);
+            let x: number = 0, y: number = 0, w: number = 0, h: number = 0;
+
+            const clazzes = elem?.getAttribute('class') || '';
+            const clazz = clazzes.match(regexp) || [''];
+
+            switch (clazz[0]) {
+                case 'decorator-frame':
+                    x = -AbstractShape.DECORATOR_PADDING;
+                    y = -AbstractShape.DECORATOR_PADDING;
+                    w = this._width + AbstractShape.DECORATOR_PADDING * 2;
+                    h = this._height + AbstractShape.DECORATOR_PADDING * 2
+                    break;
+
+                case 'drag-nw':
+
+                    x = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2);
+                    y = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2);
+                    w = h = 8;
+                    break;
+
+                case 'drag-w':
+                    x = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2);
+                    y = this._height / 2 - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2;
+                    w = h = 8;
+                    break;
+
+                case 'drag-sw':
+                    x = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2);
+                    y = this._height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2;
+                    w = h = 8;
+                    break;
+
+                case 'drag-n':
+                    x = this._width / 2 - AbstractShape.RESIZE_ANCHOR_WIDTH / 2;
+                    y = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2);
+                    w = h = 8;
+                    break;
+
+                case 'drag-s':
+                    x = this._width / 2 - AbstractShape.RESIZE_ANCHOR_WIDTH / 2;
+                    y = this._height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2;
+                    w = h = 8;
+                    break;
+
+                case 'drag-ne':
+                    x = this._width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2;
+                    y = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2);
+                    w = h = 8;
+                    break;
+
+                case 'drag-e':
+                    x = this._width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2;
+                    y = this._height / 2 - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2;
+                    w = h = 8;
+                    break;
+
+                case 'drag-se':
+                    x = this._width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2;
+                    y = this._height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2;
+                    w = h = 8;
+                    break;
+            }
+
+            elem!.setAttribute('x', x.toString());
+            elem!.setAttribute('y', y.toString());
+            elem!.setAttribute('width', w.toString());
+            elem!.setAttribute('height', h.toString());
+        }
+    }
+
+    /*-----------------------------------------------------------------------*/
+    /*                                                                       */
+    /* All about connectors                                                  */
+    /*                                                                       */
+    /*-----------------------------------------------------------------------*/
+
     /**
-     * 
+     * Erstellt ein SVGGElement und fügt die 4 möglichen Connectoren hinzu. Die
+     * Gruppe wird initial auf "hidden" gestellt.
      */
     private createConnectors() {
 
-        if (!this.connectors) {
+        const connectors = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
+        connectors.setAttribute('class', 'hidden');
 
-            this.connectors = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
+        connectors.appendChild(this.createConnectorAnchor('n'));
+        connectors.appendChild(this.createConnectorAnchor('e'));
+        connectors.appendChild(this.createConnectorAnchor('s'));
+        connectors.appendChild(this.createConnectorAnchor('w'));
+        return connectors;
+    }
 
-            this.connectors.appendChild(this.createConnectorAnchor(this._width / 2, 0, 'n'));
-            this.connectors.appendChild(this.createConnectorAnchor(this._width, this._height / 2, 'e'));
-            this.connectors.appendChild(this.createConnectorAnchor(this._width / 2, this._height, 's'));
-            this.connectors.appendChild(this.createConnectorAnchor(0, this._height / 2, 'w'));
-            this.elemCnr.appendChild(this.connectors);
+    /**
+     * Bei einem Resize müssen die Connectoren neu angeordnet werden.
+     */
+    private arrangeConnectors() {
+
+        const regexp = /connector-.*/g;
+
+        for (let i = 0; i < this.connectors.children.length; ++i) {
+
+            const elem = this.connectors.children.item(i);
+            let x: number = 0, y: number = 0;
+
+            const clazzes = elem?.getAttribute('class') || '';
+            const clazz = clazzes.match(regexp) || [''];
+
+            switch (clazz[0]) {
+                case 'connector-n':
+                    x = this._width / 2;
+                    y = 0;
+                    break;
+
+                case 'connector-w':
+                    x = 0;
+                    y = this._height / 2;
+                    break;
+
+                case 'connector-s':
+                    x = this._width / 2;
+                    y = this._height
+                    break;
+
+                case 'connector-e':
+                    x = this._width;
+                    y = this._height / 2;
+                    break;
+            }
+            elem?.setAttribute('cx', x.toString());
+            elem?.setAttribute('cy', y.toString());
         }
     }
 
     /**
+     * Erzeugt einen AnkerPunkt für eine Connection
      * 
+     * @param type 
+     * @returns 
      */
-    private removeConnectors() {
-
-        if (this.connectors) {
-            this.connectors.remove();
-            this.connectors = null;
-        }
-    }
-
-    private createConnectorAnchor(x: number, y: number, type: string): SVGElement {
+    private createConnectorAnchor(type: string): SVGElement {
 
         const anchor = document.createElementNS(AbstractShape.SVG_NAMESPACE, "ellipse") as SVGGElement;
-        anchor.setAttribute('cx', `${x}`);
-        anchor.setAttribute('cy', `${y}`);
         anchor.setAttribute('rx', `${AbstractShape.CONNECTOR_ANCHOR_RADIUS}`);
         anchor.setAttribute('ry', `${AbstractShape.CONNECTOR_ANCHOR_RADIUS}`);
-        anchor.setAttribute('class', "connector");
+        anchor.setAttribute('class', `connector connector-${type}`);
 
         // Das schaut jetzt komisch aus: 
         // 
         // * Die Maus kann aber aus dem eigentlichen Shape auf den Connector wechseln, 
         //   dann passiert erst mal "mouseleave" auf dem shape und dadurch werden die 
-        //   connectoren entfernt :-(
+        //   connectoren versteckt und müssen wieder eingeblendet werden
         // * Die Maus kann aber auch von einem connector ins "off" wandern, dann müssen
-        //   die connectoren entfernt werden.
+        //   die connectoren versteckt werden.
         //
         anchor.addEventListener('mousedown', (evt: MouseEvent) => {
             evt.stopPropagation();
             this._onStartConnect(evt, this, type);
         })
-        anchor.addEventListener('mousemove', evt => this.createConnectors());
-        anchor.addEventListener('mouseleave', evt => this.removeConnectors());
+        anchor.addEventListener('mousemove', evt => this.showConnectors(true));
+        anchor.addEventListener('mouseleave', evt => this.showConnectors(false));
         return anchor;
     }
 
-    /**
-     * 
-     */
-    private createTextField(): SVGForeignObjectElement {
+    private showConnectors(val: boolean) {
 
-        const textFieldCnr = document.createElementNS(AbstractShape.SVG_NAMESPACE, "foreignObject") as SVGForeignObjectElement;
-        textFieldCnr.setAttribute('x', '0');
-        textFieldCnr.setAttribute('y', '0');
-        textFieldCnr.setAttribute('width', `${this._width}`);
-        textFieldCnr.setAttribute('height', `${this._height}`);
+        if (val) {
+            this.removeClass(this.connectors, 'hidden');
+        }
+        else {
+            this.addClass(this.connectors, 'hidden');
+        }
+    }
 
-        const textField = document.createElementNS('http://www.w3.org/1999/xhtml', 'div');
+    private addClass(elem: Element, clazz: string) {
 
-        textField.setAttribute('position', "absolute");
-        textField.setAttribute('top', "5px");
-        textField.setAttribute('left', "5px");
+        const clazzes = (elem.getAttribute('class') || '').split(' ');
+        if (clazzes.indexOf(clazz) === -1) {
+            clazzes.push(clazz);
+            elem.setAttribute('class', clazzes.join(' '));
+        }
+    }
 
-        textField.textContent = 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.';
-        textFieldCnr.appendChild(textField);
+    private removeClass(elem: Element, clazz: string) {
 
-        return textFieldCnr;
+        let clazzes = (elem.getAttribute('class') || '').split(' ');
+        const idx = clazzes.indexOf(clazz);
+        if (idx !== -1) {
+            clazzes.splice(idx, 1);
+            elem.setAttribute('class', clazzes.join(' '));
+        }
     }
 }

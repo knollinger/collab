@@ -7,7 +7,7 @@ import { EDragMode } from '../../models/edrag-mode';
 import { EZOrderMode } from '../../models/ezorder-mode';
 import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
 import { WhiteboardExportService } from '../../services/whiteboard-export.service';
-import { WhiteboardDocument } from '../../models/whiteboard-document';
+import { WhiteboardModel } from '../../models/whiteboard-model';
 import { AbstractShape } from '../../drawables/shapes/abstractshape';
 
 @Component({
@@ -30,14 +30,16 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
   private _dragMode: EDragMode = EDragMode.none;
   private _resizeMode: string = '';
+
+  private _selectorFrameGlasspane: SVGRectElement | null = null;
   private _selectorFrame: SVGRectElement | null = null;
 
   showShapesMenu: boolean = false;
-  model: WhiteboardDocument = WhiteboardDocument.empty();
+
+  model: WhiteboardModel = WhiteboardModel.empty();
 
   /**
    * 
-   * @param shapeFactory 
    */
   constructor(
     private commonsDlgs: CommonDialogsService,
@@ -51,7 +53,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
    */
   ngAfterViewInit() {
 
-    this.model = new WhiteboardDocument(this.svgRoot);
+    this.model = new WhiteboardModel(this.svgRoot);
   }
 
   /**
@@ -94,7 +96,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
     this.model.showGridLines = val;
   }
-  
+
   /**
    * 
    */
@@ -112,7 +114,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
         this.deselectAll();
         this.showGridLines = false;
-        this.exportSvc.exportImage(name, this.model.svgRoot);
+        this.exportSvc.exportImage(name, this.model);
       }
     });
   }
@@ -266,7 +268,9 @@ export class WhiteboardEditorComponent implements AfterViewInit {
    * @param evt 
    */
   onMouseLeave(evt: MouseEvent) {
-    this._dragMode = EDragMode.none;
+    if (this._dragMode !== EDragMode.dragSelectorFrame) {
+      this._dragMode = EDragMode.none;
+    }
   }
 
   /**
@@ -290,13 +294,24 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
   private startFrameSelection(evt: MouseEvent) {
 
-    if (!this._selectorFrame) {
+    if (!this._selectorFrameGlasspane) {
+
+      this._selectorFrameGlasspane = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'rect') as SVGRectElement;
+      this._selectorFrameGlasspane.setAttribute('x', '0');
+      this._selectorFrameGlasspane.setAttribute('y', '0');
+      this._selectorFrameGlasspane.setAttribute('width', '100%');
+      this._selectorFrameGlasspane.setAttribute('height', '100%');
+      this._selectorFrameGlasspane.setAttribute('class', 'selector-frame-glasspane');
+      this.model.svgRoot.appendChild(this._selectorFrameGlasspane);
 
       this._selectorFrame = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'rect') as SVGRectElement;
       this._selectorFrame.setAttribute('x', `${evt.offsetX}`);
       this._selectorFrame.setAttribute('y', `${evt.offsetY}`);
       this._selectorFrame.setAttribute('class', 'selector-frame');
       this.model.svgRoot.appendChild(this._selectorFrame);
+
+
+      this.model.deselectAll();
       this._dragMode = EDragMode.dragSelectorFrame;
     }
   }
@@ -306,8 +321,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
    * @param evt 
    */
   private resizeSelectorFrame(evt: MouseEvent) {
-
-    evt.stopPropagation();
 
     if (this._selectorFrame) {
 
@@ -340,16 +353,20 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
   private stopFrameSelection() {
 
+    if (this._selectorFrameGlasspane) {
+      this._selectorFrameGlasspane.remove();
+      this._selectorFrameGlasspane = null;
+    }
     if (this._selectorFrame) {
       this._selectorFrame.remove();
       this._selectorFrame = null;
-      this._dragMode = EDragMode.none;
     }
+    this._dragMode = EDragMode.none;
+
   }
 
-
   /**
-   * Lösche alle Selektierten Shapes
+   * Lösche alle selektierten Shapes
    */
   public onDeleteSelectedShapes() {
     this.model.deleteSelectedShapes();

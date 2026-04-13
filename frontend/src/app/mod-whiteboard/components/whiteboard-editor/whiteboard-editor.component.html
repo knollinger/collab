@@ -86,6 +86,7 @@
             <mat-icon class="material-symbols-outlined">check_box_outline_blank</mat-icon>
         </button>
 
+
         <!-- export -->
         <app-toolbar-separator></app-toolbar-separator>
         <button mat-icon-button
@@ -93,6 +94,8 @@
                 (click)="onExport()">
             <mat-icon class="material-symbols-outlined">download</mat-icon>
         </button>
+
+
 
         <!-- löschen -->
         <app-toolbar-separator></app-toolbar-separator>
@@ -129,7 +132,16 @@
 
                     rect,
                     polygone,
-                    ellipse {
+                    ellipse,
+                    foreignObject {
+                        cursor: move;
+                    }
+
+
+                    rect,
+                    polygone,
+                    ellipse,
+                    foreignObject {
                         cursor: move;
                     }
 
@@ -195,21 +207,15 @@
 
                     .selector-frame {
                         fill: rgba(0, 0, 255, 0.3);
-                        stroke: lightblue';
+                        stroke: lightblue;
 
                     }
 
-                    div {
-                        background-color: blue;
-                        color: white;
-                        font: 18px serif;
-                        height: 100%;
-                        overflow: auto;
-                    }
+                    .selector-frame-glasspane {
+                        fill: transparent;
+                        stroke: none;
 
-                    <!-- svg {
-                        filter: drop-shadow(3px 5px 2px rgb(0 0 0 / 0.4));
-                    } -->
+                    }
                 </style>
 
                 <defs>
@@ -219,20 +225,12 @@
                              patternUnits="userSpaceOnUse"
                              width="30"
                              height="30">
-                        <line x1="0"
-                              y1="30"
-                              x2="30"
-                              y2="30"
-                              stroke="lightgray"
-                              stroke-width="1"
-                              stroke-dasharray="2 2"></line>
-                        <line x1="30"
-                              y1="30"
-                              x2="30"
-                              y2="0"
-                              stroke="lightgray"
-                              stroke-width="1"
-                              stroke-dasharray="2 2"></line>
+
+                        <polyline points="0,30 30,30 30,0"
+                                  fill="none"
+                                  stroke="lightblue"
+                                  stroke-width="1"
+                                  stroke-dasharray="2 2" />
                     </pattern>
                 </defs>
 
@@ -257,4 +255,12 @@
         </div>
 
     </div>
+
+    <app-toolbar class="footer">
+        <span>Bild-Größe: {{model.width}} x {{model.height}}</span>
+        <app-toolbar-separator></app-toolbar-separator>
+        <span>Objekte: {{model.nrOfShapes}}</span>
+        <span *ngIf="model.nrOfSelectedShapes !== 0">, Ausgewählt: {{model.nrOfSelectedShapes}}</span>
+        <app-toolbar-separator></app-toolbar-separator>
+    </app-toolbar>
 </div>

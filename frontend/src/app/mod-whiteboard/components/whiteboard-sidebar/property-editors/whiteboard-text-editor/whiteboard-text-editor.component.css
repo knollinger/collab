@@ -4,4 +4,24 @@
     overflow: auto;
     display: flex;
     flex-direction: column;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
+
+
+.alignment-cnr {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    text-align: center;
+}
+
+fieldset {
+    border: 1px solid #d0d0d0;
+}
+
+legend {
+    font-weight: 500;
+}
+    

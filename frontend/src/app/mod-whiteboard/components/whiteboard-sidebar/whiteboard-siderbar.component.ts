@@ -3,7 +3,7 @@ import { Component, DestroyRef, inject, Input } from '@angular/core';
 import { FilesPickerService, INodeService } from '../../../mod-files/mod-files.module';
 
 import { AbstractShape } from '../../drawables/shapes/abstractshape';
-import { WhiteboardDocument } from '../../models/whiteboard-document';
+import { WhiteboardModel } from '../../models/whiteboard-model';
 
 @Component({
   selector: 'app-whiteboard-siderbar',
@@ -35,7 +35,7 @@ export class WhiteboardSiderbarComponent {
   }
 
   @Input()
-  model: WhiteboardDocument = WhiteboardDocument.empty();
+  model: WhiteboardModel = WhiteboardModel.empty();
 
   fillStyle: string = 'color';
 }

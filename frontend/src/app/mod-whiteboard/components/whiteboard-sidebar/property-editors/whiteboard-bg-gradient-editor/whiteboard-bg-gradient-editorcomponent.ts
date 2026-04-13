@@ -8,11 +8,11 @@ import { GradientRadialFillEffect } from '../../../../fill-effects/gradient-radi
 import { WhiteboardModel } from '../../../../models/whiteboard-model';
 
 @Component({
-  selector: 'app-whiteboard-bg-gradient-selector',
-  templateUrl: './whiteboard-bg-gradient-selector.component.html',
-  styleUrls: ['./whiteboard-bg-gradient-selector.component.css']
+  selector: 'app-whiteboard-bg-gradient-editor',
+  templateUrl: './whiteboard-bg-gradient-editor.component.html',
+  styleUrls: ['./whiteboard-bg-gradient-editor.component.css']
 })
-export class WhiteboardBgGradientSelectorComponent {
+export class WhiteboardBgGradientEditorComponent {
 
   _color1: string = '#ffffff';
   _color2: string = '#000000';

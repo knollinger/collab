@@ -7,27 +7,21 @@ import { RombusShape } from '../drawables/shapes/rombus-shape';
 import { EZOrderMode } from './ezorder-mode';
 
 /**
- * Das Interface, um Operationen auf Shapes ausführen zu können.
- */
-export interface ShapeVisitor {
-    invoke(document: WhiteboardDocument, shape: AbstractShape): void;
-}
-
-/**
  * Beschreibt ein Whiteboard-Dokument und alle Operationen auf diesem.
  * 
  * Die Operationen auf dem Dokument werden auf dem im ctor übergebenen
  * SVGSVG-Element reflektiert. 
  * 
  * Das SVGDokument wird folgendermassen präpariert:
+ * 
  * * Ein <style> Element, welches CSS-Styles beinhaltet. Dieses kommt aus dem HTML-Template
  * * Ein <defs>-Element, welches als Target für href-referenzierte Resourcen dient
  * * Ein <g id="shapes-group"> Element, welches alle Shapes aufnimmt
  * * Ein <g id="lines-group"> Element, welches alle Linien und Connectoren aufnimmt
  */
-export class WhiteboardDocument {
+export class WhiteboardModel {
 
-    private static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+    public static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
     private static DEFAULT_SHAPE_SIZE: number = 100;
 
     private _defsElem: SVGDefsElement;
@@ -49,11 +43,11 @@ export class WhiteboardDocument {
 
         this._gridLines = this.svgRoot.getElementById('gridLines') as SVGRectElement;
 
-        this._shapesGroup = document.createElementNS(WhiteboardDocument.SVG_NAMESPACE, 'g') as SVGGElement;
+        this._shapesGroup = document.createElementNS(WhiteboardModel.SVG_NAMESPACE, 'g') as SVGGElement;
         this._shapesGroup.setAttribute('id', 'shapes-group');
         this.svgRoot.appendChild(this._shapesGroup);
 
-        this._linesGroup = document.createElementNS(WhiteboardDocument.SVG_NAMESPACE, 'g') as SVGGElement;
+        this._linesGroup = document.createElementNS(WhiteboardModel.SVG_NAMESPACE, 'g') as SVGGElement;
         this._linesGroup.setAttribute('id', 'lines-group');
         this.svgRoot.appendChild(this._linesGroup);
     }
@@ -64,8 +58,8 @@ export class WhiteboardDocument {
      * 
      * @returns 
      */
-    public static empty(): WhiteboardDocument {
-        return new WhiteboardDocument(document.createElementNS(WhiteboardDocument.SVG_NAMESPACE, 'svg') as SVGSVGElement);
+    public static empty(): WhiteboardModel {
+        return new WhiteboardModel(document.createElementNS(WhiteboardModel.SVG_NAMESPACE, 'svg') as SVGSVGElement);
     }
 
     /**
@@ -85,14 +79,14 @@ export class WhiteboardDocument {
     public get shapesGroup(): SVGGElement {
         return this._shapesGroup;
     }
-    
+
     /**
      * 
      */
     public get linesGroup(): SVGGElement {
         return this._linesGroup;
     }
-    
+
     /*-----------------------------------------------------------------------*/
     /*                                                                       */
     /* All about grid                                                        */
@@ -144,8 +138,6 @@ export class WhiteboardDocument {
     /**
      * Berechne die aktuellen Dimensionen den Images und setze diese als
      * width/height-Attribute in das SVG-Dokument.
-     * 
-     * 
      */
     public normalizeImageDimensions() {
 
@@ -178,11 +170,51 @@ export class WhiteboardDocument {
         this.svgRoot.setAttribute('width', width.toString())
     }
 
+    /**
+     * Liefere das Rectangle, welches alle Objekte den SVGs umrahmt.
+     * 
+     * @returns 
+     */
+    public get enclosingImageRect(): DOMRect {
+
+        let minX: number = Number.MAX_VALUE;
+        let minY: number = Number.MAX_VALUE;
+        let maxX: number = 0;
+        let maxY: number = 0;
+
+        this._shapes.forEach(shape => {
+
+            minX = Math.min(minX, shape.posX);
+            maxX = Math.max(maxX, shape.width + shape.posX);
+            minY = Math.min(minY, shape.posY);
+            maxY = Math.max(maxY, shape.height + shape.posY);
+        })
+
+        console.log(minX);
+        minX = Math.abs(minX);
+        minY = Math.abs(minY);
+
+        const width = maxX - minX;
+        const height = maxY - minY;
+        return DOMRect.fromRect(
+
+            {
+                height: height,
+                width: width,
+                x: minX,
+                y: minY
+            });
+    }
+
     /*-----------------------------------------------------------------------*/
     /*                                                                       */
     /* All about shape creation                                              */
     /*                                                                       */
     /*-----------------------------------------------------------------------*/
+
+    public get nrOfShapes(): number {
+        return this._shapes.length;
+    }
 
     /**
      * 
@@ -211,14 +243,16 @@ export class WhiteboardDocument {
                 break;
         }
 
-        shape.width = shape.height = WhiteboardDocument.DEFAULT_SHAPE_SIZE;
+        shape.width = shape.height = WhiteboardModel.DEFAULT_SHAPE_SIZE;
         shape.svgElem.addEventListener('click', evt => {
             if (!evt.ctrlKey) {
-                this._selectedShapes.clear();
+                this.deselectAll();
             }
-            this._selectedShapes.add(shape);
+            this.selectShape(shape);
         })
         this._shapes.push(shape);
+        this.deselectAll();
+        this.selectShape(shape);
         return shape;
     }
 
@@ -253,14 +287,15 @@ export class WhiteboardDocument {
      * 
      * @param toDelete 
      */
-    public deleteShape(toDelete: AbstractShape) {
+    public deleteShape(shape: AbstractShape) {
 
-        const idx = this._shapes.indexOf(toDelete);
+        this.deselectShape(shape);
+
+        const idx = this._shapes.indexOf(shape);
         if (idx !== -1) {
             this._shapes.splice(idx, 1);
-            toDelete.delete();
+            shape.delete();
         }
-        this._selectedShapes.delete(toDelete);
     }
 
     /**
@@ -268,15 +303,16 @@ export class WhiteboardDocument {
      */
     public deleteSelectedShapes() {
 
+        console.log('deleteSelectedShapes');
         this._shapes = this._shapes.filter(shape => {
 
             const result = this._selectedShapes.has(shape);
             if (result) {
                 shape.delete();
             }
-            return result;
+            return !result;
         })
-        this._selectedShapes.clear();
+        this.deselectAll();
     }
 
     /*-----------------------------------------------------------------------*/
@@ -285,6 +321,9 @@ export class WhiteboardDocument {
     /*                                                                       */
     /*-----------------------------------------------------------------------*/
 
+    public get nrOfSelectedShapes(): number {
+        return this._selectedShapes.size ;
+    }
     /**
      * 
      * @param shape 
@@ -292,7 +331,7 @@ export class WhiteboardDocument {
     public selectShape(shape: AbstractShape) {
 
         if (this._shapes.indexOf(shape) !== -1) {
-            shape.setSelected(true);
+            shape.showSelectionFrame(true);
             this._selectedShapes.add(shape);
         }
     }
@@ -304,7 +343,7 @@ export class WhiteboardDocument {
     public deselectShape(shape: AbstractShape) {
 
         if (this._shapes.indexOf(shape) !== -1) {
-            shape.setSelected(false);
+            shape.showSelectionFrame(false);
             this._selectedShapes.delete(shape);
         }
     }
@@ -315,7 +354,7 @@ export class WhiteboardDocument {
     public selectAll() {
 
         this._shapes.forEach(shape => {
-            shape.setSelected(true);
+            shape.showSelectionFrame(true);
             this._selectedShapes.add(shape);
         })
     }
@@ -326,7 +365,7 @@ export class WhiteboardDocument {
     public deselectAll() {
 
         this._selectedShapes.forEach(shape => {
-            shape.setSelected(false);
+            shape.showSelectionFrame(false);
         })
         this._selectedShapes.clear();
     }
@@ -348,14 +387,14 @@ export class WhiteboardDocument {
      */
     public selectByFrame(x: number, y: number, width: number, height: number) {
 
-        this.deselectAll();
         this._shapes.forEach((shape) => {
 
             if (shape.isInRect(x, y, width, height)) {
-                shape.setSelected(true);
-                this._selectedShapes.add(shape);
+                this.selectShape(shape);
             }
-            console.log('selected: ' + this._selectedShapes.size);
+            else {
+                this.deselectShape(shape);
+            }
         });
     }
 
@@ -472,31 +511,5 @@ export class WhiteboardDocument {
             }
 
         })
-    }
-
-    /*-----------------------------------------------------------------------*/
-    /*                                                                       */
-    /* All about shape operations                                            */
-    /*                                                                       */
-    /*-----------------------------------------------------------------------*/
-
-    /**
-     * Rufe für alle Shapes den angegebenen Visitor auf
-     * 
-     * @param visitor 
-     */
-    public forEachShape(visitor: ShapeVisitor) {
-
-        this._shapes.forEach(shape => visitor.invoke(this, shape));
-    }
-
-    /**
-     * Rufe für alle selectierten Shapes den Visitor auf
-     *   
-     * @param visitor 
-     */
-    public forEachSelectedShape(visitor: ShapeVisitor) {
-
-        this._selectedShapes.forEach(shape => visitor.invoke(this, shape));
     }
 }

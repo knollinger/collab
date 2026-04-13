@@ -1,0 +1,9 @@
+.outer-cnr {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.color-selector {
+    width: 100%;
+}

@@ -7,17 +7,28 @@
             <mat-expansion-panel-header>
                 <mat-panel-title>Position und Größe</mat-panel-title>
             </mat-expansion-panel-header>
-            <app-whiteboard-pos-size-selector [shapes]="shapes"
-                                              [model]="model"></app-whiteboard-pos-size-selector>
+            <app-whiteboard-pos-size-editor [shapes]="shapes"
+                                            [model]="model"></app-whiteboard-pos-size-editor>
         </mat-expansion-panel>
+
+        <!-- zOrder-->
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title>Anordnung</mat-panel-title>
+            </mat-expansion-panel-header>
+            <app-whiteboard-zorder-editor [shapes]="shapes"
+                                          [model]="model"></app-whiteboard-zorder-editor>
+        </mat-expansion-panel>
+
+
 
         <!-- Linien/Rahmen-Eigenschaften -->
         <mat-expansion-panel>
             <mat-expansion-panel-header>
                 <mat-panel-title>Linie/Rahmen</mat-panel-title>
             </mat-expansion-panel-header>
-            <app-whiteboard-linestyle-selector [shapes]="shapes"
-                                               [model]="model"></app-whiteboard-linestyle-selector>
+            <app-whiteboard-linestyle-editor [shapes]="shapes"
+                                             [model]="model"></app-whiteboard-linestyle-editor>
         </mat-expansion-panel>
 
         <!-- Hintergrund -->
@@ -40,20 +51,20 @@
 
             <div [ngSwitch]="fillStyle">
 
-                <app-whiteboard-bg-color-selector *ngSwitchCase="'color'"
-                                                  [shapes]="shapes"
-                                                  [model]="model">
-                </app-whiteboard-bg-color-selector>
+                <app-whiteboard-bg-color-editor *ngSwitchCase="'color'"
+                                                [shapes]="shapes"
+                                                [model]="model">
+                </app-whiteboard-bg-color-editor>
 
-                <app-whiteboard-bg-image-selector *ngSwitchCase="'image'"
-                                                  [shapes]="shapes"
-                                                  [model]="model">
-                </app-whiteboard-bg-image-selector>
+                <app-whiteboard-bg-image-editor *ngSwitchCase="'image'"
+                                                [shapes]="shapes"
+                                                [model]="model">
+                </app-whiteboard-bg-image-editor>
 
-                <app-whiteboard-bg-gradient-selector *ngSwitchCase="'gradient'"
-                                                     [shapes]="shapes"
-                                                     [model]="model">
-                </app-whiteboard-bg-gradient-selector>
+                <app-whiteboard-bg-gradient-editor *ngSwitchCase="'gradient'"
+                                                   [shapes]="shapes"
+                                                   [model]="model">
+                </app-whiteboard-bg-gradient-editor>
 
             </div>
 

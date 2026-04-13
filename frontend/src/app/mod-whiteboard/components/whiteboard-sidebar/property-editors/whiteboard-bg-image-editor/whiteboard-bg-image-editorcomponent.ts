@@ -7,11 +7,11 @@ import { ImageFillEffect } from '../../../../fill-effects/image-fill-effect';
 import { WhiteboardModel } from '../../../../models/whiteboard-model';
 
 @Component({
-  selector: 'app-whiteboard-bg-image-selector',
-  templateUrl: './whiteboard-bg-image-selector.component.html',
-  styleUrls: ['./whiteboard-bg-image-selector.component.css']
+  selector: 'app-whiteboard-bg-image-editor',
+  templateUrl: './whiteboard-bg-image-editor.component.html',
+  styleUrls: ['./whiteboard-bg-image-editor.component.css']
 })
-export class WhiteboardBgImageSelectorComponent {
+export class WhiteboardBgImageEditorComponent {
 
   @Input()
   public shapes: Array<AbstractShape> | undefined = new Array<AbstractShape>();

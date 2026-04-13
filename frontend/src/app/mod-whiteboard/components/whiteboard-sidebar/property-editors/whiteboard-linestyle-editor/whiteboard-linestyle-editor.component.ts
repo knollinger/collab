@@ -1,19 +1,19 @@
 import { Component, Input } from '@angular/core';
 import { AbstractShape } from '../../../../drawables/shapes/abstractshape';
-import { WhiteboardDocument } from '../../../../models/whiteboard-document';
+import { WhiteboardModel } from '../../../../models/whiteboard-model';
 
 @Component({
-  selector: 'app-whiteboard-linestyle-selector',
-  templateUrl: './whiteboard-linestyle-selector.component.html',
-  styleUrls: ['./whiteboard-linestyle-selector.component.css']
+  selector: 'app-whiteboard-linestyle-editor',
+  templateUrl: './whiteboard-linestyle-editor.component.html',
+  styleUrls: ['./whiteboard-linestyle-editor.component.css']
 })
-export class WhiteboardLinestyleSelectorComponent {
+export class WhiteboardLinestyleEditorComponent {
 
   @Input()
   public shapes: Array<AbstractShape> = new Array<AbstractShape>();
 
   @Input()
-  model: WhiteboardDocument = WhiteboardDocument.empty();
+  model: WhiteboardModel = WhiteboardModel.empty();
 
   readonly borderStyles: string[] = ['solid', 'dotted', 'dashed'];
   readonly borderSizes: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];

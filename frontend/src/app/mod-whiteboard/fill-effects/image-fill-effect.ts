@@ -1,4 +1,4 @@
-import { WhiteboardDocument } from "../models/whiteboard-document";
+import { WhiteboardModel } from "../models/whiteboard-model";
 import { AbstractFillEffect } from "./abstract-fill-effect";
 
 export class ImageFillEffect extends AbstractFillEffect {
@@ -6,7 +6,7 @@ export class ImageFillEffect extends AbstractFillEffect {
     private image: SVGImageElement | undefined;
     private pattern: SVGPatternElement | undefined;
 
-    constructor(model: WhiteboardDocument, imgUrl: string) {
+    constructor(model: WhiteboardModel, imgUrl: string) {
 
         super(model, ImageFillEffect.createElement(imgUrl));
     }

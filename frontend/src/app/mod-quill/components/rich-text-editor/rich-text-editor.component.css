@@ -4,6 +4,7 @@
     overflow: auto;
     border: 1px solid #d0d0d0;
     height: 100%;
+    min-height: 250px;
 }
 
 .quill-toolbar {

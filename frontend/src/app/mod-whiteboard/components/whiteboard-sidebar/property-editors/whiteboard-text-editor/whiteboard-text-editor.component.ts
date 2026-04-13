@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { WhiteboardDocument } from '../../../../models/whiteboard-document';
+import { WhiteboardModel } from '../../../../models/whiteboard-model';
 import { AbstractShape } from '../../../../drawables/shapes/abstractshape';
 
 @Component({
@@ -10,18 +10,37 @@ import { AbstractShape } from '../../../../drawables/shapes/abstractshape';
 export class WhiteboardTextEditorComponent {
 
   @Input()
-  model: WhiteboardDocument = WhiteboardDocument.empty();
+  model: WhiteboardModel = WhiteboardModel.empty();
 
   @Input()
   public shapes: Array<AbstractShape> = new Array<AbstractShape>();
 
-  get text(): string {
-    return this.shapes.length ? this.shapes[0].text : '';
+
+  /**
+   * 
+   */
+  get textContent(): string {
+    return this.shapes.length ? this.shapes[0].textContent : '';
   }
 
-  set text(text: string) {
+  /**
+   * 
+   */
+  set textContent(text: string) {
+
     if (this.shapes.length) {
-      this.shapes[0].text = text;
+      this.shapes[0].textContent = text;
     }
+  }
+
+  set alignment(val: string) {
+
+    this.shapes.forEach(shape => {
+      shape.textAlignment = val;
+    })
+  }
+
+  get alignment(): string {
+    return this.shapes.length ? this.shapes[0].textAlignment : '';
   }
 }

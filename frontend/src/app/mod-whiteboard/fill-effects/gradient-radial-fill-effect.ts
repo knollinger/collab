@@ -1,9 +1,9 @@
-import { WhiteboardDocument } from "../models/whiteboard-document";
+import { WhiteboardModel } from "../models/whiteboard-model";
 import { AbstractFillEffect } from "./abstract-fill-effect";
 
 export class GradientRadialFillEffect extends AbstractFillEffect {
 
-    constructor(model: WhiteboardDocument, color1: string, color2: string) {
+    constructor(model: WhiteboardModel, color1: string, color2: string) {
 
         super(model, GradientRadialFillEffect.createGradient(color1, color2));
 

@@ -15,12 +15,13 @@ import { WhiteboardShapeContextMenuComponent } from './components/whiteboard-sha
 import { WhiteboardRootContextMenuComponent } from './components/whiteboard-root-context-menu/whiteboard-root-context-menu.component';
 import { WhiteboardSiderbarComponent } from './components/whiteboard-sidebar/whiteboard-siderbar.component';
 import { WhiteboardOverviewComponent } from './components/whiteboard-overview/whiteboard-overview.component';
-import { WhiteboardBgImageSelectorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-image-selector/whiteboard-bg-image-selector.component';
-import { WhiteboardBgGradientSelectorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-gradient-selector/whiteboard-bg-gradient-selector.component';
-import { WhiteboardBgColorSelectorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-color-selector/whiteboard-bg-color-selector.component';
-import { WhiteboardLinestyleSelectorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-linestyle-selector/whiteboard-linestyle-selector.component';
-import { WhiteboardPosSizeSelectorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-pos-size-selector/whiteboard-pos-size-selector.component';
+import { WhiteboardBgImageEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-image-editor/whiteboard-bg-image-editorcomponent';
+import { WhiteboardBgGradientEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-gradient-editor/whiteboard-bg-gradient-editorcomponent';
+import { WhiteboardBgColorEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-color-editor/whiteboard-bg-color-editor.component';
+import { WhiteboardLinestyleEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-linestyle-editor/whiteboard-linestyle-editor.component';
+import { WhiteboardPosSizeEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-pos-size-editor/whiteboard-pos-size-editorcomponent';
 import { WhiteboardTextEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-text-editor/whiteboard-text-editor.component';
+import { WhiteboardZorderEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-zorder-editor/whiteboard-zorder-editor.component';
 
 
 @NgModule({
@@ -30,12 +31,13 @@ import { WhiteboardTextEditorComponent } from './components/whiteboard-sidebar/p
     WhiteboardRootContextMenuComponent,
     WhiteboardSiderbarComponent,
     WhiteboardOverviewComponent,
-    WhiteboardBgImageSelectorComponent,
-    WhiteboardBgGradientSelectorComponent,
-    WhiteboardBgColorSelectorComponent,
-    WhiteboardLinestyleSelectorComponent,
-    WhiteboardPosSizeSelectorComponent,
-    WhiteboardTextEditorComponent
+    WhiteboardBgImageEditorComponent,
+    WhiteboardBgGradientEditorComponent,
+    WhiteboardBgColorEditorComponent,
+    WhiteboardLinestyleEditorComponent,
+    WhiteboardPosSizeEditorComponent,
+    WhiteboardTextEditorComponent,
+    WhiteboardZorderEditorComponent
   ],
   imports: [
     CommonModule,

@@ -1,4 +1,4 @@
-import { WhiteboardDocument } from '../models/whiteboard-document';
+import { WhiteboardModel } from '../models/whiteboard-model';
 
 /**
  * Der AbstactFillEffect dient der Verwaltung von Elementen,
@@ -39,7 +39,7 @@ export abstract class AbstractFillEffect {
      * @param effectElem 
      */
     constructor(
-        private model: WhiteboardDocument,
+        private model: WhiteboardModel,
         public readonly effectElem: SVGElement) {
 
         this._id = AbstractFillEffect.calcNextFreeKey();

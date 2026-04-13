@@ -1,13 +1,13 @@
 import { Component, Input } from '@angular/core';
 import { AbstractShape } from '../../../../drawables/shapes/abstractshape';
-import { WhiteboardDocument } from '../../../../models/whiteboard-document';
+import { WhiteboardModel } from '../../../../models/whiteboard-model';
 
 @Component({
-  selector: 'app-whiteboard-pos-size-selector',
-  templateUrl: './whiteboard-pos-size-selector.component.html',
-  styleUrls: ['./whiteboard-pos-size-selector.component.css']
+  selector: 'app-whiteboard-pos-size-editor',
+  templateUrl: './whiteboard-pos-size-editor.component.html',
+  styleUrls: ['./whiteboard-pos-size-editor.component.css']
 })
-export class WhiteboardPosSizeSelectorComponent {
+export class WhiteboardPosSizeEditorComponent {
 
   private _shapes: Array<AbstractShape> = new Array<AbstractShape>();
   private _x: number = 0;
@@ -30,7 +30,7 @@ export class WhiteboardPosSizeSelectorComponent {
   }
 
   @Input()
-  model: WhiteboardDocument = WhiteboardDocument.empty();
+  model: WhiteboardModel = WhiteboardModel.empty();
 
   get x(): number {
     return this._x;

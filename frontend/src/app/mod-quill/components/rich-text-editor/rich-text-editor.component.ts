@@ -66,7 +66,7 @@ export class RichTextEditorComponent implements AfterViewInit, ControlValueAcces
     this.quill.on('text-change', (newContent: Delta, oldContent: Delta, source: string) => {
 
       if (source === 'user') {
-        this.onChange(this.quill!.getSemanticHTML().replaceAll('&nbsp;', ' '));
+        this.onChange(this.quill!.getSemanticHTML());
       }
     })
   }
@@ -106,7 +106,7 @@ export class RichTextEditorComponent implements AfterViewInit, ControlValueAcces
    * 
    * @param content 
    */
-  private onChange = (content: string) => { 
+  private onChange = (content: string) => {
 
   }
 
@@ -128,7 +128,7 @@ export class RichTextEditorComponent implements AfterViewInit, ControlValueAcces
    * 
    * @param content 
    */
-  private onTouched = () => { 
+  private onTouched = () => {
 
   }
 
@@ -143,8 +143,8 @@ export class RichTextEditorComponent implements AfterViewInit, ControlValueAcces
   }
 
   setDisabledState?(isDisabled: boolean): void {
- 
-    if(this.quill) {
+
+    if (this.quill) {
       this.quill.enable(!isDisabled);
     }
   }
