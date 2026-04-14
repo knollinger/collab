@@ -1,10 +1,15 @@
 import { AbstractLine } from '../drawables/lines/abstract-line';
 import { DirectLine } from '../drawables/lines/direct-line';
-import { AbstractShape } from '../drawables/shapes/abstractshape';
+import { AbstractShape, IShapeJSON } from '../drawables/shapes/abstractshape';
 import { EllipsisShape } from '../drawables/shapes/ellipsis-shape';
 import { RectShape } from '../drawables/shapes/rect-shape';
 import { RombusShape } from '../drawables/shapes/rombus-shape';
 import { EZOrderMode } from './ezorder-mode';
+
+export interface IWhiteboardJSON {
+
+    shapes: IShapeJSON[]
+}
 
 /**
  * Beschreibt ein Whiteboard-Dokument und alle Operationen auf diesem.
@@ -89,17 +94,21 @@ export class WhiteboardModel {
 
     /*-----------------------------------------------------------------------*/
     /*                                                                       */
+    /* All JSON                                                              */
+    /*                                                                       */
+    /*-----------------------------------------------------------------------*/
+    public toJSON(): IWhiteboardJSON {
+        
+        return {
+            shapes: this._shapes.map(shape => shape.toJSON())
+        }
+    }
+
+    /*-----------------------------------------------------------------------*/
+    /*                                                                       */
     /* All about grid                                                        */
     /*                                                                       */
     /*-----------------------------------------------------------------------*/
-
-    /**
-     * 
-     */
-    get gridSize(): number {
-
-        return Number.parseInt(this._gridLines.getAttribute('width') || '30');
-    }
 
     /**
      * 
@@ -190,7 +199,6 @@ export class WhiteboardModel {
             maxY = Math.max(maxY, shape.height + shape.posY);
         })
 
-        console.log(minX);
         minX = Math.abs(minX);
         minY = Math.abs(minY);
 
@@ -227,15 +235,15 @@ export class WhiteboardModel {
 
         switch (type) {
             case 'rect':
-                shape = new RectShape(this);
+                shape = new RectShape(type, this);
                 break;
 
             case 'ellipse':
-                shape = new EllipsisShape(this);
+                shape = new EllipsisShape(type, this);
                 break;
 
             case 'rombus':
-                shape = new RombusShape(this);
+                shape = new RombusShape(type, this);
                 break;
 
             default:

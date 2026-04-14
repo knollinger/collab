@@ -10,9 +10,9 @@ export class RombusShape extends AbstractShape {
      * 
      * @param svgRoot 
      */
-    constructor(model: WhiteboardModel) {
+    constructor(typeName: string, model: WhiteboardModel) {
 
-        super(model, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'polygon') as SVGGraphicsElement);
+        super(typeName, model, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'polygon') as SVGGraphicsElement);
     }
 
     /**

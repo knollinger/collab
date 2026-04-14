@@ -1,14 +1,15 @@
 import { WhiteboardModel } from "../models/whiteboard-model";
-import { AbstractFillEffect } from "./abstract-fill-effect";
+import { AbstractFillEffect, IFillEffectJSON } from "./abstract-fill-effect";
+
+export interface IImageFillEffectJSON extends IFillEffectJSON {
+    uuid: string
+}
 
 export class ImageFillEffect extends AbstractFillEffect {
 
-    private image: SVGImageElement | undefined;
-    private pattern: SVGPatternElement | undefined;
+    constructor(typeName: string, model: WhiteboardModel, private imgUUID: string, imgUrl: string) {
 
-    constructor(model: WhiteboardModel, imgUrl: string) {
-
-        super(model, ImageFillEffect.createElement(imgUrl));
+        super(typeName, model, ImageFillEffect.createElement(imgUrl));
     }
 
     private static createElement(imgUrl: string): SVGElement {
@@ -28,14 +29,17 @@ export class ImageFillEffect extends AbstractFillEffect {
     }
 
     public set width(width: number) {
-        this.imgElem.setAttribute('width', width.toString());
-        this.patternElem.setAttribute('width', width.toString());
+
+        const val = width.toString();
+        this.imgElem.setAttribute('width', val);
+        this.patternElem.setAttribute('width', val);
     }
 
     public set height(height: number) {
 
-        this.imgElem.setAttribute('height', height.toString());
-        this.patternElem.setAttribute('height', height.toString());
+        const val = height.toString();
+        this.imgElem.setAttribute('height', val);
+        this.patternElem.setAttribute('height', val);
     }
 
     private get imgElem(): SVGElement {
@@ -45,5 +49,12 @@ export class ImageFillEffect extends AbstractFillEffect {
 
     private get patternElem(): SVGElement {
         return this.effectElem;
+    }
+
+    public toJSON(): IImageFillEffectJSON {
+        return {
+            type: this.typeName,
+            uuid: this.imgUUID
+        }
     }
 }

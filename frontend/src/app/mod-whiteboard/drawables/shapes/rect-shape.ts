@@ -10,9 +10,9 @@ export class RectShape extends AbstractShape {
      * 
      * @param svgRoot 
      */
-    constructor(model: WhiteboardModel) {
+    constructor(typeName: string, model: WhiteboardModel) {
 
-        super(model, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'rect') as SVGGraphicsElement);
+        super(typeName, model, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'rect') as SVGGraphicsElement);
     }
 
     /**

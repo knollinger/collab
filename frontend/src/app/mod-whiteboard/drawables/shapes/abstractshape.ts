@@ -1,4 +1,4 @@
-import { AbstractFillEffect } from "../../fill-effects/abstract-fill-effect"
+import { AbstractFillEffect, IFillEffectJSON } from "../../fill-effects/abstract-fill-effect"
 import { WhiteboardModel } from "../../models/whiteboard-model";
 
 export interface MouseDownCallback {
@@ -11,6 +11,16 @@ export interface StartResizeCallback {
 
 export interface StartConnectCallback {
     (evt: MouseEvent, shape: AbstractShape, mode: string): void;
+}
+
+export interface IShapeJSON {
+    type: string,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    text: string,
+    fill?: IFillEffectJSON
 }
 
 /**
@@ -40,6 +50,7 @@ export abstract class AbstractShape {
      * @param svgRoot 
      */
     constructor(
+        private type: string,
         private readonly model: WhiteboardModel,
         public readonly svgElem: SVGGraphicsElement) {
 
@@ -115,6 +126,7 @@ export abstract class AbstractShape {
         this._onShowCtxMenu = callback;
     }
 
+
     /**
      * 
      * @param val 
@@ -126,6 +138,23 @@ export abstract class AbstractShape {
         }
         else {
             this.addClass(this.decorator, 'hidden');
+        }
+    }
+
+    /*-----------------------------------------------------------------------*/
+    /*                                                                       */
+    /* All about json presentation                                           */
+    /*                                                                       */
+    /*-----------------------------------------------------------------------*/
+    toJSON(): IShapeJSON {
+        return {
+            type: this.type,
+            x: this.posX,
+            y: this.posY,
+            w: this.width,
+            h: this.height,
+            text: this.textContent,
+            fill: this._fillEffect ? this._fillEffect.toJSON() : undefined
         }
     }
 

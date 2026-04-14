@@ -20,6 +20,7 @@ export class WhiteboardBgImageEditorComponent {
   model: WhiteboardModel = WhiteboardModel.empty();
 
   private destroyRef: DestroyRef = inject(DestroyRef);
+  private imageUUID: string = '';
   private imageUrl: string = '';
   public previewUrl: string = '';
 
@@ -48,6 +49,7 @@ export class WhiteboardBgImageEditorComponent {
           if (files) {
 
             const inode = [...files][0];
+            this.imageUUID = inode.uuid;
             this.imageUrl = this.inodeSvc.getContentUrl(inode.uuid);
             this.previewUrl = `url('${this.imageUrl}')`;
 
@@ -59,7 +61,7 @@ export class WhiteboardBgImageEditorComponent {
   onApply() {
 
     this.shapes!.forEach(shape => {
-      shape.fillEffect = new ImageFillEffect(this.model, this.imageUrl);
+      shape.fillEffect = new ImageFillEffect('image', this.model, this.imageUUID, this.imageUrl);
     });
   }
 }

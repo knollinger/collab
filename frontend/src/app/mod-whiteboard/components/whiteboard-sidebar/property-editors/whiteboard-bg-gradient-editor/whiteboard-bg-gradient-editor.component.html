@@ -1,38 +1,28 @@
 <div class="outer-cnr">
 
-    <div class="color-line">
-
-        <mat-form-field class="color-selector">
-            <mat-label>Farbe 1</mat-label>
-            <input matInput
-                   matInput
-                   type="color"
-                   [(ngModel)]="color1">
-        </mat-form-field>
-
-        <mat-form-field class="color-selector">
-            <mat-label>Farbe 2</mat-label>
-            <input matInput
-                   matInput
-                   type="color"
-                   [(ngModel)]="color2">
-        </mat-form-field>
-    </div>
-
-    <mat-form-field class="gradient-type">
+    <mat-form-field class="type-selector">
         <mat-label>Typ</mat-label>
         <mat-select [(ngModel)]="gradientType">
-            <mat-option value="topDown">Senkrecht</mat-option>
-            <mat-option value="leftRight">Waagerecht</mat-option>
-            <mat-option value="diagonal">Diagonal</mat-option>
-            <mat-option value="radial">Kreisförmig</mat-option>
+            <mat-option value="TopDown">Senkrecht</mat-option>
+            <mat-option value="LeftRight">Waagerecht</mat-option>
+            <mat-option value="Diagonal">Diagonal</mat-option>
+            <mat-option value="Radial">Kreisförmig</mat-option>
         </mat-select>
     </mat-form-field>
 
-    <div class="preview mat-elevation-z4"
-         [style.background-image]="previewStyle">
-        <span>Vorschau</span>
-    </div>
+    <mat-form-field class="color-selector">
+        <mat-label>Farbe 1</mat-label>
+        <input matInput
+               matInput
+               type="color"
+               [(ngModel)]="start">
+    </mat-form-field>
 
-    <button mat-flat-button color="primary" (click)="onApply()">Anwenden</button>
+    <mat-form-field class="color-selector">
+        <mat-label>Farbe 2</mat-label>
+        <input matInput
+               matInput
+               type="color"
+               [(ngModel)]="stop">
+    </mat-form-field>
 </div>

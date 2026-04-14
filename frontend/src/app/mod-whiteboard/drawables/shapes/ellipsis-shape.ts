@@ -10,9 +10,9 @@ export class EllipsisShape extends AbstractShape {
      * 
      * @param svgRoot 
      */
-    constructor(model: WhiteboardModel) {
+    constructor(typeName: string, model: WhiteboardModel) {
 
-        super(model, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'ellipse') as SVGGraphicsElement);
+        super(typeName, model, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'ellipse') as SVGGraphicsElement);
     }
 
     /**

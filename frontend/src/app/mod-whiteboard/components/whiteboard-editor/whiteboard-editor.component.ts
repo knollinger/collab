@@ -97,11 +97,9 @@ export class WhiteboardEditorComponent implements AfterViewInit {
     this.model.showGridLines = val;
   }
 
-  /**
-   * 
-   */
-  get gridSize(): number {
-    return this.model.gridSize;
+  onSave() {
+
+    console.log(this.model.toJSON());
   }
 
   /**

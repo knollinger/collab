@@ -1,5 +1,9 @@
 import { WhiteboardModel } from '../models/whiteboard-model';
 
+export interface IFillEffectJSON {
+    type: string
+}
+
 /**
  * Der AbstactFillEffect dient der Verwaltung von Elementen,
  * welche in den Shapes via "fill=url(#effectId)" referenziert werden.
@@ -39,6 +43,7 @@ export abstract class AbstractFillEffect {
      * @param effectElem 
      */
     constructor(
+        protected typeName: string,
         private model: WhiteboardModel,
         public readonly effectElem: SVGElement) {
 
@@ -81,4 +86,5 @@ export abstract class AbstractFillEffect {
 
     public abstract set width(width: number);
     public abstract set height(height: number);
+    public abstract toJSON(): IFillEffectJSON;
 }
