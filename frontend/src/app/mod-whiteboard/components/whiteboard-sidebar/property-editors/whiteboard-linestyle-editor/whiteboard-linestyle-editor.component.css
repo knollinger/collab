@@ -1,11 +1,11 @@
 .outer-cnr {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 0.5rem;
 }
-
-mat-form-field {
-    width: 100%;
+    
+.line-style {
+    grid-column: span 2 / span 2;
 }
 
 .style-indicator-line {
@@ -26,10 +26,4 @@ mat-form-field {
 
 .style-indicator-label {
     flex: 1;
-}
-
-.preview {
-    padding: 1rem;
-    margin: 1rem;
-    text-align: center;
 }

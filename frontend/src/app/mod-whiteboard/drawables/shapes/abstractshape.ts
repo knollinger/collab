@@ -13,15 +13,27 @@ export interface StartConnectCallback {
     (evt: MouseEvent, shape: AbstractShape, mode: string): void;
 }
 
-export interface IShapeJSON {
-    type: string,
+export interface IShapeBorderJSON {
+    width: number,
+    color: string,
+    style: string
+}
+
+export interface IShapeRect {
     x: number,
     y: number,
     w: number,
-    h: number,
+    h: number
+}
+
+export interface IShapeJSON {
+    type: string,
+    rect: IShapeRect,
     text: string,
+    border: IShapeBorderJSON,
     fill?: IFillEffectJSON
 }
+
 
 /**
  * 
@@ -149,12 +161,20 @@ export abstract class AbstractShape {
     toJSON(): IShapeJSON {
         return {
             type: this.type,
-            x: this.posX,
-            y: this.posY,
-            w: this.width,
-            h: this.height,
+            rect: {
+                x: this.posX,
+                y: this.posY,
+                w: this.width,
+                h: this.height,
+            },
+            border: {
+                width: this.borderWidth,
+                color: this.borderColor,
+                style: this.borderStyle
+            },
+            fill: this._fillEffect ? this._fillEffect.toJSON() : undefined,
             text: this.textContent,
-            fill: this._fillEffect ? this._fillEffect.toJSON() : undefined
+
         }
     }
 
@@ -354,20 +374,28 @@ export abstract class AbstractShape {
         this.svgElem.setAttribute('fill', `url(#${effect.id})`);
     }
 
+    /*-----------------------------------------------------------------------*/
+    /*                                                                       */
+    /* All about border properties                                           */
+    /*                                                                       */
+    /*-----------------------------------------------------------------------*/
+    private _borderStyle: string = 'solid';
+
     /**
+     * Setze die Farbe der Linie. 
      * 
      * @param color 
      */
-    public setBorderColor(color: string) {
+    public set borderColor(color: string) {
 
-        if (this.svgElem) {
-
-            this.svgElem.setAttribute('stroke', color);
-            this.svgElem.setAttribute('filter', `drop-shadow(5px 5px 2px rgb(from ${color} r g b / 0.2))`);
-        }
+        this.svgElem.setAttribute('stroke', color);
+        this.svgElem.setAttribute('filter', `drop-shadow(5px 5px 2px rgb(from ${color} r g b / 0.2))`);
     }
 
-    public borderColor(): string {
+    /**
+     * liefere die Farbe der Linie, default ist '#000000'
+     */
+    public get borderColor(): string {
         return this.svgElem.getAttribute('stroke') || '#000000';
     }
 
@@ -375,25 +403,37 @@ export abstract class AbstractShape {
      * 
      * @param style 
      */
-    public setBorderStyle(style: string) {
+    public set borderStyle(style: string) {
 
-        if (this.svgElem) {
+        this._borderStyle = style;
+        this.recalcSvgBorder();
+    }
 
-            const width = Number.parseInt(this.svgElem.getAttribute('stroke-width') || '1');
+    /**
+     * 
+     */
+    public get borderStyle(): string {
+        return this._borderStyle;
+    }
 
-            switch (style) {
-                case 'solid':
-                    this.svgElem.removeAttribute('stroke-dasharray');
-                    break;
+    /**
+     * 
+     */
+    private recalcSvgBorder() {
 
-                case 'dotted':
-                    this.svgElem.setAttribute('stroke-dasharray', `${width} ${width}`);
-                    break;
+        const width = Number.parseInt(this.svgElem.getAttribute('stroke-width') || '1');
+        switch (this._borderStyle) {
+            case 'solid':
+                this.svgElem.removeAttribute('stroke-dasharray');
+                break;
 
-                case 'dashed':
-                    this.svgElem.setAttribute('stroke-dasharray', '8 8');
-                    break;
-            }
+            case 'dotted':
+                this.svgElem.setAttribute('stroke-dasharray', `${width} ${width}`);
+                break;
+
+            case 'dashed':
+                this.svgElem.setAttribute('stroke-dasharray', `${width * 1.5}`);
+                break;
         }
     }
 
@@ -401,14 +441,16 @@ export abstract class AbstractShape {
      * 
      * @param width 
      */
-    public setBorderWidth(width: number) {
+    public set borderWidth(width: number) {
 
-        if (this.svgElem) {
-            this.svgElem.setAttribute('stroke-width', width.toString());
-        }
+        this.svgElem.setAttribute('stroke-width', width.toString());
+        this.recalcSvgBorder();
     }
 
-    public borderWidth(): number {
+    /**
+     * 
+     */
+    public get borderWidth(): number {
 
         const result = this.svgElem.getAttribute('stroke-width') || '1';
         return Number.parseInt(result);

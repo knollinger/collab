@@ -1,12 +1,7 @@
 <div class="outer-cnr">
-    <mat-form-field>
-        <mat-label>Linien-Farbe</mat-label>
-        <input matInput
-               type="color"
-               [(ngModel)]="lineColor">
-    </mat-form-field>
 
-    <mat-form-field>
+    <!-- Der Linien-Style -->
+    <mat-form-field class="line-style">
         <mat-label>Linien-Style</mat-label>
         <mat-select [(value)]="lineStyle">
 
@@ -36,11 +31,21 @@
         </mat-select>
     </mat-form-field>
 
+    <!-- Die Linien-Farbe -->
+    <mat-form-field>
+        <mat-label>Linien-Farbe</mat-label>
+        <input matInput
+               type="color"
+               [(ngModel)]="lineColor">
+    </mat-form-field>
+
+    <!-- Die Linien-Breite -->
     <mat-form-field>
         <mat-label>Linen-Breite</mat-label>
         <input matInput
                [(ngModel)]="lineWidth"
                min="0"
+               max="8"
                type="number">
     </mat-form-field>
 
