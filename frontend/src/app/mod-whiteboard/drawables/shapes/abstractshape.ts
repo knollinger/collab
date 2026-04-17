@@ -1,7 +1,7 @@
 import { AbstractFillEffect, IFillEffectJSON } from "../../fill-effects/abstract-fill-effect"
 import { WhiteboardModel } from "../../models/whiteboard-model";
 
-export interface MouseDownCallback {
+export interface MouseButtonCallback {
     (evt: MouseEvent, shape: AbstractShape): void;
 }
 
@@ -46,15 +46,16 @@ export abstract class AbstractShape {
     private static RESIZE_ANCHOR_HEIGHT = 8;
     private static CONNECTOR_ANCHOR_RADIUS = 5;
 
-    private elemCnr: SVGGElement;
+    public readonly elemCnr: SVGGElement;
     private decorator: SVGGElement;
     private connectors: SVGGElement;
     private textFieldCnr: SVGForeignObjectElement;
 
-    private _onStartDrag: MouseDownCallback = () => { };
+    private _onClick: MouseButtonCallback = () => { };
+    private _onStartDrag: MouseButtonCallback = () => { };
     private _onStartResize: StartResizeCallback = () => { };
     private _onStartConnect: StartConnectCallback = () => { };
-    private _onShowCtxMenu: MouseDownCallback = () => { };
+    private _onShowCtxMenu: MouseButtonCallback = () => { };
 
 
     /**
@@ -65,7 +66,6 @@ export abstract class AbstractShape {
         private type: string,
         private readonly model: WhiteboardModel,
         public readonly svgElem: SVGGraphicsElement) {
-
 
         this.svgElem.setAttribute('fill', '#ffffff');
         this.svgElem.setAttribute('stroke-width', '1');
@@ -95,6 +95,10 @@ export abstract class AbstractShape {
      */
     private addEventHandlers(elem: SVGElement) {
 
+        elem.addEventListener('click', evt => {
+            evt.stopPropagation();
+            this._onClick(evt as MouseEvent, this);
+        })
 
         elem.addEventListener('mousedown', evt => {
             evt.stopPropagation();
@@ -110,10 +114,18 @@ export abstract class AbstractShape {
         });
     }
 
+
     /**
      * setze den MouseDown-Callback
      */
-    public set onStartDrag(callback: MouseDownCallback) {
+    public set onClick(callback: MouseButtonCallback) {
+        this._onClick = callback;
+    }
+
+    /**
+     * setze den MouseDown-Callback
+     */
+    public set onStartDrag(callback: MouseButtonCallback) {
         this._onStartDrag = callback;
     }
 
@@ -134,7 +146,7 @@ export abstract class AbstractShape {
     /**
      * setze den ContextMenu-Callback
      */
-    public set onShowCtxMenu(callback: MouseDownCallback) {
+    public set onShowCtxMenu(callback: MouseButtonCallback) {
         this._onShowCtxMenu = callback;
     }
 
@@ -454,39 +466,6 @@ export abstract class AbstractShape {
 
         const result = this.svgElem.getAttribute('stroke-width') || '1';
         return Number.parseInt(result);
-    }
-
-    /**
-     * verschiebe das Element um eine Ebene nach hinten
-     */
-    changeZOrderBack() {
-        this.model.shapesGroup.insertBefore(this.elemCnr, this.elemCnr.previousSibling);
-    }
-
-    /**
-     * verschiebe das Element ganz nach hinten
-     */
-    changeZOrderBackground() {
-        this.model.shapesGroup.insertBefore(this.elemCnr, this.model.shapesGroup.firstChild);
-    }
-
-    /**
-     * verschiebe das Element um eine Ebene nach vorn
-     */
-    changeZOrderFore() {
-        if (this.elemCnr.nextSibling) {
-            this.model.shapesGroup.insertBefore(this.elemCnr.nextSibling, this.elemCnr);
-        }
-        else {
-            this.model.shapesGroup.appendChild(this.elemCnr);
-        }
-    }
-
-    /**
-     * verschiebe das Element ganz nach vorn
-     */
-    changeZOrderForeground() {
-        this.model.shapesGroup.appendChild(this.elemCnr);
     }
 
     /**

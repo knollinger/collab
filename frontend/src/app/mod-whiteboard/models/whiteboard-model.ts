@@ -98,7 +98,7 @@ export class WhiteboardModel {
     /*                                                                       */
     /*-----------------------------------------------------------------------*/
     public toJSON(): IWhiteboardJSON {
-        
+
         return {
             shapes: this._shapes.map(shape => shape.toJSON())
         }
@@ -252,12 +252,6 @@ export class WhiteboardModel {
         }
 
         shape.width = shape.height = WhiteboardModel.DEFAULT_SHAPE_SIZE;
-        shape.svgElem.addEventListener('click', evt => {
-            if (!evt.ctrlKey) {
-                this.deselectAll();
-            }
-            this.selectShape(shape);
-        })
         this._shapes.push(shape);
         this.deselectAll();
         this.selectShape(shape);
@@ -330,7 +324,7 @@ export class WhiteboardModel {
     /*-----------------------------------------------------------------------*/
 
     public get nrOfSelectedShapes(): number {
-        return this._selectedShapes.size ;
+        return this._selectedShapes.size;
     }
     /**
      * 
@@ -500,24 +494,31 @@ export class WhiteboardModel {
     public changeSelectedShapesZOrder(zorder: EZOrderMode) {
 
         this._selectedShapes.forEach(shape => {
+
+            const elemCnr = shape.elemCnr;
             switch (zorder) {
                 case EZOrderMode.background:
-                    shape.changeZOrderBackground();
+                    this.shapesGroup.insertBefore(elemCnr, this.shapesGroup.firstChild);
                     break;
 
                 case EZOrderMode.back:
-                    shape.changeZOrderBack();
+                    this.shapesGroup.insertBefore(elemCnr, elemCnr.previousSibling);
+
                     break;
 
                 case EZOrderMode.fore:
-                    shape.changeZOrderFore();
+                    if (elemCnr.nextSibling) {
+                        this.shapesGroup.insertBefore(elemCnr.nextSibling, elemCnr);
+                    }
+                    else {
+                        this.shapesGroup.appendChild(elemCnr);
+                    }
                     break;
 
                 case EZOrderMode.foreground:
-                    shape.changeZOrderForeground();
+                    this.shapesGroup.appendChild(elemCnr);
                     break;
             }
-
         })
     }
 }

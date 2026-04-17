@@ -124,6 +124,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
 
     const shape = this.model.createShape(type);
+    shape.onClick = this.onShapeClick.bind(this);
     shape.onStartDrag = this.onStartDragShape.bind(this);
     shape.onStartResize = this.onStartResizeShape.bind(this);
     shape.onShowCtxMenu = this.onShowShapesContextMenu.bind(this);
@@ -137,6 +138,19 @@ export class WhiteboardEditorComponent implements AfterViewInit {
   public onCreateLine(type: string) {
 
     const line = this.model.createLine(type);
+  }
+
+  /**
+   * 
+   * @param evt 
+   * @param shape 
+   */
+  onShapeClick(evt: MouseEvent, shape: AbstractShape) {
+
+    if(!evt.ctrlKey) {
+      this.model.deselectAll();
+    }
+    this.model.selectShape(shape);
   }
 
   /**
