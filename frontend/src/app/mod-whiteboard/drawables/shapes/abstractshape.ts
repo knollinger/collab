@@ -13,6 +13,10 @@ export interface StartConnectCallback {
     (evt: MouseEvent, shape: AbstractShape, mode: string): void;
 }
 
+export interface ShapeChangedCallback {
+    (shape: AbstractShape): void;
+}
+
 export interface IShapeBorderJSON {
     width: number,
     color: string,
@@ -51,6 +55,7 @@ export abstract class AbstractShape {
     private connectors: SVGGElement;
     private textFieldCnr: SVGForeignObjectElement;
 
+    private _onChanged: ShapeChangedCallback = () => {};
     private _onClick: MouseButtonCallback = () => { };
     private _onStartDrag: MouseButtonCallback = () => { };
     private _onStartResize: StartResizeCallback = () => { };
@@ -64,7 +69,7 @@ export abstract class AbstractShape {
      */
     constructor(
         private type: string,
-        private readonly model: WhiteboardModel,
+        private svgRoot: SVGSVGElement,
         public readonly svgElem: SVGGraphicsElement) {
 
         this.svgElem.setAttribute('fill', '#ffffff');
@@ -85,8 +90,6 @@ export abstract class AbstractShape {
 
         this.connectors = this.createConnectors();
         this.elemCnr.appendChild(this.connectors);
-
-        this.model.shapesGroup.appendChild(this.elemCnr);
     }
 
     /**
@@ -114,6 +117,13 @@ export abstract class AbstractShape {
         });
     }
 
+    /**
+     * 
+     * @param callback 
+     */
+    public set onShapeChanged(callback: ShapeChangedCallback) {
+        this._onChanged = callback;
+    }
 
     /**
      * setze den MouseDown-Callback
@@ -247,7 +257,7 @@ export abstract class AbstractShape {
 
         this._x = val;
         this.findTranslateTransformation().setTranslate(this._x, this._y);
-        this.model.normalizeImageDimensions();
+        this._onChanged(this);
     }
 
     /**
@@ -266,7 +276,8 @@ export abstract class AbstractShape {
 
         this._y = val;
         this.findTranslateTransformation().setTranslate(this._x, this._y);
-        this.model.normalizeImageDimensions();
+        this._onChanged(this);
+
     }
 
     /**
@@ -283,7 +294,8 @@ export abstract class AbstractShape {
         this._x += movementX;
         this._y += movementY;
         transform.setTranslate(this._x, this._y);
-        this.model.normalizeImageDimensions();
+        this._onChanged(this);
+
     }
 
     /**
@@ -303,7 +315,7 @@ export abstract class AbstractShape {
             }
         }
 
-        let transform = this.model.svgRoot.createSVGTransform();
+        let transform = this.svgRoot.createSVGTransform();
         transform.setTranslate(this._x, this._y);
         this.elemCnr.transform.baseVal.appendItem(transform);
         return transform;
@@ -356,7 +368,8 @@ export abstract class AbstractShape {
             this._fillEffect.height = this._height;
             this._fillEffect.width = this._width;
         }
-        this.model.normalizeImageDimensions();
+        this._onChanged(this);
+
     }
 
     /**
@@ -368,8 +381,7 @@ export abstract class AbstractShape {
             this._fillEffect.remove();
         }
         this.elemCnr.remove();
-        this.model.normalizeImageDimensions();
-
+        this._onChanged(this);
     }
 
     private _fillEffect: AbstractFillEffect | undefined;
@@ -591,7 +603,7 @@ export abstract class AbstractShape {
 
         const group = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
 
-        let transform = this.model.svgRoot.createSVGTransform();
+        let transform = this.svgRoot.createSVGTransform();
         transform.setTranslate(0, 0);
         group.transform.baseVal.appendItem(transform);
         return group;

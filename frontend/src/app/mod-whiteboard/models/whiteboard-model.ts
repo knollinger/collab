@@ -27,7 +27,6 @@ export interface IWhiteboardJSON {
 export class WhiteboardModel {
 
     public static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-    private static DEFAULT_SHAPE_SIZE: number = 100;
 
     private _defsElem: SVGDefsElement;
     private _shapesGroup: SVGGElement;
@@ -226,36 +225,14 @@ export class WhiteboardModel {
 
     /**
      * 
-     * @param type 
-     * @returns 
+     * @param shape 
      */
-    public createShape(type: string) {
+    public addShape(shape: AbstractShape) {
 
-        let shape: AbstractShape;
-
-        switch (type) {
-            case 'rect':
-                shape = new RectShape(type, this);
-                break;
-
-            case 'ellipse':
-                shape = new EllipsisShape(type, this);
-                break;
-
-            case 'rombus':
-                shape = new RombusShape(type, this);
-                break;
-
-            default:
-                throw new Error(`unknown shape type '${type}`);
-                break;
-        }
-
-        shape.width = shape.height = WhiteboardModel.DEFAULT_SHAPE_SIZE;
         this._shapes.push(shape);
+        this._shapesGroup.appendChild(shape.elemCnr);
         this.deselectAll();
         this.selectShape(shape);
-        return shape;
     }
 
     /**

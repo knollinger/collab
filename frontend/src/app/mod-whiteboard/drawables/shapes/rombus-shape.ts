@@ -1,4 +1,3 @@
-import { WhiteboardModel } from "../../models/whiteboard-model";
 import { AbstractShape } from "./abstractshape";
 
 /**
@@ -10,9 +9,9 @@ export class RombusShape extends AbstractShape {
      * 
      * @param svgRoot 
      */
-    constructor(typeName: string, model: WhiteboardModel) {
+    constructor(svgRoot: SVGSVGElement) {
 
-        super(typeName, model, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'polygon') as SVGGraphicsElement);
+        super('rombus', svgRoot, document.createElementNS(AbstractShape.SVG_NAMESPACE, 'polygon') as SVGGraphicsElement);
     }
 
     /**

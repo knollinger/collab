@@ -9,6 +9,9 @@ import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context
 import { WhiteboardExportService } from '../../services/whiteboard-export.service';
 import { WhiteboardModel } from '../../models/whiteboard-model';
 import { AbstractShape } from '../../drawables/shapes/abstractshape';
+import { RectShape } from '../../drawables/shapes/rect-shape';
+import { EllipsisShape } from '../../drawables/shapes/ellipsis-shape';
+import { RombusShape } from '../../drawables/shapes/rombus-shape';
 
 @Component({
   selector: 'app-whiteboard-editor',
@@ -122,14 +125,34 @@ export class WhiteboardEditorComponent implements AfterViewInit {
    */
   public onCreateShape(type: string) {
 
+    let shape: AbstractShape;
+    switch (type) {
+      case 'rect':
+        shape = new RectShape(this.model.svgRoot);
+        break;
 
-    const shape = this.model.createShape(type);
+      case 'ellipse':
+        shape = new EllipsisShape(this.model.svgRoot);
+        break;
+
+      case 'rombus':
+        shape = new RombusShape(this.model.svgRoot);
+        break;
+
+      default:
+        throw new Error(`unknown shape type '${type}`);
+        break;
+    }
+
+    this.model.addShape(shape);
+
+    shape.onShapeChanged = this.onShapeChanged.bind(this);
     shape.onClick = this.onShapeClick.bind(this);
     shape.onStartDrag = this.onStartDragShape.bind(this);
     shape.onStartResize = this.onStartResizeShape.bind(this);
     shape.onShowCtxMenu = this.onShowShapesContextMenu.bind(this);
-
     shape.posX = shape.posY = 30;
+    shape.width = shape.height = 100;
   }
 
   /**
@@ -140,6 +163,10 @@ export class WhiteboardEditorComponent implements AfterViewInit {
     const line = this.model.createLine(type);
   }
 
+  onShapeChanged(shape: AbstractShape) {
+    this.model.normalizeImageDimensions();
+  }
+
   /**
    * 
    * @param evt 
@@ -147,7 +174,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
    */
   onShapeClick(evt: MouseEvent, shape: AbstractShape) {
 
-    if(!evt.ctrlKey) {
+    if (!evt.ctrlKey) {
       this.model.deselectAll();
     }
     this.model.selectShape(shape);
