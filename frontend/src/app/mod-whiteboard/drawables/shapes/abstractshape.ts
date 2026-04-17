@@ -1,5 +1,4 @@
 import { AbstractFillEffect, IFillEffectJSON } from "../../fill-effects/abstract-fill-effect"
-import { WhiteboardModel } from "../../models/whiteboard-model";
 
 export interface MouseButtonCallback {
     (evt: MouseEvent, shape: AbstractShape): void;
@@ -35,9 +34,8 @@ export interface IShapeJSON {
     rect: IShapeRect,
     text: string,
     border: IShapeBorderJSON,
-    fill?: IFillEffectJSON
+    fill?: string
 }
-
 
 /**
  * 
@@ -194,7 +192,7 @@ export abstract class AbstractShape {
                 color: this.borderColor,
                 style: this.borderStyle
             },
-            fill: this._fillEffect ? this._fillEffect.toJSON() : undefined,
+            fill: this._fillEffect ? this._fillEffect.id : undefined,
             text: this.textContent,
 
         }

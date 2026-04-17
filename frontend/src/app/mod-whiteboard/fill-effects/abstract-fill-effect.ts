@@ -1,3 +1,5 @@
+import { v4 as uuidv4} from 'uuid';
+
 import { WhiteboardModel } from '../models/whiteboard-model';
 
 export interface IFillEffectJSON {
@@ -31,7 +33,6 @@ export interface IFillEffectJSON {
 export abstract class AbstractFillEffect {
 
     protected static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-    private static nextFreeId: number = 0;
 
     private _id: string;
 
@@ -80,8 +81,7 @@ export abstract class AbstractFillEffect {
      * berechne die nächte freie ElementId
      */
     private static calcNextFreeKey(): string {
-
-        return `fill_effect_${++AbstractFillEffect.nextFreeId}`;
+        return `fill_effect_${uuidv4()}`;
     }
 
     public abstract set width(width: number);
