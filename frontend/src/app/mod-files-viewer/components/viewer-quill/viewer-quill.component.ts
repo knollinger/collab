@@ -26,6 +26,11 @@ export class ViewerQuillComponent implements OnInit {
   private quill: Quill | null = null;
   textChanged: boolean = false;
 
+  private acceptableContentTypes: RegExp[] = [
+    new RegExp('text/.*', 'i'),
+    new RegExp('allication/json.*', 'i')
+  ]
+
   /**
    * 
    * @param inodeSvc 
@@ -94,19 +99,18 @@ export class ViewerQuillComponent implements OnInit {
    */
   private loadDocument() {
 
-    const url = this.inodeSvc.getContentUrl(this.inode.uuid);
-    this.httpClient.get(url, {
-      responseType: 'text'
-    })
+    this.inodeSvc.loadContent(this.inode.uuid, this.acceptableContentTypes)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(content => {
+      .subscribe(blob => {
 
-        const delta = new Delta()
-          .insert(content);
-        // .insert('\n', { 'code-block': 'javascript' });
-        this.quill?.setContents(delta);
-        this.textChanged = false;
-      });
+        blob.arrayBuffer().then(buffer => {
+
+          const text = new TextDecoder().decode(buffer);
+          const delta = new Delta().insert(text);
+          this.quill?.setContents(delta);
+          this.textChanged = false;
+        });
+      })
   }
 
   /**

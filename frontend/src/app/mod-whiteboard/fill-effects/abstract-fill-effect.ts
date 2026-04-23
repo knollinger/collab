@@ -1,8 +1,7 @@
 import { v4 as uuidv4} from 'uuid';
 
-import { WhiteboardModel } from '../models/whiteboard-model';
-
 export interface IFillEffectJSON {
+    id: string,
     type: string
 }
 
@@ -45,12 +44,10 @@ export abstract class AbstractFillEffect {
      */
     constructor(
         protected typeName: string,
-        private model: WhiteboardModel,
         public readonly effectElem: SVGElement) {
 
         this._id = AbstractFillEffect.calcNextFreeKey();
         effectElem.setAttribute('id', this._id);
-        this.model.defsElem.appendChild(effectElem);
     }
 
     /**
@@ -65,16 +62,16 @@ export abstract class AbstractFillEffect {
      */
     public remove() {
 
-        const defElems = this.model.defsElem.children;
+        // const defElems = this.model.defsElem.children;
 
-        for (let i = 0; i < defElems.length; ++i) {
+        // for (let i = 0; i < defElems.length; ++i) {
 
-            const elem = defElems.item(i);
-            if (elem?.getAttribute('id') === this._id) {
-                elem.remove();
-                break;
-            }
-        }
+        //     const elem = defElems.item(i);
+        //     if (elem?.getAttribute('id') === this._id) {
+        //         elem.remove();
+        //         break;
+        //     }
+        // }
     }
 
     /**

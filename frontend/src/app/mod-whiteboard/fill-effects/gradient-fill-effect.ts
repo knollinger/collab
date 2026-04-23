@@ -1,7 +1,7 @@
 import { WhiteboardModel } from "../models/whiteboard-model";
 import { AbstractFillEffect, IFillEffectJSON } from "./abstract-fill-effect";
 
-export type EGradientFillDirection = 'TopDown' | 'LeftRight' | 'Diagonal'| 'Radial';
+export type EGradientFillDirection = 'TopDown' | 'LeftRight' | 'Diagonal' | 'Radial';
 
 
 export interface IGradientFillEffectJSON extends IFillEffectJSON {
@@ -16,12 +16,11 @@ export interface IGradientFillEffectJSON extends IFillEffectJSON {
 export class GradientFillEffect extends AbstractFillEffect {
 
     constructor(typeName: string,
-        model: WhiteboardModel,
         private direction: EGradientFillDirection,
         private color1: string,
         private color2: string) {
 
-        super(typeName, model, GradientFillEffect.createGradient(direction, color1, color2));
+        super(typeName, GradientFillEffect.createGradient(direction, color1, color2));
     }
 
     /**
@@ -65,7 +64,7 @@ export class GradientFillEffect extends AbstractFillEffect {
                 gradient.setAttribute('cy', '50%');
                 gradient.setAttribute('r', '100%');
                 gradient.setAttribute('fx', '50%');
-                gradient.setAttribute('fy', '50%'); 
+                gradient.setAttribute('fy', '50%');
                 break;
         }
 
@@ -98,10 +97,15 @@ export class GradientFillEffect extends AbstractFillEffect {
     public toJSON(): IGradientFillEffectJSON {
 
         return {
+            id: this.id,
             type: this.typeName,
             direction: this.direction,
             color1: this.color1,
             color2: this.color2
         }
+    }
+
+    public static fromJSON(json: IGradientFillEffectJSON): GradientFillEffect {
+        return new GradientFillEffect(json.type, json.direction, json.color1, json.color2);
     }
 }

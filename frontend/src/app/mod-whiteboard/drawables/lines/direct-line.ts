@@ -9,8 +9,8 @@ export class DirectLine extends AbstractLine {
      * 
      * @param svgRoot 
      */
-    constructor(svgRoot: SVGSVGElement, svgParent: SVGGElement) {
-        super(svgRoot, svgParent, document.createElementNS(AbstractLine.SVG_NAMESPACE, 'line') as SVGPathElement);
+    constructor(svgRoot: SVGSVGElement) {
+        super(svgRoot, document.createElementNS(AbstractLine.SVG_NAMESPACE, 'line') as SVGLineElement);
     }
 
     /**

@@ -53,7 +53,7 @@ export abstract class AbstractShape {
     private connectors: SVGGElement;
     private textFieldCnr: SVGForeignObjectElement;
 
-    private _onChanged: ShapeChangedCallback = () => {};
+    private _onChanged: ShapeChangedCallback = () => { };
     private _onClick: MouseButtonCallback = () => { };
     private _onStartDrag: MouseButtonCallback = () => { };
     private _onStartResize: StartResizeCallback = () => { };
@@ -196,6 +196,25 @@ export abstract class AbstractShape {
             text: this.textContent,
 
         }
+    }
+
+    /**
+     * 
+     * @param json 
+     */
+    protected loadJSONProps(json: IShapeJSON) {
+
+        this.posX = json.rect.x;
+        this.posY = json.rect.y;
+        this.width = json.rect.w;
+        this.height = json.rect.h;
+
+        this.borderColor = json.border.color;
+        this.borderStyle = json.border.style;
+        this.borderWidth = json.border.width;
+
+        console.log(json);
+        this.textContent = json.text;
     }
 
     /**
@@ -385,15 +404,14 @@ export abstract class AbstractShape {
     private _fillEffect: AbstractFillEffect | undefined;
     public set fillEffect(effect: AbstractFillEffect) {
 
-        if (this._fillEffect) {
-            this._fillEffect.remove();
-            this._fillEffect = undefined;
-        }
-
         this._fillEffect = effect;
         this._fillEffect.width = this._width;
         this._fillEffect.height = this._height;
         this.svgElem.setAttribute('fill', `url(#${effect.id})`);
+    }
+
+    public get fillEffect(): AbstractFillEffect | undefined {
+        return this._fillEffect;
     }
 
     /*-----------------------------------------------------------------------*/

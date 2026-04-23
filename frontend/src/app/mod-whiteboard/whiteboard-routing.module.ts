@@ -13,6 +13,11 @@ const routes: Routes = [
     canActivate: [SessionRequiredGuard]
   },
   {
+    path: 'edit',
+    component: WhiteboardEditorComponent,
+    canActivate: [SessionRequiredGuard],
+  },
+  {
     path: 'edit/:uuid',
     component: WhiteboardEditorComponent,
     canActivate: [SessionRequiredGuard],

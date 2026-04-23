@@ -25,8 +25,8 @@ export class ColorFillEffect extends AbstractFillEffect {
      * @param model 
      * @param color 
      */
-    constructor(typeName: string, model: WhiteboardModel, private color: string) {
-        super(typeName, model, ColorFillEffect.createGradient(color));
+    constructor(typeName: string, private color: string) {
+        super(typeName, ColorFillEffect.createGradient(color));
     }
 
     /**
@@ -73,9 +73,15 @@ export class ColorFillEffect extends AbstractFillEffect {
     public toJSON(): IColorFillEffectJSON {
 
         return {
+            id: this.id,
             type: this.typeName,
             color: this.color
         }
+    }
+
+    public static fromJSON(json: IColorFillEffectJSON): ColorFillEffect {
+
+        return new ColorFillEffect(json.type, json.color);
     }
 
 }

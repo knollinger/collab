@@ -8,6 +8,7 @@ import { IINode, INode } from '../../mod-files-data/models/inode';
 import { RenameINodeRequest } from '../models/rename-inode-request';
 import { MoveINodeRequest } from '../models/move-inode-request';
 import { SessionService } from '../../mod-session/session.module';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 /**
  * 
@@ -30,7 +31,8 @@ export class INodeService {
       ['createFolder', 'v1/filesys/mkdir/{1}/{2}'],
       ['createDocument', 'v1/filesys/createDocument/{1}/{2}/{3}'],
       ['getOrCreateFolder', 'v1/filesys/ensureFolder/{1}/{2}'],
-      ['getContent', 'v1/filecontent/{1}']
+      ['getContentUrl', 'v1/filecontent/{1}'],
+      ['saveContent', 'v1/filecontent/{1}']
     ]
   );
 
@@ -229,8 +231,57 @@ export class INodeService {
    */
   public getContentUrl(uuid: string): string {
 
-    return this.backendRouter.getRouteForName('getContent', INodeService.routes, uuid);
+    return this.backendRouter.getRouteForName('getContentUrl', INodeService.routes, uuid);
   }
+
+  /**
+   * Liefere den Inhalt eines Dokumentes als Blob aus.
+   * 
+   * Der Blob kann verschiedene ContentTypes aufweisen. Aus diesem Grund
+   * wird ein Array von akzeptierbaren regulären Ausdrücken erwartet. Der
+   * empfangene Blob wird gegen dieses Array getestet. Sollte der empfangende
+   * ContentType als "nicht akzeptierbar" erkannt werden, so wird ein Error
+   * geworfen.
+   * 
+   * 
+   * @param uuid 
+   * @param acceptableTypes
+   * @returns Ein Observable auf den Blob.
+   */
+  public loadContent(uuid: string, acceptableTypes?: RegExp[]): Observable<Blob> {
+
+    const url = this.getContentUrl(uuid);
+    return this.httpClient.get(url, { responseType: 'blob' }).pipe(
+      map(blob => {
+
+        if (acceptableTypes) {
+
+          let isAcceptable: boolean = false;
+          for (let i = 0, isAcceptable = false; !isAcceptable && i < acceptableTypes.length; ++i) {
+            isAcceptable = acceptableTypes[i].test(blob.type);
+          }
+
+          if (!isAcceptable) {
+            throw new Error(`content type '${blob.type}' is not acceptable`);
+          }
+        }
+        return blob;
+      })
+    );
+  }
+
+  public saveContent(uuid: string, content: Blob): Observable<INode> {
+
+    const url = this.backendRouter.getRouteForName('saveContent', INodeService.routes, uuid);
+    const form: FormData = new FormData();
+    form.append('file', content);
+    return this.httpClient.post<IINode>(url, form)
+      .pipe(map(inode => {
+        return INode.fromJSON(inode);
+      }));
+  }
+
+
 
   /**
    * 

@@ -4,12 +4,8 @@ import { AbstractShape, IShapeJSON } from '../drawables/shapes/abstractshape';
 import { EllipsisShape } from '../drawables/shapes/ellipsis-shape';
 import { RectShape } from '../drawables/shapes/rect-shape';
 import { RombusShape } from '../drawables/shapes/rombus-shape';
+import { AbstractFillEffect } from '../fill-effects/abstract-fill-effect';
 import { EZOrderMode } from './ezorder-mode';
-
-export interface IWhiteboardJSON {
-
-    shapes: IShapeJSON[]
-}
 
 /**
  * Beschreibt ein Whiteboard-Dokument und alle Operationen auf diesem.
@@ -36,6 +32,8 @@ export class WhiteboardModel {
 
     private _shapes: AbstractShape[] = new Array<AbstractShape>();
     private _selectedShapes: Set<AbstractShape> = new Set<AbstractShape>();
+
+    private _fillEffects: Set<AbstractFillEffect> = new Set<AbstractFillEffect>();
 
     /**
      * 
@@ -89,18 +87,6 @@ export class WhiteboardModel {
      */
     public get linesGroup(): SVGGElement {
         return this._linesGroup;
-    }
-
-    /*-----------------------------------------------------------------------*/
-    /*                                                                       */
-    /* All JSON                                                              */
-    /*                                                                       */
-    /*-----------------------------------------------------------------------*/
-    public toJSON(): IWhiteboardJSON {
-
-        return {
-            shapes: this._shapes.map(shape => shape.toJSON())
-        }
     }
 
     /*-----------------------------------------------------------------------*/
@@ -235,6 +221,26 @@ export class WhiteboardModel {
         this.selectShape(shape);
     }
 
+    public get shapes(): AbstractShape[] {
+        return this._shapes;
+    }
+
+    public addFillEffect(effect: AbstractFillEffect, shape: AbstractShape) {
+
+        const curr = shape.fillEffect;
+        if(curr) {
+            curr.effectElem.remove();
+            this._fillEffects.delete(curr);
+        }
+        this._fillEffects.add(effect);
+        this.defsElem.appendChild(effect.effectElem);
+        shape.fillEffect = effect;
+    }
+
+    public get fillEffects(): AbstractFillEffect[] {
+        return [...this._fillEffects];
+    }
+
     /**
      * 
      * @param type 
@@ -245,7 +251,7 @@ export class WhiteboardModel {
 
         switch (type) {
             case 'direct':
-                line = new DirectLine(this.svgRoot, this._linesGroup);
+                line = new DirectLine(this.svgRoot);
                 break;
 
             default:
@@ -253,6 +259,7 @@ export class WhiteboardModel {
                 break;
         }
 
+        this._linesGroup.appendChild(line.groupElem);
         line.resizeLine(20, 20, 100, 100);
     }
 

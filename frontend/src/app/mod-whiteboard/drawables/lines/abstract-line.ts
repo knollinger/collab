@@ -31,13 +31,14 @@ export abstract class AbstractLine {
 
     public markerStart: ConnectorMarkerType = ConnectorMarkerType.NONE;
     public markerEnd: ConnectorMarkerType = ConnectorMarkerType.NONE;
-    private group: SVGGElement;
+    public readonly groupElem: SVGGElement;
 
     private x1: number = 20;
     private y1: number = 20;
     private x2: number = 0;
     private y2: number = 0;
-
+    private startAnchor: SVGGraphicsElement;
+    private endAnchor: SVGGraphicsElement;
 
     /**
      * 
@@ -46,7 +47,6 @@ export abstract class AbstractLine {
      */
     constructor(
         public readonly svgRoot: SVGSVGElement,
-        public readonly svgParent: SVGGElement,
         public readonly svgElem: SVGGraphicsElement) {
 
         this.svgElem.setAttribute('fill', '#ffffff');
@@ -61,9 +61,14 @@ export abstract class AbstractLine {
             this.removeAnchors();
         })
 
-        this.group = document.createElementNS(AbstractLine.SVG_NAMESPACE, 'g') as SVGGElement;
-        this.group.appendChild(this.svgElem);
-        this.svgParent.appendChild(this.group);
+        this.groupElem = document.createElementNS(AbstractLine.SVG_NAMESPACE, 'g') as SVGGElement;
+        this.groupElem.appendChild(this.svgElem);
+
+        this.startAnchor = this.createResizeAnchor(this.x1 - 4, this.y1 - 4, 'start');
+        this.groupElem.appendChild(this.startAnchor);
+
+        this.endAnchor = this.createResizeAnchor(this.x2 - 4, this.y2 - 4, 'end');
+        this.groupElem.appendChild(this.endAnchor);
 
         this.color = AbstractLine.DEFAULT_COLOR;
         this.startMarker = ConnectorMarkerType.NONE;
@@ -165,6 +170,11 @@ export abstract class AbstractLine {
         this.x2 = x2;
         this.y2 = y2;
         this.resizeLineImpl(x1, y1, x2, y2);
+
+        this.startAnchor.setAttribute("x", (x1 - 4).toString());
+        this.startAnchor.setAttribute("y", (y1 - 4).toString());
+        this.endAnchor.setAttribute("x", (x2 - 4).toString());
+        this.endAnchor.setAttribute("y", (y2 - 4).toString());
     }
 
     /**
@@ -181,8 +191,8 @@ export abstract class AbstractLine {
      */
     private showAnchors() {
 
-        this.group.appendChild(this.createResizeAnchor(this.x1 - 4, this.y1 - 4, 'start'));
-        this.group.appendChild(this.createResizeAnchor(this.x2 - 4, this.y2 - 4, 'end'));
+        this.removeClass(this.startAnchor, 'hidden');
+        this.removeClass(this.endAnchor, 'hidden');
     }
 
     /**
@@ -190,10 +200,8 @@ export abstract class AbstractLine {
      */
     private removeAnchors() {
 
-        const anchors = this.group.getElementsByTagName('rect'); // TODO: besser über den className
-        while (anchors.length) {
-            anchors.item(0)?.remove();
-        }
+        this.addClass(this.startAnchor, 'hidden');
+        this.addClass(this.endAnchor, 'hidden');
     }
 
     /**
@@ -203,7 +211,7 @@ export abstract class AbstractLine {
      * @param type 
      * @returns 
      */
-    private createResizeAnchor(x: number, y: number, type: string): SVGElement {
+    private createResizeAnchor(x: number, y: number, type: string): SVGGraphicsElement {
 
         const anchor = document.createElementNS(AbstractLine.SVG_NAMESPACE, "rect") as SVGRectElement;
         anchor.setAttribute('name', type);
@@ -211,12 +219,36 @@ export abstract class AbstractLine {
         anchor.setAttribute('y', y.toString());
         anchor.setAttribute('width', "8");
         anchor.setAttribute('height', "8");
-        anchor.setAttribute('class', `resize`)
+        anchor.setAttribute('class', `resize hidden`)
+
+        //
+        // Einen Functor als Callback bauen!
+        //
 
         anchor.addEventListener('mousedown', evt => {
             evt.stopPropagation();
         });
         return anchor;
     }
+
+    private addClass(elem: Element, clazz: string) {
+
+        const clazzes = (elem.getAttribute('class') || '').split(' ');
+        if (clazzes.indexOf(clazz) === -1) {
+            clazzes.push(clazz);
+            elem.setAttribute('class', clazzes.join(' '));
+        }
+    }
+
+    private removeClass(elem: Element, clazz: string) {
+
+        let clazzes = (elem.getAttribute('class') || '').split(' ');
+        const idx = clazzes.indexOf(clazz);
+        if (idx !== -1) {
+            clazzes.splice(idx, 1);
+            elem.setAttribute('class', clazzes.join(' '));
+        }
+    }
+
 
 }

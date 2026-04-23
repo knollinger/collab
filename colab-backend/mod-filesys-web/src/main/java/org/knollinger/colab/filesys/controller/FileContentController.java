@@ -6,7 +6,9 @@ import org.knollinger.colab.filesys.exceptions.AccessDeniedException;
 import org.knollinger.colab.filesys.exceptions.NotFoundException;
 import org.knollinger.colab.filesys.exceptions.TechnicalFileSysException;
 import org.knollinger.colab.filesys.models.BlobInfo;
+import org.knollinger.colab.filesys.models.INode;
 import org.knollinger.colab.filesys.services.IDownloadService;
+import org.knollinger.colab.filesys.services.IFileContentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -14,9 +16,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -26,6 +31,9 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping(path = "v1/filecontent")
 public class FileContentController
 {
+    @Autowired()
+    private IFileContentService contentSvc;
+    
     @Autowired()
     private IDownloadService downloadSvc;
 
@@ -51,6 +59,33 @@ public class FileContentController
                 return new ResponseEntity<>(new InputStreamResource(blobInfo.getData()), headers, HttpStatus.OK);
             }
             return new ResponseEntity<>(null, headers, HttpStatus.NOT_MODIFIED);
+        }
+        catch (NotFoundException e)
+        {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+        }
+        catch (TechnicalFileSysException e)
+        {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e);
+        }
+        catch (AccessDeniedException e)
+        {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage(), e);
+        }
+    }
+
+    /**
+     * @param parentId
+     * @param file
+     */
+    @PostMapping(path = "/{uuid}")
+    public INode saveFileContent(//
+        @PathVariable("uuid") UUID parentId, //
+        @RequestParam("file") MultipartFile file)
+    {
+        try
+        {
+            return this.contentSvc.saveContent(parentId, file);
         }
         catch (NotFoundException e)
         {

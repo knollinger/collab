@@ -92,7 +92,7 @@ export class WhiteboardBgGradientEditorComponent {
   private applyGradient() {
 
     for (let shape of this.shapes) {
-      shape.fillEffect = new GradientFillEffect('gradient', this.model, this.gradientType, this.start, this.stop);
+      this.model.addFillEffect(new GradientFillEffect('gradient', this.gradientType, this.start, this.stop), shape);
     }
   }
 }

@@ -1,4 +1,4 @@
-import { AbstractShape } from "./abstractshape";
+import { AbstractShape, IShapeJSON } from "./abstractshape";
 
 /**
  * 
@@ -25,5 +25,17 @@ export class EllipsisShape extends AbstractShape {
         this.svgElem.setAttribute('cy', `${newHeight / 2}`);
         this.svgElem.setAttribute('rx', `${newWidth / 2}`);
         this.svgElem.setAttribute('ry', `${newHeight / 2}`);
+    }
+
+    /**
+     * 
+     * @param svgRoot 
+     * @param json 
+     * @returns 
+     */
+    public static fromJSON(svgRoot: SVGSVGElement, json: IShapeJSON): EllipsisShape {
+        const shape = new EllipsisShape(svgRoot);
+        shape.loadJSONProps(json);
+        return shape;
     }
 }

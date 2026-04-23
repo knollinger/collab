@@ -1,3 +1,4 @@
+import { INodeService } from "../../mod-files/services/inode.service";
 import { WhiteboardModel } from "../models/whiteboard-model";
 import { AbstractFillEffect, IFillEffectJSON } from "./abstract-fill-effect";
 
@@ -7,9 +8,9 @@ export interface IImageFillEffectJSON extends IFillEffectJSON {
 
 export class ImageFillEffect extends AbstractFillEffect {
 
-    constructor(typeName: string, model: WhiteboardModel, private imgUUID: string, imgUrl: string) {
+    constructor(typeName: string, private imgUUID: string, imgUrl: string) {
 
-        super(typeName, model, ImageFillEffect.createElement(imgUrl));
+        super(typeName, ImageFillEffect.createElement(imgUrl));
     }
 
     private static createElement(imgUrl: string): SVGElement {
@@ -53,8 +54,15 @@ export class ImageFillEffect extends AbstractFillEffect {
 
     public toJSON(): IImageFillEffectJSON {
         return {
+            id: this.id,
             type: this.typeName,
             uuid: this.imgUUID
         }
+    }
+
+    public static fromJSON(json: IImageFillEffectJSON, urlResolver: INodeService): ImageFillEffect {
+        const uuid = json.uuid;
+        const url = urlResolver.getContentUrl(uuid);
+        return new ImageFillEffect(json.type, uuid, url);
     }
 }

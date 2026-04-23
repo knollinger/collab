@@ -1,10 +1,12 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject, ViewChild } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 
 import { EDragMode } from '../../models/edrag-mode';
-
 import { EZOrderMode } from '../../models/ezorder-mode';
+
 import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
 import { WhiteboardExportService } from '../../services/whiteboard-export.service';
 import { WhiteboardModel } from '../../models/whiteboard-model';
@@ -12,6 +14,7 @@ import { AbstractShape } from '../../drawables/shapes/abstractshape';
 import { RectShape } from '../../drawables/shapes/rect-shape';
 import { EllipsisShape } from '../../drawables/shapes/ellipsis-shape';
 import { RombusShape } from '../../drawables/shapes/rombus-shape';
+import { WhiteboardPersistenceService } from '../../services/whiteboard-persistence.service';
 
 @Component({
   selector: 'app-whiteboard-editor',
@@ -21,6 +24,9 @@ import { RombusShape } from '../../drawables/shapes/rombus-shape';
 export class WhiteboardEditorComponent implements AfterViewInit {
 
   private static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+  private destroyRef = inject(DestroyRef);
+
+  private uuid: string | null = null;
 
   @ViewChild("svg")
   svgElem!: ElementRef<SVGSVGElement>;
@@ -45,18 +51,38 @@ export class WhiteboardEditorComponent implements AfterViewInit {
    * 
    */
   constructor(
+    private currRoute: ActivatedRoute,
     private commonsDlgs: CommonDialogsService,
+    private persistenceSvc: WhiteboardPersistenceService,
     private exportSvc: WhiteboardExportService) {
 
   }
-
 
   /**
    * Binde das aktuelle SVG an das Whiteboard-Model
    */
   ngAfterViewInit() {
 
-    this.model = new WhiteboardModel(this.svgRoot);
+    this.currRoute.paramMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(params => {
+
+        this.uuid = params.get('uuid');
+        if (!this.uuid) {
+          this.model = new WhiteboardModel(this.svgRoot);
+        }
+        else {
+          this.persistenceSvc.loadModel(this.uuid, this.svgRoot)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(model => {
+              this.model = model;
+              this.model.shapes.forEach(shape => {
+                this.bindEventHandlers(shape);
+              })
+              this.deselectAll();
+            });
+        }
+      })
   }
 
   /**
@@ -102,7 +128,17 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
   onSave() {
 
-    console.log(this.model.toJSON());
+    console.log('save model');
+    if (this.uuid) {
+      this.persistenceSvc.saveModel(this.uuid, this.model)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(inode => {
+          console.log(inode);
+        });
+    }
+    else {
+      alert('save new doc not yet implemented');
+    }
   }
 
   /**
@@ -145,14 +181,19 @@ export class WhiteboardEditorComponent implements AfterViewInit {
     }
 
     this.model.addShape(shape);
+    this.bindEventHandlers(shape);
+
+    shape.posX = shape.posY = 30;
+    shape.width = shape.height = 100;
+  }
+
+  private bindEventHandlers(shape: AbstractShape) {
 
     shape.onShapeChanged = this.onShapeChanged.bind(this);
     shape.onClick = this.onShapeClick.bind(this);
     shape.onStartDrag = this.onStartDragShape.bind(this);
     shape.onStartResize = this.onStartResizeShape.bind(this);
     shape.onShowCtxMenu = this.onShowShapesContextMenu.bind(this);
-    shape.posX = shape.posY = 30;
-    shape.width = shape.height = 100;
   }
 
   /**

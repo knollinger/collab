@@ -25,7 +25,7 @@ export class WhiteboardBgColorEditorComponent {
 
     this._color = color;
     for (let shape of this.shapes) {
-      shape.fillEffect = new ColorFillEffect('color', this.model, color);
+      this.model.addFillEffect(new ColorFillEffect('color', color), shape);
     }
   }
 

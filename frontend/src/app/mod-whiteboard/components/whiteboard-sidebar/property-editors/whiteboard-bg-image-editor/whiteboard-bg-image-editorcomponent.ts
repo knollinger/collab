@@ -61,7 +61,7 @@ export class WhiteboardBgImageEditorComponent {
   onApply() {
 
     this.shapes!.forEach(shape => {
-      shape.fillEffect = new ImageFillEffect('image', this.model, this.imageUUID, this.imageUrl);
+      this.model.addFillEffect(new ImageFillEffect('image', this.imageUUID, this.imageUrl), shape);
     });
   }
 }

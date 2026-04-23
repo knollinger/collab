@@ -1,4 +1,4 @@
-import { AbstractShape } from "./abstractshape";
+import { AbstractShape, IShapeJSON } from "./abstractshape";
 
 /**
  * 
@@ -24,4 +24,17 @@ export class RectShape extends AbstractShape {
         this.svgElem.setAttribute('width', newWidth.toString());
         this.svgElem.setAttribute('height', newHeight.toString());
     }
+
+    /**
+     * 
+     * @param svgRoot 
+     * @param json 
+     * @returns 
+     */
+    public static fromJSON(svgRoot: SVGSVGElement, json: IShapeJSON): RectShape {
+        const shape = new RectShape(svgRoot);
+        shape.loadJSONProps(json);
+        return shape;
+    }
+
 }

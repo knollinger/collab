@@ -1,4 +1,4 @@
-import { AbstractShape } from "./abstractshape";
+import { AbstractShape, IShapeJSON } from "./abstractshape";
 
 /**
  * 
@@ -23,5 +23,17 @@ export class RombusShape extends AbstractShape {
 
         const points = `${newWidth / 2},0 ${newWidth}, ${newHeight / 2} ${newWidth / 2},${newHeight} 0,${newHeight / 2}`;
         this.svgElem.setAttribute('points', points);
+    }
+
+    /**
+     * 
+     * @param svgRoot 
+     * @param json 
+     * @returns 
+     */
+    public static fromJSON(svgRoot: SVGSVGElement, json: IShapeJSON): RombusShape {
+        const shape = new RombusShape(svgRoot);
+        shape.loadJSONProps(json);
+        return shape;
     }
 }
