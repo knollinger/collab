@@ -17,6 +17,9 @@ import { WhiteboardPersistenceService } from '../../services/whiteboard-persiste
 import { SelectorFrameGlassPane } from '../../glass-panes/selector-frame-glasspane';
 import { DragShapesGlassPane } from '../../glass-panes/drag-shape-glasspane';
 import { ResizeShapesGlassPane } from '../../glass-panes/resize-shape-glasspane';
+import { AbstractLine } from '../../drawables/lines/abstract-line';
+import { DragLineGlassPane } from '../../glass-panes/drag-line-glasspane';
+
 
 @Component({
   selector: 'app-whiteboard-editor',
@@ -197,6 +200,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
   public onCreateLine(type: string) {
 
     const line = this.model.createLine(type);
+    line.onStartResize = this.onStartResizeLine.bind(this);
   }
 
   onShapeChanged(shape: AbstractShape) {
@@ -239,7 +243,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
   /**
    * 
    * Starte den Resize eines SHapes. Dies wird durch einen ButtonDown auf einen
-   * ResizeAnchor ausgelöst. Der Rest wird im mouseMove erledigt
+   * ResizeAnchor ausgelöst.
    * 
    * @param evt 
    * @param shape 
@@ -254,6 +258,18 @@ export class WhiteboardEditorComponent implements AfterViewInit {
     new ResizeShapesGlassPane(this.model, resizeType);
   }
 
+  /**
+   * Auf einen DragAnchor einer Linie wurde ein MouseButton gedrückt. Starte
+   * den LineDragMode
+   * 
+   * @param evt 
+   * @param line 
+   * @param type 
+   */
+  onStartResizeLine(evt: MouseEvent, line: AbstractLine, type: string) {
+
+    new DragLineGlassPane(this.model.svgRoot, line, type);
+  }
 
   /**
    * Auf das rootSVG wurde ein MouseDown ausgelöst.

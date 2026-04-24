@@ -6,6 +6,10 @@ export enum ConnectorMarkerType {
     DIAMOND
 }
 
+export interface StartResizeCallback {
+    (evt: MouseEvent, shape: AbstractLine, type: string): void;
+}
+
 /**
  * Die Basis aller Connectoren
  * 
@@ -33,12 +37,14 @@ export abstract class AbstractLine {
     public markerEnd: ConnectorMarkerType = ConnectorMarkerType.NONE;
     public readonly groupElem: SVGGElement;
 
-    private x1: number = 20;
-    private y1: number = 20;
-    private x2: number = 0;
-    private y2: number = 0;
+    private _x1: number = 20;
+    private _y1: number = 20;
+    private _x2: number = 0;
+    private _y2: number = 0;
     private startAnchor: SVGGraphicsElement;
     private endAnchor: SVGGraphicsElement;
+
+    private _onStartResize: StartResizeCallback = () => { };
 
     /**
      * 
@@ -50,7 +56,7 @@ export abstract class AbstractLine {
         public readonly svgElem: SVGGraphicsElement) {
 
         this.svgElem.setAttribute('fill', '#ffffff');
-        this.svgElem.setAttribute('stroke-width', '3');
+        this.svgElem.setAttribute('stroke-width', '1');
         this.svgElem.setAttribute('stroke', '#000000');
 
         this.svgElem.addEventListener('mousemove', () => {
@@ -73,6 +79,10 @@ export abstract class AbstractLine {
         this.color = AbstractLine.DEFAULT_COLOR;
         this.startMarker = ConnectorMarkerType.NONE;
         this.endMarker = ConnectorMarkerType.NONE;
+    }
+
+    public set onStartResize(callback: StartResizeCallback) {
+        this._onStartResize = callback;
     }
 
     /*-----------------------------------------------------------------------*/
@@ -160,15 +170,31 @@ export abstract class AbstractLine {
     /*                                                                       */
     /*-----------------------------------------------------------------------*/
 
+    public get x1(): number {
+        return this._x1;
+    }
+    
+    public get y1(): number {
+        return this._y1;
+    }
+    
+    public get x2(): number {
+        return this._x2;
+    }
+    
+    public get y2(): number {
+        return this._y2;
+    }
+    
     /**
      * 
      */
     public resizeLine(x1: number, y1: number, x2: number, y2: number) {
 
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
+        this._x1 = x1;
+        this._y1 = y1;
+        this._x2 = x2;
+        this._y2 = y2;
         this.resizeLineImpl(x1, y1, x2, y2);
 
         this.startAnchor.setAttribute("x", (x1 - 4).toString());
@@ -200,8 +226,8 @@ export abstract class AbstractLine {
      */
     private removeAnchors() {
 
-        this.addClass(this.startAnchor, 'hidden');
-        this.addClass(this.endAnchor, 'hidden');
+        // this.addClass(this.startAnchor, 'hidden');
+        // this.addClass(this.endAnchor, 'hidden');
     }
 
     /**
@@ -219,15 +245,13 @@ export abstract class AbstractLine {
         anchor.setAttribute('y', y.toString());
         anchor.setAttribute('width', "8");
         anchor.setAttribute('height', "8");
-        anchor.setAttribute('class', `resize hidden`)
+        anchor.setAttribute('class', `resize`)
 
-        //
-        // Einen Functor als Callback bauen!
-        //
-
-        anchor.addEventListener('mousedown', evt => {
+        anchor.addEventListener('mousedown', (evt) => {
             evt.stopPropagation();
+            this._onStartResize(evt, this, type);
         });
+
         return anchor;
     }
 

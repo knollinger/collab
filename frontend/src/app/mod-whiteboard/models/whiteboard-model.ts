@@ -245,7 +245,7 @@ export class WhiteboardModel {
      * 
      * @param type 
      */
-    public createLine(type: string) {
+    public createLine(type: string): AbstractLine {
 
         let line: AbstractLine;
 
@@ -261,6 +261,7 @@ export class WhiteboardModel {
 
         this._linesGroup.appendChild(line.groupElem);
         line.resizeLine(20, 20, 100, 100);
+        return line;
     }
 
     /*-----------------------------------------------------------------------*/
