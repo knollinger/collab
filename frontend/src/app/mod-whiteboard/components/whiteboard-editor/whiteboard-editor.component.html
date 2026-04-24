@@ -127,10 +127,7 @@
                  xmlns="http://www.w3.org/2000/svg"
                  [style.width]="imgWidth"
                  [style.height]="imgHeight"
-                 (mousedown)="onMouseDown($event)"
-                 (mousemove)="onMouseMove($event)"
-                 (mouseup)="onMouseUp($event)"
-                 (mouseleave)="onMouseLeave($event)">
+                 (mousedown)="onMouseDown($event)">
 
                 <style>
                     .hidden {
@@ -209,18 +206,6 @@
 
                     .drag-end {
                         cursor: move;
-
-                    }
-
-                    .selector-frame {
-                        fill: rgba(0, 0, 255, 0.3);
-                        stroke: lightblue;
-
-                    }
-
-                    .selector-frame-glasspane {
-                        fill: transparent;
-                        stroke: none;
 
                     }
                 </style>

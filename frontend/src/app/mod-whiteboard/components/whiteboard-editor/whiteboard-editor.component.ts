@@ -4,7 +4,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CommonDialogsService } from '../../../mod-commons/mod-commons.module';
 
-import { EDragMode } from '../../models/edrag-mode';
 import { EZOrderMode } from '../../models/ezorder-mode';
 
 import { WhiteboardShapeContextMenuComponent } from '../whiteboard-shape-context-menu/whiteboard-shape-context-menu.component';
@@ -15,6 +14,9 @@ import { RectShape } from '../../drawables/shapes/rect-shape';
 import { EllipsisShape } from '../../drawables/shapes/ellipsis-shape';
 import { RombusShape } from '../../drawables/shapes/rombus-shape';
 import { WhiteboardPersistenceService } from '../../services/whiteboard-persistence.service';
+import { SelectorFrameGlassPane } from '../../glass-panes/selector-frame-glasspane';
+import { DragShapesGlassPane } from '../../glass-panes/drag-shape-glasspane';
+import { ResizeShapesGlassPane } from '../../glass-panes/resize-shape-glasspane';
 
 @Component({
   selector: 'app-whiteboard-editor',
@@ -23,7 +25,6 @@ import { WhiteboardPersistenceService } from '../../services/whiteboard-persiste
 })
 export class WhiteboardEditorComponent implements AfterViewInit {
 
-  private static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
   private destroyRef = inject(DestroyRef);
 
   private uuid: string | null = null;
@@ -36,12 +37,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
   @ViewChild(WhiteboardShapeContextMenuComponent)
   shapeCtxMenu!: WhiteboardShapeContextMenuComponent;
-
-  private _dragMode: EDragMode = EDragMode.none;
-  private _resizeMode: string = '';
-
-  private _selectorFrameGlasspane: SVGRectElement | null = null;
-  private _selectorFrame: SVGRectElement | null = null;
 
   showShapesMenu: boolean = false;
 
@@ -230,7 +225,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
     if (evt.button === 0) {
 
-      this._dragMode = EDragMode.dragShape;
       if (!evt.ctrlKey) {
         this.model.deselectAll();
       }
@@ -238,6 +232,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
       if (shape) {
         this.model.selectShape(shape);
       }
+      new DragShapesGlassPane(this.model);
     }
   }
 
@@ -252,13 +247,11 @@ export class WhiteboardEditorComponent implements AfterViewInit {
    */
   onStartResizeShape(evt: MouseEvent, shape: AbstractShape, resizeType: string) {
 
-    this._dragMode = EDragMode.dragResize;
-    this._resizeMode = resizeType;
-
     if (!evt.ctrlKey) {
       this.model.deselectAll();
     }
     this.addSelectedShape(shape);
+    new ResizeShapesGlassPane(this.model, resizeType);
   }
 
 
@@ -278,78 +271,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
       evt.preventDefault();
 
       this.model.deselectAll();
-      this.startFrameSelection(evt);
-    }
-  }
-
-  /**
-   * 
-   * @param evt 
-   */
-  onMouseMove(evt: MouseEvent) {
-
-    if (evt.button === 0) {
-
-      evt.stopPropagation();
-      evt.preventDefault();
-
-      const deltaX = evt.movementX;
-      const deltaY = evt.movementY;
-
-      switch (this._dragMode) {
-        case EDragMode.dragShape:
-          this.model.moveSelectedShapes(deltaX, deltaY);
-          break;
-
-        case EDragMode.dragResize:
-          this.model.resizeSelectedShapes(this._resizeMode, deltaX, deltaY)
-          break;
-
-        case EDragMode.dragSelectorFrame:
-          this.resizeSelectorFrame(evt);
-          break;
-
-        default:
-          break;
-      }
-    }
-  }
-
-  /**
-   * 
-   * @param evt 
-   */
-  onMouseUp(evt: MouseEvent) {
-
-    if (evt.button === 0) {
-      evt.stopPropagation();
-      evt.preventDefault();
-
-      switch (this._dragMode) {
-        case EDragMode.dragShape:
-          break;
-
-        case EDragMode.dragResize:
-          break;
-
-        case EDragMode.dragSelectorFrame:
-          this.stopFrameSelection();
-          break;
-
-        default:
-          break;
-      }
-      this._dragMode = EDragMode.none;
-    }
-  }
-
-  /**
-   * 
-   * @param evt 
-   */
-  onMouseLeave(evt: MouseEvent) {
-    if (this._dragMode !== EDragMode.dragSelectorFrame) {
-      this._dragMode = EDragMode.none;
+      new SelectorFrameGlassPane(this.model, evt.offsetX, evt.offsetY);
     }
   }
 
@@ -364,85 +286,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
     }
     this.model.selectShape(shape);
     this.shapeCtxMenu.show(evt);
-  }
-
-  /*-------------------------------------------------------------------------*/
-  /*                                                                         */
-  /* all about frame selection                                               */
-  /*                                                                         */
-  /*-------------------------------------------------------------------------*/
-
-  private startFrameSelection(evt: MouseEvent) {
-
-    if (!this._selectorFrameGlasspane) {
-
-      this._selectorFrameGlasspane = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'rect') as SVGRectElement;
-      this._selectorFrameGlasspane.setAttribute('x', '0');
-      this._selectorFrameGlasspane.setAttribute('y', '0');
-      this._selectorFrameGlasspane.setAttribute('width', '100%');
-      this._selectorFrameGlasspane.setAttribute('height', '100%');
-      this._selectorFrameGlasspane.setAttribute('class', 'selector-frame-glasspane');
-      this.model.svgRoot.appendChild(this._selectorFrameGlasspane);
-
-      this._selectorFrame = document.createElementNS(WhiteboardEditorComponent.SVG_NAMESPACE, 'rect') as SVGRectElement;
-      this._selectorFrame.setAttribute('x', `${evt.offsetX}`);
-      this._selectorFrame.setAttribute('y', `${evt.offsetY}`);
-      this._selectorFrame.setAttribute('class', 'selector-frame');
-      this.model.svgRoot.appendChild(this._selectorFrame);
-
-
-      this.model.deselectAll();
-      this._dragMode = EDragMode.dragSelectorFrame;
-    }
-  }
-
-  /**
-   * 
-   * @param evt 
-   */
-  private resizeSelectorFrame(evt: MouseEvent) {
-
-    if (this._selectorFrame) {
-
-      const currX = Number.parseInt(this._selectorFrame.getAttribute('x')!);
-      const currY = Number.parseInt(this._selectorFrame.getAttribute('y')!);
-
-      let newX = currX;
-      let width = evt.offsetX - currX;
-      if (evt.offsetX < currX) {
-        newX = evt.offsetX;
-        width = currX - evt.offsetX;
-      }
-
-      let newY = currY;
-      let height = evt.offsetY - currY;
-      if (evt.offsetY < currY) {
-        newY = evt.offsetY;
-        height = currY - evt.offsetY;
-      }
-
-      this._selectorFrame.setAttribute('x', `${newX}`);
-      this._selectorFrame.setAttribute('y', `${newY}`);
-      this._selectorFrame.setAttribute('width', `${width}`);
-      this._selectorFrame.setAttribute('height', `${height}`);
-
-      this.model.selectByFrame(newX, newY, width, height);
-    }
-  }
-
-
-  private stopFrameSelection() {
-
-    if (this._selectorFrameGlasspane) {
-      this._selectorFrameGlasspane.remove();
-      this._selectorFrameGlasspane = null;
-    }
-    if (this._selectorFrame) {
-      this._selectorFrame.remove();
-      this._selectorFrame = null;
-    }
-    this._dragMode = EDragMode.none;
-
   }
 
   /**
