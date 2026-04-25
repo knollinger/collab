@@ -127,6 +127,7 @@
                  xmlns="http://www.w3.org/2000/svg"
                  [style.width]="imgWidth"
                  [style.height]="imgHeight"
+                 [style.cursor]="cursor"
                  (mousedown)="onMouseDown($event)">
 
                 <style>
@@ -247,6 +248,5 @@
         <app-toolbar-separator></app-toolbar-separator>
         <span>Objekte: {{model.nrOfShapes}}</span>
         <span *ngIf="model.nrOfSelectedShapes !== 0">, Ausgewählt: {{model.nrOfSelectedShapes}}</span>
-        <app-toolbar-separator></app-toolbar-separator>
     </app-toolbar>
 </div>
