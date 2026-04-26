@@ -13,4 +13,8 @@ export class ResizeShapesGlassPane extends AbstractGlassPane {
 
         this.model.resizeSelectedShapes(this.resizeType, evt.movementX, evt.movementY);
     }
+
+    override onMouseUp(evt: MouseEvent): void {
+        this.dismiss();    
+    }
 }

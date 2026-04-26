@@ -17,8 +17,7 @@ import { WhiteboardPersistenceService } from '../../services/whiteboard-persiste
 import { SelectorFrameGlassPane } from '../../glass-panes/selector-frame-glasspane';
 import { DragShapesGlassPane } from '../../glass-panes/drag-shape-glasspane';
 import { ResizeShapesGlassPane } from '../../glass-panes/resize-shape-glasspane';
-import { AbstractLine } from '../../drawables/lines/abstract-line';
-import { DragLineGlassPane } from '../../glass-panes/drag-line-glasspane';
+import { DrawLineGlassPane } from '../../glass-panes/draw-line-glasspane';
 
 /**
  * Interface für den Functor bei MouseDown auf dem SVGRoot-Element.
@@ -230,11 +229,11 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
     this.onMouseDownFunctor = (evt: MouseEvent, model: WhiteboardModel) => {
 
+      console.log('create polyline');
       const line = this.model.createLine(type);
-      line.resizeLine(evt.offsetX, evt.offsetY, evt.offsetX, evt.offsetY);
-      line.onStartResize = this.onStartResizeLine.bind(this);
-
-      this.onStartResizeLine(evt, line, 'end');
+      line.addPoint(evt.offsetX, evt.offsetY);
+      line.addPoint(evt.offsetX, evt.offsetY);
+      new DrawLineGlassPane(this.model.svgRoot, line);
     }
   }
 
@@ -294,19 +293,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
   }
 
   /**
-   * Auf einen DragAnchor einer Linie wurde ein MouseButton gedrückt. Starte
-   * den LineDragMode
-   * 
-   * @param evt 
-   * @param line 
-   * @param type 
-   */
-  onStartResizeLine(evt: MouseEvent, line: AbstractLine, type: string) {
-
-    new DragLineGlassPane(this.model.svgRoot, line, type);
-  }
-
-  /**
    * Auf das rootSVG wurde ein MouseDown ausgelöst.
    * 
    * Shapes, Connection und ResizeHandles fangen das mousedown selber ab 
@@ -318,6 +304,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
   onMouseDown(evt: MouseEvent) {
 
     if (evt.button === 0) {
+
       evt.stopPropagation();
       evt.preventDefault();
 

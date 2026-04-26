@@ -57,8 +57,7 @@ export class SelectorFrameGlassPane extends AbstractGlassPane {
      * @param evt 
      */
     override onMouseUp(evt: MouseEvent) {
-        console.log('mouseUp');
         this.frame.remove();
-        this.glassPaneElem.remove();
+        this.dismiss();
     }
 }

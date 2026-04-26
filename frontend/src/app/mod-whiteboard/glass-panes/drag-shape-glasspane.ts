@@ -13,4 +13,8 @@ export class DragShapesGlassPane extends AbstractGlassPane {
 
         this.model.moveSelectedShapes(evt.movementX, evt.movementY);
     }
+
+    override onMouseUp(evt: MouseEvent) {
+        this.dismiss();
+    }
 }

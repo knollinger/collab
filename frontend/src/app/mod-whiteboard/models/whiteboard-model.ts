@@ -1,9 +1,5 @@
-import { AbstractLine } from '../drawables/lines/abstract-line';
-import { DirectLine } from '../drawables/lines/direct-line';
+import { PolyLine } from '../drawables/lines/polyline';
 import { AbstractShape, IShapeJSON } from '../drawables/shapes/abstractshape';
-import { EllipsisShape } from '../drawables/shapes/ellipsis-shape';
-import { RectShape } from '../drawables/shapes/rect-shape';
-import { RombusShape } from '../drawables/shapes/rombus-shape';
 import { AbstractFillEffect } from '../fill-effects/abstract-fill-effect';
 import { EZOrderMode } from './ezorder-mode';
 
@@ -245,24 +241,32 @@ export class WhiteboardModel {
      * 
      * @param type 
      */
-    public createLine(type: string): AbstractLine {
+    // public createLine(type: string): AbstractLine {
 
-        let line: AbstractLine;
+    //     let line: AbstractLine;
 
-        switch (type) {
-            case 'direct':
-                line = new DirectLine(this.svgRoot);
-                break;
+    //     switch (type) {
+    //         case 'direct':
+    //             line = new DirectLine(this.svgRoot);
+    //             break;
 
-            default:
-                throw new Error(`unknown line type '${type}`);
-                break;
-        }
+    //         default:
+    //             throw new Error(`unknown line type '${type}`);
+    //             break;
+    //     }
 
-        this._linesGroup.appendChild(line.groupElem);
-        line.resizeLine(20, 20, 100, 100);
+    //     this._linesGroup.appendChild(line.groupElem);
+    //     line.resizeLine(20, 20, 100, 100);
+    //     return line;
+    // }
+
+    public createLine(type: string): PolyLine {
+
+        const line = new PolyLine(this.svgRoot);
+        this._linesGroup.appendChild(line.elemCnr);
         return line;
     }
+
 
     /*-----------------------------------------------------------------------*/
     /*                                                                       */
