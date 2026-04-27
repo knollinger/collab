@@ -193,6 +193,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
     const shape = new PolygoneShape(this.model.svgRoot);
     this.model.addShape(shape);
+    this.bindShapeEventHandlers(shape);
     this.showGlassPane(new DrawPolygoneGlassPane(this.model.svgRoot, shape));
   }
 
