@@ -18,19 +18,11 @@ import { SelectorFrameGlassPane } from '../../glass-panes/selector-frame-glasspa
 import { DragShapesGlassPane } from '../../glass-panes/drag-shape-glasspane';
 import { ResizeShapesGlassPane } from '../../glass-panes/resize-shape-glasspane';
 import { DrawLineGlassPane } from '../../glass-panes/draw-line-glasspane';
-
-/**
- * Interface für den Functor bei MouseDown auf dem SVGRoot-Element.
- * 
- * Die Idee ist, das bei CreateShape, CreateLine, ... ein entsprechender Funktor
- * erstellt wird. Dieser wird bei MouseDown gerufen, erstellt das Object und 
- * blendet die entsprechende Glasspane ein.
- * 
- */
-interface OnMouseDownFunctor {
-  (evt: MouseEvent, model: WhiteboardModel): void;
-}
-
+import { PolygoneShape } from '../../drawables/shapes/polygone-shape';
+import { DrawPolygoneGlassPane } from '../../glass-panes/draw-polygon-glasspane';
+import { AbstractGlassPane } from '../../glass-panes/abstract-glasspane';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { CreateShapeGlassPane } from '../../glass-panes/create-shape-glasspane';
 
 @Component({
   selector: 'app-whiteboard-editor',
@@ -55,8 +47,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
   showShapesMenu: boolean = false;
   model: WhiteboardModel = WhiteboardModel.empty();
 
-  private onMouseDownFunctor: OnMouseDownFunctor | null = null;
-
   /**
    * 
    */
@@ -64,7 +54,8 @@ export class WhiteboardEditorComponent implements AfterViewInit {
     private currRoute: ActivatedRoute,
     private commonsDlgs: CommonDialogsService,
     private persistenceSvc: WhiteboardPersistenceService,
-    private exportSvc: WhiteboardExportService) {
+    private exportSvc: WhiteboardExportService,
+    private snackBar: MatSnackBar) {
 
   }
 
@@ -101,17 +92,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
   get svgRoot(): SVGSVGElement {
     return this.svgElem.nativeElement;
   }
-
-  /**
-   * Liefere den aktuell anzuzeigenden Cursor.
-   * 
-   * Standard ist der Default-Cursor, wenn ein onMouseDown-Functor
-   * vorliegt wird der Fadenkreuz-Cursor angezeigt
-   */
-  get cursor(): string {
-    return this.onMouseDownFunctor ? 'crosshair' : 'default';
-  }
-
   /*-------------------------------------------------------------------------*/
   /*                                                                         */
   /* All image dimensions                                                    */
@@ -179,34 +159,41 @@ export class WhiteboardEditorComponent implements AfterViewInit {
   /**
    * Erzeuge ein Shape
    */
-  public onCreateShape(type: string) {
+  public onCreateSimpleShape(type: string) {
 
-    this.onMouseDownFunctor = (evt: MouseEvent, model: WhiteboardModel) => {
-      let shape: AbstractShape;
-      switch (type) {
-        case 'rect':
-          shape = new RectShape(this.model.svgRoot);
-          break;
+    let shape: AbstractShape;
+    switch (type) {
+      case 'rect':
+        shape = new RectShape(this.model.svgRoot);
+        break;
 
-        case 'ellipse':
-          shape = new EllipsisShape(this.model.svgRoot);
-          break;
+      case 'ellipse':
+        shape = new EllipsisShape(this.model.svgRoot);
+        break;
 
-        case 'rombus':
-          shape = new RombusShape(this.model.svgRoot);
-          break;
+      case 'rombus':
+        shape = new RombusShape(this.model.svgRoot);
+        break;
 
-        default:
-          throw new Error(`unknown shape type '${type}`);
-      }
+      case 'polygon':
+        shape = new PolygoneShape(this.model.svgRoot);
+        break;
 
-      this.model.addShape(shape);
-      this.bindShapeEventHandlers(shape);
-
-      shape.posX = evt.offsetX;
-      shape.posY = evt.offsetY;
-      this.onStartResizeShape(evt, shape, 'se');
+      default:
+        throw new Error(`unknown shape type '${type}`);
     }
+
+    shape.width = shape.height = 0;
+    this.model.addShape(shape);
+    this.bindShapeEventHandlers(shape);
+    this.showGlassPane(new CreateShapeGlassPane(this.model, shape));
+  }
+
+  public onCreatePolygoneShape() {
+
+    const shape = new PolygoneShape(this.model.svgRoot);
+    this.model.addShape(shape);
+    this.showGlassPane(new DrawPolygoneGlassPane(this.model.svgRoot, shape));
   }
 
   /**
@@ -225,16 +212,10 @@ export class WhiteboardEditorComponent implements AfterViewInit {
   /**
    * Erzeuge ein Shape
    */
-  public onCreateLine(type: string) {
+  public onCreatePolyLineLine() {
 
-    this.onMouseDownFunctor = (evt: MouseEvent, model: WhiteboardModel) => {
-
-      console.log('create polyline');
-      const line = this.model.createLine(type);
-      line.addPoint(evt.offsetX, evt.offsetY);
-      line.addPoint(evt.offsetX, evt.offsetY);
-      new DrawLineGlassPane(this.model.svgRoot, line);
-    }
+    const line = this.model.createPolyLine();
+    this.showGlassPane(new DrawLineGlassPane(this.model.svgRoot, line));
   }
 
   onShapeChanged(shape: AbstractShape) {
@@ -270,7 +251,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
       if (shape) {
         this.model.selectShape(shape);
       }
-      new DragShapesGlassPane(this.model);
+      this.showGlassPane(new DragShapesGlassPane(this.model));
     }
   }
 
@@ -289,7 +270,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
       this.model.deselectAll();
     }
     this.addSelectedShape(shape);
-    new ResizeShapesGlassPane(this.model, resizeType);
+    this.showGlassPane(new ResizeShapesGlassPane(this.model, resizeType));
   }
 
   /**
@@ -308,14 +289,8 @@ export class WhiteboardEditorComponent implements AfterViewInit {
       evt.stopPropagation();
       evt.preventDefault();
 
-      if (this.onMouseDownFunctor) {
-        this.onMouseDownFunctor(evt, this.model);
-        this.onMouseDownFunctor = null;
-      }
-      else {
-        this.model.deselectAll();
-        new SelectorFrameGlassPane(this.model, evt.offsetX, evt.offsetY);
-      }
+      this.model.deselectAll();
+      this.showGlassPane(new SelectorFrameGlassPane(this.model, evt.offsetX, evt.offsetY));
     }
   }
 
@@ -384,5 +359,17 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
   onChangeZOrder(zorder: EZOrderMode) {
     this.model.changeSelectedShapesZOrder(zorder);
+  }
+
+  /**
+   * 
+   * @param glassPane 
+   */
+  private showGlassPane(glassPane: AbstractGlassPane) {
+
+    const hintText = glassPane.hintText;
+    if (hintText) {
+      this.commonsDlgs.showSnackbar(hintText);
+    }
   }
 }

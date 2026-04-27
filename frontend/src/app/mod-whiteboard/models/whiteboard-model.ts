@@ -213,8 +213,6 @@ export class WhiteboardModel {
 
         this._shapes.push(shape);
         this._shapesGroup.appendChild(shape.elemCnr);
-        this.deselectAll();
-        this.selectShape(shape);
     }
 
     public get shapes(): AbstractShape[] {
@@ -237,30 +235,7 @@ export class WhiteboardModel {
         return [...this._fillEffects];
     }
 
-    /**
-     * 
-     * @param type 
-     */
-    // public createLine(type: string): AbstractLine {
-
-    //     let line: AbstractLine;
-
-    //     switch (type) {
-    //         case 'direct':
-    //             line = new DirectLine(this.svgRoot);
-    //             break;
-
-    //         default:
-    //             throw new Error(`unknown line type '${type}`);
-    //             break;
-    //     }
-
-    //     this._linesGroup.appendChild(line.groupElem);
-    //     line.resizeLine(20, 20, 100, 100);
-    //     return line;
-    // }
-
-    public createLine(type: string): PolyLine {
+    public createPolyLine(): PolyLine {
 
         const line = new PolyLine(this.svgRoot);
         this._linesGroup.appendChild(line.elemCnr);

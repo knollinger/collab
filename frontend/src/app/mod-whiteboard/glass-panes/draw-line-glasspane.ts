@@ -17,18 +17,14 @@ export class DrawLineGlassPane extends AbstractGlassPane {
         }
     }
 
-    override onMouseDown(evt: MouseEvent) {
-        evt.stopPropagation();
-    }
-    
     override onClick(evt: MouseEvent) {
-        evt.stopPropagation();
+        if(this.line.nrOfPoints === 0) {
         this.line.addPoint(evt.offsetX, evt.offsetY);
-        console.log('onClick');
+        }
+        this.line.addPoint(evt.offsetX, evt.offsetY);
     }
 
     override onDoubleClick(evt: MouseEvent) {
-        evt.stopPropagation();
         this.dismiss();
 
     }

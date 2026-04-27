@@ -31,36 +31,40 @@
 
                 <div class="multi-column-menu-title">Formen</div>
                 <button mat-icon-button
-                        (click)="onCreateShape('rect')"
+                        (click)="onCreateSimpleShape('rect')"
                         matTooltip="Rechteck">
                     <mat-icon class="material-symbols-outlined">rectangle</mat-icon>
                 </button>
 
                 <button mat-icon-button
-                        (click)="onCreateShape('rombus')"
+                        (click)="onCreateSimpleShape('rombus')"
                         matTooltip="Rombus">
                     <mat-icon class="material-symbols-outlined">stat_0</mat-icon>
                 </button>
 
                 <button mat-icon-button
-                        (click)="onCreateShape('ellipse')"
+                        (click)="onCreateSimpleShape('ellipse')"
                         matTooltip="Kreis/Elipse">
                     <mat-icon class="material-symbols-outlined">circle</mat-icon>
+                </button>
+
+                <button mat-icon-button
+                        (click)="onCreatePolygoneShape()"
+                        matTooltip="Polygon">
+                    <mat-icon class="material-symbols-outlined">label</mat-icon>
                 </button>
 
 
                 <div class="multi-column-menu-title">Linien</div>
                 <button mat-icon-button
-                        (click)="onCreateLine('direct')">
-                    <mat-icon class="material-symbols-outlined">remove</mat-icon>
+                        (click)="onCreatePolyLineLine()"
+                        matTooltip="Linie/Mehrfach-Linie">
+                    <mat-icon class="material-symbols-outlined">polyline</mat-icon>
                 </button>
 
-                <button mat-icon-button>
+                <button mat-icon-button
+                        matTooltip="Kurve">
                     <mat-icon class="material-symbols-outlined">line_curve</mat-icon>
-                </button>
-
-                <button mat-icon-button>
-                    <mat-icon class="material-symbols-outlined">timelinecircle</mat-icon>
                 </button>
 
                 <div class="multi-column-menu-title">Text-Bereiche</div>
@@ -127,7 +131,7 @@
                  xmlns="http://www.w3.org/2000/svg"
                  [style.width]="imgWidth"
                  [style.height]="imgHeight"
-                 [style.cursor]="cursor"
+                 style.cursor="crosshair"
                  (mousedown)="onMouseDown($event)">
 
                 <style>
@@ -200,7 +204,8 @@
                         cursor: sw-resize;
                     }
 
-                    .drag-start, .drag-end {
+                    .drag-start,
+                    .drag-end {
                         cursor: move;
                     }
                 </style>
@@ -243,10 +248,10 @@
 
     </div>
 
-    <app-toolbar class="footer">
+    <!-- <app-toolbar class="footer">
         <span>Bild-Größe: {{model.width}} x {{model.height}}</span>
         <app-toolbar-separator></app-toolbar-separator>
         <span>Objekte: {{model.nrOfShapes}}</span>
         <span *ngIf="model.nrOfSelectedShapes !== 0">, Ausgewählt: {{model.nrOfSelectedShapes}}</span>
-    </app-toolbar>
+    </app-toolbar> -->
 </div>

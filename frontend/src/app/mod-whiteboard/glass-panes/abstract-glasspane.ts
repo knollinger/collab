@@ -16,7 +16,6 @@ export class AbstractGlassPane {
 
     protected static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
-
     private glassPaneHost: SVGForeignObjectElement;
 
 
@@ -33,13 +32,40 @@ export class AbstractGlassPane {
         glassPaneElem.style.height = '100%';
         glassPaneElem.style.backgroundColor = 'transparent';
 
-        glassPaneElem.addEventListener('mousemove', this.onMouseMove.bind(this));
-        glassPaneElem.addEventListener('mouseenter', this.onMouseEnter.bind(this));
-        glassPaneElem.addEventListener('mouseleave', this.onMouseLeave.bind(this));
-        glassPaneElem.addEventListener('mousedown', this.onMouseDown.bind(this));
-        glassPaneElem.addEventListener('mouseup', this.onMouseUp.bind(this));
-        glassPaneElem.addEventListener('click', this.onClick.bind(this));
-        glassPaneElem.addEventListener('dblclick', this.onDoubleClick.bind(this));
+        glassPaneElem.addEventListener('mousemove', (evt) => {
+            evt.stopPropagation();
+            this.onMouseMove(evt);
+        })
+
+        glassPaneElem.addEventListener('mouseenter', (evt) => {
+            evt.stopPropagation();
+            this.onMouseEnter(evt);
+        })
+
+        glassPaneElem.addEventListener('mouseleave', (evt) => {
+            evt.stopPropagation();
+            this.onMouseLeave(evt);
+        })
+
+        glassPaneElem.addEventListener('mousedown', (evt) => {
+            evt.stopPropagation();
+            this.onMouseDown(evt);
+        })
+
+        glassPaneElem.addEventListener('mouseup', (evt) => {
+            evt.stopPropagation();
+            this.onMouseUp(evt);
+        })
+
+        glassPaneElem.addEventListener('click', (evt) => {
+            evt.stopPropagation();
+            this.onClick(evt);
+        })
+        
+        glassPaneElem.addEventListener('dblclick', (evt) => {
+            evt.stopPropagation();
+            this.onDoubleClick(evt);
+        })
 
         this.glassPaneHost = document.createElementNS(AbstractGlassPane.SVG_NAMESPACE, 'foreignObject') as SVGForeignObjectElement;
         this.glassPaneHost.setAttribute('x', '0');
@@ -50,6 +76,10 @@ export class AbstractGlassPane {
 
         this.svgRoot.appendChild(this.glassPaneHost);
 
+    }
+
+    public get hintText(): string | undefined {
+        return undefined;
     }
 
     /**
