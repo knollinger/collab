@@ -605,7 +605,7 @@ export abstract class AbstractShape {
      * @param newWidth 
      * @param newHeight 
      */
-    abstract onResizeImpl(newWidth: number, newHeight: number): void;
+    protected abstract onResizeImpl(newWidth: number, newHeight: number): void;
 
     /**
      * Erzeugt den outer container.

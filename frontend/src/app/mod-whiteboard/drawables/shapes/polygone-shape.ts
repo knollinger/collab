@@ -86,7 +86,7 @@ export class PolygoneShape extends AbstractShape {
         this._polygon.setAttribute('points', attr.trim());
     }
 
-    onResizeImpl(newWidth: number, newHeight: number): void {
+    protected onResizeImpl(newWidth: number, newHeight: number): void {
         let attr = '';
         this._points.forEach(point => {
             attr += `${point.x},${point.y} `;
