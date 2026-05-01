@@ -1,4 +1,5 @@
 import { AbstractFillEffect, IFillEffectJSON } from "../../fill-effects/abstract-fill-effect"
+import { DragAnchor, DragDirection } from "../anchors/drag-anchor";
 
 export interface MouseButtonCallback {
     (evt: MouseEvent, shape: AbstractShape): void;
@@ -43,21 +44,14 @@ export interface IShapeJSON {
 export abstract class AbstractShape {
 
     protected static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-    private static DECORATOR_PADDING = 16;
-    private static RESIZE_ANCHOR_WIDTH = 8;
-    private static RESIZE_ANCHOR_HEIGHT = 8;
-    private static CONNECTOR_ANCHOR_RADIUS = 5;
 
     public readonly elemCnr: SVGGElement;
-    private decorator: SVGGElement;
-    private connectors: SVGGElement;
+    private dragAnchorsGroup: SVGGElement;
     private textFieldCnr: SVGForeignObjectElement;
 
     private _onChanged: ShapeChangedCallback = () => { };
     private _onClick: MouseButtonCallback = () => { };
     private _onStartDrag: MouseButtonCallback = () => { };
-    private _onStartResize: StartResizeCallback = () => { };
-    private _onStartConnect: StartConnectCallback = () => { };
     private _onShowCtxMenu: MouseButtonCallback = () => { };
 
 
@@ -83,11 +77,10 @@ export abstract class AbstractShape {
         this.elemCnr.appendChild(this.svgElem);
         this.elemCnr.appendChild(this.textFieldCnr);
 
-        this.decorator = this.createDecoratorFrame();
-        this.elemCnr.insertBefore(this.decorator, this.elemCnr.firstChild);
-
-        this.connectors = this.createConnectors();
-        this.elemCnr.appendChild(this.connectors);
+        this.dragAnchorsGroup = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
+        this.dragAnchorsGroup.setAttribute('name', 'resize-anchors');
+        this.dragAnchorsGroup.setAttribute('class', 'hidden');
+        this.elemCnr.appendChild(this.dragAnchorsGroup);
     }
 
     /**
@@ -105,9 +98,6 @@ export abstract class AbstractShape {
             evt.stopPropagation();
             this._onStartDrag(evt as MouseEvent, this);
         });
-
-        elem.addEventListener('mousemove', evt => this.showConnectors(true));
-        elem.addEventListener('mouseleave', evt => this.showConnectors(false));
 
         elem.addEventListener('contextmenu', evt => {
             evt.stopPropagation();
@@ -138,20 +128,6 @@ export abstract class AbstractShape {
     }
 
     /**
-     * setze den StartResize-Callback
-     */
-    public set onStartResize(callback: StartResizeCallback) {
-        this._onStartResize = callback;
-    }
-
-    /**
-     * setze den StartResize-Callback
-     */
-    public set onStartConnect(callback: StartConnectCallback) {
-        this._onStartConnect = callback;
-    }
-
-    /**
      * setze den ContextMenu-Callback
      */
     public set onShowCtxMenu(callback: MouseButtonCallback) {
@@ -166,10 +142,10 @@ export abstract class AbstractShape {
     public showSelectionFrame(val: boolean) {
 
         if (val) {
-            this.removeClass(this.decorator, 'hidden');
+            this.removeClass(this.dragAnchorsGroup, 'hidden');
         }
         else {
-            this.addClass(this.decorator, 'hidden');
+            this.addClass(this.dragAnchorsGroup, 'hidden');
         }
     }
 
@@ -372,9 +348,6 @@ export abstract class AbstractShape {
     }
 
     private resize() {
-
-        this.resizeDecoratorFrame();
-        this.arrangeConnectors();
 
         this.textFieldCnr.setAttribute('width', this._width.toString());
         this.textFieldCnr.setAttribute('height', this._height.toString());
@@ -626,238 +599,13 @@ export abstract class AbstractShape {
     }
 
     /**
-     * Erzeuge den DekoratorFrame, dieser wird zum skalieren benötigt.
-     * 
-     * Der DecoratorFrame zeichnet ein dotted rechtangle um das eigentliche
-     * SVGElement mit 8px Abstand. Auf die Ecken und auf die Mitte der 
-     * Frame-Seiten werden DrawAnchors gesetzt.
-     * 
-     * @param elem 
-     */
-    private createDecoratorFrame() {
-
-        const decorator = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
-        decorator.setAttribute('class', 'hidden');
-
-        const frame = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGRectElement;
-        frame.setAttribute('x', `${-AbstractShape.DECORATOR_PADDING}`);
-        frame.setAttribute('y', `${-AbstractShape.DECORATOR_PADDING}`);
-        frame.setAttribute('width', `${this._width + AbstractShape.DECORATOR_PADDING * 2}`);
-        frame.setAttribute('height', `${this._height + AbstractShape.DECORATOR_PADDING * 2}`);
-        frame.setAttribute('class', 'decorator-frame');
-        decorator.appendChild(frame);
-
-        decorator.appendChild(this.createResizeAnchor('nw'));
-        decorator.appendChild(this.createResizeAnchor('w'));
-        decorator.appendChild(this.createResizeAnchor('sw'));
-        decorator.appendChild(this.createResizeAnchor('n'));
-        decorator.appendChild(this.createResizeAnchor('s'));
-        decorator.appendChild(this.createResizeAnchor('ne'));
-        decorator.appendChild(this.createResizeAnchor('e'));
-        decorator.appendChild(this.createResizeAnchor('se'));
-
-        return decorator;
-    }
-
-    /**
     * Erzeuge einen ResizeAnchor
-    * 
-    * @param x 
-    * @param y 
-    * @param type 
-    * @returns 
     */
-    private createResizeAnchor(type: string): SVGElement {
+    protected createResizeAnchor(dir: DragDirection) {
 
-        const anchor = document.createElementNS(AbstractShape.SVG_NAMESPACE, "rect") as SVGRectElement;
-        anchor.setAttribute('name', type);
-        anchor.setAttribute('class', `resize drag-${type}`)
-
-        anchor.addEventListener('mousedown', evt => {
-            evt.stopPropagation();
-            this._onStartResize(evt, this, type);
-        });
+        const anchor = new DragAnchor(this.svgRoot, this, dir);
+        this.dragAnchorsGroup.appendChild(anchor.svgElement);
         return anchor;
-    }
-
-    private resizeDecoratorFrame() {
-
-        const regexp = /drag-.*|decorator-frame/g;
-
-        for (let i = 0; i < this.decorator.children.length; ++i) {
-
-            const elem = this.decorator.children.item(i);
-            let x: number = 0, y: number = 0, w: number = 0, h: number = 0;
-
-            const clazzes = elem?.getAttribute('class') || '';
-            const clazz = clazzes.match(regexp) || [''];
-
-            switch (clazz[0]) {
-                case 'decorator-frame':
-                    x = -AbstractShape.DECORATOR_PADDING;
-                    y = -AbstractShape.DECORATOR_PADDING;
-                    w = this._width + AbstractShape.DECORATOR_PADDING * 2;
-                    h = this._height + AbstractShape.DECORATOR_PADDING * 2
-                    break;
-
-                case 'drag-nw':
-
-                    x = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2);
-                    y = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2);
-                    w = h = 8;
-                    break;
-
-                case 'drag-w':
-                    x = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2);
-                    y = this._height / 2 - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2;
-                    w = h = 8;
-                    break;
-
-                case 'drag-sw':
-                    x = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_WIDTH / 2);
-                    y = this._height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2;
-                    w = h = 8;
-                    break;
-
-                case 'drag-n':
-                    x = this._width / 2 - AbstractShape.RESIZE_ANCHOR_WIDTH / 2;
-                    y = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2);
-                    w = h = 8;
-                    break;
-
-                case 'drag-s':
-                    x = this._width / 2 - AbstractShape.RESIZE_ANCHOR_WIDTH / 2;
-                    y = this._height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2;
-                    w = h = 8;
-                    break;
-
-                case 'drag-ne':
-                    x = this._width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2;
-                    y = -(AbstractShape.DECORATOR_PADDING + AbstractShape.RESIZE_ANCHOR_HEIGHT / 2);
-                    w = h = 8;
-                    break;
-
-                case 'drag-e':
-                    x = this._width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2;
-                    y = this._height / 2 - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2;
-                    w = h = 8;
-                    break;
-
-                case 'drag-se':
-                    x = this._width + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_WIDTH / 2;
-                    y = this._height + AbstractShape.DECORATOR_PADDING - AbstractShape.RESIZE_ANCHOR_HEIGHT / 2;
-                    w = h = 8;
-                    break;
-            }
-
-            elem!.setAttribute('x', x.toString());
-            elem!.setAttribute('y', y.toString());
-            elem!.setAttribute('width', w.toString());
-            elem!.setAttribute('height', h.toString());
-        }
-    }
-
-    /*-----------------------------------------------------------------------*/
-    /*                                                                       */
-    /* All about connectors                                                  */
-    /*                                                                       */
-    /*-----------------------------------------------------------------------*/
-
-    /**
-     * Erstellt ein SVGGElement und fügt die 4 möglichen Connectoren hinzu. Die
-     * Gruppe wird initial auf "hidden" gestellt.
-     */
-    private createConnectors() {
-
-        const connectors = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
-        connectors.setAttribute('class', 'hidden');
-
-        connectors.appendChild(this.createConnectorAnchor('n'));
-        connectors.appendChild(this.createConnectorAnchor('e'));
-        connectors.appendChild(this.createConnectorAnchor('s'));
-        connectors.appendChild(this.createConnectorAnchor('w'));
-        return connectors;
-    }
-
-    /**
-     * Bei einem Resize müssen die Connectoren neu angeordnet werden.
-     */
-    private arrangeConnectors() {
-
-        const regexp = /connector-.*/g;
-
-        for (let i = 0; i < this.connectors.children.length; ++i) {
-
-            const elem = this.connectors.children.item(i);
-            let x: number = 0, y: number = 0;
-
-            const clazzes = elem?.getAttribute('class') || '';
-            const clazz = clazzes.match(regexp) || [''];
-
-            switch (clazz[0]) {
-                case 'connector-n':
-                    x = this._width / 2;
-                    y = 0;
-                    break;
-
-                case 'connector-w':
-                    x = 0;
-                    y = this._height / 2;
-                    break;
-
-                case 'connector-s':
-                    x = this._width / 2;
-                    y = this._height
-                    break;
-
-                case 'connector-e':
-                    x = this._width;
-                    y = this._height / 2;
-                    break;
-            }
-            elem?.setAttribute('cx', x.toString());
-            elem?.setAttribute('cy', y.toString());
-        }
-    }
-
-    /**
-     * Erzeugt einen AnkerPunkt für eine Connection
-     * 
-     * @param type 
-     * @returns 
-     */
-    private createConnectorAnchor(type: string): SVGElement {
-
-        const anchor = document.createElementNS(AbstractShape.SVG_NAMESPACE, "ellipse") as SVGGElement;
-        anchor.setAttribute('rx', `${AbstractShape.CONNECTOR_ANCHOR_RADIUS}`);
-        anchor.setAttribute('ry', `${AbstractShape.CONNECTOR_ANCHOR_RADIUS}`);
-        anchor.setAttribute('class', `connector connector-${type}`);
-
-        // Das schaut jetzt komisch aus: 
-        // 
-        // * Die Maus kann aber aus dem eigentlichen Shape auf den Connector wechseln, 
-        //   dann passiert erst mal "mouseleave" auf dem shape und dadurch werden die 
-        //   connectoren versteckt und müssen wieder eingeblendet werden
-        // * Die Maus kann aber auch von einem connector ins "off" wandern, dann müssen
-        //   die connectoren versteckt werden.
-        //
-        anchor.addEventListener('mousedown', (evt: MouseEvent) => {
-            evt.stopPropagation();
-            this._onStartConnect(evt, this, type);
-        })
-        anchor.addEventListener('mousemove', evt => this.showConnectors(true));
-        anchor.addEventListener('mouseleave', evt => this.showConnectors(false));
-        return anchor;
-    }
-
-    private showConnectors(val: boolean) {
-
-        if (val) {
-            this.removeClass(this.connectors, 'hidden');
-        }
-        else {
-            this.addClass(this.connectors, 'hidden');
-        }
     }
 
     private addClass(elem: Element, clazz: string) {

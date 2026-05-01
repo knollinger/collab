@@ -191,10 +191,10 @@ export class WhiteboardEditorComponent implements AfterViewInit {
 
   public onCreatePolygoneShape() {
 
-    const shape = new PolygoneShape(this.model.svgRoot);
-    this.model.addShape(shape);
-    this.bindShapeEventHandlers(shape);
-    this.showGlassPane(new DrawPolygoneGlassPane(this.model.svgRoot, shape));
+    const glassPane = new DrawPolygoneGlassPane(this.model, (shape) => {
+      this.bindShapeEventHandlers(shape);
+    });
+    this.showGlassPane(glassPane);
   }
 
   /**
@@ -206,7 +206,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
     shape.onShapeChanged = this.onShapeChanged.bind(this);
     shape.onClick = this.onShapeClick.bind(this);
     shape.onStartDrag = this.onStartDragShape.bind(this);
-    shape.onStartResize = this.onStartResizeShape.bind(this);
     shape.onShowCtxMenu = this.onShowShapesContextMenu.bind(this);
   }
 
@@ -256,23 +255,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
     }
   }
 
-  /**
-   * 
-   * Starte den Resize eines SHapes. Dies wird durch einen ButtonDown auf einen
-   * ResizeAnchor ausgelöst.
-   * 
-   * @param evt 
-   * @param shape 
-   * @param resizeType 
-   */
-  onStartResizeShape(evt: MouseEvent, shape: AbstractShape, resizeType: string) {
-
-    if (!evt.ctrlKey) {
-      this.model.deselectAll();
-    }
-    this.addSelectedShape(shape);
-    this.showGlassPane(new ResizeShapesGlassPane(this.model, resizeType));
-  }
 
   /**
    * Auf das rootSVG wurde ein MouseDown ausgelöst.
@@ -320,13 +302,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
   /* All about selection                                                     */
   /*                                                                         */
   /*-------------------------------------------------------------------------*/
-
-  /**
-   * 
-   */
-  private addSelectedShape(shape: AbstractShape) {
-    this.model.selectShape(shape);
-  }
 
   public selectAll() {
     this.model.selectAll();

@@ -16,7 +16,7 @@ export class AbstractGlassPane {
 
     protected static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
-    private glassPaneHost: SVGForeignObjectElement;
+    public readonly glassPaneHost: SVGForeignObjectElement;
 
 
     /**
@@ -31,7 +31,8 @@ export class AbstractGlassPane {
         glassPaneElem.style.width = '100%';
         glassPaneElem.style.height = '100%';
         glassPaneElem.style.backgroundColor = 'transparent';
-
+        glassPaneElem.style.cursor = 'crosshair';
+        
         glassPaneElem.addEventListener('mousemove', (evt) => {
             evt.stopPropagation();
             this.onMouseMove(evt);
@@ -86,6 +87,7 @@ export class AbstractGlassPane {
      * Entferne die GlassPane
      */
     protected dismiss() {
+        console.log('dismiss');
         this.glassPaneHost.remove();
     }
 

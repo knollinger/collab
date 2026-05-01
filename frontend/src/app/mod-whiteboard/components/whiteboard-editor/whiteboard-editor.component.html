@@ -131,7 +131,6 @@
                  xmlns="http://www.w3.org/2000/svg"
                  [style.width]="imgWidth"
                  [style.height]="imgHeight"
-                 style.cursor="crosshair"
                  (mousedown)="onMouseDown($event)">
 
                 <style>
@@ -146,13 +145,6 @@
                         cursor: move;
                     }
 
-
-                    rect,
-                    polygone,
-                    ellipse,
-                    foreignObject {
-                        cursor: move;
-                    }
 
                     .decorator-frame {
                         stroke: lightgray;
