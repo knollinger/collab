@@ -5,14 +5,6 @@ export interface MouseButtonCallback {
     (evt: MouseEvent, shape: AbstractShape): void;
 }
 
-export interface StartResizeCallback {
-    (evt: MouseEvent, shape: AbstractShape, mode: string): void;
-}
-
-export interface StartConnectCallback {
-    (evt: MouseEvent, shape: AbstractShape, mode: string): void;
-}
-
 export interface ShapeChangedCallback {
     (shape: AbstractShape): void;
 }
@@ -73,13 +65,13 @@ export abstract class AbstractShape {
         this.textFieldCnr = this.createTextField();
         this.addEventHandlers(this.textFieldCnr);
 
-        this.elemCnr = this.createElementContainer();
-        this.elemCnr.appendChild(this.svgElem);
-        this.elemCnr.appendChild(this.textFieldCnr);
-
         this.dragAnchorsGroup = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
         this.dragAnchorsGroup.setAttribute('name', 'resize-anchors');
         this.dragAnchorsGroup.setAttribute('class', 'hidden');
+        
+        this.elemCnr = this.createElementContainer();
+        this.elemCnr.appendChild(this.svgElem);
+        this.elemCnr.appendChild(this.textFieldCnr);
         this.elemCnr.appendChild(this.dragAnchorsGroup);
     }
 
@@ -139,7 +131,7 @@ export abstract class AbstractShape {
      * 
      * @param val 
      */
-    public showSelectionFrame(val: boolean) {
+    public showDragAnchors(val: boolean) {
 
         if (val) {
             this.removeClass(this.dragAnchorsGroup, 'hidden');
@@ -170,7 +162,6 @@ export abstract class AbstractShape {
             },
             fill: this._fillEffect ? this._fillEffect.id : undefined,
             text: this.textContent,
-
         }
     }
 
@@ -189,7 +180,6 @@ export abstract class AbstractShape {
         this.borderStyle = json.border.style;
         this.borderWidth = json.border.width;
 
-        console.log(json);
         this.textContent = json.text;
     }
 
@@ -321,7 +311,7 @@ export abstract class AbstractShape {
 
     public set width(val: number) {
         this._width = val;
-        this.resize();
+        this.onResize();
     }
 
     private _height: number = 0;
@@ -332,7 +322,7 @@ export abstract class AbstractShape {
     public set height(val: number) {
 
         this._height = val;
-        this.resize();
+        this.onResize();
     }
 
     /**
@@ -344,10 +334,10 @@ export abstract class AbstractShape {
 
         this._width = this._width + resizeX;
         this._height = this._height + resizeY;
-        this.resize();
+        this.onResize();
     }
 
-    private resize() {
+    private onResize() {
 
         this.textFieldCnr.setAttribute('width', this._width.toString());
         this.textFieldCnr.setAttribute('height', this._height.toString());
@@ -469,13 +459,6 @@ export abstract class AbstractShape {
         return Number.parseInt(result);
     }
 
-    /**
-     * Lösche das Element
-     */
-    remove() {
-        this.elemCnr.remove();
-    }
-
     /*-----------------------------------------------------------------------*/
     /*                                                                       */
     /* all about the text field                                              */
@@ -522,7 +505,7 @@ export abstract class AbstractShape {
     `;
 
     /**
-     * 
+     * Liefere den Text-Content als HTML
      */
     get textContent(): string {
         return this.textField.innerHTML;
@@ -530,7 +513,7 @@ export abstract class AbstractShape {
 
     /**
      * 
-    */
+     */
     set textContent(text: string) {
 
         this.textField.innerHTML = text;
@@ -548,7 +531,7 @@ export abstract class AbstractShape {
         if (idx !== -1) {
             classes.splice(idx, 1);
         }
-        return classes.length ? classes[0] : 'textfieldSenterCenter';
+        return classes.length ? classes[0] : 'CenterCenter';
     }
 
     private get textField(): Element {
@@ -591,7 +574,6 @@ export abstract class AbstractShape {
     private createElementContainer(): SVGGElement {
 
         const group = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
-
         let transform = this.svgRoot.createSVGTransform();
         transform.setTranslate(0, 0);
         group.transform.baseVal.appendItem(transform);
@@ -601,9 +583,9 @@ export abstract class AbstractShape {
     /**
     * Erzeuge einen ResizeAnchor
     */
-    protected createResizeAnchor(dir: DragDirection) {
+    protected createResizeAnchor(dir: DragDirection, context?: any) {
 
-        const anchor = new DragAnchor(this.svgRoot, this, dir);
+        const anchor = new DragAnchor(this.svgRoot, this, dir, context);
         this.dragAnchorsGroup.appendChild(anchor.svgElement);
         return anchor;
     }

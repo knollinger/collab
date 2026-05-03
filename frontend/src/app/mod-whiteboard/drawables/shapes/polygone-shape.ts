@@ -34,17 +34,32 @@ export class PolygoneShape extends AbstractShape {
      */
     public addPoint(x: number, y: number): number {
 
-        this._anchors.push(this.createResizeAnchor('any'));
+        this._anchors.push(this.createResizeAnchor('any', this._points.length));
         this._points.push({ x: x, y: y });
         this.recalcPointsAttr();
         this.recalcDimensions();
         return this._points.length;
     }
 
+    public getPoint(idx: number): IPolygonePoint {
+        return this._points[idx];
+    }
+
+    public modifyPoint(idx: number, x: number, y: number) {
+
+        if (idx < this._points.length) {
+
+            this._points[idx].x = x;
+            this._points[idx].y = y;
+            this.recalcPointsAttr();
+            this.recalcDimensions();
+        }
+    }
+
     protected onResizeImpl(newWidth: number, newHeight: number): void {
 
         let attr = '';
-        for(let i = 0; i < this._points.length; ++i) {
+        for (let i = 0; i < this._points.length; ++i) {
 
             const point = this._points[i];
             attr += `${point.x},${point.y} `;

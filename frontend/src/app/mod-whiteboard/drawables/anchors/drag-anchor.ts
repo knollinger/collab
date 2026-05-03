@@ -5,7 +5,7 @@ import { AbstractShape } from "../shapes/abstractshape";
 export type DragDirection = 'n' | 's' | 'w' | 'e' | 'nw' | 'sw' | 'ne' | 'se' | 'any';
 
 /**
- * 
+ * Zeichnet einen DragAnchor als SVGRectElement
  */
 export class DragAnchor {
 
@@ -17,13 +17,15 @@ export class DragAnchor {
 
     /**
      * 
+     * @param svgRoot 
+     * @param shape 
      * @param direction 
-     * @param onMouseDown 
      */
     constructor(
         private svgRoot: SVGSVGElement,
         private shape: AbstractShape,
-        public readonly direction: DragDirection) {
+        private direction: DragDirection,
+        private _context?: any) {
 
         this._anchor = document.createElementNS(DragAnchor.SVG_NAMESPACE, 'rect') as SVGRectElement;
 
@@ -36,8 +38,7 @@ export class DragAnchor {
 
         this._anchor.addEventListener('mousedown', (evt: MouseEvent) => {
             evt.stopPropagation();
-            new ResizeShapesGlassPane(svgRoot, shape, this.direction);
-            // onMouseDown(evt, this.direction);
+            new ResizeShapesGlassPane(svgRoot, shape, this.direction, this._context);
         });
     }
 

@@ -1,4 +1,5 @@
 import { AbstractShape } from "../drawables/shapes/abstractshape";
+import { PolygoneShape } from "../drawables/shapes/polygone-shape";
 import { WhiteboardModel } from "../models/whiteboard-model";
 import { AbstractGlassPane } from "./abstract-glasspane";
 
@@ -7,7 +8,8 @@ export class ResizeShapesGlassPane extends AbstractGlassPane {
     constructor(
         svgRoot: SVGSVGElement,
         private shape: AbstractShape,
-        private mode: string) {
+        private mode: string,
+        private context?: any) {
         super(svgRoot);
     }
 
@@ -15,6 +17,7 @@ export class ResizeShapesGlassPane extends AbstractGlassPane {
 
         const deltaX = evt.movementX;
         const deltaY = evt.movementY;
+
         switch (this.mode) {
             case 'n':
                 this.shape.translateBy(0, deltaY);
@@ -52,6 +55,26 @@ export class ResizeShapesGlassPane extends AbstractGlassPane {
                 this.shape.translateBy(deltaX, deltaY);
                 this.shape.resizeBy(-deltaX, -deltaY);
                 break;
+
+            case 'any':
+                this.handlePointResize(deltaX, deltaY);
+                break;
+        }
+    }
+
+    private handlePointResize(deltaX: number, deltaY: number) {
+
+        if(this.context) {
+
+            if(deltaX || deltaY) {
+            console.log(deltaX + ' /' + deltaY);
+            }
+            const polygone = this.shape as PolygoneShape;
+            const idx = this.context as number;
+            const point = polygone.getPoint(idx);
+            point.x += deltaX;
+            point.y += deltaY;
+            polygone.modifyPoint(idx, point.x, point.y);
         }
     }
 

@@ -297,7 +297,7 @@ export class WhiteboardModel {
     public selectShape(shape: AbstractShape) {
 
         if (this._shapes.indexOf(shape) !== -1) {
-            shape.showSelectionFrame(true);
+            shape.showDragAnchors(true);
             this._selectedShapes.add(shape);
         }
     }
@@ -309,7 +309,7 @@ export class WhiteboardModel {
     public deselectShape(shape: AbstractShape) {
 
         if (this._shapes.indexOf(shape) !== -1) {
-            shape.showSelectionFrame(false);
+            shape.showDragAnchors(false);
             this._selectedShapes.delete(shape);
         }
     }
@@ -320,7 +320,7 @@ export class WhiteboardModel {
     public selectAll() {
 
         this._shapes.forEach(shape => {
-            shape.showSelectionFrame(true);
+            shape.showDragAnchors(true);
             this._selectedShapes.add(shape);
         })
     }
@@ -331,7 +331,7 @@ export class WhiteboardModel {
     public deselectAll() {
 
         this._selectedShapes.forEach(shape => {
-            shape.showSelectionFrame(false);
+            shape.showDragAnchors(false);
         })
         this._selectedShapes.clear();
     }
