@@ -41,10 +41,21 @@ export class PolygoneShape extends AbstractShape {
         return this._points.length;
     }
 
+    /**
+     * 
+     * @param idx 
+     * @returns 
+     */
     public getPoint(idx: number): IPolygonePoint {
         return this._points[idx];
     }
 
+    /**
+     * 
+     * @param idx 
+     * @param x 
+     * @param y 
+     */
     public modifyPoint(idx: number, x: number, y: number) {
 
         if (idx < this._points.length) {
@@ -56,6 +67,11 @@ export class PolygoneShape extends AbstractShape {
         }
     }
 
+    /**
+     * 
+     * @param newWidth 
+     * @param newHeight 
+     */
     protected onResizeImpl(newWidth: number, newHeight: number): void {
 
         let attr = '';
@@ -69,6 +85,9 @@ export class PolygoneShape extends AbstractShape {
         this._polygon.setAttribute('points', attr.trim());
     }
 
+    /**
+     * 
+     */
     private recalcPointsAttr() {
 
         let attr = '';
@@ -78,7 +97,9 @@ export class PolygoneShape extends AbstractShape {
         this._polygon.setAttribute('points', attr.trim());
     }
 
-
+    /**
+     * 
+     */
     private recalcDimensions() {
 
         let minX = Number.MAX_VALUE;
@@ -95,5 +116,4 @@ export class PolygoneShape extends AbstractShape {
         this.width = maxX - minX;
         this.height = maxY - minY;
     }
-
 }

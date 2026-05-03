@@ -1,10 +1,19 @@
 import { AbstractShape } from "../drawables/shapes/abstractshape";
 import { PolygoneShape } from "../drawables/shapes/polygone-shape";
-import { WhiteboardModel } from "../models/whiteboard-model";
 import { AbstractGlassPane } from "./abstract-glasspane";
 
+/**
+ * 
+ */
 export class ResizeShapesGlassPane extends AbstractGlassPane {
 
+    /**
+     * 
+     * @param svgRoot 
+     * @param shape 
+     * @param mode 
+     * @param context 
+     */
     constructor(
         svgRoot: SVGSVGElement,
         private shape: AbstractShape,
@@ -13,6 +22,10 @@ export class ResizeShapesGlassPane extends AbstractGlassPane {
         super(svgRoot);
     }
 
+    /**
+     * 
+     * @param evt 
+     */
     override onMouseMove(evt: MouseEvent) {
 
         const deltaX = evt.movementX;
@@ -62,13 +75,15 @@ export class ResizeShapesGlassPane extends AbstractGlassPane {
         }
     }
 
+    /**
+     * 
+     * @param deltaX 
+     * @param deltaY 
+     */
     private handlePointResize(deltaX: number, deltaY: number) {
 
         if(this.context) {
 
-            if(deltaX || deltaY) {
-            console.log(deltaX + ' /' + deltaY);
-            }
             const polygone = this.shape as PolygoneShape;
             const idx = this.context as number;
             const point = polygone.getPoint(idx);
@@ -78,6 +93,10 @@ export class ResizeShapesGlassPane extends AbstractGlassPane {
         }
     }
 
+    /**
+     * 
+     * @param evt 
+     */
     override onMouseUp(evt: MouseEvent): void {
         this.dismiss();
     }
