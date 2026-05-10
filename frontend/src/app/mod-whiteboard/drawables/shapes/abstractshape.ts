@@ -1,4 +1,5 @@
 import { AbstractFillEffect, IFillEffectJSON } from "../../fill-effects/abstract-fill-effect"
+import { Point } from "../../models/point";
 import { DragAnchor, DragDirection } from "../anchors/drag-anchor";
 
 export interface MouseButtonCallback {
@@ -68,7 +69,7 @@ export abstract class AbstractShape {
         this.dragAnchorsGroup = document.createElementNS(AbstractShape.SVG_NAMESPACE, "g") as SVGGElement;
         this.dragAnchorsGroup.setAttribute('name', 'resize-anchors');
         this.dragAnchorsGroup.setAttribute('class', 'hidden');
-        
+
         this.elemCnr = this.createElementContainer();
         this.elemCnr.appendChild(this.svgElem);
         this.elemCnr.appendChild(this.textFieldCnr);
@@ -105,6 +106,10 @@ export abstract class AbstractShape {
         this._onChanged = callback;
     }
 
+    public get onShapeChanged(): ShapeChangedCallback {
+        return this._onChanged;
+    }
+
     /**
      * setze den MouseDown-Callback
      */
@@ -126,6 +131,17 @@ export abstract class AbstractShape {
         this._onShowCtxMenu = callback;
     }
 
+    /**
+     * 
+     */
+    public delete() {
+
+        if (this._fillEffect) {
+            this._fillEffect.remove();
+        }
+        this.elemCnr.remove();
+        this._onChanged(this);
+    }
 
     /**
      * 
@@ -140,6 +156,169 @@ export abstract class AbstractShape {
             this.addClass(this.dragAnchorsGroup, 'hidden');
         }
     }
+
+    /*-----------------------------------------------------------------------*/
+    /*                                                                       */
+    /* All about positions                                                   */
+    /*                                                                       */
+    /*-----------------------------------------------------------------------*/
+
+    private _x: number = 0;
+    private _y: number = 0;
+
+    /**
+     * 
+     */
+    public get posX(): number {
+
+        return this._x;
+    }
+
+    /**
+     * 
+     */
+    public set posX(val: number) {
+
+        this._x = val;
+        this.findTranslateTransformation().setTranslate(this._x, this._y);
+        this._onChanged(this);
+    }
+
+    /**
+     * 
+     */
+    public get posY(): number {
+
+        return this._y;
+    }
+
+    /**
+     * 
+     */
+    public set posY(val: number) {
+
+        this._y = val;
+        this.findTranslateTransformation().setTranslate(this._x, this._y);
+        this._onChanged(this);
+
+    }
+
+    /**
+     * Verschiebe den Shape um die angegebenen X/Y-Werte
+     * 
+     * Dazu wird einfach das äußerste Group-Element verschoben
+     * 
+     * @param movementX 
+     * @param movementY 
+     */
+    public translateBy(movementX: number, movementY: number) {
+
+        const transform = this.findTranslateTransformation();
+        this._x += movementX;
+        this._y += movementY;
+        transform.setTranslate(this._x, this._y);
+        this._onChanged(this);
+
+    }
+
+    /**
+     * Die Postion (X,Y) wird durch eine Transformation auf der äußeren Gruppe
+     * vorgenommen. Finde also diese SVGTransformation. Wenn keine existiert 
+     * so lege sie mit den aktuellen Werten an.
+     * 
+     * @returns 
+     */
+    private findTranslateTransformation(): SVGTransform {
+
+        for (let i = 0; i < this.elemCnr.transform.baseVal.length; ++i) {
+
+            const transform = this.elemCnr.transform.baseVal.getItem(i);
+            if (transform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE) {
+                return transform;
+            }
+        }
+
+        let transform = this.svgRoot.createSVGTransform();
+        transform.setTranslate(this._x, this._y);
+        this.elemCnr.transform.baseVal.appendItem(transform);
+        return transform;
+    }
+
+    /*-----------------------------------------------------------------------*/
+    /*                                                                       */
+    /* All about dimensions                                                  */
+    /*                                                                       */
+    /*-----------------------------------------------------------------------*/
+
+    private _width: number = 0;
+    private _height: number = 0;
+
+    /**
+     * 
+     */
+    public get width(): number {
+        return this._width;
+    }
+
+    /**
+     * 
+     */
+    public set width(val: number) {
+        this._width = val;
+        this.onResize();
+    }
+
+    /**
+     * 
+     */
+    public get height(): number {
+        return this._height;
+    }
+
+    /**
+     * 
+     */
+    public set height(val: number) {
+        this._height = val;
+        this.onResize();
+    }
+
+    /**
+     * 
+     * @param resizeX 
+     * @param resizeY 
+     */
+    public resizeBy(resizeX: number, resizeY: number) {
+
+        this._width = this._width + resizeX;
+        this._height = this._height + resizeY;
+        this.onResize();
+    }
+
+    /**
+     * 
+     */
+    private onResize() {
+
+        this.textFieldCnr.setAttribute('width', this._width.toString());
+        this.textFieldCnr.setAttribute('height', this._height.toString());
+        
+        if (this._fillEffect) {
+            this._fillEffect.height = this._height;
+            this._fillEffect.width = this._width;
+        }
+
+        this.onResizeImpl(this._width, this._height);
+        this._onChanged(this);
+
+    }
+
+    /**
+     * 
+     * @param newWidth 
+     * @param newHeight 
+     */
+    protected abstract onResizeImpl(newWidth: number, newHeight: number): void;
 
     /*-----------------------------------------------------------------------*/
     /*                                                                       */
@@ -218,153 +397,18 @@ export abstract class AbstractShape {
             this._y + this._height <= y + height;
     }
 
+
     /*-----------------------------------------------------------------------*/
     /*                                                                       */
-    /* All about positions                                                   */
+    /* All about fill effects                                                */
     /*                                                                       */
     /*-----------------------------------------------------------------------*/
-
-    /**
-     * 
-     */
-    private _x: number = 0;
-    public get posX(): number {
-
-        return this._x;
-    }
-
-    /**
-     * 
-     */
-    public set posX(val: number) {
-
-        this._x = val;
-        this.findTranslateTransformation().setTranslate(this._x, this._y);
-        this._onChanged(this);
-    }
-
-    /**
-     * 
-     */
-    private _y: number = 0;
-    public get posY(): number {
-
-        return this._y;
-    }
-
-    /**
-     * 
-     */
-    public set posY(val: number) {
-
-        this._y = val;
-        this.findTranslateTransformation().setTranslate(this._x, this._y);
-        this._onChanged(this);
-
-    }
-
-    /**
-     * Verschiebe den Shape um die angegebenen X/Y-Werte
-     * 
-     * Dazu wird einfach das äußerste Group-Element verschoben
-     * 
-     * @param movementX 
-     * @param movementY 
-     */
-    public translateBy(movementX: number, movementY: number) {
-
-        const transform = this.findTranslateTransformation();
-        this._x += movementX;
-        this._y += movementY;
-        transform.setTranslate(this._x, this._y);
-        this._onChanged(this);
-
-    }
-
-    /**
-     * Die Postion (X,Y) wird durch eine Transformation auf der äußeren Gruppe
-     * vorgenommen. Finde also diese SVGTransformation. Wenn keine existiert 
-     * so lege sie mit den aktuellen Werten an.
-     * 
-     * @returns 
-     */
-    private findTranslateTransformation(): SVGTransform {
-
-        for (let i = 0; i < this.elemCnr.transform.baseVal.length; ++i) {
-
-            const transform = this.elemCnr.transform.baseVal.getItem(i);
-            if (transform.type === SVGTransform.SVG_TRANSFORM_TRANSLATE) {
-                return transform;
-            }
-        }
-
-        let transform = this.svgRoot.createSVGTransform();
-        transform.setTranslate(this._x, this._y);
-        this.elemCnr.transform.baseVal.appendItem(transform);
-        return transform;
-    }
-
-    private _width: number = 0;
-    public get width(): number {
-        return this._width;
-    }
-
-    public set width(val: number) {
-        this._width = val;
-        this.onResize();
-    }
-
-    private _height: number = 0;
-    public get height(): number {
-        return this._height;
-    }
-
-    public set height(val: number) {
-
-        this._height = val;
-        this.onResize();
-    }
-
-    /**
-     * 
-     * @param resizeX 
-     * @param resizeY 
-     */
-    public resizeBy(resizeX: number, resizeY: number) {
-
-        this._width = this._width + resizeX;
-        this._height = this._height + resizeY;
-        this.onResize();
-    }
-
-    private onResize() {
-
-        this.textFieldCnr.setAttribute('width', this._width.toString());
-        this.textFieldCnr.setAttribute('height', this._height.toString());
-
-        this.onResizeImpl(this._width, this._height);
-
-        if (this._fillEffect) {
-            this._fillEffect.height = this._height;
-            this._fillEffect.width = this._width;
-        }
-        this._onChanged(this);
-
-    }
-
-    /**
-     * 
-     */
-    public delete() {
-
-        if (this._fillEffect) {
-            this._fillEffect.remove();
-        }
-        this.elemCnr.remove();
-        this._onChanged(this);
-    }
 
     private _fillEffect: AbstractFillEffect | undefined;
+
+    /**
+     * 
+     */
     public set fillEffect(effect: AbstractFillEffect) {
 
         this._fillEffect = effect;
@@ -373,6 +417,9 @@ export abstract class AbstractShape {
         this.svgElem.setAttribute('fill', `url(#${effect.id})`);
     }
 
+    /**
+     * 
+     */
     public get fillEffect(): AbstractFillEffect | undefined {
         return this._fillEffect;
     }
@@ -409,7 +456,7 @@ export abstract class AbstractShape {
     public set borderStyle(style: string) {
 
         this._borderStyle = style;
-        this.recalcSvgBorder();
+        this.recalcBorderAttr();
     }
 
     /**
@@ -421,8 +468,27 @@ export abstract class AbstractShape {
 
     /**
      * 
+     * @param width 
      */
-    private recalcSvgBorder() {
+    public set borderWidth(width: number) {
+
+        this.svgElem.setAttribute('stroke-width', width.toString());
+        this.recalcBorderAttr();
+    }
+
+    /**
+     * 
+     */
+    public get borderWidth(): number {
+
+        const result = this.svgElem.getAttribute('stroke-width') || '1';
+        return Number.parseInt(result);
+    }
+
+    /**
+     * 
+     */
+    private recalcBorderAttr() {
 
         const width = Number.parseInt(this.svgElem.getAttribute('stroke-width') || '1');
         switch (this._borderStyle) {
@@ -438,25 +504,6 @@ export abstract class AbstractShape {
                 this.svgElem.setAttribute('stroke-dasharray', `${width * 1.5}`);
                 break;
         }
-    }
-
-    /**
-     * 
-     * @param width 
-     */
-    public set borderWidth(width: number) {
-
-        this.svgElem.setAttribute('stroke-width', width.toString());
-        this.recalcSvgBorder();
-    }
-
-    /**
-     * 
-     */
-    public get borderWidth(): number {
-
-        const result = this.svgElem.getAttribute('stroke-width') || '1';
-        return Number.parseInt(result);
     }
 
     /*-----------------------------------------------------------------------*/
@@ -556,12 +603,6 @@ export abstract class AbstractShape {
     }
 
 
-    /**
-     * 
-     * @param newWidth 
-     * @param newHeight 
-     */
-    protected abstract onResizeImpl(newWidth: number, newHeight: number): void;
 
     /**
      * Erzeugt den outer container.
@@ -583,9 +624,9 @@ export abstract class AbstractShape {
     /**
     * Erzeuge einen ResizeAnchor
     */
-    protected createResizeAnchor(dir: DragDirection, context?: any) {
+    protected createResizeAnchor(dir: DragDirection, point?: Point) {
 
-        const anchor = new DragAnchor(this.svgRoot, this, dir, context);
+        const anchor = new DragAnchor(this.svgRoot, this, dir, point);
         this.dragAnchorsGroup.appendChild(anchor.svgElement);
         return anchor;
     }

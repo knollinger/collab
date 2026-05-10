@@ -16,13 +16,12 @@ import { RombusShape } from '../../drawables/shapes/rombus-shape';
 import { WhiteboardPersistenceService } from '../../services/whiteboard-persistence.service';
 import { SelectorFrameGlassPane } from '../../glass-panes/selector-frame-glasspane';
 import { DragShapesGlassPane } from '../../glass-panes/drag-shape-glasspane';
-import { ResizeShapesGlassPane } from '../../glass-panes/resize-shape-glasspane';
 import { DrawLineGlassPane } from '../../glass-panes/draw-line-glasspane';
 import { PolygoneShape } from '../../drawables/shapes/polygone-shape';
 import { DrawPolygoneGlassPane } from '../../glass-panes/draw-polygon-glasspane';
 import { AbstractGlassPane } from '../../glass-panes/abstract-glasspane';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CreateShapeGlassPane } from '../../glass-panes/create-shape-glasspane';
+import { WhiteboardTemplateService } from '../../services/whiteboard-template.service';
 
 @Component({
   selector: 'app-whiteboard-editor',
@@ -55,7 +54,7 @@ export class WhiteboardEditorComponent implements AfterViewInit {
     private commonsDlgs: CommonDialogsService,
     private persistenceSvc: WhiteboardPersistenceService,
     private exportSvc: WhiteboardExportService,
-    private snackBar: MatSnackBar) {
+    private templateSvc: WhiteboardTemplateService) {
 
   }
 
@@ -64,26 +63,33 @@ export class WhiteboardEditorComponent implements AfterViewInit {
    */
   ngAfterViewInit() {
 
-    this.currRoute.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
+    this.templateSvc.loadSVGTemplate().subscribe(template => {
 
-        this.uuid = params.get('uuid');
-        if (!this.uuid) {
-          this.model = new WhiteboardModel(this.svgRoot);
-        }
-        else {
-          this.persistenceSvc.loadModel(this.uuid, this.svgRoot)
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe(model => {
-              this.model = model;
-              this.model.shapes.forEach(shape => {
-                this.bindShapeEventHandlers(shape);
-              })
-              this.deselectAll();
-            });
-        }
-      })
+      this.svgRoot.innerHTML = template.documentElement.innerHTML;
+
+      this.currRoute.paramMap
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(params => {
+
+
+
+          this.uuid = params.get('uuid');
+          if (!this.uuid) {
+            this.model = new WhiteboardModel(this.svgRoot);
+          }
+          else {
+            this.persistenceSvc.loadModel(this.uuid, this.svgRoot)
+              .pipe(takeUntilDestroyed(this.destroyRef))
+              .subscribe(model => {
+                this.model = model;
+                this.model.shapes.forEach(shape => {
+                  this.bindShapeEventHandlers(shape);
+                })
+                this.deselectAll();
+              });
+          }
+        })
+    });
   }
 
   /**

@@ -1,0 +1,25 @@
+.outer-cnr {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.patterns {
+    width: 100%;
+    /* aspect-ratio: 4 / 3; */
+    height: 5rem;
+    border: 1px solid #d0d0d0;
+    overflow: auto;
+    display:flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.image {
+    background-color: white;
+    cursor: pointer;
+}
+
+.color-selector {
+    width: 100%;
+}

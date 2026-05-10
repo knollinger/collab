@@ -1,5 +1,5 @@
-import { DragShapesGlassPane } from "../../glass-panes/drag-shape-glasspane";
 import { ResizeShapesGlassPane } from "../../glass-panes/resize-shape-glasspane";
+import { Point } from "../../models/point";
 import { AbstractShape } from "../shapes/abstractshape";
 
 export type DragDirection = 'n' | 's' | 'w' | 'e' | 'nw' | 'sw' | 'ne' | 'se' | 'any';
@@ -22,10 +22,10 @@ export class DragAnchor {
      * @param direction 
      */
     constructor(
-        private svgRoot: SVGSVGElement,
-        private shape: AbstractShape,
-        private direction: DragDirection,
-        private _context?: any) {
+        svgRoot: SVGSVGElement,
+        shape: AbstractShape,
+        direction: DragDirection,
+        point?: Point) {
 
         this._anchor = document.createElementNS(DragAnchor.SVG_NAMESPACE, 'rect') as SVGRectElement;
 
@@ -38,7 +38,7 @@ export class DragAnchor {
 
         this._anchor.addEventListener('mousedown', (evt: MouseEvent) => {
             evt.stopPropagation();
-            new ResizeShapesGlassPane(svgRoot, shape, this.direction, this._context);
+            new ResizeShapesGlassPane(svgRoot, shape, direction, point);
         });
     }
 

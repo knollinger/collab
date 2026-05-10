@@ -17,6 +17,7 @@ export class AbstractGlassPane {
     protected static SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
     public readonly glassPaneHost: SVGForeignObjectElement;
+    public readonly glassPaneElem: HTMLDivElement;
 
 
     /**
@@ -24,46 +25,46 @@ export class AbstractGlassPane {
      */
     constructor(private svgRoot: SVGSVGElement) {
 
-        const glassPaneElem = document.createElement('div');
-        glassPaneElem.style.position = 'absolute';
-        glassPaneElem.style.top = '0';
-        glassPaneElem.style.left = '0';
-        glassPaneElem.style.width = '100%';
-        glassPaneElem.style.height = '100%';
-        glassPaneElem.style.backgroundColor = 'transparent';
-        glassPaneElem.style.cursor = 'crosshair';
+        this.glassPaneElem = document.createElement('div');
+        this.glassPaneElem.style.position = 'absolute';
+        this.glassPaneElem.style.top = '0';
+        this.glassPaneElem.style.left = '0';
+        this.glassPaneElem.style.width = '100%';
+        this.glassPaneElem.style.height = '100%';
+        this.glassPaneElem.style.backgroundColor = 'transparent';
+        this.glassPaneElem.style.cursor = 'crosshair';
         
-        glassPaneElem.addEventListener('mousemove', (evt) => {
+        this.glassPaneElem.addEventListener('mousemove', (evt) => {
             evt.stopPropagation();
             this.onMouseMove(evt);
         })
 
-        glassPaneElem.addEventListener('mouseenter', (evt) => {
+        this.glassPaneElem.addEventListener('mouseenter', (evt) => {
             evt.stopPropagation();
             this.onMouseEnter(evt);
         })
 
-        glassPaneElem.addEventListener('mouseleave', (evt) => {
+        this.glassPaneElem.addEventListener('mouseleave', (evt) => {
             evt.stopPropagation();
             this.onMouseLeave(evt);
         })
 
-        glassPaneElem.addEventListener('mousedown', (evt) => {
+        this.glassPaneElem.addEventListener('mousedown', (evt) => {
             evt.stopPropagation();
             this.onMouseDown(evt);
         })
 
-        glassPaneElem.addEventListener('mouseup', (evt) => {
+        this.glassPaneElem.addEventListener('mouseup', (evt) => {
             evt.stopPropagation();
             this.onMouseUp(evt);
         })
 
-        glassPaneElem.addEventListener('click', (evt) => {
+        this.glassPaneElem.addEventListener('click', (evt) => {
             evt.stopPropagation();
             this.onClick(evt);
         })
         
-        glassPaneElem.addEventListener('dblclick', (evt) => {
+        this.glassPaneElem.addEventListener('dblclick', (evt) => {
             evt.stopPropagation();
             this.onDoubleClick(evt);
         })
@@ -73,7 +74,7 @@ export class AbstractGlassPane {
         this.glassPaneHost.setAttribute('y', '0');
         this.glassPaneHost.setAttribute('width', '100%');
         this.glassPaneHost.setAttribute('height', '100%');
-        this.glassPaneHost.appendChild(glassPaneElem);
+        this.glassPaneHost.appendChild(this.glassPaneElem);
 
         this.svgRoot.appendChild(this.glassPaneHost);
 

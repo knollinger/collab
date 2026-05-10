@@ -37,9 +37,10 @@ export class WhiteboardModel {
      */
     constructor(private _svgRoot: SVGSVGElement) {
 
-        this._defsElem = this.svgRoot.getElementsByTagName('defs').item(0) as SVGDefsElement;
-
         this._gridLines = this.svgRoot.getElementById('gridLines') as SVGRectElement;
+
+        this._defsElem = document.createElementNS(WhiteboardModel.SVG_NAMESPACE, 'defs') as SVGDefsElement
+        this.svgRoot.appendChild(this._defsElem);
 
         this._shapesGroup = document.createElementNS(WhiteboardModel.SVG_NAMESPACE, 'g') as SVGGElement;
         this._shapesGroup.setAttribute('id', 'shapes-group');
@@ -222,7 +223,7 @@ export class WhiteboardModel {
     public addFillEffect(effect: AbstractFillEffect, shape: AbstractShape) {
 
         const curr = shape.fillEffect;
-        if(curr) {
+        if (curr) {
             curr.effectElem.remove();
             this._fillEffects.delete(curr);
         }
@@ -233,6 +234,20 @@ export class WhiteboardModel {
 
     public get fillEffects(): AbstractFillEffect[] {
         return [...this._fillEffects];
+    }
+
+    /**
+     * 
+     */
+    public get predefinedFillPatterns(): SVGPatternElement[] {
+
+        const result = new Array<SVGPatternElement>();
+
+        const patterns = this.svgRoot.getElementsByClassName('fill-pattern');
+        for (let i = 0; i < patterns.length; ++i) {
+            result.push(patterns.item(i)?.cloneNode() as SVGPatternElement);
+        }
+        return result;
     }
 
     public createPolyLine(): PolyLine {

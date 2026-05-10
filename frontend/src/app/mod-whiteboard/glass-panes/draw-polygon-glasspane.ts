@@ -1,6 +1,7 @@
 import { WhiteboardModel } from '../models/whiteboard-model';
-import { PolygoneShape, IPolygonePoint } from "../drawables/shapes/polygone-shape";
+import { PolygoneShape } from "../drawables/shapes/polygone-shape";
 import { AbstractGlassPane } from "./abstract-glasspane";
+import { Point } from '../models/point';
 
 export interface IShapeCreatedCallback {
     (shape: PolygoneShape): void
@@ -12,7 +13,7 @@ export interface IShapeCreatedCallback {
 export class DrawPolygoneGlassPane extends AbstractGlassPane {
 
     private previewSVG: SVGPolygonElement;
-    private points: IPolygonePoint[] = new Array<IPolygonePoint>();
+    private points: Point[] = new Array<Point>();
 
     /**
      * 
@@ -28,7 +29,7 @@ export class DrawPolygoneGlassPane extends AbstractGlassPane {
         this.previewSVG = document.createElementNS(DrawPolygoneGlassPane.SVG_NAMESPACE, 'polygon') as SVGPolygonElement;
         this.previewSVG.setAttribute('stroke', '#000000');
         this.previewSVG.setAttribute('stroke-width', '1');
-        this.previewSVG.setAttribute('fill', 'transparent');
+        this.previewSVG.setAttribute('fill', '#ffffff');
 
         this.model.svgRoot.insertBefore(this.previewSVG, this.glassPaneHost);
     }

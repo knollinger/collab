@@ -1,15 +1,11 @@
+import { Point } from "../../models/point";
 import { DragAnchor } from "../anchors/drag-anchor";
 import { AbstractShape } from "./abstractshape";
-
-export interface IPolygonePoint {
-    x: number,
-    y: number
-}
 
 export class PolygoneShape extends AbstractShape {
 
     private _polygon: SVGPolygonElement;
-    private _points: IPolygonePoint[] = new Array<IPolygonePoint>();
+    private _points: Point[] = new Array<Point>();
     private _anchors: DragAnchor[] = new Array<DragAnchor>();
 
     /**
@@ -23,10 +19,6 @@ export class PolygoneShape extends AbstractShape {
         this._polygon = polygon;
     }
 
-    public get nrOfPoints(): number {
-        return this._points.length;
-    }
-
     /**
      * 
      * @param x 
@@ -34,21 +26,13 @@ export class PolygoneShape extends AbstractShape {
      */
     public addPoint(x: number, y: number): number {
 
-        this._anchors.push(this.createResizeAnchor('any', this._points.length));
-        this._points.push({ x: x, y: y });
-        this.recalcPointsAttr();
-        this.recalcDimensions();
+        const point = new Point(x, y);
+        this._anchors.push(this.createResizeAnchor('any', point));
+        this._points.push(point);
+        this.refresh();
         return this._points.length;
     }
 
-    /**
-     * 
-     * @param idx 
-     * @returns 
-     */
-    public getPoint(idx: number): IPolygonePoint {
-        return this._points[idx];
-    }
 
     /**
      * 
@@ -56,15 +40,11 @@ export class PolygoneShape extends AbstractShape {
      * @param x 
      * @param y 
      */
-    public modifyPoint(idx: number, x: number, y: number) {
+    public refresh() {
 
-        if (idx < this._points.length) {
-
-            this._points[idx].x = x;
-            this._points[idx].y = y;
-            this.recalcPointsAttr();
-            this.recalcDimensions();
-        }
+        this.recalcPointsAttr();
+        this.recalcDimensions();
+        this.onShapeChanged(this);
     }
 
     /**

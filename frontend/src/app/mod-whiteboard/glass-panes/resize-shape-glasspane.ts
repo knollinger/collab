@@ -1,5 +1,6 @@
 import { AbstractShape } from "../drawables/shapes/abstractshape";
 import { PolygoneShape } from "../drawables/shapes/polygone-shape";
+import { Point } from "../models/point";
 import { AbstractGlassPane } from "./abstract-glasspane";
 
 /**
@@ -18,7 +19,7 @@ export class ResizeShapesGlassPane extends AbstractGlassPane {
         svgRoot: SVGSVGElement,
         private shape: AbstractShape,
         private mode: string,
-        private context?: any) {
+        private point?: Point) {
         super(svgRoot);
     }
 
@@ -82,14 +83,12 @@ export class ResizeShapesGlassPane extends AbstractGlassPane {
      */
     private handlePointResize(deltaX: number, deltaY: number) {
 
-        if(this.context) {
+        if(this.point) {
 
             const polygone = this.shape as PolygoneShape;
-            const idx = this.context as number;
-            const point = polygone.getPoint(idx);
-            point.x += deltaX;
-            point.y += deltaY;
-            polygone.modifyPoint(idx, point.x, point.y);
+            this.point.x += deltaX;
+            this.point.y += deltaY;
+            polygone.refresh();
         }
     }
 

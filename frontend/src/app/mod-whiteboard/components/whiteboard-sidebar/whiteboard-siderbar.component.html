@@ -34,8 +34,9 @@
                 <mat-select [(ngModel)]="fillStyle">
                     <mat-option value="none">Keine</mat-option>
                     <mat-option value="color">Farbe</mat-option>
-                    <mat-option value="image">Bild</mat-option>
                     <mat-option value="gradient">Farbverlauf</mat-option>
+                    <mat-option value="pattern">Muster</mat-option>
+                    <mat-option value="image">Bild</mat-option>
                 </mat-select>
             </mat-form-field>
 
@@ -55,6 +56,12 @@
                                                    [shapes]="shapes"
                                                    [model]="model">
                 </app-whiteboard-bg-gradient-editor>
+
+                <app-whiteboard-bg-pattern-editor *ngSwitchCase="'pattern'"
+                                                   [shapes]="shapes"
+                                                   [model]="model">
+
+                </app-whiteboard-bg-pattern-editor>
 
             </div>
 

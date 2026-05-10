@@ -21,6 +21,7 @@ import { WhiteboardBgColorEditorComponent } from './components/whiteboard-sideba
 import { WhiteboardLinestyleEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-linestyle-editor/whiteboard-linestyle-editor.component';
 import { WhiteboardPosSizeEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-pos-size-editor/whiteboard-pos-size-editorcomponent';
 import { WhiteboardTextEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-text-editor/whiteboard-text-editor.component';
+import { WhiteboardBgPatternEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-pattern-editor/whiteboard-bg-pattern-editor.component';
 
 
 @NgModule({
@@ -36,6 +37,7 @@ import { WhiteboardTextEditorComponent } from './components/whiteboard-sidebar/p
     WhiteboardLinestyleEditorComponent,
     WhiteboardPosSizeEditorComponent,
     WhiteboardTextEditorComponent,
+    WhiteboardBgPatternEditorComponent,
   ],
   imports: [
     CommonModule,

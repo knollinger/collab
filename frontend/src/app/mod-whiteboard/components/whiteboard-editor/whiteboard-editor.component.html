@@ -132,104 +132,13 @@
                  [style.width]="imgWidth"
                  [style.height]="imgHeight"
                  (mousedown)="onMouseDown($event)">
-
-                <style>
-                    .hidden {
-                        display: none;
-                    }
-
-                    rect,
-                    polygone,
-                    ellipse,
-                    foreignObject {
-                        cursor: move;
-                    }
-
-
-                    .decorator-frame {
-                        stroke: lightgray;
-                        stroke-width: 2;
-                        stroke-dasharray: 2 2;
-                        fill: transparent;
-                    }
-
-                    .resize,
-                    .connector {
-                        stroke-width: 2;
-                        stroke: cornflowerblue;
-                        fill: lightblue;
-                    }
-
-                    .connector {
-                        cursor: crosshair;
-                    }
-
-                    .drag-ne {
-                        cursor: ne-resize;
-                    }
-
-                    .drag-n {
-                        cursor: n-resize;
-                    }
-
-                    .drag-nw {
-                        cursor: nw-resize;
-                    }
-
-                    .drag-w {
-                        cursor: w-resize;
-                    }
-
-                    .drag-e {
-                        cursor: e-resize;
-                    }
-
-                    .drag-se {
-                        cursor: se-resize;
-                    }
-
-                    .drag-s {
-                        cursor: s-resize;
-                    }
-
-                    .drag-sw {
-                        cursor: sw-resize;
-                    }
-
-                    .drag-start,
-                    .drag-end {
-                        cursor: move;
-                    }
-                </style>
-
-                <defs>
-
-                    <!-- Das Pattern für die GridLines -->
-                    <pattern id="pattern-gridLines"
-                             patternUnits="userSpaceOnUse"
-                             width="30"
-                             height="30">
-
-                        <polyline points="0,30 30,30 30,0"
-                                  fill="none"
-                                  stroke="lightblue"
-                                  stroke-width="1"
-                                  stroke-dasharray="2 2" />
-                    </pattern>
-                </defs>
-
-                <!-- das Rect für die GridLines -->
-                <rect id="gridLines"
-                      width="100%"
-                      height="100%"
-                      class="hidden"
-                      fill="url(#pattern-gridLines)" />
             </svg>
 
-            <app-whiteboard-shape-context-menu (delete)="onDeleteSelectedShapes()"
-                                               (zOrderChanged)="onChangeZOrder($event)">
-            </app-whiteboard-shape-context-menu>
         </div>
+
+        <app-whiteboard-shape-context-menu (delete)="onDeleteSelectedShapes()"
+                                           (zOrderChanged)="onChangeZOrder($event)">
+        </app-whiteboard-shape-context-menu>
 
 
         <div class="sidebar"
@@ -239,11 +148,4 @@
         </div>
 
     </div>
-
-    <!-- <app-toolbar class="footer">
-        <span>Bild-Größe: {{model.width}} x {{model.height}}</span>
-        <app-toolbar-separator></app-toolbar-separator>
-        <span>Objekte: {{model.nrOfShapes}}</span>
-        <span *ngIf="model.nrOfSelectedShapes !== 0">, Ausgewählt: {{model.nrOfSelectedShapes}}</span>
-    </app-toolbar> -->
 </div>

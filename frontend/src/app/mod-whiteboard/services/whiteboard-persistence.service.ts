@@ -11,6 +11,7 @@ import { RectShape } from '../drawables/shapes/rect-shape';
 import { EllipsisShape } from '../drawables/shapes/ellipsis-shape';
 import { RombusShape } from '../drawables/shapes/rombus-shape';
 import { INode } from '../../mod-files-data/mod-files-data.module';
+import { PolygoneShape } from '../drawables/shapes/polygone-shape';
 
 export interface IWhiteboardJSON {
 
@@ -117,6 +118,10 @@ export class WhiteboardPersistenceService {
       case 'rombus':
         shape = RombusShape.fromJSON(svgRoot, shapeDesc);
         break;
+
+      // case 'polygon'
+      // shape = PolygoneShape.fr
+      //   break;
 
       default:
         throw new Error(`unknown shape type ${shapeDesc.type}`);
