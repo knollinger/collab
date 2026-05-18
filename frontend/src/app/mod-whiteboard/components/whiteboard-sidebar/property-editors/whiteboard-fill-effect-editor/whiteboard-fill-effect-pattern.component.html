@@ -1,0 +1,49 @@
+<div class="outer-cnr">
+
+    <mat-form-field class="color-selector">
+        <mat-label>Muster</mat-label>
+        <mat-select matSelect
+                    [(ngModel)]="selectedPattern">
+
+            <mat-select-trigger>
+                <div class="style-indicator-line">
+                    <div class="style-indicator-value">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             [attr.width]="getPatternWidth(selectedPattern)"
+                             [attr.height]="getPatternHeight(selectedPattern)"
+                             class="image">
+                            <defs [innerHTML]="selectedPattern.outerHTML | safe:'html'">
+                            </defs>
+                            <rect width="30"
+                                  height="30"
+                                  [attr.fill]="makeUrl(selectedPattern)" />
+                        </svg>
+                    </div>
+
+                </div>
+            </mat-select-trigger>
+
+            <mat-option *ngFor="let pattern of patterns"
+                        [value]="pattern">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     [matTooltip]="getPatternName(pattern)"
+                     [attr.width]="getPatternWidth(pattern)"
+                     [attr.height]="getPatternHeight(pattern)"
+                     class="image">
+                    <defs [innerHTML]="pattern.outerHTML | safe:'html'">
+                    </defs>
+                    <rect width="30"
+                          height="30"
+                          [attr.fill]="makeUrl(pattern)" />
+                </svg>
+
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>Farbe</mat-label>
+        <input matInput type="color" [(ngModel)]="color">
+    </mat-form-field>
+</div>

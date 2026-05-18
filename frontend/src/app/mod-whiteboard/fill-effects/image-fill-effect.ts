@@ -8,7 +8,7 @@ export interface IImageFillEffectJSON extends IFillEffectJSON {
 
 export class ImageFillEffect extends AbstractFillEffect {
 
-    constructor(typeName: string, private imgUUID: string, imgUrl: string) {
+    constructor(typeName: string, private imgUUID: string, private imgUrl: string) {
 
         super(typeName, ImageFillEffect.createElement(imgUrl));
     }
@@ -64,5 +64,9 @@ export class ImageFillEffect extends AbstractFillEffect {
         const uuid = json.uuid;
         const url = urlResolver.getContentUrl(uuid);
         return new ImageFillEffect(json.type, uuid, url);
+    }
+
+    public clone(): ImageFillEffect {
+        return new ImageFillEffect(this.typeName, this.imgUUID, this.imgUrl);
     }
 }

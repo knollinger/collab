@@ -1,0 +1,10 @@
+.outer-cnr {
+    display: flex;
+    flex-direction: row;
+    gap: 0 0.5rem;
+}
+
+mat-form-field {
+    flex: 1 1 auto;
+
+}

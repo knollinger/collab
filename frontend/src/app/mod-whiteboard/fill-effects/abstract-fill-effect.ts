@@ -43,7 +43,7 @@ export abstract class AbstractFillEffect {
      * @param effectElem 
      */
     constructor(
-        protected typeName: string,
+        protected readonly typeName: string,
         public readonly effectElem: SVGElement) {
 
         this._id = AbstractFillEffect.calcNextFreeKey();
@@ -83,5 +83,6 @@ export abstract class AbstractFillEffect {
 
     public abstract set width(width: number);
     public abstract set height(height: number);
+    public abstract clone(): AbstractFillEffect;
     public abstract toJSON(): IFillEffectJSON;
 }

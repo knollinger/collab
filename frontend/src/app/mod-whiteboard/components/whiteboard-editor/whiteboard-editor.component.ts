@@ -71,8 +71,6 @@ export class WhiteboardEditorComponent implements AfterViewInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(params => {
 
-
-
           this.uuid = params.get('uuid');
           if (!this.uuid) {
             this.model = new WhiteboardModel(this.svgRoot);

@@ -1,6 +1,4 @@
-import { Component, Input } from '@angular/core';
-import { AbstractShape } from '../../../../drawables/shapes/abstractshape';
-import { WhiteboardModel } from '../../../../models/whiteboard-model';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { EGradientFillDirection, GradientFillEffect } from '../../../../fill-effects/gradient-fill-effect';
 
 /**
@@ -16,27 +14,24 @@ import { EGradientFillDirection, GradientFillEffect } from '../../../../fill-eff
  * *AbstractShape*s angewendet. 
  */
 @Component({
-  selector: 'app-whiteboard-bg-gradient-editor',
-  templateUrl: './whiteboard-bg-gradient-editor.component.html',
-  styleUrls: ['./whiteboard-bg-gradient-editor.component.css']
+  selector: 'app-whiteboard-fill-effect-gradient',
+  templateUrl: './whiteboard-fill-effect-gradient.component.html',
+  styleUrls: ['./whiteboard-fill-effect-gradient.component.css']
 })
-export class WhiteboardBgGradientEditorComponent {
+export class WhiteboardFillEffectGradientComponent implements OnInit {
 
   private _startColor: string = '#ffffff';
   private _stopColor: string = '#000000';
   private _gradientType: EGradientFillDirection = 'TopDown';
 
-  @Input()
-  public shapes: Array<AbstractShape> = new Array<AbstractShape>();
-
-  @Input()
-  public model: WhiteboardModel = WhiteboardModel.empty();
+  @Output()
+  effectChanged: EventEmitter<GradientFillEffect> = new EventEmitter<GradientFillEffect>();
 
   /**
    * 
    */
-  constructor() {
-    // TODO: ggf existierende Gradienten ermitteln und deren Werte in die Props setzen
+  ngOnInit() {
+    this.emitGradient();
   }
 
   /**
@@ -44,7 +39,7 @@ export class WhiteboardBgGradientEditorComponent {
    */
   public set start(color: string) {
     this._startColor = color;
-    this.applyGradient();
+    this.emitGradient();
   }
 
   /**
@@ -59,7 +54,7 @@ export class WhiteboardBgGradientEditorComponent {
    */
   public set stop(color: string) {
     this._stopColor = color;
-    this.applyGradient();
+    this.emitGradient();
   }
 
   /**
@@ -82,17 +77,13 @@ export class WhiteboardBgGradientEditorComponent {
   public set gradientType(type: EGradientFillDirection) {
 
     this._gradientType = type;
-    this.applyGradient();
+    this.emitGradient();
   }
-
 
   /**
    * 
    */
-  private applyGradient() {
-
-    for (let shape of this.shapes) {
-      this.model.addFillEffect(new GradientFillEffect('gradient', this.gradientType, this.start, this.stop), shape);
-    }
+  private emitGradient() {
+    this.effectChanged.next(new GradientFillEffect('gradient', this.gradientType, this.start, this.stop));
   }
 }

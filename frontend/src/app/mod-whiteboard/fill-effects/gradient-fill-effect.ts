@@ -108,4 +108,8 @@ export class GradientFillEffect extends AbstractFillEffect {
     public static fromJSON(json: IGradientFillEffectJSON): GradientFillEffect {
         return new GradientFillEffect(json.type, json.direction, json.color1, json.color2);
     }
+
+    public clone(): GradientFillEffect {
+        return new GradientFillEffect(this.typeName, this.direction, this.color1, this.color2);
+    }
 }

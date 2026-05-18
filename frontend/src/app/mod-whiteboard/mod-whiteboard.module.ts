@@ -15,13 +15,14 @@ import { WhiteboardShapeContextMenuComponent } from './components/whiteboard-sha
 import { WhiteboardRootContextMenuComponent } from './components/whiteboard-root-context-menu/whiteboard-root-context-menu.component';
 import { WhiteboardSiderbarComponent } from './components/whiteboard-sidebar/whiteboard-siderbar.component';
 import { WhiteboardOverviewComponent } from './components/whiteboard-overview/whiteboard-overview.component';
-import { WhiteboardBgImageEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-image-editor/whiteboard-bg-image-editorcomponent';
-import { WhiteboardBgGradientEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-gradient-editor/whiteboard-bg-gradient-editorcomponent';
-import { WhiteboardBgColorEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-color-editor/whiteboard-bg-color-editor.component';
 import { WhiteboardLinestyleEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-linestyle-editor/whiteboard-linestyle-editor.component';
 import { WhiteboardPosSizeEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-pos-size-editor/whiteboard-pos-size-editorcomponent';
 import { WhiteboardTextEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-text-editor/whiteboard-text-editor.component';
-import { WhiteboardBgPatternEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-bg-pattern-editor/whiteboard-bg-pattern-editor.component';
+import { WhiteboardFillEffectEditorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-fill-effect-editor/whiteboard-fill-effect-editor.component';
+import { WhiteboardFillEffectColorComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-fill-effect-editor/whiteboard-fill-effect-color.component';
+import { WhiteboardFillEffectGradientComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-fill-effect-editor/whiteboard-fill-effect-gradient.component';
+import { WhiteboardFillEffectImageComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-fill-effect-editor/whiteboard-fill-effect-image.component';
+import { WhiteboardFillEffectPatternComponent } from './components/whiteboard-sidebar/property-editors/whiteboard-fill-effect-editor/whiteboard-fill-effect-pattern.component';
 
 
 @NgModule({
@@ -31,13 +32,14 @@ import { WhiteboardBgPatternEditorComponent } from './components/whiteboard-side
     WhiteboardRootContextMenuComponent,
     WhiteboardSiderbarComponent,
     WhiteboardOverviewComponent,
-    WhiteboardBgImageEditorComponent,
-    WhiteboardBgGradientEditorComponent,
-    WhiteboardBgColorEditorComponent,
     WhiteboardLinestyleEditorComponent,
     WhiteboardPosSizeEditorComponent,
     WhiteboardTextEditorComponent,
-    WhiteboardBgPatternEditorComponent,
+    WhiteboardFillEffectEditorComponent,
+    WhiteboardFillEffectColorComponent,
+    WhiteboardFillEffectGradientComponent,
+    WhiteboardFillEffectImageComponent,
+    WhiteboardFillEffectPatternComponent
   ],
   imports: [
     CommonModule,

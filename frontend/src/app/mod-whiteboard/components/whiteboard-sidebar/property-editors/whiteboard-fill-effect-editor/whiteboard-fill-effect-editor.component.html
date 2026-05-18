@@ -1,0 +1,42 @@
+<div class="outer-cnr">
+
+    <!-- Der Selector zur Auswahl des Fill-Effects-->
+    <mat-form-field class="full-width">
+
+        <mat-label>Füllung</mat-label>
+        <mat-select [(ngModel)]="effectType">
+            <mat-option value="none">Keine</mat-option>
+            <mat-option value="color">Farbe</mat-option>
+            <mat-option value="gradient">Farbverlauf</mat-option>
+            <mat-option value="pattern">Muster</mat-option>
+            <mat-option value="image">Bild</mat-option>
+        </mat-select>
+    </mat-form-field>
+
+    <div [ngSwitch]="effectType">
+        <app-whiteboard-fill-effect-color *ngSwitchCase="'color'"
+                                          (effectChanged)="onApplyToPreview($event)"></app-whiteboard-fill-effect-color>
+        <app-whiteboard-fill-effect-gradient *ngSwitchCase="'gradient'"
+                                             (effectChanged)="onApplyToPreview($event)"></app-whiteboard-fill-effect-gradient>
+        <!-- <div *ngSwitchCase="'pattern'">pattern</div> -->
+        <app-whiteboard-fill-effect-pattern *ngSwitchCase="'pattern'"
+                                            (effectChanged)="onApplyToPreview($event)">
+
+        </app-whiteboard-fill-effect-pattern>
+        <app-whiteboard-fill-effect-image *ngSwitchCase="'image'"
+                                          (effectChanged)="onApplyToPreview($event)"></app-whiteboard-fill-effect-image>
+    </div>
+
+    <svg class="preview"
+         #previewSVGRoot>
+        <defs></defs>
+        <rect width="100%"
+              height="100%"
+              stroke="#d0d0d0"
+              fill="transparent"></rect>
+    </svg>
+
+    <button mat-flat-button
+            color="primary"
+            (click)="onApplyToTargets()">Anwenden</button>
+</div>

@@ -84,4 +84,8 @@ export class ColorFillEffect extends AbstractFillEffect {
         return new ColorFillEffect(json.type, json.color);
     }
 
+    public clone(): ColorFillEffect {
+        return new ColorFillEffect(this.typeName, this.color);
+    }
+
 }
